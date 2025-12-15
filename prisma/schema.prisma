@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+}
+
+enum TransactionType {
+  EXPENSE
+  INCOME
+
+
+  @@map("transaction_type")
+}
+
+enum ExpenseType {
+  LEASE
+  GROSCERY
+}
+
+model Expense {
+  id           String @id
+  transaction  Transaction @reltation()
+  type         ExpenseType
+}
+
+model ExpenseItem {
+  id String
+  expense Expense
+  value Decimal
+  discount Decimal
+  category String
+
+
+
+}
+
+model GroceryExpense {
+  id      String
+  expense Expense
+  items   ExpenseItem[]
+}
+
+model Transaction {
+  id    String @id @default(uuid())
+  type  TransactionType 
+  value Decimal
+
+  expense Expense?
+  income  Income?
+
+  createdAt @default(now())
+  updatedAt @updatedAt
+
+
+}
