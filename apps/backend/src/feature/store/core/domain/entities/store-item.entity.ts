@@ -6,6 +6,7 @@ export interface StoreItemProps {
   name: string;
   price: Decimal;
   isDiscounted: boolean;
+  categoryId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -42,6 +43,10 @@ export class StoreItem {
     if (!props.updatedAt) {
       throw new Error('Updated date is required');
     }
+  }
+
+  get categoryId(): string {
+    return this.props.categoryId;
   }
 
   get id(): string {

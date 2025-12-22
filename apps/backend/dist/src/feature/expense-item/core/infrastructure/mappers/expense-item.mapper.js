@@ -8,7 +8,7 @@ class ExpenseItemMapper {
             id: prismaExpenseItem.id,
             itemId: prismaExpenseItem.itemId,
             expenseId: prismaExpenseItem.expenseId,
-            categoryId: prismaExpenseItem.categoryId,
+            categoryId: prismaExpenseItem.item.categoryId,
             price: prismaExpenseItem.price,
             discount: prismaExpenseItem.discount,
             createdAt: prismaExpenseItem.createdAt,

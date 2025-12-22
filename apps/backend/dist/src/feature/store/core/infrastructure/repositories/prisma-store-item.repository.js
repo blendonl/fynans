@@ -25,6 +25,7 @@ let PrismaStoreItemRepository = class PrismaStoreItemRepository {
                 storeId: data.storeId,
                 name: data.name,
                 price: new prismaNamespace_1.Decimal(data.price?.toString() || '0'),
+                categoryId: data.categoryId,
                 isDiscounted: data.isDiscounted ?? false,
             },
         });

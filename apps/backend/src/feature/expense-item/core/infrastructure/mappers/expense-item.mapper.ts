@@ -1,13 +1,23 @@
-import { ExpenseItem as PrismaExpenseItem } from 'prisma/generated/prisma/client';
+import {
+  ExpenseItem as PrismaExpenseItem,
+  StoreItem as PrismaStoreItem,
+  StoreItemCategory as PrismaStoreItemCategory,
+} from 'prisma/generated/prisma/client';
 import { ExpenseItem } from '../../domain/entities/expense-item.entity';
 
 export class ExpenseItemMapper {
-  static toDomain(prismaExpenseItem: PrismaExpenseItem): ExpenseItem {
+  static toDomain(
+    prismaExpenseItem: PrismaExpenseItem & {
+      item: PrismaStoreItem & {
+        category: PrismaStoreItemCategory;
+      };
+    },
+  ): ExpenseItem {
     return new ExpenseItem({
       id: prismaExpenseItem.id,
       itemId: prismaExpenseItem.itemId,
       expenseId: prismaExpenseItem.expenseId,
-      categoryId: prismaExpenseItem.categoryId,
+      categoryId: prismaExpenseItem.item.categoryId,
       price: prismaExpenseItem.price,
       discount: prismaExpenseItem.discount,
       createdAt: prismaExpenseItem.createdAt,

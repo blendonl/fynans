@@ -5,6 +5,7 @@ export declare class StoreItemResponseDto {
     name: string;
     price: number;
     isDiscounted: boolean;
+    categoryId: string;
     createdAt: Date;
     updatedAt: Date;
     static fromEntity(storeItem: StoreItem): StoreItemResponseDto;

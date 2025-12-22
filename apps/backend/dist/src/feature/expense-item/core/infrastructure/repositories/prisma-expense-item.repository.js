@@ -24,14 +24,12 @@ let PrismaExpenseItemRepository = class PrismaExpenseItemRepository {
             data: {
                 itemId: data.itemId,
                 expenseId: data.expenseId,
-                categoryId: data.categoryId,
                 price: new prismaNamespace_1.Decimal(data.price?.toString() || '0'),
                 discount: new prismaNamespace_1.Decimal(data.discount?.toString() || '0'),
             },
             include: {
-                item: true,
+                item: { include: { category: true } },
                 expense: true,
-                category: true,
             },
         });
         return expense_item_mapper_1.ExpenseItemMapper.toDomain(item);
@@ -40,9 +38,8 @@ let PrismaExpenseItemRepository = class PrismaExpenseItemRepository {
         const item = await this.prisma.expenseItem.findUnique({
             where: { id },
             include: {
-                item: true,
+                item: { include: { category: true } },
                 expense: true,
-                category: true,
             },
         });
         return item ? expense_item_mapper_1.ExpenseItemMapper.toDomain(item) : null;
@@ -51,9 +48,8 @@ let PrismaExpenseItemRepository = class PrismaExpenseItemRepository {
         const items = await this.prisma.expenseItem.findMany({
             where: { expenseId },
             include: {
-                item: true,
+                item: { include: { category: true } },
                 expense: true,
-                category: true,
             },
             orderBy: { createdAt: 'asc' },
         });
@@ -63,9 +59,8 @@ let PrismaExpenseItemRepository = class PrismaExpenseItemRepository {
         const [items, total] = await Promise.all([
             this.prisma.expenseItem.findMany({
                 include: {
-                    item: true,
+                    item: { include: { category: true } },
                     expense: true,
-                    category: true,
                 },
                 orderBy: { createdAt: 'desc' },
                 skip: pagination?.skip,
@@ -93,9 +88,8 @@ let PrismaExpenseItemRepository = class PrismaExpenseItemRepository {
             where: { id },
             data: updateData,
             include: {
-                item: true,
+                item: { include: { category: true } },
                 expense: true,
-                category: true,
             },
         });
         return expense_item_mapper_1.ExpenseItemMapper.toDomain(item);

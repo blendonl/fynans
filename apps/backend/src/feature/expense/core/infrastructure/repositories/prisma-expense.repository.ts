@@ -30,8 +30,11 @@ export class PrismaExpenseRepository implements IExpenseRepository {
         store: true,
         items: {
           include: {
-            item: true,
-            category: true,
+            item: {
+              include: {
+                category: true,
+              },
+            },
           },
         },
       },
@@ -49,8 +52,11 @@ export class PrismaExpenseRepository implements IExpenseRepository {
         store: true,
         items: {
           include: {
-            item: true,
-            category: true,
+            item: {
+              include: {
+                category: true,
+              },
+            },
           },
         },
       },
@@ -68,8 +74,11 @@ export class PrismaExpenseRepository implements IExpenseRepository {
         store: true,
         items: {
           include: {
-            item: true,
-            category: true,
+            item: {
+              include: {
+                category: true,
+              },
+            },
           },
         },
       },
@@ -93,8 +102,11 @@ export class PrismaExpenseRepository implements IExpenseRepository {
           store: true,
           items: {
             include: {
-              item: true,
-              category: true,
+              item: {
+                include: {
+                  category: true,
+                },
+              },
             },
           },
         },
@@ -131,8 +143,11 @@ export class PrismaExpenseRepository implements IExpenseRepository {
         store: true,
         items: {
           include: {
-            item: true,
-            category: true,
+            item: {
+              include: {
+                category: true,
+              },
+            },
           },
         },
       },

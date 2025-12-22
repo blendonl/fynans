@@ -7,6 +7,7 @@ class StoreItemResponseDto {
     name;
     price;
     isDiscounted;
+    categoryId;
     createdAt;
     updatedAt;
     static fromEntity(storeItem) {
@@ -18,6 +19,7 @@ class StoreItemResponseDto {
         dto.isDiscounted = storeItem.isDiscounted;
         dto.createdAt = storeItem.createdAt;
         dto.updatedAt = storeItem.updatedAt;
+        dto.categoryId = storeItem.categoryId;
         return dto;
     }
     static fromEntities(storeItems) {

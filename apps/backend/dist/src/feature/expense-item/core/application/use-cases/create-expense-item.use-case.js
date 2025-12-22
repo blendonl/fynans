@@ -19,11 +19,11 @@ const create_store_item_dto_1 = require("../../../../store/core/application/dto/
 const prismaNamespace_1 = require("../../../../../../prisma/generated/prisma/internal/prismaNamespace");
 let CreateExpenseItemUseCase = class CreateExpenseItemUseCase {
     expenseItemRepository;
-    expenseItemCategoryRepository;
+    storeItemCategoryRepository;
     storeItemService;
-    constructor(expenseItemRepository, expenseItemCategoryRepository, storeItemService) {
+    constructor(expenseItemRepository, storeItemCategoryRepository, storeItemService) {
         this.expenseItemRepository = expenseItemRepository;
-        this.expenseItemCategoryRepository = expenseItemCategoryRepository;
+        this.storeItemCategoryRepository = storeItemCategoryRepository;
         this.storeItemService = storeItemService;
     }
     async execute(dto, storeId) {
@@ -65,9 +65,9 @@ let CreateExpenseItemUseCase = class CreateExpenseItemUseCase {
         if (dto.discount !== undefined && dto.discount > dto.itemPrice) {
             throw new common_1.BadRequestException('Discount cannot exceed price');
         }
-        const category = await this.expenseItemCategoryRepository.findById(dto.categoryId);
+        const category = await this.storeItemCategoryRepository.findById(dto.categoryId);
         if (!category) {
-            throw new common_1.NotFoundException('Expense item category not found');
+            throw new common_1.NotFoundException('Store item category not found');
         }
     }
 };
@@ -75,7 +75,7 @@ exports.CreateExpenseItemUseCase = CreateExpenseItemUseCase;
 exports.CreateExpenseItemUseCase = CreateExpenseItemUseCase = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('ExpenseItemRepository')),
-    __param(1, (0, common_1.Inject)('ExpenseItemCategoryRepository')),
+    __param(1, (0, common_1.Inject)('StoreItemCategoryRepository')),
     __metadata("design:paramtypes", [Object, Object, store_item_service_1.StoreItemService])
 ], CreateExpenseItemUseCase);
 //# sourceMappingURL=create-expense-item.use-case.js.map

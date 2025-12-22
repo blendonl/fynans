@@ -55,7 +55,6 @@ export const ModelName = {
   Session: 'Session',
   Verification: 'Verification',
   ExpenseItem: 'ExpenseItem',
-  ExpenseItemCategory: 'ExpenseItemCategory',
   Expense: 'Expense',
   ExpenseCategory: 'ExpenseCategory',
   Income: 'Income',
@@ -64,6 +63,7 @@ export const ModelName = {
   Store: 'Store',
   StoreItem: 'StoreItem',
   StoreItemDiscount: 'StoreItemDiscount',
+  StoreItemCategory: 'StoreItemCategory',
   Transaction: 'Transaction'
 } as const
 
@@ -129,7 +129,6 @@ export const ExpenseItemScalarFieldEnum = {
   id: 'id',
   itemId: 'itemId',
   expenseId: 'expenseId',
-  categoryId: 'categoryId',
   price: 'price',
   discount: 'discount',
   createdAt: 'createdAt',
@@ -139,22 +138,12 @@ export const ExpenseItemScalarFieldEnum = {
 export type ExpenseItemScalarFieldEnum = (typeof ExpenseItemScalarFieldEnum)[keyof typeof ExpenseItemScalarFieldEnum]
 
 
-export const ExpenseItemCategoryScalarFieldEnum = {
-  id: 'id',
-  parentId: 'parentId',
-  name: 'name',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ExpenseItemCategoryScalarFieldEnum = (typeof ExpenseItemCategoryScalarFieldEnum)[keyof typeof ExpenseItemCategoryScalarFieldEnum]
-
-
 export const ExpenseScalarFieldEnum = {
   id: 'id',
   transactionId: 'transactionId',
   storeId: 'storeId',
   categoryId: 'categoryId',
+  description: 'description',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -226,6 +215,7 @@ export type StoreScalarFieldEnum = (typeof StoreScalarFieldEnum)[keyof typeof St
 export const StoreItemScalarFieldEnum = {
   id: 'id',
   storeId: 'storeId',
+  categoryId: 'categoryId',
   name: 'name',
   price: 'price',
   isDiscounted: 'isDiscounted',
@@ -247,6 +237,17 @@ export const StoreItemDiscountScalarFieldEnum = {
 } as const
 
 export type StoreItemDiscountScalarFieldEnum = (typeof StoreItemDiscountScalarFieldEnum)[keyof typeof StoreItemDiscountScalarFieldEnum]
+
+
+export const StoreItemCategoryScalarFieldEnum = {
+  id: 'id',
+  parentId: 'parentId',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type StoreItemCategoryScalarFieldEnum = (typeof StoreItemCategoryScalarFieldEnum)[keyof typeof StoreItemCategoryScalarFieldEnum]
 
 
 export const TransactionScalarFieldEnum = {

@@ -2,14 +2,12 @@ model ExpenseItem {
   id         String @id @default(uuid())
   itemId     String @map("item_id")
   expenseId  String @map("expense_id")
-  categoryId String @map("category_id")
 
   price    Decimal
   discount Decimal
 
   item     StoreItem           @relation(fields: [itemId], references: [id])
   expense  Expense             @relation(fields: [expenseId], references: [id])
-  category ExpenseItemCategory @relation(fields: [categoryId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -17,18 +15,3 @@ model ExpenseItem {
   @@map("expense_item")
 }
 
-model ExpenseItemCategory {
-  id       String  @id @default(uuid())
-  parentId String? @map("parent_id")
-
-  name String
-
-  parent   ExpenseItemCategory?  @relation(name: "children", fields: [parentId], references: [id])
-  children ExpenseItemCategory[] @relation(name: "children")
-  items    ExpenseItem[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("expense_item_category")
-}

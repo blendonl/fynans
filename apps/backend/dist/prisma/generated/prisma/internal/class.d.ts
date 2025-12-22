@@ -40,9 +40,6 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
     get expenseItem(): Prisma.ExpenseItemDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;
-    get expenseItemCategory(): Prisma.ExpenseItemCategoryDelegate<ExtArgs, {
-        omit: OmitOpts;
-    }>;
     get expense(): Prisma.ExpenseDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;
@@ -65,6 +62,9 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
         omit: OmitOpts;
     }>;
     get storeItemDiscount(): Prisma.StoreItemDiscountDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    get storeItemCategory(): Prisma.StoreItemCategoryDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;
     get transaction(): Prisma.TransactionDelegate<ExtArgs, {

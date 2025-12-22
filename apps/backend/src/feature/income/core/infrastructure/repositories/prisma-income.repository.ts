@@ -15,6 +15,7 @@ export class PrismaIncomeRepository implements IIncomeRepository {
   async create(data: Partial<Income>): Promise<Income> {
     const income = await this.prisma.income.create({
       data: {
+        id: data.transactionId!,
         transactionId: data.transactionId!,
         storeId: data.storeId!,
         categoryId: data.categoryId!,
@@ -76,9 +77,7 @@ export class PrismaIncomeRepository implements IIncomeRepository {
     };
   }
 
-  async findAll(
-    pagination?: Pagination,
-  ): Promise<PaginatedResult<Income>> {
+  async findAll(pagination?: Pagination): Promise<PaginatedResult<Income>> {
     const [incomes, total] = await Promise.all([
       this.prisma.income.findMany({
         include: {

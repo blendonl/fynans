@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { type IExpenseItemRepository } from '../../domain/repositories/expense-item.repository.interface';
-import { type IExpenseItemCategoryRepository } from '../../../../expense-item-category/core/domain/repositories/expense-item-category.repository.interface';
+import { type IStoreItemCategoryRepository } from '../../../../store-item-category/core/domain/repositories/store-item-category.repository.interface';
 import { StoreItemService } from '../../../../store/core/application/services/store-item.service';
 import { CreateExpenseItemDto } from '../dto/create-expense-item.dto';
 import { CreateStoreItemDto } from '../../../../store/core/application/dto/create-store-item.dto';
@@ -17,8 +17,8 @@ export class CreateExpenseItemUseCase {
   constructor(
     @Inject('ExpenseItemRepository')
     private readonly expenseItemRepository: IExpenseItemRepository,
-    @Inject('ExpenseItemCategoryRepository')
-    private readonly expenseItemCategoryRepository: IExpenseItemCategoryRepository,
+    @Inject('StoreItemCategoryRepository')
+    private readonly storeItemCategoryRepository: IStoreItemCategoryRepository,
     private readonly storeItemService: StoreItemService,
   ) {}
 
@@ -80,11 +80,11 @@ export class CreateExpenseItemUseCase {
     }
 
     // Validate category exists
-    const category = await this.expenseItemCategoryRepository.findById(
+    const category = await this.storeItemCategoryRepository.findById(
       dto.categoryId,
     );
     if (!category) {
-      throw new NotFoundException('Expense item category not found');
+      throw new NotFoundException('Store item category not found');
     }
 
     // Note: We don't validate expense exists here to avoid circular dependency

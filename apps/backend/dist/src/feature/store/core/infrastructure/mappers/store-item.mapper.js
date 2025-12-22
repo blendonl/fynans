@@ -10,6 +10,7 @@ class StoreItemMapper {
             name: prismaStoreItem.name,
             price: prismaStoreItem.price,
             isDiscounted: prismaStoreItem.isDiscounted,
+            categoryId: prismaStoreItem.categoryId,
             createdAt: prismaStoreItem.createdAt,
             updatedAt: prismaStoreItem.updatedAt,
         });

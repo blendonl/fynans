@@ -38,11 +38,6 @@ export type Verification = Prisma.VerificationModel
  */
 export type ExpenseItem = Prisma.ExpenseItemModel
 /**
- * Model ExpenseItemCategory
- * 
- */
-export type ExpenseItemCategory = Prisma.ExpenseItemCategoryModel
-/**
  * Model Expense
  * 
  */
@@ -82,6 +77,11 @@ export type StoreItem = Prisma.StoreItemModel
  * 
  */
 export type StoreItemDiscount = Prisma.StoreItemDiscountModel
+/**
+ * Model StoreItemCategory
+ * 
+ */
+export type StoreItemCategory = Prisma.StoreItemCategoryModel
 /**
  * Model Transaction
  * 

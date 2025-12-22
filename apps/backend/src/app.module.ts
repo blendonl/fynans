@@ -8,7 +8,7 @@ import { AuthRestModule } from './feature/auth/rest/auth-rest.module';
 import { UserRestModule } from './feature/user/rest/user-rest.module';
 import { TransactionRestModule } from './feature/transaction/rest/transaction-rest.module';
 import { ExpenseCategoryRestModule } from './feature/expense-category/rest/expense-category-rest.module';
-import { ExpenseItemCategoryRestModule } from './feature/expense-item-category/rest/expense-item-category-rest.module';
+import { StoreItemCategoryRestModule } from './feature/store-item-category/rest/store-item-category-rest.module';
 import { ExpenseItemRestModule } from './feature/expense-item/rest/expense-item-rest.module';
 import { ExpenseRestModule } from './feature/expense/rest/expense-rest.module';
 import { StoreRestModule } from './feature/store/rest/store-rest.module';
@@ -24,7 +24,7 @@ import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
     UserRestModule,
     TransactionRestModule,
     ExpenseCategoryRestModule,
-    ExpenseItemCategoryRestModule,
+    StoreItemCategoryRestModule,
     ExpenseItemRestModule,
     ExpenseRestModule,
     StoreRestModule,

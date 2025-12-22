@@ -6,6 +6,7 @@ export class StoreItemResponseDto {
   name: string;
   price: number;
   isDiscounted: boolean;
+  categoryId: string;
   createdAt: Date;
   updatedAt: Date;
 
@@ -18,6 +19,7 @@ export class StoreItemResponseDto {
     dto.isDiscounted = storeItem.isDiscounted;
     dto.createdAt = storeItem.createdAt;
     dto.updatedAt = storeItem.updatedAt;
+    dto.categoryId = storeItem.categoryId;
 
     return dto;
   }

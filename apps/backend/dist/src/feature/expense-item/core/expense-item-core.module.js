@@ -10,7 +10,7 @@ exports.ExpenseItemCoreModule = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_module_1 = require("../../../common/prisma/prisma.module");
 const store_core_module_1 = require("../../store/core/store-core.module");
-const expense_item_category_core_module_1 = require("../../expense-item-category/core/expense-item-category-core.module");
+const store_item_category_core_module_1 = require("../../store-item-category/core/store-item-category-core.module");
 const prisma_expense_item_repository_1 = require("./infrastructure/repositories/prisma-expense-item.repository");
 const create_expense_item_use_case_1 = require("./application/use-cases/create-expense-item.use-case");
 const get_expense_item_by_id_use_case_1 = require("./application/use-cases/get-expense-item-by-id.use-case");
@@ -24,7 +24,7 @@ let ExpenseItemCoreModule = class ExpenseItemCoreModule {
 exports.ExpenseItemCoreModule = ExpenseItemCoreModule;
 exports.ExpenseItemCoreModule = ExpenseItemCoreModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, store_core_module_1.StoreCoreModule, expense_item_category_core_module_1.ExpenseItemCategoryCoreModule],
+        imports: [prisma_module_1.PrismaModule, store_core_module_1.StoreCoreModule, store_item_category_core_module_1.StoreItemCategoryCoreModule],
         providers: [
             {
                 provide: 'ExpenseItemRepository',

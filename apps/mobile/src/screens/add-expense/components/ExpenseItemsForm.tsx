@@ -131,6 +131,13 @@ export function ExpenseItemsForm({
       discount: item.discount > 0 ? item.discount.toString() : "",
       categoryId: item.categoryId,
     });
+
+    const category = localItemCategories.find(cat => cat.id === item.categoryId);
+    if (category) {
+      setSelectedItemCategory(category);
+      setCategoryInput(category.name);
+    }
+
     setShowItemDropdown(false);
     setShowPriceFields(true);
     setIsExistingItem(true);
@@ -441,9 +448,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   itemContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 12,
   },
   itemInfo: {
@@ -467,7 +474,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 8,
     maxHeight: 200,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -489,7 +496,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   selectedChip: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   addButton: {
     marginTop: 16,

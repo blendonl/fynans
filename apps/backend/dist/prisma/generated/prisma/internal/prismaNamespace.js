@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defineExtension = exports.NullsOrder = exports.QueryMode = exports.SortOrder = exports.TransactionScalarFieldEnum = exports.StoreItemDiscountScalarFieldEnum = exports.StoreItemScalarFieldEnum = exports.StoreScalarFieldEnum = exports.UserScalarFieldEnum = exports.IncomeCategoryScalarFieldEnum = exports.IncomeScalarFieldEnum = exports.ExpenseCategoryScalarFieldEnum = exports.ExpenseScalarFieldEnum = exports.ExpenseItemCategoryScalarFieldEnum = exports.ExpenseItemScalarFieldEnum = exports.VerificationScalarFieldEnum = exports.SessionScalarFieldEnum = exports.AccountScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
+exports.defineExtension = exports.NullsOrder = exports.QueryMode = exports.SortOrder = exports.TransactionScalarFieldEnum = exports.StoreItemCategoryScalarFieldEnum = exports.StoreItemDiscountScalarFieldEnum = exports.StoreItemScalarFieldEnum = exports.StoreScalarFieldEnum = exports.UserScalarFieldEnum = exports.IncomeCategoryScalarFieldEnum = exports.IncomeScalarFieldEnum = exports.ExpenseCategoryScalarFieldEnum = exports.ExpenseScalarFieldEnum = exports.ExpenseItemScalarFieldEnum = exports.VerificationScalarFieldEnum = exports.SessionScalarFieldEnum = exports.AccountScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/client"));
 exports.PrismaClientKnownRequestError = runtime.PrismaClientKnownRequestError;
 exports.PrismaClientUnknownRequestError = runtime.PrismaClientUnknownRequestError;
@@ -64,7 +64,6 @@ exports.ModelName = {
     Session: 'Session',
     Verification: 'Verification',
     ExpenseItem: 'ExpenseItem',
-    ExpenseItemCategory: 'ExpenseItemCategory',
     Expense: 'Expense',
     ExpenseCategory: 'ExpenseCategory',
     Income: 'Income',
@@ -73,6 +72,7 @@ exports.ModelName = {
     Store: 'Store',
     StoreItem: 'StoreItem',
     StoreItemDiscount: 'StoreItemDiscount',
+    StoreItemCategory: 'StoreItemCategory',
     Transaction: 'Transaction'
 };
 exports.TransactionIsolationLevel = runtime.makeStrictEnum({
@@ -115,16 +115,8 @@ exports.ExpenseItemScalarFieldEnum = {
     id: 'id',
     itemId: 'itemId',
     expenseId: 'expenseId',
-    categoryId: 'categoryId',
     price: 'price',
     discount: 'discount',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-};
-exports.ExpenseItemCategoryScalarFieldEnum = {
-    id: 'id',
-    parentId: 'parentId',
-    name: 'name',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };
@@ -133,6 +125,7 @@ exports.ExpenseScalarFieldEnum = {
     transactionId: 'transactionId',
     storeId: 'storeId',
     categoryId: 'categoryId',
+    description: 'description',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };
@@ -180,6 +173,7 @@ exports.StoreScalarFieldEnum = {
 exports.StoreItemScalarFieldEnum = {
     id: 'id',
     storeId: 'storeId',
+    categoryId: 'categoryId',
     name: 'name',
     price: 'price',
     isDiscounted: 'isDiscounted',
@@ -192,6 +186,13 @@ exports.StoreItemDiscountScalarFieldEnum = {
     discount: 'discount',
     startedAt: 'startedAt',
     endedAt: 'endedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+exports.StoreItemCategoryScalarFieldEnum = {
+    id: 'id',
+    parentId: 'parentId',
+    name: 'name',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };

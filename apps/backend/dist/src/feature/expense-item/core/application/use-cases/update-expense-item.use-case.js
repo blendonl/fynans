@@ -17,10 +17,10 @@ const common_1 = require("@nestjs/common");
 const prismaNamespace_1 = require("../../../../../../prisma/generated/prisma/internal/prismaNamespace");
 let UpdateExpenseItemUseCase = class UpdateExpenseItemUseCase {
     expenseItemRepository;
-    expenseItemCategoryRepository;
-    constructor(expenseItemRepository, expenseItemCategoryRepository) {
+    storeItemCategoryRepository;
+    constructor(expenseItemRepository, storeItemCategoryRepository) {
         this.expenseItemRepository = expenseItemRepository;
-        this.expenseItemCategoryRepository = expenseItemCategoryRepository;
+        this.storeItemCategoryRepository = storeItemCategoryRepository;
     }
     async execute(id, dto) {
         const item = await this.expenseItemRepository.findById(id);
@@ -43,9 +43,9 @@ let UpdateExpenseItemUseCase = class UpdateExpenseItemUseCase {
             throw new common_1.BadRequestException('Discount must be non-negative');
         }
         if (dto.categoryId) {
-            const category = await this.expenseItemCategoryRepository.findById(dto.categoryId);
+            const category = await this.storeItemCategoryRepository.findById(dto.categoryId);
             if (!category) {
-                throw new common_1.NotFoundException('Expense item category not found');
+                throw new common_1.NotFoundException('Store item category not found');
             }
         }
     }
@@ -54,7 +54,7 @@ exports.UpdateExpenseItemUseCase = UpdateExpenseItemUseCase;
 exports.UpdateExpenseItemUseCase = UpdateExpenseItemUseCase = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('ExpenseItemRepository')),
-    __param(1, (0, common_1.Inject)('ExpenseItemCategoryRepository')),
+    __param(1, (0, common_1.Inject)('StoreItemCategoryRepository')),
     __metadata("design:paramtypes", [Object, Object])
 ], UpdateExpenseItemUseCase);
 //# sourceMappingURL=update-expense-item.use-case.js.map

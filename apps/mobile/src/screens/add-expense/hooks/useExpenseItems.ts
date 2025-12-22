@@ -20,8 +20,9 @@ export function useExpenseItems() {
       Alert.alert("Error", "Please enter a valid price");
       return;
     }
+
     if (!currentItem.categoryId) {
-      Alert.alert("Error", "Please select an item category");
+      Alert.alert("Error", `Please select an item category `);
       return;
     }
 
@@ -48,8 +49,8 @@ export function useExpenseItems() {
   return {
     items,
     currentItem,
-    setCurrentItem,
     handleAddItem,
+    setCurrentItem,
     handleRemoveItem,
   };
 }

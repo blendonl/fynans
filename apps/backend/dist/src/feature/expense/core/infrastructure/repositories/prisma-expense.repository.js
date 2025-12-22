@@ -33,8 +33,11 @@ let PrismaExpenseRepository = class PrismaExpenseRepository {
                 store: true,
                 items: {
                     include: {
-                        item: true,
-                        category: true,
+                        item: {
+                            include: {
+                                category: true,
+                            },
+                        },
                     },
                 },
             },
@@ -50,8 +53,11 @@ let PrismaExpenseRepository = class PrismaExpenseRepository {
                 store: true,
                 items: {
                     include: {
-                        item: true,
-                        category: true,
+                        item: {
+                            include: {
+                                category: true,
+                            },
+                        },
                     },
                 },
             },
@@ -67,8 +73,11 @@ let PrismaExpenseRepository = class PrismaExpenseRepository {
                 store: true,
                 items: {
                     include: {
-                        item: true,
-                        category: true,
+                        item: {
+                            include: {
+                                category: true,
+                            },
+                        },
                     },
                 },
             },
@@ -86,8 +95,11 @@ let PrismaExpenseRepository = class PrismaExpenseRepository {
                     store: true,
                     items: {
                         include: {
-                            item: true,
-                            category: true,
+                            item: {
+                                include: {
+                                    category: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -119,8 +131,11 @@ let PrismaExpenseRepository = class PrismaExpenseRepository {
                 store: true,
                 items: {
                     include: {
-                        item: true,
-                        category: true,
+                        item: {
+                            include: {
+                                category: true,
+                            },
+                        },
                     },
                 },
             },

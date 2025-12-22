@@ -40,7 +40,6 @@ export type ExpenseItemMinAggregateOutputType = {
   id: string | null
   itemId: string | null
   expenseId: string | null
-  categoryId: string | null
   price: runtime.Decimal | null
   discount: runtime.Decimal | null
   createdAt: Date | null
@@ -51,7 +50,6 @@ export type ExpenseItemMaxAggregateOutputType = {
   id: string | null
   itemId: string | null
   expenseId: string | null
-  categoryId: string | null
   price: runtime.Decimal | null
   discount: runtime.Decimal | null
   createdAt: Date | null
@@ -62,7 +60,6 @@ export type ExpenseItemCountAggregateOutputType = {
   id: number
   itemId: number
   expenseId: number
-  categoryId: number
   price: number
   discount: number
   createdAt: number
@@ -85,7 +82,6 @@ export type ExpenseItemMinAggregateInputType = {
   id?: true
   itemId?: true
   expenseId?: true
-  categoryId?: true
   price?: true
   discount?: true
   createdAt?: true
@@ -96,7 +92,6 @@ export type ExpenseItemMaxAggregateInputType = {
   id?: true
   itemId?: true
   expenseId?: true
-  categoryId?: true
   price?: true
   discount?: true
   createdAt?: true
@@ -107,7 +102,6 @@ export type ExpenseItemCountAggregateInputType = {
   id?: true
   itemId?: true
   expenseId?: true
-  categoryId?: true
   price?: true
   discount?: true
   createdAt?: true
@@ -205,7 +199,6 @@ export type ExpenseItemGroupByOutputType = {
   id: string
   itemId: string
   expenseId: string
-  categoryId: string
   price: runtime.Decimal
   discount: runtime.Decimal
   createdAt: Date
@@ -239,28 +232,24 @@ export type ExpenseItemWhereInput = {
   id?: Prisma.StringFilter<"ExpenseItem"> | string
   itemId?: Prisma.StringFilter<"ExpenseItem"> | string
   expenseId?: Prisma.StringFilter<"ExpenseItem"> | string
-  categoryId?: Prisma.StringFilter<"ExpenseItem"> | string
   price?: Prisma.DecimalFilter<"ExpenseItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.DecimalFilter<"ExpenseItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"ExpenseItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ExpenseItem"> | Date | string
   item?: Prisma.XOR<Prisma.StoreItemScalarRelationFilter, Prisma.StoreItemWhereInput>
   expense?: Prisma.XOR<Prisma.ExpenseScalarRelationFilter, Prisma.ExpenseWhereInput>
-  category?: Prisma.XOR<Prisma.ExpenseItemCategoryScalarRelationFilter, Prisma.ExpenseItemCategoryWhereInput>
 }
 
 export type ExpenseItemOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   itemId?: Prisma.SortOrder
   expenseId?: Prisma.SortOrder
-  categoryId?: Prisma.SortOrder
   price?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   item?: Prisma.StoreItemOrderByWithRelationInput
   expense?: Prisma.ExpenseOrderByWithRelationInput
-  category?: Prisma.ExpenseItemCategoryOrderByWithRelationInput
 }
 
 export type ExpenseItemWhereUniqueInput = Prisma.AtLeast<{
@@ -270,21 +259,18 @@ export type ExpenseItemWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ExpenseItemWhereInput | Prisma.ExpenseItemWhereInput[]
   itemId?: Prisma.StringFilter<"ExpenseItem"> | string
   expenseId?: Prisma.StringFilter<"ExpenseItem"> | string
-  categoryId?: Prisma.StringFilter<"ExpenseItem"> | string
   price?: Prisma.DecimalFilter<"ExpenseItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.DecimalFilter<"ExpenseItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"ExpenseItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ExpenseItem"> | Date | string
   item?: Prisma.XOR<Prisma.StoreItemScalarRelationFilter, Prisma.StoreItemWhereInput>
   expense?: Prisma.XOR<Prisma.ExpenseScalarRelationFilter, Prisma.ExpenseWhereInput>
-  category?: Prisma.XOR<Prisma.ExpenseItemCategoryScalarRelationFilter, Prisma.ExpenseItemCategoryWhereInput>
 }, "id">
 
 export type ExpenseItemOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   itemId?: Prisma.SortOrder
   expenseId?: Prisma.SortOrder
-  categoryId?: Prisma.SortOrder
   price?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -303,7 +289,6 @@ export type ExpenseItemScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ExpenseItem"> | string
   itemId?: Prisma.StringWithAggregatesFilter<"ExpenseItem"> | string
   expenseId?: Prisma.StringWithAggregatesFilter<"ExpenseItem"> | string
-  categoryId?: Prisma.StringWithAggregatesFilter<"ExpenseItem"> | string
   price?: Prisma.DecimalWithAggregatesFilter<"ExpenseItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.DecimalWithAggregatesFilter<"ExpenseItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ExpenseItem"> | Date | string
@@ -318,14 +303,12 @@ export type ExpenseItemCreateInput = {
   updatedAt?: Date | string
   item: Prisma.StoreItemCreateNestedOneWithoutExpensesInput
   expense: Prisma.ExpenseCreateNestedOneWithoutItemsInput
-  category: Prisma.ExpenseItemCategoryCreateNestedOneWithoutItemsInput
 }
 
 export type ExpenseItemUncheckedCreateInput = {
   id?: string
   itemId: string
   expenseId: string
-  categoryId: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   discount: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
@@ -340,14 +323,12 @@ export type ExpenseItemUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   item?: Prisma.StoreItemUpdateOneRequiredWithoutExpensesNestedInput
   expense?: Prisma.ExpenseUpdateOneRequiredWithoutItemsNestedInput
-  category?: Prisma.ExpenseItemCategoryUpdateOneRequiredWithoutItemsNestedInput
 }
 
 export type ExpenseItemUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   itemId?: Prisma.StringFieldUpdateOperationsInput | string
   expenseId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -358,7 +339,6 @@ export type ExpenseItemCreateManyInput = {
   id?: string
   itemId: string
   expenseId: string
-  categoryId: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   discount: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
@@ -377,7 +357,6 @@ export type ExpenseItemUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   itemId?: Prisma.StringFieldUpdateOperationsInput | string
   expenseId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -388,7 +367,6 @@ export type ExpenseItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   itemId?: Prisma.SortOrder
   expenseId?: Prisma.SortOrder
-  categoryId?: Prisma.SortOrder
   price?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -404,7 +382,6 @@ export type ExpenseItemMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   itemId?: Prisma.SortOrder
   expenseId?: Prisma.SortOrder
-  categoryId?: Prisma.SortOrder
   price?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -415,7 +392,6 @@ export type ExpenseItemMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   itemId?: Prisma.SortOrder
   expenseId?: Prisma.SortOrder
-  categoryId?: Prisma.SortOrder
   price?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -443,48 +419,6 @@ export type DecimalFieldUpdateOperationsInput = {
   decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
   multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
-}
-
-export type ExpenseItemCreateNestedManyWithoutCategoryInput = {
-  create?: Prisma.XOR<Prisma.ExpenseItemCreateWithoutCategoryInput, Prisma.ExpenseItemUncheckedCreateWithoutCategoryInput> | Prisma.ExpenseItemCreateWithoutCategoryInput[] | Prisma.ExpenseItemUncheckedCreateWithoutCategoryInput[]
-  connectOrCreate?: Prisma.ExpenseItemCreateOrConnectWithoutCategoryInput | Prisma.ExpenseItemCreateOrConnectWithoutCategoryInput[]
-  createMany?: Prisma.ExpenseItemCreateManyCategoryInputEnvelope
-  connect?: Prisma.ExpenseItemWhereUniqueInput | Prisma.ExpenseItemWhereUniqueInput[]
-}
-
-export type ExpenseItemUncheckedCreateNestedManyWithoutCategoryInput = {
-  create?: Prisma.XOR<Prisma.ExpenseItemCreateWithoutCategoryInput, Prisma.ExpenseItemUncheckedCreateWithoutCategoryInput> | Prisma.ExpenseItemCreateWithoutCategoryInput[] | Prisma.ExpenseItemUncheckedCreateWithoutCategoryInput[]
-  connectOrCreate?: Prisma.ExpenseItemCreateOrConnectWithoutCategoryInput | Prisma.ExpenseItemCreateOrConnectWithoutCategoryInput[]
-  createMany?: Prisma.ExpenseItemCreateManyCategoryInputEnvelope
-  connect?: Prisma.ExpenseItemWhereUniqueInput | Prisma.ExpenseItemWhereUniqueInput[]
-}
-
-export type ExpenseItemUpdateManyWithoutCategoryNestedInput = {
-  create?: Prisma.XOR<Prisma.ExpenseItemCreateWithoutCategoryInput, Prisma.ExpenseItemUncheckedCreateWithoutCategoryInput> | Prisma.ExpenseItemCreateWithoutCategoryInput[] | Prisma.ExpenseItemUncheckedCreateWithoutCategoryInput[]
-  connectOrCreate?: Prisma.ExpenseItemCreateOrConnectWithoutCategoryInput | Prisma.ExpenseItemCreateOrConnectWithoutCategoryInput[]
-  upsert?: Prisma.ExpenseItemUpsertWithWhereUniqueWithoutCategoryInput | Prisma.ExpenseItemUpsertWithWhereUniqueWithoutCategoryInput[]
-  createMany?: Prisma.ExpenseItemCreateManyCategoryInputEnvelope
-  set?: Prisma.ExpenseItemWhereUniqueInput | Prisma.ExpenseItemWhereUniqueInput[]
-  disconnect?: Prisma.ExpenseItemWhereUniqueInput | Prisma.ExpenseItemWhereUniqueInput[]
-  delete?: Prisma.ExpenseItemWhereUniqueInput | Prisma.ExpenseItemWhereUniqueInput[]
-  connect?: Prisma.ExpenseItemWhereUniqueInput | Prisma.ExpenseItemWhereUniqueInput[]
-  update?: Prisma.ExpenseItemUpdateWithWhereUniqueWithoutCategoryInput | Prisma.ExpenseItemUpdateWithWhereUniqueWithoutCategoryInput[]
-  updateMany?: Prisma.ExpenseItemUpdateManyWithWhereWithoutCategoryInput | Prisma.ExpenseItemUpdateManyWithWhereWithoutCategoryInput[]
-  deleteMany?: Prisma.ExpenseItemScalarWhereInput | Prisma.ExpenseItemScalarWhereInput[]
-}
-
-export type ExpenseItemUncheckedUpdateManyWithoutCategoryNestedInput = {
-  create?: Prisma.XOR<Prisma.ExpenseItemCreateWithoutCategoryInput, Prisma.ExpenseItemUncheckedCreateWithoutCategoryInput> | Prisma.ExpenseItemCreateWithoutCategoryInput[] | Prisma.ExpenseItemUncheckedCreateWithoutCategoryInput[]
-  connectOrCreate?: Prisma.ExpenseItemCreateOrConnectWithoutCategoryInput | Prisma.ExpenseItemCreateOrConnectWithoutCategoryInput[]
-  upsert?: Prisma.ExpenseItemUpsertWithWhereUniqueWithoutCategoryInput | Prisma.ExpenseItemUpsertWithWhereUniqueWithoutCategoryInput[]
-  createMany?: Prisma.ExpenseItemCreateManyCategoryInputEnvelope
-  set?: Prisma.ExpenseItemWhereUniqueInput | Prisma.ExpenseItemWhereUniqueInput[]
-  disconnect?: Prisma.ExpenseItemWhereUniqueInput | Prisma.ExpenseItemWhereUniqueInput[]
-  delete?: Prisma.ExpenseItemWhereUniqueInput | Prisma.ExpenseItemWhereUniqueInput[]
-  connect?: Prisma.ExpenseItemWhereUniqueInput | Prisma.ExpenseItemWhereUniqueInput[]
-  update?: Prisma.ExpenseItemUpdateWithWhereUniqueWithoutCategoryInput | Prisma.ExpenseItemUpdateWithWhereUniqueWithoutCategoryInput[]
-  updateMany?: Prisma.ExpenseItemUpdateManyWithWhereWithoutCategoryInput | Prisma.ExpenseItemUpdateManyWithWhereWithoutCategoryInput[]
-  deleteMany?: Prisma.ExpenseItemScalarWhereInput | Prisma.ExpenseItemScalarWhereInput[]
 }
 
 export type ExpenseItemCreateNestedManyWithoutExpenseInput = {
@@ -571,66 +505,6 @@ export type ExpenseItemUncheckedUpdateManyWithoutItemNestedInput = {
   deleteMany?: Prisma.ExpenseItemScalarWhereInput | Prisma.ExpenseItemScalarWhereInput[]
 }
 
-export type ExpenseItemCreateWithoutCategoryInput = {
-  id?: string
-  price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  discount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  item: Prisma.StoreItemCreateNestedOneWithoutExpensesInput
-  expense: Prisma.ExpenseCreateNestedOneWithoutItemsInput
-}
-
-export type ExpenseItemUncheckedCreateWithoutCategoryInput = {
-  id?: string
-  itemId: string
-  expenseId: string
-  price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  discount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type ExpenseItemCreateOrConnectWithoutCategoryInput = {
-  where: Prisma.ExpenseItemWhereUniqueInput
-  create: Prisma.XOR<Prisma.ExpenseItemCreateWithoutCategoryInput, Prisma.ExpenseItemUncheckedCreateWithoutCategoryInput>
-}
-
-export type ExpenseItemCreateManyCategoryInputEnvelope = {
-  data: Prisma.ExpenseItemCreateManyCategoryInput | Prisma.ExpenseItemCreateManyCategoryInput[]
-  skipDuplicates?: boolean
-}
-
-export type ExpenseItemUpsertWithWhereUniqueWithoutCategoryInput = {
-  where: Prisma.ExpenseItemWhereUniqueInput
-  update: Prisma.XOR<Prisma.ExpenseItemUpdateWithoutCategoryInput, Prisma.ExpenseItemUncheckedUpdateWithoutCategoryInput>
-  create: Prisma.XOR<Prisma.ExpenseItemCreateWithoutCategoryInput, Prisma.ExpenseItemUncheckedCreateWithoutCategoryInput>
-}
-
-export type ExpenseItemUpdateWithWhereUniqueWithoutCategoryInput = {
-  where: Prisma.ExpenseItemWhereUniqueInput
-  data: Prisma.XOR<Prisma.ExpenseItemUpdateWithoutCategoryInput, Prisma.ExpenseItemUncheckedUpdateWithoutCategoryInput>
-}
-
-export type ExpenseItemUpdateManyWithWhereWithoutCategoryInput = {
-  where: Prisma.ExpenseItemScalarWhereInput
-  data: Prisma.XOR<Prisma.ExpenseItemUpdateManyMutationInput, Prisma.ExpenseItemUncheckedUpdateManyWithoutCategoryInput>
-}
-
-export type ExpenseItemScalarWhereInput = {
-  AND?: Prisma.ExpenseItemScalarWhereInput | Prisma.ExpenseItemScalarWhereInput[]
-  OR?: Prisma.ExpenseItemScalarWhereInput[]
-  NOT?: Prisma.ExpenseItemScalarWhereInput | Prisma.ExpenseItemScalarWhereInput[]
-  id?: Prisma.StringFilter<"ExpenseItem"> | string
-  itemId?: Prisma.StringFilter<"ExpenseItem"> | string
-  expenseId?: Prisma.StringFilter<"ExpenseItem"> | string
-  categoryId?: Prisma.StringFilter<"ExpenseItem"> | string
-  price?: Prisma.DecimalFilter<"ExpenseItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  discount?: Prisma.DecimalFilter<"ExpenseItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  createdAt?: Prisma.DateTimeFilter<"ExpenseItem"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"ExpenseItem"> | Date | string
-}
-
 export type ExpenseItemCreateWithoutExpenseInput = {
   id?: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -638,13 +512,11 @@ export type ExpenseItemCreateWithoutExpenseInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   item: Prisma.StoreItemCreateNestedOneWithoutExpensesInput
-  category: Prisma.ExpenseItemCategoryCreateNestedOneWithoutItemsInput
 }
 
 export type ExpenseItemUncheckedCreateWithoutExpenseInput = {
   id?: string
   itemId: string
-  categoryId: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   discount: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
@@ -677,6 +549,19 @@ export type ExpenseItemUpdateManyWithWhereWithoutExpenseInput = {
   data: Prisma.XOR<Prisma.ExpenseItemUpdateManyMutationInput, Prisma.ExpenseItemUncheckedUpdateManyWithoutExpenseInput>
 }
 
+export type ExpenseItemScalarWhereInput = {
+  AND?: Prisma.ExpenseItemScalarWhereInput | Prisma.ExpenseItemScalarWhereInput[]
+  OR?: Prisma.ExpenseItemScalarWhereInput[]
+  NOT?: Prisma.ExpenseItemScalarWhereInput | Prisma.ExpenseItemScalarWhereInput[]
+  id?: Prisma.StringFilter<"ExpenseItem"> | string
+  itemId?: Prisma.StringFilter<"ExpenseItem"> | string
+  expenseId?: Prisma.StringFilter<"ExpenseItem"> | string
+  price?: Prisma.DecimalFilter<"ExpenseItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.DecimalFilter<"ExpenseItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFilter<"ExpenseItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ExpenseItem"> | Date | string
+}
+
 export type ExpenseItemCreateWithoutItemInput = {
   id?: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -684,13 +569,11 @@ export type ExpenseItemCreateWithoutItemInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   expense: Prisma.ExpenseCreateNestedOneWithoutItemsInput
-  category: Prisma.ExpenseItemCategoryCreateNestedOneWithoutItemsInput
 }
 
 export type ExpenseItemUncheckedCreateWithoutItemInput = {
   id?: string
   expenseId: string
-  categoryId: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   discount: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
@@ -723,50 +606,9 @@ export type ExpenseItemUpdateManyWithWhereWithoutItemInput = {
   data: Prisma.XOR<Prisma.ExpenseItemUpdateManyMutationInput, Prisma.ExpenseItemUncheckedUpdateManyWithoutItemInput>
 }
 
-export type ExpenseItemCreateManyCategoryInput = {
-  id?: string
-  itemId: string
-  expenseId: string
-  price: runtime.Decimal | runtime.DecimalJsLike | number | string
-  discount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type ExpenseItemUpdateWithoutCategoryInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  discount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  item?: Prisma.StoreItemUpdateOneRequiredWithoutExpensesNestedInput
-  expense?: Prisma.ExpenseUpdateOneRequiredWithoutItemsNestedInput
-}
-
-export type ExpenseItemUncheckedUpdateWithoutCategoryInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  itemId?: Prisma.StringFieldUpdateOperationsInput | string
-  expenseId?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  discount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type ExpenseItemUncheckedUpdateManyWithoutCategoryInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  itemId?: Prisma.StringFieldUpdateOperationsInput | string
-  expenseId?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  discount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
 export type ExpenseItemCreateManyExpenseInput = {
   id?: string
   itemId: string
-  categoryId: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   discount: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
@@ -780,13 +622,11 @@ export type ExpenseItemUpdateWithoutExpenseInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   item?: Prisma.StoreItemUpdateOneRequiredWithoutExpensesNestedInput
-  category?: Prisma.ExpenseItemCategoryUpdateOneRequiredWithoutItemsNestedInput
 }
 
 export type ExpenseItemUncheckedUpdateWithoutExpenseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   itemId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -796,7 +636,6 @@ export type ExpenseItemUncheckedUpdateWithoutExpenseInput = {
 export type ExpenseItemUncheckedUpdateManyWithoutExpenseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   itemId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -806,7 +645,6 @@ export type ExpenseItemUncheckedUpdateManyWithoutExpenseInput = {
 export type ExpenseItemCreateManyItemInput = {
   id?: string
   expenseId: string
-  categoryId: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   discount: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
@@ -820,13 +658,11 @@ export type ExpenseItemUpdateWithoutItemInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expense?: Prisma.ExpenseUpdateOneRequiredWithoutItemsNestedInput
-  category?: Prisma.ExpenseItemCategoryUpdateOneRequiredWithoutItemsNestedInput
 }
 
 export type ExpenseItemUncheckedUpdateWithoutItemInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   expenseId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -836,7 +672,6 @@ export type ExpenseItemUncheckedUpdateWithoutItemInput = {
 export type ExpenseItemUncheckedUpdateManyWithoutItemInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   expenseId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -849,70 +684,60 @@ export type ExpenseItemSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   id?: boolean
   itemId?: boolean
   expenseId?: boolean
-  categoryId?: boolean
   price?: boolean
   discount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   item?: boolean | Prisma.StoreItemDefaultArgs<ExtArgs>
   expense?: boolean | Prisma.ExpenseDefaultArgs<ExtArgs>
-  category?: boolean | Prisma.ExpenseItemCategoryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["expenseItem"]>
 
 export type ExpenseItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   itemId?: boolean
   expenseId?: boolean
-  categoryId?: boolean
   price?: boolean
   discount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   item?: boolean | Prisma.StoreItemDefaultArgs<ExtArgs>
   expense?: boolean | Prisma.ExpenseDefaultArgs<ExtArgs>
-  category?: boolean | Prisma.ExpenseItemCategoryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["expenseItem"]>
 
 export type ExpenseItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   itemId?: boolean
   expenseId?: boolean
-  categoryId?: boolean
   price?: boolean
   discount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   item?: boolean | Prisma.StoreItemDefaultArgs<ExtArgs>
   expense?: boolean | Prisma.ExpenseDefaultArgs<ExtArgs>
-  category?: boolean | Prisma.ExpenseItemCategoryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["expenseItem"]>
 
 export type ExpenseItemSelectScalar = {
   id?: boolean
   itemId?: boolean
   expenseId?: boolean
-  categoryId?: boolean
   price?: boolean
   discount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ExpenseItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "itemId" | "expenseId" | "categoryId" | "price" | "discount" | "createdAt" | "updatedAt", ExtArgs["result"]["expenseItem"]>
+export type ExpenseItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "itemId" | "expenseId" | "price" | "discount" | "createdAt" | "updatedAt", ExtArgs["result"]["expenseItem"]>
 export type ExpenseItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   item?: boolean | Prisma.StoreItemDefaultArgs<ExtArgs>
   expense?: boolean | Prisma.ExpenseDefaultArgs<ExtArgs>
-  category?: boolean | Prisma.ExpenseItemCategoryDefaultArgs<ExtArgs>
 }
 export type ExpenseItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   item?: boolean | Prisma.StoreItemDefaultArgs<ExtArgs>
   expense?: boolean | Prisma.ExpenseDefaultArgs<ExtArgs>
-  category?: boolean | Prisma.ExpenseItemCategoryDefaultArgs<ExtArgs>
 }
 export type ExpenseItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   item?: boolean | Prisma.StoreItemDefaultArgs<ExtArgs>
   expense?: boolean | Prisma.ExpenseDefaultArgs<ExtArgs>
-  category?: boolean | Prisma.ExpenseItemCategoryDefaultArgs<ExtArgs>
 }
 
 export type $ExpenseItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -920,13 +745,11 @@ export type $ExpenseItemPayload<ExtArgs extends runtime.Types.Extensions.Interna
   objects: {
     item: Prisma.$StoreItemPayload<ExtArgs>
     expense: Prisma.$ExpensePayload<ExtArgs>
-    category: Prisma.$ExpenseItemCategoryPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     itemId: string
     expenseId: string
-    categoryId: string
     price: runtime.Decimal
     discount: runtime.Decimal
     createdAt: Date
@@ -1327,7 +1150,6 @@ export interface Prisma__ExpenseItemClient<T, Null = never, ExtArgs extends runt
   readonly [Symbol.toStringTag]: "PrismaPromise"
   item<T extends Prisma.StoreItemDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StoreItemDefaultArgs<ExtArgs>>): Prisma.Prisma__StoreItemClient<runtime.Types.Result.GetResult<Prisma.$StoreItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   expense<T extends Prisma.ExpenseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExpenseDefaultArgs<ExtArgs>>): Prisma.Prisma__ExpenseClient<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  category<T extends Prisma.ExpenseItemCategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExpenseItemCategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__ExpenseItemCategoryClient<runtime.Types.Result.GetResult<Prisma.$ExpenseItemCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1360,7 +1182,6 @@ export interface ExpenseItemFieldRefs {
   readonly id: Prisma.FieldRef<"ExpenseItem", 'String'>
   readonly itemId: Prisma.FieldRef<"ExpenseItem", 'String'>
   readonly expenseId: Prisma.FieldRef<"ExpenseItem", 'String'>
-  readonly categoryId: Prisma.FieldRef<"ExpenseItem", 'String'>
   readonly price: Prisma.FieldRef<"ExpenseItem", 'Decimal'>
   readonly discount: Prisma.FieldRef<"ExpenseItem", 'Decimal'>
   readonly createdAt: Prisma.FieldRef<"ExpenseItem", 'DateTime'>

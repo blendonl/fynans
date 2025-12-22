@@ -18,14 +18,12 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
       data: {
         itemId: data.itemId!,
         expenseId: data.expenseId!,
-        categoryId: data.categoryId!,
         price: new Decimal(data.price?.toString() || '0'),
         discount: new Decimal(data.discount?.toString() || '0'),
       },
       include: {
-        item: true,
+        item: { include: { category: true } },
         expense: true,
-        category: true,
       },
     });
 
@@ -36,9 +34,8 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
     const item = await this.prisma.expenseItem.findUnique({
       where: { id },
       include: {
-        item: true,
+        item: { include: { category: true } },
         expense: true,
-        category: true,
       },
     });
 
@@ -49,9 +46,8 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
     const items = await this.prisma.expenseItem.findMany({
       where: { expenseId },
       include: {
-        item: true,
+        item: { include: { category: true } },
         expense: true,
-        category: true,
       },
       orderBy: { createdAt: 'asc' },
     });
@@ -65,9 +61,8 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
     const [items, total] = await Promise.all([
       this.prisma.expenseItem.findMany({
         include: {
-          item: true,
+          item: { include: { category: true } },
           expense: true,
-          category: true,
         },
         orderBy: { createdAt: 'desc' },
         skip: pagination?.skip,
@@ -101,9 +96,8 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
       where: { id },
       data: updateData,
       include: {
-        item: true,
+        item: { include: { category: true } },
         expense: true,
-        category: true,
       },
     });
 

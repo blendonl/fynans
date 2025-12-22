@@ -17,6 +17,7 @@ export type StoreItemSumAggregateOutputType = {
 export type StoreItemMinAggregateOutputType = {
     id: string | null;
     storeId: string | null;
+    categoryId: string | null;
     name: string | null;
     price: runtime.Decimal | null;
     isDiscounted: boolean | null;
@@ -26,6 +27,7 @@ export type StoreItemMinAggregateOutputType = {
 export type StoreItemMaxAggregateOutputType = {
     id: string | null;
     storeId: string | null;
+    categoryId: string | null;
     name: string | null;
     price: runtime.Decimal | null;
     isDiscounted: boolean | null;
@@ -35,6 +37,7 @@ export type StoreItemMaxAggregateOutputType = {
 export type StoreItemCountAggregateOutputType = {
     id: number;
     storeId: number;
+    categoryId: number;
     name: number;
     price: number;
     isDiscounted: number;
@@ -51,6 +54,7 @@ export type StoreItemSumAggregateInputType = {
 export type StoreItemMinAggregateInputType = {
     id?: true;
     storeId?: true;
+    categoryId?: true;
     name?: true;
     price?: true;
     isDiscounted?: true;
@@ -60,6 +64,7 @@ export type StoreItemMinAggregateInputType = {
 export type StoreItemMaxAggregateInputType = {
     id?: true;
     storeId?: true;
+    categoryId?: true;
     name?: true;
     price?: true;
     isDiscounted?: true;
@@ -69,6 +74,7 @@ export type StoreItemMaxAggregateInputType = {
 export type StoreItemCountAggregateInputType = {
     id?: true;
     storeId?: true;
+    categoryId?: true;
     name?: true;
     price?: true;
     isDiscounted?: true;
@@ -107,6 +113,7 @@ export type StoreItemGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 export type StoreItemGroupByOutputType = {
     id: string;
     storeId: string;
+    categoryId: string;
     name: string;
     price: runtime.Decimal;
     isDiscounted: boolean;
@@ -127,6 +134,7 @@ export type StoreItemWhereInput = {
     NOT?: Prisma.StoreItemWhereInput | Prisma.StoreItemWhereInput[];
     id?: Prisma.StringFilter<"StoreItem"> | string;
     storeId?: Prisma.StringFilter<"StoreItem"> | string;
+    categoryId?: Prisma.StringFilter<"StoreItem"> | string;
     name?: Prisma.StringFilter<"StoreItem"> | string;
     price?: Prisma.DecimalFilter<"StoreItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted?: Prisma.BoolFilter<"StoreItem"> | boolean;
@@ -135,10 +143,12 @@ export type StoreItemWhereInput = {
     store?: Prisma.XOR<Prisma.StoreScalarRelationFilter, Prisma.StoreWhereInput>;
     discounts?: Prisma.StoreItemDiscountListRelationFilter;
     expenses?: Prisma.ExpenseItemListRelationFilter;
+    category?: Prisma.XOR<Prisma.StoreItemCategoryScalarRelationFilter, Prisma.StoreItemCategoryWhereInput>;
 };
 export type StoreItemOrderByWithRelationInput = {
     id?: Prisma.SortOrder;
     storeId?: Prisma.SortOrder;
+    categoryId?: Prisma.SortOrder;
     name?: Prisma.SortOrder;
     price?: Prisma.SortOrder;
     isDiscounted?: Prisma.SortOrder;
@@ -147,6 +157,7 @@ export type StoreItemOrderByWithRelationInput = {
     store?: Prisma.StoreOrderByWithRelationInput;
     discounts?: Prisma.StoreItemDiscountOrderByRelationAggregateInput;
     expenses?: Prisma.ExpenseItemOrderByRelationAggregateInput;
+    category?: Prisma.StoreItemCategoryOrderByWithRelationInput;
 };
 export type StoreItemWhereUniqueInput = Prisma.AtLeast<{
     id?: string;
@@ -154,6 +165,7 @@ export type StoreItemWhereUniqueInput = Prisma.AtLeast<{
     OR?: Prisma.StoreItemWhereInput[];
     NOT?: Prisma.StoreItemWhereInput | Prisma.StoreItemWhereInput[];
     storeId?: Prisma.StringFilter<"StoreItem"> | string;
+    categoryId?: Prisma.StringFilter<"StoreItem"> | string;
     name?: Prisma.StringFilter<"StoreItem"> | string;
     price?: Prisma.DecimalFilter<"StoreItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted?: Prisma.BoolFilter<"StoreItem"> | boolean;
@@ -162,10 +174,12 @@ export type StoreItemWhereUniqueInput = Prisma.AtLeast<{
     store?: Prisma.XOR<Prisma.StoreScalarRelationFilter, Prisma.StoreWhereInput>;
     discounts?: Prisma.StoreItemDiscountListRelationFilter;
     expenses?: Prisma.ExpenseItemListRelationFilter;
+    category?: Prisma.XOR<Prisma.StoreItemCategoryScalarRelationFilter, Prisma.StoreItemCategoryWhereInput>;
 }, "id">;
 export type StoreItemOrderByWithAggregationInput = {
     id?: Prisma.SortOrder;
     storeId?: Prisma.SortOrder;
+    categoryId?: Prisma.SortOrder;
     name?: Prisma.SortOrder;
     price?: Prisma.SortOrder;
     isDiscounted?: Prisma.SortOrder;
@@ -183,6 +197,7 @@ export type StoreItemScalarWhereWithAggregatesInput = {
     NOT?: Prisma.StoreItemScalarWhereWithAggregatesInput | Prisma.StoreItemScalarWhereWithAggregatesInput[];
     id?: Prisma.StringWithAggregatesFilter<"StoreItem"> | string;
     storeId?: Prisma.StringWithAggregatesFilter<"StoreItem"> | string;
+    categoryId?: Prisma.StringWithAggregatesFilter<"StoreItem"> | string;
     name?: Prisma.StringWithAggregatesFilter<"StoreItem"> | string;
     price?: Prisma.DecimalWithAggregatesFilter<"StoreItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted?: Prisma.BoolWithAggregatesFilter<"StoreItem"> | boolean;
@@ -199,10 +214,12 @@ export type StoreItemCreateInput = {
     store: Prisma.StoreCreateNestedOneWithoutItemsInput;
     discounts?: Prisma.StoreItemDiscountCreateNestedManyWithoutStoreItemInput;
     expenses?: Prisma.ExpenseItemCreateNestedManyWithoutItemInput;
+    category: Prisma.StoreItemCategoryCreateNestedOneWithoutItemsInput;
 };
 export type StoreItemUncheckedCreateInput = {
     id?: string;
     storeId: string;
+    categoryId: string;
     name: string;
     price: runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted: boolean;
@@ -221,10 +238,12 @@ export type StoreItemUpdateInput = {
     store?: Prisma.StoreUpdateOneRequiredWithoutItemsNestedInput;
     discounts?: Prisma.StoreItemDiscountUpdateManyWithoutStoreItemNestedInput;
     expenses?: Prisma.ExpenseItemUpdateManyWithoutItemNestedInput;
+    category?: Prisma.StoreItemCategoryUpdateOneRequiredWithoutItemsNestedInput;
 };
 export type StoreItemUncheckedUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     storeId?: Prisma.StringFieldUpdateOperationsInput | string;
+    categoryId?: Prisma.StringFieldUpdateOperationsInput | string;
     name?: Prisma.StringFieldUpdateOperationsInput | string;
     price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted?: Prisma.BoolFieldUpdateOperationsInput | boolean;
@@ -236,6 +255,7 @@ export type StoreItemUncheckedUpdateInput = {
 export type StoreItemCreateManyInput = {
     id?: string;
     storeId: string;
+    categoryId: string;
     name: string;
     price: runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted: boolean;
@@ -253,6 +273,7 @@ export type StoreItemUpdateManyMutationInput = {
 export type StoreItemUncheckedUpdateManyInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     storeId?: Prisma.StringFieldUpdateOperationsInput | string;
+    categoryId?: Prisma.StringFieldUpdateOperationsInput | string;
     name?: Prisma.StringFieldUpdateOperationsInput | string;
     price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted?: Prisma.BoolFieldUpdateOperationsInput | boolean;
@@ -274,6 +295,7 @@ export type StoreItemOrderByRelationAggregateInput = {
 export type StoreItemCountOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     storeId?: Prisma.SortOrder;
+    categoryId?: Prisma.SortOrder;
     name?: Prisma.SortOrder;
     price?: Prisma.SortOrder;
     isDiscounted?: Prisma.SortOrder;
@@ -286,6 +308,7 @@ export type StoreItemAvgOrderByAggregateInput = {
 export type StoreItemMaxOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     storeId?: Prisma.SortOrder;
+    categoryId?: Prisma.SortOrder;
     name?: Prisma.SortOrder;
     price?: Prisma.SortOrder;
     isDiscounted?: Prisma.SortOrder;
@@ -295,6 +318,7 @@ export type StoreItemMaxOrderByAggregateInput = {
 export type StoreItemMinOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     storeId?: Prisma.SortOrder;
+    categoryId?: Prisma.SortOrder;
     name?: Prisma.SortOrder;
     price?: Prisma.SortOrder;
     isDiscounted?: Prisma.SortOrder;
@@ -366,6 +390,44 @@ export type StoreItemUpdateOneRequiredWithoutDiscountsNestedInput = {
     connect?: Prisma.StoreItemWhereUniqueInput;
     update?: Prisma.XOR<Prisma.XOR<Prisma.StoreItemUpdateToOneWithWhereWithoutDiscountsInput, Prisma.StoreItemUpdateWithoutDiscountsInput>, Prisma.StoreItemUncheckedUpdateWithoutDiscountsInput>;
 };
+export type StoreItemCreateNestedManyWithoutCategoryInput = {
+    create?: Prisma.XOR<Prisma.StoreItemCreateWithoutCategoryInput, Prisma.StoreItemUncheckedCreateWithoutCategoryInput> | Prisma.StoreItemCreateWithoutCategoryInput[] | Prisma.StoreItemUncheckedCreateWithoutCategoryInput[];
+    connectOrCreate?: Prisma.StoreItemCreateOrConnectWithoutCategoryInput | Prisma.StoreItemCreateOrConnectWithoutCategoryInput[];
+    createMany?: Prisma.StoreItemCreateManyCategoryInputEnvelope;
+    connect?: Prisma.StoreItemWhereUniqueInput | Prisma.StoreItemWhereUniqueInput[];
+};
+export type StoreItemUncheckedCreateNestedManyWithoutCategoryInput = {
+    create?: Prisma.XOR<Prisma.StoreItemCreateWithoutCategoryInput, Prisma.StoreItemUncheckedCreateWithoutCategoryInput> | Prisma.StoreItemCreateWithoutCategoryInput[] | Prisma.StoreItemUncheckedCreateWithoutCategoryInput[];
+    connectOrCreate?: Prisma.StoreItemCreateOrConnectWithoutCategoryInput | Prisma.StoreItemCreateOrConnectWithoutCategoryInput[];
+    createMany?: Prisma.StoreItemCreateManyCategoryInputEnvelope;
+    connect?: Prisma.StoreItemWhereUniqueInput | Prisma.StoreItemWhereUniqueInput[];
+};
+export type StoreItemUpdateManyWithoutCategoryNestedInput = {
+    create?: Prisma.XOR<Prisma.StoreItemCreateWithoutCategoryInput, Prisma.StoreItemUncheckedCreateWithoutCategoryInput> | Prisma.StoreItemCreateWithoutCategoryInput[] | Prisma.StoreItemUncheckedCreateWithoutCategoryInput[];
+    connectOrCreate?: Prisma.StoreItemCreateOrConnectWithoutCategoryInput | Prisma.StoreItemCreateOrConnectWithoutCategoryInput[];
+    upsert?: Prisma.StoreItemUpsertWithWhereUniqueWithoutCategoryInput | Prisma.StoreItemUpsertWithWhereUniqueWithoutCategoryInput[];
+    createMany?: Prisma.StoreItemCreateManyCategoryInputEnvelope;
+    set?: Prisma.StoreItemWhereUniqueInput | Prisma.StoreItemWhereUniqueInput[];
+    disconnect?: Prisma.StoreItemWhereUniqueInput | Prisma.StoreItemWhereUniqueInput[];
+    delete?: Prisma.StoreItemWhereUniqueInput | Prisma.StoreItemWhereUniqueInput[];
+    connect?: Prisma.StoreItemWhereUniqueInput | Prisma.StoreItemWhereUniqueInput[];
+    update?: Prisma.StoreItemUpdateWithWhereUniqueWithoutCategoryInput | Prisma.StoreItemUpdateWithWhereUniqueWithoutCategoryInput[];
+    updateMany?: Prisma.StoreItemUpdateManyWithWhereWithoutCategoryInput | Prisma.StoreItemUpdateManyWithWhereWithoutCategoryInput[];
+    deleteMany?: Prisma.StoreItemScalarWhereInput | Prisma.StoreItemScalarWhereInput[];
+};
+export type StoreItemUncheckedUpdateManyWithoutCategoryNestedInput = {
+    create?: Prisma.XOR<Prisma.StoreItemCreateWithoutCategoryInput, Prisma.StoreItemUncheckedCreateWithoutCategoryInput> | Prisma.StoreItemCreateWithoutCategoryInput[] | Prisma.StoreItemUncheckedCreateWithoutCategoryInput[];
+    connectOrCreate?: Prisma.StoreItemCreateOrConnectWithoutCategoryInput | Prisma.StoreItemCreateOrConnectWithoutCategoryInput[];
+    upsert?: Prisma.StoreItemUpsertWithWhereUniqueWithoutCategoryInput | Prisma.StoreItemUpsertWithWhereUniqueWithoutCategoryInput[];
+    createMany?: Prisma.StoreItemCreateManyCategoryInputEnvelope;
+    set?: Prisma.StoreItemWhereUniqueInput | Prisma.StoreItemWhereUniqueInput[];
+    disconnect?: Prisma.StoreItemWhereUniqueInput | Prisma.StoreItemWhereUniqueInput[];
+    delete?: Prisma.StoreItemWhereUniqueInput | Prisma.StoreItemWhereUniqueInput[];
+    connect?: Prisma.StoreItemWhereUniqueInput | Prisma.StoreItemWhereUniqueInput[];
+    update?: Prisma.StoreItemUpdateWithWhereUniqueWithoutCategoryInput | Prisma.StoreItemUpdateWithWhereUniqueWithoutCategoryInput[];
+    updateMany?: Prisma.StoreItemUpdateManyWithWhereWithoutCategoryInput | Prisma.StoreItemUpdateManyWithWhereWithoutCategoryInput[];
+    deleteMany?: Prisma.StoreItemScalarWhereInput | Prisma.StoreItemScalarWhereInput[];
+};
 export type StoreItemCreateWithoutExpensesInput = {
     id?: string;
     name: string;
@@ -375,10 +437,12 @@ export type StoreItemCreateWithoutExpensesInput = {
     updatedAt?: Date | string;
     store: Prisma.StoreCreateNestedOneWithoutItemsInput;
     discounts?: Prisma.StoreItemDiscountCreateNestedManyWithoutStoreItemInput;
+    category: Prisma.StoreItemCategoryCreateNestedOneWithoutItemsInput;
 };
 export type StoreItemUncheckedCreateWithoutExpensesInput = {
     id?: string;
     storeId: string;
+    categoryId: string;
     name: string;
     price: runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted: boolean;
@@ -408,10 +472,12 @@ export type StoreItemUpdateWithoutExpensesInput = {
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     store?: Prisma.StoreUpdateOneRequiredWithoutItemsNestedInput;
     discounts?: Prisma.StoreItemDiscountUpdateManyWithoutStoreItemNestedInput;
+    category?: Prisma.StoreItemCategoryUpdateOneRequiredWithoutItemsNestedInput;
 };
 export type StoreItemUncheckedUpdateWithoutExpensesInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     storeId?: Prisma.StringFieldUpdateOperationsInput | string;
+    categoryId?: Prisma.StringFieldUpdateOperationsInput | string;
     name?: Prisma.StringFieldUpdateOperationsInput | string;
     price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted?: Prisma.BoolFieldUpdateOperationsInput | boolean;
@@ -428,9 +494,11 @@ export type StoreItemCreateWithoutStoreInput = {
     updatedAt?: Date | string;
     discounts?: Prisma.StoreItemDiscountCreateNestedManyWithoutStoreItemInput;
     expenses?: Prisma.ExpenseItemCreateNestedManyWithoutItemInput;
+    category: Prisma.StoreItemCategoryCreateNestedOneWithoutItemsInput;
 };
 export type StoreItemUncheckedCreateWithoutStoreInput = {
     id?: string;
+    categoryId: string;
     name: string;
     price: runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted: boolean;
@@ -466,6 +534,7 @@ export type StoreItemScalarWhereInput = {
     NOT?: Prisma.StoreItemScalarWhereInput | Prisma.StoreItemScalarWhereInput[];
     id?: Prisma.StringFilter<"StoreItem"> | string;
     storeId?: Prisma.StringFilter<"StoreItem"> | string;
+    categoryId?: Prisma.StringFilter<"StoreItem"> | string;
     name?: Prisma.StringFilter<"StoreItem"> | string;
     price?: Prisma.DecimalFilter<"StoreItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted?: Prisma.BoolFilter<"StoreItem"> | boolean;
@@ -481,10 +550,12 @@ export type StoreItemCreateWithoutDiscountsInput = {
     updatedAt?: Date | string;
     store: Prisma.StoreCreateNestedOneWithoutItemsInput;
     expenses?: Prisma.ExpenseItemCreateNestedManyWithoutItemInput;
+    category: Prisma.StoreItemCategoryCreateNestedOneWithoutItemsInput;
 };
 export type StoreItemUncheckedCreateWithoutDiscountsInput = {
     id?: string;
     storeId: string;
+    categoryId: string;
     name: string;
     price: runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted: boolean;
@@ -514,10 +585,12 @@ export type StoreItemUpdateWithoutDiscountsInput = {
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     store?: Prisma.StoreUpdateOneRequiredWithoutItemsNestedInput;
     expenses?: Prisma.ExpenseItemUpdateManyWithoutItemNestedInput;
+    category?: Prisma.StoreItemCategoryUpdateOneRequiredWithoutItemsNestedInput;
 };
 export type StoreItemUncheckedUpdateWithoutDiscountsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     storeId?: Prisma.StringFieldUpdateOperationsInput | string;
+    categoryId?: Prisma.StringFieldUpdateOperationsInput | string;
     name?: Prisma.StringFieldUpdateOperationsInput | string;
     price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted?: Prisma.BoolFieldUpdateOperationsInput | boolean;
@@ -525,8 +598,52 @@ export type StoreItemUncheckedUpdateWithoutDiscountsInput = {
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     expenses?: Prisma.ExpenseItemUncheckedUpdateManyWithoutItemNestedInput;
 };
+export type StoreItemCreateWithoutCategoryInput = {
+    id?: string;
+    name: string;
+    price: runtime.Decimal | runtime.DecimalJsLike | number | string;
+    isDiscounted: boolean;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+    store: Prisma.StoreCreateNestedOneWithoutItemsInput;
+    discounts?: Prisma.StoreItemDiscountCreateNestedManyWithoutStoreItemInput;
+    expenses?: Prisma.ExpenseItemCreateNestedManyWithoutItemInput;
+};
+export type StoreItemUncheckedCreateWithoutCategoryInput = {
+    id?: string;
+    storeId: string;
+    name: string;
+    price: runtime.Decimal | runtime.DecimalJsLike | number | string;
+    isDiscounted: boolean;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+    discounts?: Prisma.StoreItemDiscountUncheckedCreateNestedManyWithoutStoreItemInput;
+    expenses?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutItemInput;
+};
+export type StoreItemCreateOrConnectWithoutCategoryInput = {
+    where: Prisma.StoreItemWhereUniqueInput;
+    create: Prisma.XOR<Prisma.StoreItemCreateWithoutCategoryInput, Prisma.StoreItemUncheckedCreateWithoutCategoryInput>;
+};
+export type StoreItemCreateManyCategoryInputEnvelope = {
+    data: Prisma.StoreItemCreateManyCategoryInput | Prisma.StoreItemCreateManyCategoryInput[];
+    skipDuplicates?: boolean;
+};
+export type StoreItemUpsertWithWhereUniqueWithoutCategoryInput = {
+    where: Prisma.StoreItemWhereUniqueInput;
+    update: Prisma.XOR<Prisma.StoreItemUpdateWithoutCategoryInput, Prisma.StoreItemUncheckedUpdateWithoutCategoryInput>;
+    create: Prisma.XOR<Prisma.StoreItemCreateWithoutCategoryInput, Prisma.StoreItemUncheckedCreateWithoutCategoryInput>;
+};
+export type StoreItemUpdateWithWhereUniqueWithoutCategoryInput = {
+    where: Prisma.StoreItemWhereUniqueInput;
+    data: Prisma.XOR<Prisma.StoreItemUpdateWithoutCategoryInput, Prisma.StoreItemUncheckedUpdateWithoutCategoryInput>;
+};
+export type StoreItemUpdateManyWithWhereWithoutCategoryInput = {
+    where: Prisma.StoreItemScalarWhereInput;
+    data: Prisma.XOR<Prisma.StoreItemUpdateManyMutationInput, Prisma.StoreItemUncheckedUpdateManyWithoutCategoryInput>;
+};
 export type StoreItemCreateManyStoreInput = {
     id?: string;
+    categoryId: string;
     name: string;
     price: runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted: boolean;
@@ -542,9 +659,11 @@ export type StoreItemUpdateWithoutStoreInput = {
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     discounts?: Prisma.StoreItemDiscountUpdateManyWithoutStoreItemNestedInput;
     expenses?: Prisma.ExpenseItemUpdateManyWithoutItemNestedInput;
+    category?: Prisma.StoreItemCategoryUpdateOneRequiredWithoutItemsNestedInput;
 };
 export type StoreItemUncheckedUpdateWithoutStoreInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    categoryId?: Prisma.StringFieldUpdateOperationsInput | string;
     name?: Prisma.StringFieldUpdateOperationsInput | string;
     price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted?: Prisma.BoolFieldUpdateOperationsInput | boolean;
@@ -555,6 +674,47 @@ export type StoreItemUncheckedUpdateWithoutStoreInput = {
 };
 export type StoreItemUncheckedUpdateManyWithoutStoreInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    categoryId?: Prisma.StringFieldUpdateOperationsInput | string;
+    name?: Prisma.StringFieldUpdateOperationsInput | string;
+    price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string;
+    isDiscounted?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+};
+export type StoreItemCreateManyCategoryInput = {
+    id?: string;
+    storeId: string;
+    name: string;
+    price: runtime.Decimal | runtime.DecimalJsLike | number | string;
+    isDiscounted: boolean;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+};
+export type StoreItemUpdateWithoutCategoryInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    name?: Prisma.StringFieldUpdateOperationsInput | string;
+    price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string;
+    isDiscounted?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    store?: Prisma.StoreUpdateOneRequiredWithoutItemsNestedInput;
+    discounts?: Prisma.StoreItemDiscountUpdateManyWithoutStoreItemNestedInput;
+    expenses?: Prisma.ExpenseItemUpdateManyWithoutItemNestedInput;
+};
+export type StoreItemUncheckedUpdateWithoutCategoryInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    storeId?: Prisma.StringFieldUpdateOperationsInput | string;
+    name?: Prisma.StringFieldUpdateOperationsInput | string;
+    price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string;
+    isDiscounted?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+    createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+    discounts?: Prisma.StoreItemDiscountUncheckedUpdateManyWithoutStoreItemNestedInput;
+    expenses?: Prisma.ExpenseItemUncheckedUpdateManyWithoutItemNestedInput;
+};
+export type StoreItemUncheckedUpdateManyWithoutCategoryInput = {
+    id?: Prisma.StringFieldUpdateOperationsInput | string;
+    storeId?: Prisma.StringFieldUpdateOperationsInput | string;
     name?: Prisma.StringFieldUpdateOperationsInput | string;
     price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string;
     isDiscounted?: Prisma.BoolFieldUpdateOperationsInput | boolean;
@@ -581,6 +741,7 @@ export type StoreItemCountOutputTypeCountExpensesArgs<ExtArgs extends runtime.Ty
 export type StoreItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
     storeId?: boolean;
+    categoryId?: boolean;
     name?: boolean;
     price?: boolean;
     isDiscounted?: boolean;
@@ -589,49 +750,58 @@ export type StoreItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
     store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>;
     discounts?: boolean | Prisma.StoreItem$discountsArgs<ExtArgs>;
     expenses?: boolean | Prisma.StoreItem$expensesArgs<ExtArgs>;
+    category?: boolean | Prisma.StoreItemCategoryDefaultArgs<ExtArgs>;
     _count?: boolean | Prisma.StoreItemCountOutputTypeDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["storeItem"]>;
 export type StoreItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
     storeId?: boolean;
+    categoryId?: boolean;
     name?: boolean;
     price?: boolean;
     isDiscounted?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>;
+    category?: boolean | Prisma.StoreItemCategoryDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["storeItem"]>;
 export type StoreItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
     storeId?: boolean;
+    categoryId?: boolean;
     name?: boolean;
     price?: boolean;
     isDiscounted?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>;
+    category?: boolean | Prisma.StoreItemCategoryDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["storeItem"]>;
 export type StoreItemSelectScalar = {
     id?: boolean;
     storeId?: boolean;
+    categoryId?: boolean;
     name?: boolean;
     price?: boolean;
     isDiscounted?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
 };
-export type StoreItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "storeId" | "name" | "price" | "isDiscounted" | "createdAt" | "updatedAt", ExtArgs["result"]["storeItem"]>;
+export type StoreItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "storeId" | "categoryId" | "name" | "price" | "isDiscounted" | "createdAt" | "updatedAt", ExtArgs["result"]["storeItem"]>;
 export type StoreItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>;
     discounts?: boolean | Prisma.StoreItem$discountsArgs<ExtArgs>;
     expenses?: boolean | Prisma.StoreItem$expensesArgs<ExtArgs>;
+    category?: boolean | Prisma.StoreItemCategoryDefaultArgs<ExtArgs>;
     _count?: boolean | Prisma.StoreItemCountOutputTypeDefaultArgs<ExtArgs>;
 };
 export type StoreItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>;
+    category?: boolean | Prisma.StoreItemCategoryDefaultArgs<ExtArgs>;
 };
 export type StoreItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>;
+    category?: boolean | Prisma.StoreItemCategoryDefaultArgs<ExtArgs>;
 };
 export type $StoreItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     name: "StoreItem";
@@ -639,10 +809,12 @@ export type $StoreItemPayload<ExtArgs extends runtime.Types.Extensions.InternalA
         store: Prisma.$StorePayload<ExtArgs>;
         discounts: Prisma.$StoreItemDiscountPayload<ExtArgs>[];
         expenses: Prisma.$ExpenseItemPayload<ExtArgs>[];
+        category: Prisma.$StoreItemCategoryPayload<ExtArgs>;
     };
     scalars: runtime.Types.Extensions.GetPayloadResult<{
         id: string;
         storeId: string;
+        categoryId: string;
         name: string;
         price: runtime.Decimal;
         isDiscounted: boolean;
@@ -703,6 +875,7 @@ export interface Prisma__StoreItemClient<T, Null = never, ExtArgs extends runtim
     store<T extends Prisma.StoreDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StoreDefaultArgs<ExtArgs>>): Prisma.Prisma__StoreClient<runtime.Types.Result.GetResult<Prisma.$StorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>;
     discounts<T extends Prisma.StoreItem$discountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StoreItem$discountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StoreItemDiscountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
     expenses<T extends Prisma.StoreItem$expensesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StoreItem$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpenseItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
+    category<T extends Prisma.StoreItemCategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StoreItemCategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__StoreItemCategoryClient<runtime.Types.Result.GetResult<Prisma.$StoreItemCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>;
     then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): runtime.Types.Utils.JsPromise<TResult1 | TResult2>;
     catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): runtime.Types.Utils.JsPromise<T | TResult>;
     finally(onfinally?: (() => void) | undefined | null): runtime.Types.Utils.JsPromise<T>;
@@ -710,6 +883,7 @@ export interface Prisma__StoreItemClient<T, Null = never, ExtArgs extends runtim
 export interface StoreItemFieldRefs {
     readonly id: Prisma.FieldRef<"StoreItem", 'String'>;
     readonly storeId: Prisma.FieldRef<"StoreItem", 'String'>;
+    readonly categoryId: Prisma.FieldRef<"StoreItem", 'String'>;
     readonly name: Prisma.FieldRef<"StoreItem", 'String'>;
     readonly price: Prisma.FieldRef<"StoreItem", 'Decimal'>;
     readonly isDiscounted: Prisma.FieldRef<"StoreItem", 'Boolean'>;

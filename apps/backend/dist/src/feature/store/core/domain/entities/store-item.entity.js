@@ -27,6 +27,9 @@ class StoreItem {
             throw new Error('Updated date is required');
         }
     }
+    get categoryId() {
+        return this.props.categoryId;
+    }
     get id() {
         return this.props.id;
     }

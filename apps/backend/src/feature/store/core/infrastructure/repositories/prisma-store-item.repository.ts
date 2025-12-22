@@ -19,6 +19,7 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
         storeId: data.storeId!,
         name: data.name!,
         price: new Decimal(data.price?.toString() || '0'),
+        categoryId: data.categoryId!,
         isDiscounted: data.isDiscounted ?? false,
       },
     });

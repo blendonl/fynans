@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
 import { StoreCoreModule } from '../../store/core/store-core.module';
-import { ExpenseItemCategoryCoreModule } from '../../expense-item-category/core/expense-item-category-core.module';
+import { StoreItemCategoryCoreModule } from '../../store-item-category/core/store-item-category-core.module';
 import { PrismaExpenseItemRepository } from './infrastructure/repositories/prisma-expense-item.repository';
 import { CreateExpenseItemUseCase } from './application/use-cases/create-expense-item.use-case';
 import { GetExpenseItemByIdUseCase } from './application/use-cases/get-expense-item-by-id.use-case';
@@ -12,7 +12,7 @@ import { CalculateExpenseTotalUseCase } from './application/use-cases/calculate-
 import { ExpenseItemService } from './application/services/expense-item.service';
 
 @Module({
-  imports: [PrismaModule, StoreCoreModule, ExpenseItemCategoryCoreModule],
+  imports: [PrismaModule, StoreCoreModule, StoreItemCategoryCoreModule],
   providers: [
     {
       provide: 'ExpenseItemRepository',

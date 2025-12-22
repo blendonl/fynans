@@ -11,6 +11,7 @@ export type ExpenseMinAggregateOutputType = {
     transactionId: string | null;
     storeId: string | null;
     categoryId: string | null;
+    description: string | null;
     createdAt: Date | null;
     updatedAt: Date | null;
 };
@@ -19,6 +20,7 @@ export type ExpenseMaxAggregateOutputType = {
     transactionId: string | null;
     storeId: string | null;
     categoryId: string | null;
+    description: string | null;
     createdAt: Date | null;
     updatedAt: Date | null;
 };
@@ -27,6 +29,7 @@ export type ExpenseCountAggregateOutputType = {
     transactionId: number;
     storeId: number;
     categoryId: number;
+    description: number;
     createdAt: number;
     updatedAt: number;
     _all: number;
@@ -36,6 +39,7 @@ export type ExpenseMinAggregateInputType = {
     transactionId?: true;
     storeId?: true;
     categoryId?: true;
+    description?: true;
     createdAt?: true;
     updatedAt?: true;
 };
@@ -44,6 +48,7 @@ export type ExpenseMaxAggregateInputType = {
     transactionId?: true;
     storeId?: true;
     categoryId?: true;
+    description?: true;
     createdAt?: true;
     updatedAt?: true;
 };
@@ -52,6 +57,7 @@ export type ExpenseCountAggregateInputType = {
     transactionId?: true;
     storeId?: true;
     categoryId?: true;
+    description?: true;
     createdAt?: true;
     updatedAt?: true;
     _all?: true;
@@ -85,6 +91,7 @@ export type ExpenseGroupByOutputType = {
     transactionId: string;
     storeId: string;
     categoryId: string;
+    description: string | null;
     createdAt: Date;
     updatedAt: Date;
     _count: ExpenseCountAggregateOutputType | null;
@@ -102,6 +109,7 @@ export type ExpenseWhereInput = {
     transactionId?: Prisma.StringFilter<"Expense"> | string;
     storeId?: Prisma.StringFilter<"Expense"> | string;
     categoryId?: Prisma.StringFilter<"Expense"> | string;
+    description?: Prisma.StringNullableFilter<"Expense"> | string | null;
     createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"Expense"> | Date | string;
     category?: Prisma.XOR<Prisma.ExpenseCategoryScalarRelationFilter, Prisma.ExpenseCategoryWhereInput>;
@@ -114,6 +122,7 @@ export type ExpenseOrderByWithRelationInput = {
     transactionId?: Prisma.SortOrder;
     storeId?: Prisma.SortOrder;
     categoryId?: Prisma.SortOrder;
+    description?: Prisma.SortOrderInput | Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
     category?: Prisma.ExpenseCategoryOrderByWithRelationInput;
@@ -129,6 +138,7 @@ export type ExpenseWhereUniqueInput = Prisma.AtLeast<{
     NOT?: Prisma.ExpenseWhereInput | Prisma.ExpenseWhereInput[];
     storeId?: Prisma.StringFilter<"Expense"> | string;
     categoryId?: Prisma.StringFilter<"Expense"> | string;
+    description?: Prisma.StringNullableFilter<"Expense"> | string | null;
     createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"Expense"> | Date | string;
     category?: Prisma.XOR<Prisma.ExpenseCategoryScalarRelationFilter, Prisma.ExpenseCategoryWhereInput>;
@@ -141,6 +151,7 @@ export type ExpenseOrderByWithAggregationInput = {
     transactionId?: Prisma.SortOrder;
     storeId?: Prisma.SortOrder;
     categoryId?: Prisma.SortOrder;
+    description?: Prisma.SortOrderInput | Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
     _count?: Prisma.ExpenseCountOrderByAggregateInput;
@@ -155,11 +166,13 @@ export type ExpenseScalarWhereWithAggregatesInput = {
     transactionId?: Prisma.StringWithAggregatesFilter<"Expense"> | string;
     storeId?: Prisma.StringWithAggregatesFilter<"Expense"> | string;
     categoryId?: Prisma.StringWithAggregatesFilter<"Expense"> | string;
+    description?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null;
     createdAt?: Prisma.DateTimeWithAggregatesFilter<"Expense"> | Date | string;
     updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Expense"> | Date | string;
 };
 export type ExpenseCreateInput = {
     id: string;
+    description?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     category: Prisma.ExpenseCategoryCreateNestedOneWithoutExpensesInput;
@@ -172,12 +185,14 @@ export type ExpenseUncheckedCreateInput = {
     transactionId: string;
     storeId: string;
     categoryId: string;
+    description?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     items?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutExpenseInput;
 };
 export type ExpenseUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     category?: Prisma.ExpenseCategoryUpdateOneRequiredWithoutExpensesNestedInput;
@@ -190,6 +205,7 @@ export type ExpenseUncheckedUpdateInput = {
     transactionId?: Prisma.StringFieldUpdateOperationsInput | string;
     storeId?: Prisma.StringFieldUpdateOperationsInput | string;
     categoryId?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     items?: Prisma.ExpenseItemUncheckedUpdateManyWithoutExpenseNestedInput;
@@ -199,11 +215,13 @@ export type ExpenseCreateManyInput = {
     transactionId: string;
     storeId: string;
     categoryId: string;
+    description?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
 export type ExpenseUpdateManyMutationInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -212,6 +230,7 @@ export type ExpenseUncheckedUpdateManyInput = {
     transactionId?: Prisma.StringFieldUpdateOperationsInput | string;
     storeId?: Prisma.StringFieldUpdateOperationsInput | string;
     categoryId?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -224,6 +243,7 @@ export type ExpenseCountOrderByAggregateInput = {
     transactionId?: Prisma.SortOrder;
     storeId?: Prisma.SortOrder;
     categoryId?: Prisma.SortOrder;
+    description?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
 };
@@ -232,6 +252,7 @@ export type ExpenseMaxOrderByAggregateInput = {
     transactionId?: Prisma.SortOrder;
     storeId?: Prisma.SortOrder;
     categoryId?: Prisma.SortOrder;
+    description?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
 };
@@ -240,6 +261,7 @@ export type ExpenseMinOrderByAggregateInput = {
     transactionId?: Prisma.SortOrder;
     storeId?: Prisma.SortOrder;
     categoryId?: Prisma.SortOrder;
+    description?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
 };
@@ -373,6 +395,7 @@ export type ExpenseUncheckedUpdateOneWithoutTransactionNestedInput = {
 };
 export type ExpenseCreateWithoutItemsInput = {
     id: string;
+    description?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     category: Prisma.ExpenseCategoryCreateNestedOneWithoutExpensesInput;
@@ -384,6 +407,7 @@ export type ExpenseUncheckedCreateWithoutItemsInput = {
     transactionId: string;
     storeId: string;
     categoryId: string;
+    description?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
@@ -402,6 +426,7 @@ export type ExpenseUpdateToOneWithWhereWithoutItemsInput = {
 };
 export type ExpenseUpdateWithoutItemsInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     category?: Prisma.ExpenseCategoryUpdateOneRequiredWithoutExpensesNestedInput;
@@ -413,11 +438,13 @@ export type ExpenseUncheckedUpdateWithoutItemsInput = {
     transactionId?: Prisma.StringFieldUpdateOperationsInput | string;
     storeId?: Prisma.StringFieldUpdateOperationsInput | string;
     categoryId?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
 export type ExpenseCreateWithoutCategoryInput = {
     id: string;
+    description?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     transaction: Prisma.TransactionCreateNestedOneWithoutExpenseInput;
@@ -428,6 +455,7 @@ export type ExpenseUncheckedCreateWithoutCategoryInput = {
     id: string;
     transactionId: string;
     storeId: string;
+    description?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     items?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutExpenseInput;
@@ -461,11 +489,13 @@ export type ExpenseScalarWhereInput = {
     transactionId?: Prisma.StringFilter<"Expense"> | string;
     storeId?: Prisma.StringFilter<"Expense"> | string;
     categoryId?: Prisma.StringFilter<"Expense"> | string;
+    description?: Prisma.StringNullableFilter<"Expense"> | string | null;
     createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"Expense"> | Date | string;
 };
 export type ExpenseCreateWithoutStoreInput = {
     id: string;
+    description?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     category: Prisma.ExpenseCategoryCreateNestedOneWithoutExpensesInput;
@@ -476,6 +506,7 @@ export type ExpenseUncheckedCreateWithoutStoreInput = {
     id: string;
     transactionId: string;
     categoryId: string;
+    description?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     items?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutExpenseInput;
@@ -503,6 +534,7 @@ export type ExpenseUpdateManyWithWhereWithoutStoreInput = {
 };
 export type ExpenseCreateWithoutTransactionInput = {
     id: string;
+    description?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     category: Prisma.ExpenseCategoryCreateNestedOneWithoutExpensesInput;
@@ -513,6 +545,7 @@ export type ExpenseUncheckedCreateWithoutTransactionInput = {
     id: string;
     storeId: string;
     categoryId: string;
+    description?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     items?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutExpenseInput;
@@ -532,6 +565,7 @@ export type ExpenseUpdateToOneWithWhereWithoutTransactionInput = {
 };
 export type ExpenseUpdateWithoutTransactionInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     category?: Prisma.ExpenseCategoryUpdateOneRequiredWithoutExpensesNestedInput;
@@ -542,6 +576,7 @@ export type ExpenseUncheckedUpdateWithoutTransactionInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     storeId?: Prisma.StringFieldUpdateOperationsInput | string;
     categoryId?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     items?: Prisma.ExpenseItemUncheckedUpdateManyWithoutExpenseNestedInput;
@@ -550,11 +585,13 @@ export type ExpenseCreateManyCategoryInput = {
     id: string;
     transactionId: string;
     storeId: string;
+    description?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
 export type ExpenseUpdateWithoutCategoryInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     transaction?: Prisma.TransactionUpdateOneRequiredWithoutExpenseNestedInput;
@@ -565,6 +602,7 @@ export type ExpenseUncheckedUpdateWithoutCategoryInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     transactionId?: Prisma.StringFieldUpdateOperationsInput | string;
     storeId?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     items?: Prisma.ExpenseItemUncheckedUpdateManyWithoutExpenseNestedInput;
@@ -573,6 +611,7 @@ export type ExpenseUncheckedUpdateManyWithoutCategoryInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     transactionId?: Prisma.StringFieldUpdateOperationsInput | string;
     storeId?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -580,11 +619,13 @@ export type ExpenseCreateManyStoreInput = {
     id: string;
     transactionId: string;
     categoryId: string;
+    description?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
 export type ExpenseUpdateWithoutStoreInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     category?: Prisma.ExpenseCategoryUpdateOneRequiredWithoutExpensesNestedInput;
@@ -595,6 +636,7 @@ export type ExpenseUncheckedUpdateWithoutStoreInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     transactionId?: Prisma.StringFieldUpdateOperationsInput | string;
     categoryId?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     items?: Prisma.ExpenseItemUncheckedUpdateManyWithoutExpenseNestedInput;
@@ -603,6 +645,7 @@ export type ExpenseUncheckedUpdateManyWithoutStoreInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     transactionId?: Prisma.StringFieldUpdateOperationsInput | string;
     categoryId?: Prisma.StringFieldUpdateOperationsInput | string;
+    description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -623,6 +666,7 @@ export type ExpenseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     transactionId?: boolean;
     storeId?: boolean;
     categoryId?: boolean;
+    description?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     category?: boolean | Prisma.ExpenseCategoryDefaultArgs<ExtArgs>;
@@ -636,6 +680,7 @@ export type ExpenseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
     transactionId?: boolean;
     storeId?: boolean;
     categoryId?: boolean;
+    description?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     category?: boolean | Prisma.ExpenseCategoryDefaultArgs<ExtArgs>;
@@ -647,6 +692,7 @@ export type ExpenseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
     transactionId?: boolean;
     storeId?: boolean;
     categoryId?: boolean;
+    description?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     category?: boolean | Prisma.ExpenseCategoryDefaultArgs<ExtArgs>;
@@ -658,10 +704,11 @@ export type ExpenseSelectScalar = {
     transactionId?: boolean;
     storeId?: boolean;
     categoryId?: boolean;
+    description?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
 };
-export type ExpenseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "transactionId" | "storeId" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["expense"]>;
+export type ExpenseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "transactionId" | "storeId" | "categoryId" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["expense"]>;
 export type ExpenseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     category?: boolean | Prisma.ExpenseCategoryDefaultArgs<ExtArgs>;
     transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>;
@@ -692,6 +739,7 @@ export type $ExpensePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
         transactionId: string;
         storeId: string;
         categoryId: string;
+        description: string | null;
         createdAt: Date;
         updatedAt: Date;
     }, ExtArgs["result"]["expense"]>;
@@ -759,6 +807,7 @@ export interface ExpenseFieldRefs {
     readonly transactionId: Prisma.FieldRef<"Expense", 'String'>;
     readonly storeId: Prisma.FieldRef<"Expense", 'String'>;
     readonly categoryId: Prisma.FieldRef<"Expense", 'String'>;
+    readonly description: Prisma.FieldRef<"Expense", 'String'>;
     readonly createdAt: Prisma.FieldRef<"Expense", 'DateTime'>;
     readonly updatedAt: Prisma.FieldRef<"Expense", 'DateTime'>;
 }

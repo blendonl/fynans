@@ -1,0 +1,1 @@
+{"version":3,"file":"update-income.dto.js","sourceRoot":"","sources":["../../../../../../../src/feature/income/core/application/dto/update-income.dto.ts"],"names":[],"mappings":";;;AAAA,MAAa,eAAe;IAC1B,UAAU,CAAU;IAEpB,YAAY,IAA6B;QACvC,IAAI,CAAC,UAAU,GAAG,IAAI,CAAC,UAAU,CAAC;IACpC,CAAC;CACF;AAND,0CAMC"}

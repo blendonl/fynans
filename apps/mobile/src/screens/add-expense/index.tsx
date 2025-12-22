@@ -31,7 +31,8 @@ export default function AddExpenseScreen({ navigation }: any) {
   const expenseItems = useExpenseItems();
   const imageUpload = useImageUpload();
 
-  const isGroceryExpense = categories.selectedCategory?.isConnectedToStore === true;
+  const isGroceryExpense =
+    categories.selectedCategory?.isConnectedToStore === true;
   const showStoreSection = isGroceryExpense;
   const showExpenseItemsForm =
     categories.selectedCategory !== null &&
@@ -57,8 +58,9 @@ export default function AddExpenseScreen({ navigation }: any) {
       }
 
       const payload = {
-        categoryId: categories.selectedCategory.id,
-        storeName: stores.storeInput || "N/A",
+        categoryId:
+          expenseItems.currentItem.categoryId ?? categories.selectedCategory.id,
+        storeName: expenseItems.currentItem.name ?? stores.storeInput,
         storeLocation: stores.storeLocation || "Unknown",
         items: expenseItems.items,
         receiptImages: receiptUrls,
@@ -80,7 +82,7 @@ export default function AddExpenseScreen({ navigation }: any) {
   };
 
   const canSubmit = () => {
-    if (!categories.selectedCategory) return false;
+    if (!categories.selectedCategory || !expenseItems.currentItem) return false;
     if (isGroceryExpense && !stores.storeInput.trim()) return false;
     return expenseItems.items.length > 0;
   };
@@ -88,85 +90,88 @@ export default function AddExpenseScreen({ navigation }: any) {
   return (
     <>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.flex}
         keyboardVerticalOffset={100}
       >
         <ScrollView
-          style={[styles.container, { backgroundColor: theme.colors.background }]}
+          style={[
+            styles.container,
+            { backgroundColor: theme.colors.background },
+          ]}
           keyboardShouldPersistTaps="handled"
         >
           <CategorySelector
-          categoryInput={categories.categoryInput}
-          selectedCategory={categories.selectedCategory}
-          filteredCategories={categories.filteredCategories}
-          showDropdown={categories.showCategoryDropdown}
-          loading={categories.loading}
-          onInputChange={categories.handleCategoryInputChange}
-          onCategorySelect={categories.handleCategorySelect}
-          onCreateNew={categories.handleCreateNewCategory}
-          onClear={categories.clearCategory}
-          onFocus={() => categories.setShowCategoryDropdown(true)}
-        />
-
-        {showStoreSection && (
-          <StoreSelector
-            storeInput={stores.storeInput}
-            selectedStore={stores.selectedStore}
-            stores={stores.stores}
-            showDropdown={stores.showStoreDropdown}
-            onInputChange={stores.handleStoreInputChange}
-            onStoreSelect={stores.handleStoreSelect}
-            onAddNew={stores.handleOpenAddStoreModal}
-            onClear={stores.clearStore}
-            onFocus={() => stores.setShowStoreDropdown(true)}
+            categoryInput={categories.categoryInput}
+            selectedCategory={categories.selectedCategory}
+            filteredCategories={categories.filteredCategories}
+            showDropdown={categories.showCategoryDropdown}
+            loading={categories.loading}
+            onInputChange={categories.handleCategoryInputChange}
+            onCategorySelect={categories.handleCategorySelect}
+            onCreateNew={categories.handleCreateNewCategory}
+            onClear={categories.clearCategory}
+            onFocus={() => categories.setShowCategoryDropdown(true)}
           />
-        )}
 
-        {showExpenseItemsForm && (
-          <ExpenseItemsForm
-            items={expenseItems.items}
-            currentItem={expenseItems.currentItem}
-            itemCategories={categories.itemCategories}
-            selectedStore={stores.selectedStore}
-            onCurrentItemChange={expenseItems.setCurrentItem}
-            onAddItem={expenseItems.handleAddItem}
-            onRemoveItem={expenseItems.handleRemoveItem}
-          />
-        )}
-
-        {showExpenseItemsForm && (
-          <View style={styles.section}>
-            <Text
-              style={[
-                styles.sectionTitle,
-                theme.custom.typography.h5,
-                { color: theme.custom.colors.text },
-              ]}
-            >
-              Receipt (Optional)
-            </Text>
-            <ReceiptCamera
-              onImageSelected={imageUpload.addImage}
-              disabled={imageUpload.uploading || submitLoading}
+          {showStoreSection && (
+            <StoreSelector
+              storeInput={stores.storeInput}
+              selectedStore={stores.selectedStore}
+              stores={stores.stores}
+              showDropdown={stores.showStoreDropdown}
+              onInputChange={stores.handleStoreInputChange}
+              onStoreSelect={stores.handleStoreSelect}
+              onAddNew={stores.handleOpenAddStoreModal}
+              onClear={stores.clearStore}
+              onFocus={() => stores.setShowStoreDropdown(true)}
             />
-            <ReceiptPreview
-              imageUris={imageUpload.imageUris}
-              onRemove={imageUpload.removeImage}
-            />
-          </View>
-        )}
+          )}
 
-        {canSubmit() && (
-          <Button
-            title="Create Expense"
-            onPress={handleSubmit}
-            loading={submitLoading || imageUpload.uploading}
-            disabled={submitLoading || imageUpload.uploading}
-            fullWidth
-            style={styles.submitButton}
-          />
-        )}
+          {showExpenseItemsForm && (
+            <ExpenseItemsForm
+              items={expenseItems.items}
+              currentItem={expenseItems.currentItem}
+              itemCategories={categories.itemCategories}
+              selectedStore={stores.selectedStore}
+              onCurrentItemChange={expenseItems.setCurrentItem}
+              onAddItem={expenseItems.handleAddItem}
+              onRemoveItem={expenseItems.handleRemoveItem}
+            />
+          )}
+
+          {showExpenseItemsForm && (
+            <View style={styles.section}>
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  theme.custom.typography.h5,
+                  { color: theme.custom.colors.text },
+                ]}
+              >
+                Receipt (Optional)
+              </Text>
+              <ReceiptCamera
+                onImageSelected={imageUpload.addImage}
+                disabled={imageUpload.uploading || submitLoading}
+              />
+              <ReceiptPreview
+                imageUris={imageUpload.imageUris}
+                onRemove={imageUpload.removeImage}
+              />
+            </View>
+          )}
+
+          {canSubmit() && (
+            <Button
+              title="Create Expense"
+              onPress={handleSubmit}
+              loading={submitLoading || imageUpload.uploading}
+              disabled={submitLoading || imageUpload.uploading}
+              fullWidth
+              style={styles.submitButton}
+            />
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
 

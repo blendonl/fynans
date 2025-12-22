@@ -17,10 +17,12 @@ const auth_rest_module_1 = require("./feature/auth/rest/auth-rest.module");
 const user_rest_module_1 = require("./feature/user/rest/user-rest.module");
 const transaction_rest_module_1 = require("./feature/transaction/rest/transaction-rest.module");
 const expense_category_rest_module_1 = require("./feature/expense-category/rest/expense-category-rest.module");
-const expense_item_category_rest_module_1 = require("./feature/expense-item-category/rest/expense-item-category-rest.module");
+const store_item_category_rest_module_1 = require("./feature/store-item-category/rest/store-item-category-rest.module");
 const expense_item_rest_module_1 = require("./feature/expense-item/rest/expense-item-rest.module");
 const expense_rest_module_1 = require("./feature/expense/rest/expense-rest.module");
 const store_rest_module_1 = require("./feature/store/rest/store-rest.module");
+const income_category_rest_module_1 = require("./feature/income-category/rest/income-category-rest.module");
+const income_rest_module_1 = require("./feature/income/rest/income-rest.module");
 const auth_guard_1 = require("./feature/auth/rest/guards/auth.guard");
 let AppModule = class AppModule {
 };
@@ -34,10 +36,12 @@ exports.AppModule = AppModule = __decorate([
             user_rest_module_1.UserRestModule,
             transaction_rest_module_1.TransactionRestModule,
             expense_category_rest_module_1.ExpenseCategoryRestModule,
-            expense_item_category_rest_module_1.ExpenseItemCategoryRestModule,
+            store_item_category_rest_module_1.StoreItemCategoryRestModule,
             expense_item_rest_module_1.ExpenseItemRestModule,
             expense_rest_module_1.ExpenseRestModule,
             store_rest_module_1.StoreRestModule,
+            income_category_rest_module_1.IncomeCategoryRestModule,
+            income_rest_module_1.IncomeRestModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
