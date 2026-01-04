@@ -50,10 +50,13 @@ export class ExpenseController {
             quantity: item.quantity,
           }),
       ),
-      recordedAt: createDto.recordedAt ? new Date(createDto.recordedAt) : undefined,
+      recordedAt: createDto.recordedAt
+        ? new Date(createDto.recordedAt)
+        : undefined,
     });
 
     const expense = await this.expenseService.create(coreDto);
+
     return ExpenseResponseDto.fromEntity(expense);
   }
 

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { NotificationGateway } from './notification.gateway';
 import { WebSocketAuthGuard } from './websocket-auth.guard';
 import { AuthCoreModule } from '../../auth/core/auth-core.module';

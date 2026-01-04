@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationCoreModule = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_module_1 = require("../../../common/prisma/prisma.module");
+const notification_websocket_module_1 = require("../websocket/notification-websocket.module");
 const prisma_notification_repository_1 = require("./infrastructure/repositories/prisma-notification.repository");
 const prisma_notification_preference_repository_1 = require("./infrastructure/repositories/prisma-notification-preference.repository");
 const prisma_device_token_repository_1 = require("./infrastructure/repositories/prisma-device-token.repository");
@@ -31,7 +32,7 @@ let NotificationCoreModule = class NotificationCoreModule {
 exports.NotificationCoreModule = NotificationCoreModule;
 exports.NotificationCoreModule = NotificationCoreModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
+        imports: [prisma_module_1.PrismaModule, (0, common_1.forwardRef)(() => notification_websocket_module_1.NotificationWebSocketModule)],
         providers: [
             {
                 provide: 'NotificationRepository',

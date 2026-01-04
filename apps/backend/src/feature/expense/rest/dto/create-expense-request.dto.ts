@@ -57,6 +57,10 @@ export class CreateExpenseRequestDto {
   familyId?: string;
 
   @IsOptional()
+  @IsString()
+  scope?: 'PERSONAL' | 'FAMILY';
+
+  @IsOptional()
   @IsDateString()
   recordedAt?: string;
 }

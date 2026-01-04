@@ -52,6 +52,7 @@ class CreateExpenseRequestDto {
     storeLocation;
     items;
     familyId;
+    scope;
     recordedAt;
 }
 exports.CreateExpenseRequestDto = CreateExpenseRequestDto;
@@ -81,6 +82,11 @@ __decorate([
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateExpenseRequestDto.prototype, "familyId", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateExpenseRequestDto.prototype, "scope", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsDateString)(),

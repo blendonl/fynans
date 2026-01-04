@@ -8,6 +8,7 @@ class CreateExpenseDto {
     storeLocation;
     items;
     familyId;
+    scope;
     recordedAt;
     constructor(data) {
         this.userId = data.userId;

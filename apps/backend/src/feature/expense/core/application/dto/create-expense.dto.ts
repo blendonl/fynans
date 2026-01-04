@@ -7,6 +7,7 @@ export class CreateExpenseDto {
   storeLocation: string;
   items: CreateExpenseItemDto[];
   familyId?: string;
+  scope?: 'PERSONAL' | 'FAMILY';
   recordedAt?: Date;
 
   constructor(data: {

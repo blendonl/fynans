@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
+import { NotificationWebSocketModule } from '../websocket/notification-websocket.module';
 
 // Repositories
 import { PrismaNotificationRepository } from './infrastructure/repositories/prisma-notification.repository';
@@ -25,7 +26,7 @@ import { RegisterDeviceTokenUseCase } from './application/use-cases/register-dev
 import { UnregisterDeviceTokenUseCase } from './application/use-cases/unregister-device-token.use-case';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, forwardRef(() => NotificationWebSocketModule)],
   providers: [
     // Repositories
     {

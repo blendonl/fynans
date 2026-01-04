@@ -46,7 +46,9 @@ let ExpenseController = class ExpenseController {
                 discount: item.discount,
                 quantity: item.quantity,
             })),
-            recordedAt: createDto.recordedAt ? new Date(createDto.recordedAt) : undefined,
+            recordedAt: createDto.recordedAt
+                ? new Date(createDto.recordedAt)
+                : undefined,
         });
         const expense = await this.expenseService.create(coreDto);
         return expense_response_dto_1.ExpenseResponseDto.fromEntity(expense);

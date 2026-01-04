@@ -11,5 +11,6 @@ export declare class CreateExpenseRequestDto {
     storeLocation: string;
     items: CreateExpenseItemRequestDto[];
     familyId?: string;
+    scope?: 'PERSONAL' | 'FAMILY';
     recordedAt?: string;
 }
