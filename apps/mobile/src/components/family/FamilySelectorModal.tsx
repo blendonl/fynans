@@ -9,8 +9,11 @@ import {
   Animated,
   Dimensions,
   TouchableWithoutFeedback,
+  Platform,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import { useFamily } from '../../context/FamilyContext';
 import { useNavigation } from '@react-navigation/native';
 import { useAppTheme } from '../../theme';
@@ -30,29 +33,64 @@ export const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
   const navigation = useNavigation();
   const { families, selectedFamily, selectFamily } = useFamily();
   const slideAnim = React.useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const pulseAnim = React.useRef(new Animated.Value(1)).current;
 
   React.useEffect(() => {
     if (visible) {
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        useNativeDriver: true,
-        bounciness: 0,
-      }).start();
+      Animated.parallel([
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          useNativeDriver: true,
+          bounciness: 8,
+          speed: 12,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // Pulse animation for create button
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.03,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
     } else {
-      Animated.timing(slideAnim, {
-        toValue: SCREEN_HEIGHT,
-        duration: 250,
-        useNativeDriver: true,
-      }).start();
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: SCREEN_HEIGHT,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
   }, [visible]);
 
   const handleSelect = async (family: any | null) => {
+    Haptics.selectionAsync();
     await selectFamily(family);
     onClose();
   };
 
   const handleCreateFamily = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     onClose();
     navigation.navigate('CreateFamily' as never);
   };
@@ -78,33 +116,56 @@ export const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
                 },
               ]}
             >
-              <View style={[
-                styles.handle,
-                { backgroundColor: theme.custom.colors.divider }
-              ]} />
+              {/* Enhanced handle with gradient */}
+              <View style={styles.handleContainer}>
+                <LinearGradient
+                  colors={[
+                    theme.custom.colors.primaryLight,
+                    theme.colors.primary,
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={[
+                    styles.handle,
+                    {
+                      shadowColor: theme.colors.primary,
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.3,
+                      shadowRadius: 4,
+                    },
+                  ]}
+                />
+              </View>
 
               <View style={[
                 styles.header,
                 {
                   paddingHorizontal: theme.custom.spacing.lg,
-                  paddingVertical: theme.custom.spacing.md,
+                  paddingVertical: theme.custom.spacing.lg,
                   borderBottomColor: theme.custom.colors.divider,
                 }
               ]}>
                 <Text style={[
                   styles.title,
                   { color: theme.colors.onSurface },
-                  theme.custom.typography.h3,
+                  theme.custom.typography.h2,
                 ]}>
                   Select Context
                 </Text>
                 <TouchableOpacity
                   onPress={onClose}
-                  style={[styles.closeButton, { padding: theme.custom.spacing.xs }]}
+                  style={[
+                    styles.closeButton,
+                    {
+                      padding: theme.custom.spacing.sm,
+                      backgroundColor: theme.custom.colors.glassBackground,
+                      borderRadius: theme.custom.borderRadius.round,
+                    }
+                  ]}
                 >
                   <MaterialCommunityIcons
                     name="close"
-                    size={24}
+                    size={22}
                     color={theme.colors.onSurface}
                   />
                 </TouchableOpacity>
@@ -113,117 +174,249 @@ export const FamilySelectorModal: React.FC<FamilySelectorModalProps> = ({
               <FlatList
                 data={[null, ...families]}
                 keyExtractor={(item) => item?.id || 'personal'}
-                renderItem={({ item }) => {
+                renderItem={({ item, index }) => {
                   const isSelected = item
                     ? selectedFamily?.id === item.id
                     : !selectedFamily;
                   const isPersonal = !item;
+                  const memberCount = item?.members?.length || 0;
 
                   return (
-                    <TouchableOpacity
-                      style={[
-                        styles.item,
-                        {
-                          backgroundColor: isSelected
-                            ? theme.custom.colors.selectionBackground
-                            : 'transparent',
-                          borderRadius: theme.custom.borderRadius.lg,
-                          paddingVertical: theme.custom.spacing.md,
-                          paddingHorizontal: theme.custom.spacing.md,
-                          marginVertical: theme.custom.spacing.xs,
-                        },
-                      ]}
-                      onPress={() => handleSelect(item)}
-                      activeOpacity={0.7}
+                    <Animated.View
+                      style={{
+                        opacity: fadeAnim,
+                        transform: [
+                          {
+                            translateY: fadeAnim.interpolate({
+                              inputRange: [0, 1],
+                              outputRange: [20, 0],
+                            }),
+                          },
+                        ],
+                      }}
                     >
-                      <View style={styles.itemLeft}>
-                        <View
-                          style={[
-                            styles.iconContainer,
-                            {
-                              backgroundColor: isPersonal
-                                ? theme.custom.colors.familyPersonalLight
-                                : theme.custom.colors.familyGroupLight,
-                              borderRadius: theme.custom.borderRadius.round,
-                            },
-                          ]}
-                        >
-                          <MaterialCommunityIcons
-                            name={isPersonal ? 'account' : 'account-group'}
-                            size={24}
-                            color={isPersonal
-                              ? theme.custom.colors.familyPersonal
-                              : theme.custom.colors.familyGroup
-                            }
+                      <TouchableOpacity
+                        style={[
+                          styles.item,
+                          {
+                            borderRadius: theme.custom.borderRadius.lg,
+                            paddingVertical: theme.custom.spacing.lg,
+                            paddingHorizontal: theme.custom.spacing.lg,
+                            marginVertical: theme.custom.spacing.xs,
+                            borderWidth: isSelected ? 2 : 0,
+                            borderColor: isSelected ? theme.colors.primary : 'transparent',
+                            overflow: 'hidden',
+                          },
+                          isPersonal && !isSelected && {
+                            borderWidth: 1.5,
+                            borderColor: `${theme.colors.primary}40`,
+                          },
+                        ]}
+                        onPress={() => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                          handleSelect(item);
+                        }}
+                        activeOpacity={0.97}
+                      >
+                        {/* Selection gradient background */}
+                        {isSelected && (
+                          <LinearGradient
+                            colors={[
+                              `${theme.colors.primary}14`,
+                              `${theme.colors.primary}0A`,
+                            ]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={StyleSheet.absoluteFill}
                           />
-                        </View>
-                        <View style={styles.itemTextContainer}>
-                          <Text
+                        )}
+
+                        <View style={styles.itemLeft}>
+                          <View
                             style={[
-                              styles.itemName,
-                              { color: theme.colors.onSurface },
-                              theme.custom.typography.bodyMedium,
+                              styles.iconContainer,
+                              {
+                                backgroundColor: isPersonal
+                                  ? theme.custom.colors.familyPersonalLight
+                                  : theme.custom.colors.familyGroupLight,
+                                borderRadius: theme.custom.borderRadius.round,
+                                ...Platform.select({
+                                  ios: {
+                                    shadowColor: isSelected ? theme.colors.primary : '#000',
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: isSelected ? 0.3 : 0.1,
+                                    shadowRadius: 4,
+                                  },
+                                  android: {
+                                    elevation: isSelected ? 4 : 2,
+                                  },
+                                }),
+                              },
                             ]}
                           >
-                            {isPersonal ? 'Personal' : item.name}
-                          </Text>
-                          {!isPersonal && (
-                            <Text style={[
-                              styles.itemBalance,
-                              { color: theme.custom.colors.textSecondary },
-                              theme.custom.typography.caption,
-                            ]}>
-                              ${item.balance.toFixed(2)}
-                            </Text>
-                          )}
+                            <MaterialCommunityIcons
+                              name={isPersonal ? 'account' : 'account-group'}
+                              size={28}
+                              color={isPersonal
+                                ? theme.custom.colors.familyPersonal
+                                : theme.custom.colors.familyGroup
+                              }
+                            />
+                          </View>
+                          <View style={styles.itemTextContainer}>
+                            <View style={styles.itemNameRow}>
+                              <Text
+                                style={[
+                                  styles.itemName,
+                                  { color: theme.colors.onSurface },
+                                  theme.custom.typography.bodyMedium,
+                                ]}
+                              >
+                                {isPersonal ? 'Personal' : item.name}
+                              </Text>
+                              {!isPersonal && memberCount > 0 && (
+                                <View
+                                  style={[
+                                    styles.memberBadge,
+                                    {
+                                      backgroundColor: `${theme.custom.colors.familyGroup}20`,
+                                      paddingHorizontal: theme.custom.spacing.sm,
+                                      paddingVertical: 2,
+                                      borderRadius: theme.custom.borderRadius.round,
+                                      marginLeft: theme.custom.spacing.sm,
+                                    },
+                                  ]}
+                                >
+                                  <MaterialCommunityIcons
+                                    name="account-multiple"
+                                    size={12}
+                                    color={theme.custom.colors.familyGroup}
+                                  />
+                                  <Text
+                                    style={[
+                                      {
+                                        color: theme.custom.colors.familyGroup,
+                                        fontSize: 11,
+                                        fontWeight: '600',
+                                        marginLeft: 2,
+                                      },
+                                    ]}
+                                  >
+                                    {memberCount}
+                                  </Text>
+                                </View>
+                              )}
+                            </View>
+                            {!isPersonal && (
+                              <Text style={[
+                                styles.itemBalance,
+                                {
+                                  color: parseFloat(item.balance) >= 0
+                                    ? theme.custom.colors.income
+                                    : theme.custom.colors.expense,
+                                  fontWeight: '600',
+                                },
+                                theme.custom.typography.caption,
+                              ]}>
+                                ${item.balance.toFixed(2)}
+                              </Text>
+                            )}
+                          </View>
                         </View>
-                      </View>
-                      {isSelected && (
-                        <MaterialCommunityIcons
-                          name="check-circle"
-                          size={24}
-                          color={theme.colors.primary}
-                        />
-                      )}
-                    </TouchableOpacity>
+                        {isSelected && (
+                          <Animated.View
+                            style={{
+                              transform: [
+                                {
+                                  scale: fadeAnim.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [0, 1],
+                                  }),
+                                },
+                              ],
+                            }}
+                          >
+                            <MaterialCommunityIcons
+                              name="check-circle"
+                              size={26}
+                              color={theme.colors.primary}
+                            />
+                          </Animated.View>
+                        )}
+                      </TouchableOpacity>
+                    </Animated.View>
                   );
                 }}
                 contentContainerStyle={[
                   styles.listContent,
                   {
                     paddingHorizontal: theme.custom.spacing.lg,
-                    paddingTop: theme.custom.spacing.sm,
+                    paddingTop: theme.custom.spacing.md,
                   }
                 ]}
               />
 
-              <TouchableOpacity
-                style={[
-                  styles.createButton,
-                  {
-                    backgroundColor: theme.colors.primary,
-                    marginHorizontal: theme.custom.spacing.lg,
-                    marginTop: theme.custom.spacing.sm,
-                    paddingVertical: theme.custom.spacing.md - 2,
-                    borderRadius: theme.custom.borderRadius.lg,
-                  },
-                ]}
-                onPress={handleCreateFamily}
-                activeOpacity={0.8}
+              <Animated.View
+                style={{
+                  transform: [{ scale: pulseAnim }],
+                  marginHorizontal: theme.custom.spacing.lg,
+                  marginTop: theme.custom.spacing.lg,
+                  marginBottom: theme.custom.spacing.lg,
+                  borderRadius: theme.custom.borderRadius.lg,
+                  overflow: 'hidden',
+                  ...Platform.select({
+                    ios: {
+                      shadowColor: theme.colors.primary,
+                      shadowOffset: { width: 0, height: 4 },
+                      shadowOpacity: 0.3,
+                      shadowRadius: 8,
+                    },
+                    android: {
+                      elevation: 8,
+                    },
+                  }),
+                }}
               >
-                <MaterialCommunityIcons
-                  name="plus-circle"
-                  size={20}
-                  color={theme.colors.onPrimary}
+                <LinearGradient
+                  colors={[
+                    theme.custom.colors.gradientPrimaryStart,
+                    theme.custom.colors.gradientPrimaryEnd,
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={StyleSheet.absoluteFill}
                 />
-                <Text style={[
-                  styles.createButtonText,
-                  { color: theme.colors.onPrimary },
-                  theme.custom.typography.button,
-                ]}>
-                  Create New Family
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.createButton,
+                    {
+                      paddingVertical: theme.custom.spacing.md + 2,
+                      borderRadius: theme.custom.borderRadius.lg,
+                    },
+                  ]}
+                  onPress={handleCreateFamily}
+                  activeOpacity={0.8}
+                >
+                  <MaterialCommunityIcons
+                    name="sparkles"
+                    size={22}
+                    color={theme.colors.onPrimary}
+                  />
+                  <MaterialCommunityIcons
+                    name="plus-circle"
+                    size={20}
+                    color={theme.colors.onPrimary}
+                    style={{ marginLeft: 4 }}
+                  />
+                  <Text style={[
+                    styles.createButtonText,
+                    { color: theme.colors.onPrimary },
+                    theme.custom.typography.button,
+                  ]}>
+                    Create New Family
+                  </Text>
+                </TouchableOpacity>
+              </Animated.View>
             </Animated.View>
           </TouchableWithoutFeedback>
         </View>
@@ -238,16 +431,18 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    maxHeight: SCREEN_HEIGHT * 0.7,
+    maxHeight: SCREEN_HEIGHT * 0.75,
     paddingBottom: 20,
   },
+  handleContainer: {
+    alignItems: 'center',
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
   handle: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginTop: 12,
-    marginBottom: 8,
+    width: 50,
+    height: 5,
+    borderRadius: 3,
   },
   header: {
     flexDirection: 'row',
@@ -271,8 +466,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
+    width: 56,
+    height: 56,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -280,8 +475,16 @@ const styles = StyleSheet.create({
   itemTextContainer: {
     flex: 1,
   },
+  itemNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   itemName: {
     fontWeight: '600',
+  },
+  memberBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   itemBalance: {
     marginTop: 2,

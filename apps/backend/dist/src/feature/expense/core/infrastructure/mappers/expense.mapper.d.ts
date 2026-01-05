@@ -4,7 +4,11 @@ interface PrismaExpense extends Prisma.ExpenseGetPayload<{
     include: {
         category: true;
         store: true;
-        transaction: true;
+        transaction: {
+            include: {
+                user: true;
+            };
+        };
         items: {
             include: {
                 item: {

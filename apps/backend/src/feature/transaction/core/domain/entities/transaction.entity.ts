@@ -6,6 +6,12 @@ export enum TransactionScope {
   FAMILY = 'FAMILY',
 }
 
+export interface TransactionUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
 export interface TransactionProps {
   id: string;
   userId: string;
@@ -16,6 +22,7 @@ export interface TransactionProps {
   recordedAt: Date;
   createdAt: Date;
   updatedAt: Date;
+  user: TransactionUser;
 }
 
 export class Transaction {
@@ -80,6 +87,10 @@ export class Transaction {
     return this.props.updatedAt;
   }
 
+  get user(): TransactionUser {
+    return this.props.user;
+  }
+
   isExpense(): boolean {
     return this.props.type === TransactionType.EXPENSE;
   }
@@ -107,6 +118,7 @@ export class Transaction {
       recordedAt: this.recordedAt,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
+      user: this.user,
     };
   }
 }

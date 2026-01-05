@@ -5,6 +5,8 @@ class ExpenseFilters {
     userId;
     categoryId;
     storeId;
+    familyId;
+    scope;
     dateFrom;
     dateTo;
     valueMin;
@@ -13,6 +15,8 @@ class ExpenseFilters {
         this.userId = data.userId;
         this.categoryId = data.categoryId;
         this.storeId = data.storeId;
+        this.familyId = data.familyId;
+        this.scope = data.scope;
         this.dateFrom = data.dateFrom;
         this.dateTo = data.dateTo;
         this.valueMin = data.valueMin;

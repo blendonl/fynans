@@ -9,6 +9,7 @@ class TransactionResponseDto {
     recordedAt;
     createdAt;
     updatedAt;
+    user;
     constructor(transaction) {
         this.id = transaction.id;
         this.userId = transaction.userId;
@@ -17,6 +18,7 @@ class TransactionResponseDto {
         this.recordedAt = transaction.recordedAt;
         this.createdAt = transaction.createdAt;
         this.updatedAt = transaction.updatedAt;
+        this.user = transaction.user;
     }
     static fromEntity(transaction) {
         return new TransactionResponseDto(transaction);

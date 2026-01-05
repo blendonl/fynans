@@ -55,8 +55,10 @@ let ExpenseController = class ExpenseController {
     }
     async findAll(query, user) {
         const filters = new expense_filters_dto_1.ExpenseFilters({
-            userId: user.id,
             categoryId: query.categoryId,
+            userId: query.familyId ? undefined : user.id,
+            familyId: query.familyId,
+            scope: query.scope,
             storeId: query.storeId,
             dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
             dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
@@ -64,7 +66,7 @@ let ExpenseController = class ExpenseController {
             valueMax: query.valueMax,
         });
         const pagination = new pagination_dto_1.Pagination(query.page, query.limit);
-        const result = await this.expenseService.findAll(filters, pagination);
+        const result = await this.expenseService.findAll(user.id, filters, pagination);
         return {
             data: expense_response_dto_1.ExpenseResponseDto.fromEntities(result.data),
             total: result.total,
@@ -74,7 +76,9 @@ let ExpenseController = class ExpenseController {
     }
     async getStatistics(query, user) {
         const filters = new expense_filters_dto_1.ExpenseFilters({
-            userId: user.id,
+            userId: query.familyId ? undefined : user.id,
+            familyId: query.familyId,
+            scope: query.scope,
             categoryId: query.categoryId,
             storeId: query.storeId,
             dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,

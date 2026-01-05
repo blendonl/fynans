@@ -10,6 +10,7 @@ exports.IncomeCoreModule = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_module_1 = require("../../../common/prisma/prisma.module");
 const income_category_core_module_1 = require("../../income-category/core/income-category-core.module");
+const family_core_module_1 = require("../../family/core/family-core.module");
 const prisma_income_repository_1 = require("./infrastructure/repositories/prisma-income.repository");
 const create_income_use_case_1 = require("./application/use-cases/create-income.use-case");
 const get_income_by_id_use_case_1 = require("./application/use-cases/get-income-by-id.use-case");
@@ -23,7 +24,7 @@ let IncomeCoreModule = class IncomeCoreModule {
 exports.IncomeCoreModule = IncomeCoreModule;
 exports.IncomeCoreModule = IncomeCoreModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, income_category_core_module_1.IncomeCategoryCoreModule],
+        imports: [prisma_module_1.PrismaModule, income_category_core_module_1.IncomeCategoryCoreModule, family_core_module_1.FamilyCoreModule],
         providers: [
             {
                 provide: 'IncomeRepository',

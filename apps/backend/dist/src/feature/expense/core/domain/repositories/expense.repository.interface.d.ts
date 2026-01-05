@@ -1,5 +1,6 @@
 import { Expense } from '../entities/expense.entity';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { TransactionScope } from '../../../../transaction/core/domain/entities/transaction.entity';
 export interface PaginatedResult<T> {
     data: T[];
     total: number;
@@ -8,6 +9,8 @@ export interface ExpenseFilters {
     userId?: string;
     categoryId?: string;
     storeId?: string;
+    familyId?: string;
+    scope?: TransactionScope;
     dateFrom?: Date;
     dateTo?: Date;
     valueMin?: number;

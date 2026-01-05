@@ -36,10 +36,11 @@ export class ExpenseService {
   }
 
   async findAll(
+    userId: string,
     filters?: ExpenseFilters,
     pagination?: Pagination,
   ): Promise<PaginatedResult<Expense>> {
-    return this.listExpensesUseCase.execute(filters, pagination);
+    return this.listExpensesUseCase.execute(userId, filters, pagination);
   }
 
   async update(

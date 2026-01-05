@@ -28,7 +28,11 @@ let PrismaExpenseRepository = class PrismaExpenseRepository {
                 categoryId: data.categoryId,
             },
             include: {
-                transaction: true,
+                transaction: {
+                    include: {
+                        user: true,
+                    },
+                },
                 category: true,
                 store: true,
                 items: {
@@ -52,7 +56,11 @@ let PrismaExpenseRepository = class PrismaExpenseRepository {
         const expense = await this.prisma.expense.findUnique({
             where: { id },
             include: {
-                transaction: true,
+                transaction: {
+                    include: {
+                        user: true,
+                    },
+                },
                 category: true,
                 store: true,
                 items: {
@@ -76,7 +84,11 @@ let PrismaExpenseRepository = class PrismaExpenseRepository {
         const expense = await this.prisma.expense.findUnique({
             where: { transactionId },
             include: {
-                transaction: true,
+                transaction: {
+                    include: {
+                        user: true,
+                    },
+                },
                 category: true,
                 store: true,
                 items: {
@@ -102,7 +114,18 @@ let PrismaExpenseRepository = class PrismaExpenseRepository {
             this.prisma.expense.findMany({
                 where,
                 include: {
-                    transaction: true,
+                    transaction: {
+                        include: {
+                            user: {
+                                select: {
+                                    id: true,
+                                    firstName: true,
+                                    lastName: true,
+                                    name: true,
+                                },
+                            },
+                        },
+                    },
                     category: true,
                     store: true,
                     items: {
@@ -142,7 +165,11 @@ let PrismaExpenseRepository = class PrismaExpenseRepository {
             where: { id },
             data: updateData,
             include: {
-                transaction: true,
+                transaction: {
+                    include: {
+                        user: true,
+                    },
+                },
                 category: true,
                 store: true,
                 items: {
@@ -223,11 +250,19 @@ let PrismaExpenseRepository = class PrismaExpenseRepository {
             where.storeId = filters.storeId;
         }
         if (filters.userId ||
+            filters.familyId ||
+            filters.scope ||
             filters.valueMin !== undefined ||
             filters.valueMax !== undefined) {
             where.transaction = {};
             if (filters.userId) {
                 where.transaction.userId = filters.userId;
+            }
+            if (filters.familyId) {
+                where.transaction.familyId = filters.familyId;
+            }
+            if (filters.scope) {
+                where.transaction.scope = filters.scope;
             }
             if (filters.valueMin !== undefined || filters.valueMax !== undefined) {
                 where.transaction.value = {};

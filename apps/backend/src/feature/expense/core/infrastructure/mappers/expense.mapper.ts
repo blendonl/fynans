@@ -9,7 +9,11 @@ interface PrismaExpense extends Prisma.ExpenseGetPayload<{
   include: {
     category: true;
     store: true;
-    transaction: true;
+    transaction: {
+      include: {
+        user: true;
+      };
+    };
     items: {
       include: {
         item: {
@@ -24,7 +28,7 @@ interface PrismaExpense extends Prisma.ExpenseGetPayload<{
       };
     };
   };
-}> { }
+}> {}
 
 export class ExpenseMapper {
   static toDomain(prismaExpense: PrismaExpense): Expense {

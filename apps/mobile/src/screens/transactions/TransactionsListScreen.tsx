@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { Chip } from 'react-native-paper';
 import { SearchBar, EmptyState, Card } from '../../components/design-system';
 import { TransactionCard, FilterSheet } from '../../components/transactions';
@@ -40,6 +41,12 @@ export default function TransactionsListScreen({ navigation }: any) {
   } = useTransactions(filters);
 
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
 
   const filteredTransactions = useMemo(() => {
     return filterTransactions(transactions);

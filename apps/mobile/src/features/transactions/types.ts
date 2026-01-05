@@ -17,6 +17,11 @@ export interface Transaction {
     value: number;
     createdAt?: string;
     description?: string;
+    user: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
   };
   items?: TransactionItem[];
   receiptImages?: string[];
@@ -30,8 +35,8 @@ export interface TransactionItem {
 }
 
 export interface TransactionFilters {
-  type: 'all' | 'expense' | 'income';
-  scope: 'all' | 'personal' | 'family';
+  type: "all" | "expense" | "income";
+  scope: "all" | "personal" | "family";
   familyId: string | null;
   categories: string[];
   minAmount: string;
@@ -40,4 +45,4 @@ export interface TransactionFilters {
   dateTo: Date | null;
 }
 
-export type TransactionType = 'expense' | 'income';
+export type TransactionType = "expense" | "income";

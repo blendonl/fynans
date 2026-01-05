@@ -1,5 +1,6 @@
-import { IsUUID, IsOptional, IsDateString, IsNumber } from 'class-validator';
+import { IsUUID, IsOptional, IsDateString, IsNumber, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
+import { TransactionScope } from '../../../transaction/core/domain/entities/transaction.entity';
 
 export class QueryExpenseDto {
   @IsUUID()
@@ -9,6 +10,14 @@ export class QueryExpenseDto {
   @IsUUID()
   @IsOptional()
   storeId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  familyId?: string;
+
+  @IsEnum(TransactionScope)
+  @IsOptional()
+  scope?: TransactionScope;
 
   @IsDateString()
   @IsOptional()

@@ -9,18 +9,27 @@ import { TransactionFilters } from '../../application/dto/transaction-filters.dt
 import { Pagination } from '../../application/dto/pagination.dto';
 import { TransactionStatistics } from '../../application/dto/transaction-statistics.dto';
 import { TransactionMapper } from '../mappers/transaction.mapper';
-import { Prisma, TransactionType as PrismaTransactionType } from 'prisma/generated/prisma/client';
+import {
+  Prisma,
+  TransactionType as PrismaTransactionType,
+  TransactionScope,
+} from 'prisma/generated/prisma/client';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
 @Injectable()
 export class PrismaTransactionRepository implements ITransactionRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: Partial<Transaction>): Promise<Transaction> {
     const transaction = await this.prisma.transaction.create({
       data: {
         userId: data.userId!,
+        familyId: data.familyId,
         type: data.type as PrismaTransactionType,
+        scope: data.familyId
+          ? TransactionScope.FAMILY
+          : TransactionScope.PERSONAL,
+        recordedAt: data.recordedAt || new Date(),
         value: new Decimal(data.value?.toString() || '0'),
       },
       include: {
@@ -181,6 +190,14 @@ export class PrismaTransactionRepository implements ITransactionRepository {
 
     if (filters.userId) {
       where.userId = filters.userId;
+    }
+
+    if (filters.familyId) {
+      where.familyId = filters.familyId;
+    }
+
+    if (filters.scope) {
+      where.scope = filters.scope;
     }
 
     if (filters.type) {

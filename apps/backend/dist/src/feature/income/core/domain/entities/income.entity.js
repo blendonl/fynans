@@ -45,12 +45,20 @@ class Income {
     get updatedAt() {
         return this.props.updatedAt;
     }
+    get transaction() {
+        return this.props.transaction;
+    }
+    get category() {
+        return this.props.category;
+    }
     toJSON() {
         return {
             id: this.props.id,
             transactionId: this.props.transactionId,
             storeId: this.props.storeId,
             categoryId: this.props.categoryId,
+            transaction: this.props.transaction?.toJSON(),
+            category: this.props.category?.toJSON(),
             createdAt: this.props.createdAt,
             updatedAt: this.props.updatedAt,
         };

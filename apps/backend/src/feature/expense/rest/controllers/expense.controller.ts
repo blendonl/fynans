@@ -63,8 +63,10 @@ export class ExpenseController {
   @Get()
   async findAll(@Query() query: QueryExpenseDto, @CurrentUser() user: User) {
     const filters = new ExpenseFilters({
-      userId: user.id,
       categoryId: query.categoryId,
+      userId: query.familyId ? undefined : user.id, // Only filter by userId if not filtering by family
+      familyId: query.familyId,
+      scope: query.scope,
       storeId: query.storeId,
       dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
       dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
@@ -74,7 +76,11 @@ export class ExpenseController {
 
     const pagination = new Pagination(query.page, query.limit);
 
-    const result = await this.expenseService.findAll(filters, pagination);
+    const result = await this.expenseService.findAll(
+      user.id,
+      filters,
+      pagination,
+    );
 
     return {
       data: ExpenseResponseDto.fromEntities(result.data),
@@ -90,7 +96,9 @@ export class ExpenseController {
     @CurrentUser() user: User,
   ) {
     const filters = new ExpenseFilters({
-      userId: user.id,
+      userId: query.familyId ? undefined : user.id,
+      familyId: query.familyId,
+      scope: query.scope,
       categoryId: query.categoryId,
       storeId: query.storeId,
       dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,

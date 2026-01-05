@@ -13,10 +13,14 @@ import {
 import { IncomeService } from '../../core/application/services/income.service';
 import { CreateIncomeRequestDto } from '../dto/create-income-request.dto';
 import { UpdateIncomeRequestDto } from '../dto/update-income-request.dto';
+import { QueryIncomeDto } from '../dto/query-income.dto';
 import { IncomeResponseDto } from '../dto/income-response.dto';
 import { CreateIncomeDto } from '../../core/application/dto/create-income.dto';
 import { UpdateIncomeDto } from '../../core/application/dto/update-income.dto';
+import { IncomeFilters } from '../../core/application/dto/income-filters.dto';
 import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
+import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
+import { User } from '../../../user/core/domain/entities/user.entity';
 
 @Controller('incomes')
 export class IncomeController {
@@ -36,14 +40,26 @@ export class IncomeController {
   }
 
   @Get()
-  async findAll(
-    @Query('storeId') storeId?: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-  ) {
-    const pagination = new Pagination(page, limit);
+  async findAll(@Query() query: QueryIncomeDto, @CurrentUser() user: User) {
+    const filters = new IncomeFilters({
+      categoryId: query.categoryId,
+      userId: query.familyId ? undefined : user.id, // Only filter by userId if not filtering by family
+      familyId: query.familyId,
+      scope: query.scope,
+      storeId: query.storeId,
+      dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
+      dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
+      valueMin: query.valueMin,
+      valueMax: query.valueMax,
+    });
 
-    const result = await this.incomeService.findAll(storeId, pagination);
+    const pagination = new Pagination(query.page, query.limit);
+
+    const result = await this.incomeService.findAll(
+      user.id,
+      filters,
+      pagination,
+    );
 
     return {
       data: IncomeResponseDto.fromEntities(result.data),

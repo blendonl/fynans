@@ -41,8 +41,8 @@ let IncomeService = class IncomeService {
     async findByTransactionId(transactionId) {
         return this.getIncomeByTransactionIdUseCase.execute(transactionId);
     }
-    async findAll(storeId, pagination) {
-        return this.listIncomesUseCase.execute(storeId, pagination);
+    async findAll(userId, filters, pagination) {
+        return this.listIncomesUseCase.execute(userId, filters, pagination);
     }
     async update(id, dto) {
         return this.updateIncomeUseCase.execute(id, dto);

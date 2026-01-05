@@ -21,6 +21,7 @@ const get_families_use_case_1 = require("./application/use-cases/get-families.us
 const get_pending_invitations_use_case_1 = require("./application/use-cases/get-pending-invitations.use-case");
 const get_family_with_members_use_case_1 = require("./application/use-cases/get-family-with-members.use-case");
 const remove_family_member_use_case_1 = require("./application/use-cases/remove-family-member.use-case");
+const verify_family_membership_use_case_1 = require("./application/use-cases/verify-family-membership.use-case");
 const family_balance_service_1 = require("./application/services/family-balance.service");
 let FamilyCoreModule = class FamilyCoreModule {
 };
@@ -46,6 +47,7 @@ exports.FamilyCoreModule = FamilyCoreModule = __decorate([
             get_pending_invitations_use_case_1.GetPendingInvitationsUseCase,
             get_family_with_members_use_case_1.GetFamilyWithMembersUseCase,
             remove_family_member_use_case_1.RemoveFamilyMemberUseCase,
+            verify_family_membership_use_case_1.VerifyFamilyMembershipUseCase,
             family_balance_service_1.FamilyBalanceService,
         ],
         exports: [
@@ -60,6 +62,7 @@ exports.FamilyCoreModule = FamilyCoreModule = __decorate([
             get_pending_invitations_use_case_1.GetPendingInvitationsUseCase,
             get_family_with_members_use_case_1.GetFamilyWithMembersUseCase,
             remove_family_member_use_case_1.RemoveFamilyMemberUseCase,
+            verify_family_membership_use_case_1.VerifyFamilyMembershipUseCase,
             family_balance_service_1.FamilyBalanceService,
         ],
     })

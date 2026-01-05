@@ -25,7 +25,12 @@ let PrismaTransactionRepository = class PrismaTransactionRepository {
         const transaction = await this.prisma.transaction.create({
             data: {
                 userId: data.userId,
+                familyId: data.familyId,
                 type: data.type,
+                scope: data.familyId
+                    ? client_1.TransactionScope.FAMILY
+                    : client_1.TransactionScope.PERSONAL,
+                recordedAt: data.recordedAt || new Date(),
                 value: new prismaNamespace_1.Decimal(data.value?.toString() || '0'),
             },
             include: {
@@ -153,6 +158,12 @@ let PrismaTransactionRepository = class PrismaTransactionRepository {
         const where = {};
         if (filters.userId) {
             where.userId = filters.userId;
+        }
+        if (filters.familyId) {
+            where.familyId = filters.familyId;
+        }
+        if (filters.scope) {
+            where.scope = filters.scope;
         }
         if (filters.type) {
             where.type = filters.type;

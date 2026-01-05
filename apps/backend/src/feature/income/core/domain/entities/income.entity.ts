@@ -1,8 +1,13 @@
+import { Transaction } from '~feature/transaction/core';
+import { IncomeCategory } from '~feature/income-category/core';
+
 export interface IncomeProps {
   id: string;
   transactionId: string;
   storeId: string;
   categoryId: string;
+  transaction?: Transaction;
+  category?: IncomeCategory;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -65,12 +70,22 @@ export class Income {
     return this.props.updatedAt;
   }
 
+  get transaction(): Transaction | undefined {
+    return this.props.transaction;
+  }
+
+  get category(): IncomeCategory | undefined {
+    return this.props.category;
+  }
+
   toJSON() {
     return {
       id: this.props.id,
       transactionId: this.props.transactionId,
       storeId: this.props.storeId,
       categoryId: this.props.categoryId,
+      transaction: this.props.transaction?.toJSON(),
+      category: this.props.category?.toJSON(),
       createdAt: this.props.createdAt,
       updatedAt: this.props.updatedAt,
     };

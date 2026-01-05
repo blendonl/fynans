@@ -17,10 +17,14 @@ const common_1 = require("@nestjs/common");
 const income_service_1 = require("../../core/application/services/income.service");
 const create_income_request_dto_1 = require("../dto/create-income-request.dto");
 const update_income_request_dto_1 = require("../dto/update-income-request.dto");
+const query_income_dto_1 = require("../dto/query-income.dto");
 const income_response_dto_1 = require("../dto/income-response.dto");
 const create_income_dto_1 = require("../../core/application/dto/create-income.dto");
 const update_income_dto_1 = require("../../core/application/dto/update-income.dto");
+const income_filters_dto_1 = require("../../core/application/dto/income-filters.dto");
 const pagination_dto_1 = require("../../../transaction/core/application/dto/pagination.dto");
+const current_user_decorator_1 = require("../../../auth/rest/decorators/current-user.decorator");
+const user_entity_1 = require("../../../user/core/domain/entities/user.entity");
 let IncomeController = class IncomeController {
     incomeService;
     constructor(incomeService) {
@@ -31,9 +35,20 @@ let IncomeController = class IncomeController {
         const income = await this.incomeService.create(coreDto);
         return income_response_dto_1.IncomeResponseDto.fromEntity(income);
     }
-    async findAll(storeId, page, limit) {
-        const pagination = new pagination_dto_1.Pagination(page, limit);
-        const result = await this.incomeService.findAll(storeId, pagination);
+    async findAll(query, user) {
+        const filters = new income_filters_dto_1.IncomeFilters({
+            categoryId: query.categoryId,
+            userId: query.familyId ? undefined : user.id,
+            familyId: query.familyId,
+            scope: query.scope,
+            storeId: query.storeId,
+            dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
+            dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
+            valueMin: query.valueMin,
+            valueMax: query.valueMax,
+        });
+        const pagination = new pagination_dto_1.Pagination(query.page, query.limit);
+        const result = await this.incomeService.findAll(user.id, filters, pagination);
         return {
             data: income_response_dto_1.IncomeResponseDto.fromEntities(result.data),
             total: result.total,
@@ -71,11 +86,10 @@ __decorate([
 ], IncomeController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)('storeId')),
-    __param(1, (0, common_1.Query)('page')),
-    __param(2, (0, common_1.Query)('limit')),
+    __param(0, (0, common_1.Query)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number, Number]),
+    __metadata("design:paramtypes", [query_income_dto_1.QueryIncomeDto, user_entity_1.User]),
     __metadata("design:returntype", Promise)
 ], IncomeController.prototype, "findAll", null);
 __decorate([

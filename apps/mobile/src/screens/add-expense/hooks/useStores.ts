@@ -16,7 +16,7 @@ export function useStores() {
 
   const fetchStores = async (search: string) => {
     try {
-      const response = await apiClient.get(`/stores?search=${search}`);
+      const response = await apiClient.get("/stores", { search });
       setStores(response.data || []);
     } catch (error: any) {
       console.error("Failed to fetch stores:", error);

@@ -112,6 +112,7 @@ export default function AddExpenseScreen({ navigation }: any) {
 
       await apiClient.post("/expenses", payload);
       imageUpload.clearImages();
+      navigation.navigate("Transactions");
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to create expense");
     } finally {

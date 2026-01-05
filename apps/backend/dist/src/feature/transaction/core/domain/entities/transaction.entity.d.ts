@@ -4,6 +4,11 @@ export declare enum TransactionScope {
     PERSONAL = "PERSONAL",
     FAMILY = "FAMILY"
 }
+export interface TransactionUser {
+    id: string;
+    firstName: string;
+    lastName: string;
+}
 export interface TransactionProps {
     id: string;
     userId: string;
@@ -14,6 +19,7 @@ export interface TransactionProps {
     recordedAt: Date;
     createdAt: Date;
     updatedAt: Date;
+    user: TransactionUser;
 }
 export declare class Transaction {
     private readonly props;
@@ -28,6 +34,7 @@ export declare class Transaction {
     get recordedAt(): Date;
     get createdAt(): Date;
     get updatedAt(): Date;
+    get user(): TransactionUser;
     isExpense(): boolean;
     isIncome(): boolean;
     isPersonal(): boolean;
@@ -42,5 +49,6 @@ export declare class Transaction {
         recordedAt: Date;
         createdAt: Date;
         updatedAt: Date;
+        user: TransactionUser;
     };
 }

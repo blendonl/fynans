@@ -54,6 +54,9 @@ class Transaction {
     get updatedAt() {
         return this.props.updatedAt;
     }
+    get user() {
+        return this.props.user;
+    }
     isExpense() {
         return this.props.type === transaction_type_vo_1.TransactionType.EXPENSE;
     }
@@ -77,6 +80,7 @@ class Transaction {
             recordedAt: this.recordedAt,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
+            user: this.user,
         };
     }
 }

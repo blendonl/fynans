@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
 import { IncomeCategoryCoreModule } from '../../income-category/core/income-category-core.module';
+import { FamilyCoreModule } from '../../family/core/family-core.module';
 import { PrismaIncomeRepository } from './infrastructure/repositories/prisma-income.repository';
 import { CreateIncomeUseCase } from './application/use-cases/create-income.use-case';
 import { GetIncomeByIdUseCase } from './application/use-cases/get-income-by-id.use-case';
@@ -11,7 +12,7 @@ import { DeleteIncomeUseCase } from './application/use-cases/delete-income.use-c
 import { IncomeService } from './application/services/income.service';
 
 @Module({
-  imports: [PrismaModule, IncomeCategoryCoreModule],
+  imports: [PrismaModule, IncomeCategoryCoreModule, FamilyCoreModule],
   providers: [
     {
       provide: 'IncomeRepository',

@@ -24,7 +24,7 @@ export declare class ExpenseService {
     constructor(createExpenseUseCase: CreateExpenseUseCase, getExpenseByIdUseCase: GetExpenseByIdUseCase, listExpensesUseCase: ListExpensesUseCase, updateExpenseUseCase: UpdateExpenseUseCase, deleteExpenseUseCase: DeleteExpenseUseCase, getExpenseStatisticsUseCase: GetExpenseStatisticsUseCase, addItemToExpenseUseCase: AddItemToExpenseUseCase);
     create(dto: CreateExpenseDto): Promise<Expense>;
     findById(id: string, userId: string): Promise<Expense>;
-    findAll(filters?: ExpenseFilters, pagination?: Pagination): Promise<PaginatedResult<Expense>>;
+    findAll(userId: string, filters?: ExpenseFilters, pagination?: Pagination): Promise<PaginatedResult<Expense>>;
     update(id: string, userId: string, dto: UpdateExpenseDto): Promise<Expense>;
     delete(id: string, userId: string): Promise<void>;
     getStatistics(userId: string, filters?: ExpenseFilters): Promise<ExpenseStatistics>;

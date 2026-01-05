@@ -13,6 +13,7 @@ exports.PrismaIncomeRepository = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../../../../common/prisma/prisma.service");
 const income_mapper_1 = require("../mappers/income.mapper");
+const prismaNamespace_1 = require("../../../../../../prisma/generated/prisma/internal/prismaNamespace");
 let PrismaIncomeRepository = class PrismaIncomeRepository {
     prisma;
     constructor(prisma) {
@@ -27,7 +28,17 @@ let PrismaIncomeRepository = class PrismaIncomeRepository {
                 categoryId: data.categoryId,
             },
             include: {
-                transaction: true,
+                transaction: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                    },
+                },
                 category: true,
             },
         });
@@ -37,7 +48,17 @@ let PrismaIncomeRepository = class PrismaIncomeRepository {
         const income = await this.prisma.income.findUnique({
             where: { id },
             include: {
-                transaction: true,
+                transaction: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                    },
+                },
                 category: true,
             },
         });
@@ -47,7 +68,17 @@ let PrismaIncomeRepository = class PrismaIncomeRepository {
         const income = await this.prisma.income.findUnique({
             where: { transactionId },
             include: {
-                transaction: true,
+                transaction: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                    },
+                },
                 category: true,
             },
         });
@@ -58,7 +89,17 @@ let PrismaIncomeRepository = class PrismaIncomeRepository {
             this.prisma.income.findMany({
                 where: { storeId },
                 include: {
-                    transaction: true,
+                    transaction: {
+                        include: {
+                            user: {
+                                select: {
+                                    id: true,
+                                    firstName: true,
+                                    lastName: true,
+                                },
+                            },
+                        },
+                    },
                     category: true,
                 },
                 orderBy: { createdAt: 'desc' },
@@ -72,18 +113,30 @@ let PrismaIncomeRepository = class PrismaIncomeRepository {
             total,
         };
     }
-    async findAll(pagination) {
+    async findAll(filters, pagination) {
+        const where = this.buildWhereClause(filters);
         const [incomes, total] = await Promise.all([
             this.prisma.income.findMany({
+                where,
                 include: {
-                    transaction: true,
+                    transaction: {
+                        include: {
+                            user: {
+                                select: {
+                                    id: true,
+                                    firstName: true,
+                                    lastName: true,
+                                },
+                            },
+                        },
+                    },
                     category: true,
                 },
                 orderBy: { createdAt: 'desc' },
                 skip: pagination?.skip,
                 take: pagination?.take,
             }),
-            this.prisma.income.count(),
+            this.prisma.income.count({ where }),
         ]);
         return {
             data: incomes.map(income_mapper_1.IncomeMapper.toDomain),
@@ -99,7 +152,17 @@ let PrismaIncomeRepository = class PrismaIncomeRepository {
             where: { id },
             data: updateData,
             include: {
-                transaction: true,
+                transaction: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                firstName: true,
+                                lastName: true,
+                            },
+                        },
+                    },
+                },
                 category: true,
             },
         });
@@ -109,6 +172,52 @@ let PrismaIncomeRepository = class PrismaIncomeRepository {
         await this.prisma.income.delete({
             where: { id },
         });
+    }
+    buildWhereClause(filters) {
+        if (!filters)
+            return {};
+        const where = {};
+        if (filters.categoryId) {
+            where.categoryId = filters.categoryId;
+        }
+        if (filters.storeId) {
+            where.storeId = filters.storeId;
+        }
+        if (filters.userId ||
+            filters.familyId ||
+            filters.scope ||
+            filters.valueMin !== undefined ||
+            filters.valueMax !== undefined) {
+            where.transaction = {};
+            if (filters.userId) {
+                where.transaction.userId = filters.userId;
+            }
+            if (filters.familyId) {
+                where.transaction.familyId = filters.familyId;
+            }
+            if (filters.scope) {
+                where.transaction.scope = filters.scope;
+            }
+            if (filters.valueMin !== undefined || filters.valueMax !== undefined) {
+                where.transaction.value = {};
+                if (filters.valueMin !== undefined) {
+                    where.transaction.value.gte = new prismaNamespace_1.Decimal(filters.valueMin);
+                }
+                if (filters.valueMax !== undefined) {
+                    where.transaction.value.lte = new prismaNamespace_1.Decimal(filters.valueMax);
+                }
+            }
+        }
+        if (filters.dateFrom || filters.dateTo) {
+            where.createdAt = {};
+            if (filters.dateFrom) {
+                where.createdAt.gte = filters.dateFrom;
+            }
+            if (filters.dateTo) {
+                where.createdAt.lte = filters.dateTo;
+            }
+        }
+        return where;
     }
 };
 exports.PrismaIncomeRepository = PrismaIncomeRepository;

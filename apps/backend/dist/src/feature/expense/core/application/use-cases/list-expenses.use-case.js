@@ -14,12 +14,18 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ListExpensesUseCase = void 0;
 const common_1 = require("@nestjs/common");
+const verify_family_membership_use_case_1 = require("../../../../family/core/application/use-cases/verify-family-membership.use-case");
 let ListExpensesUseCase = class ListExpensesUseCase {
     expenseRepository;
-    constructor(expenseRepository) {
+    verifyFamilyMembershipUseCase;
+    constructor(expenseRepository, verifyFamilyMembershipUseCase) {
         this.expenseRepository = expenseRepository;
+        this.verifyFamilyMembershipUseCase = verifyFamilyMembershipUseCase;
     }
-    async execute(filters, pagination) {
+    async execute(userId, filters, pagination) {
+        if (filters?.familyId) {
+            await this.verifyFamilyMembershipUseCase.execute(filters.familyId, userId);
+        }
         return this.expenseRepository.findAll(filters, pagination);
     }
 };
@@ -27,6 +33,6 @@ exports.ListExpensesUseCase = ListExpensesUseCase;
 exports.ListExpensesUseCase = ListExpensesUseCase = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('ExpenseRepository')),
-    __metadata("design:paramtypes", [Object])
+    __metadata("design:paramtypes", [Object, verify_family_membership_use_case_1.VerifyFamilyMembershipUseCase])
 ], ListExpensesUseCase);
 //# sourceMappingURL=list-expenses.use-case.js.map

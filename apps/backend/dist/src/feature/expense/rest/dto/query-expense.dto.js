@@ -12,9 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.QueryExpenseDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
+const transaction_entity_1 = require("../../../transaction/core/domain/entities/transaction.entity");
 class QueryExpenseDto {
     categoryId;
     storeId;
+    familyId;
+    scope;
     dateFrom;
     dateTo;
     valueMin;
@@ -33,6 +36,16 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], QueryExpenseDto.prototype, "storeId", void 0);
+__decorate([
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], QueryExpenseDto.prototype, "familyId", void 0);
+__decorate([
+    (0, class_validator_1.IsEnum)(transaction_entity_1.TransactionScope),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], QueryExpenseDto.prototype, "scope", void 0);
 __decorate([
     (0, class_validator_1.IsDateString)(),
     (0, class_validator_1.IsOptional)(),

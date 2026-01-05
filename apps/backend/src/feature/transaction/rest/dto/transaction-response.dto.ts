@@ -1,4 +1,7 @@
-import { Transaction } from '../../core/domain/entities/transaction.entity';
+import {
+  Transaction,
+  TransactionUser,
+} from '../../core/domain/entities/transaction.entity';
 import { TransactionType } from '../../core/domain/value-objects/transaction-type.vo';
 
 export class TransactionResponseDto {
@@ -9,6 +12,7 @@ export class TransactionResponseDto {
   recordedAt: Date;
   createdAt: Date;
   updatedAt: Date;
+  user: TransactionUser;
 
   constructor(transaction: Transaction) {
     this.id = transaction.id;
@@ -18,6 +22,7 @@ export class TransactionResponseDto {
     this.recordedAt = transaction.recordedAt;
     this.createdAt = transaction.createdAt;
     this.updatedAt = transaction.updatedAt;
+    this.user = transaction.user;
   }
 
   static fromEntity(transaction: Transaction): TransactionResponseDto {

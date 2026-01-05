@@ -74,15 +74,21 @@ export const FamilyProvider = ({
 
   useEffect(() => {
     if (!authLoading && token) {
-      loadStoredFamily();
       fetchFamilies();
       fetchPendingInvitations();
     }
   }, [token, authLoading]);
 
+  // Load stored family after families are fetched
+  useEffect(() => {
+    if (families.length > 0) {
+      loadStoredFamily();
+    }
+  }, [families]);
+
   const loadStoredFamily = async () => {
     const storedFamilyId = await AsyncStorage.getItem("selectedFamilyId");
-    if (storedFamilyId && families.length > 0) {
+    if (storedFamilyId) {
       const family = families.find((f) => f.id === storedFamilyId);
       if (family) setSelectedFamily(family);
     }

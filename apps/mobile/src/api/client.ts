@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
 export const apiClient = {
-  async get(endpoint: string) {
+  async get(endpoint: string, params?: Record<string, any>) {
     const token = await AsyncStorage.getItem("token");
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -12,15 +12,27 @@ export const apiClient = {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    console.log(`GET ${BASE_URL}${endpoint}`);
+    // Build query string from params
+    let url = `${BASE_URL}${endpoint}`;
+    if (params && Object.keys(params).length > 0) {
+      const queryString = Object.entries(params)
+        .filter(([_, value]) => value !== undefined && value !== null)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      if (queryString) {
+        url += `?${queryString}`;
+      }
+    }
+
+    console.log(`GET ${url}`);
     try {
-      const response = await fetch(`${BASE_URL}${endpoint}`, {
+      const response = await fetch(url, {
         method: "GET",
         headers,
       });
       return handleResponse(response);
     } catch (error) {
-      console.error(`GET ${BASE_URL}${endpoint} failed:`, error);
+      console.error(`GET ${url} failed:`, error);
       throw error;
     }
   },
@@ -51,6 +63,79 @@ export const apiClient = {
       return handleResponse(response);
     } catch (error) {
       console.error(`POST ${BASE_URL}${endpoint} failed:`, error);
+      throw error;
+    }
+  },
+
+  async put(endpoint: string, body: any, options?: { headers?: HeadersInit }) {
+    const token = await AsyncStorage.getItem("token");
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      ...(options?.headers || {}),
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    console.log(`PUT ${BASE_URL}${endpoint}`, body);
+    try {
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(body),
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error(`PUT ${BASE_URL}${endpoint} failed:`, error);
+      throw error;
+    }
+  },
+
+  async patch(endpoint: string, body: any, options?: { headers?: HeadersInit }) {
+    const token = await AsyncStorage.getItem("token");
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+      ...(options?.headers || {}),
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    console.log(`PATCH ${BASE_URL}${endpoint}`, body);
+    try {
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify(body),
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error(`PATCH ${BASE_URL}${endpoint} failed:`, error);
+      throw error;
+    }
+  },
+
+  async delete(endpoint: string) {
+    const token = await AsyncStorage.getItem("token");
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    console.log(`DELETE ${BASE_URL}${endpoint}`);
+    try {
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
+        method: "DELETE",
+        headers,
+      });
+      return handleResponse(response);
+    } catch (error) {
+      console.error(`DELETE ${BASE_URL}${endpoint} failed:`, error);
       throw error;
     }
   },

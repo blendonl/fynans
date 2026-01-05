@@ -1,9 +1,10 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Card } from '../design-system';
-import { useAppTheme } from '../../theme';
-import { Transaction } from '../../features/transactions/types';
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Card } from "../design-system";
+import { useAppTheme } from "../../theme";
+import { Transaction } from "../../features/transactions/types";
+import { useAuth } from "../../context/AuthContext";
 
 interface TransactionCardProps {
   transaction: Transaction;
@@ -15,12 +16,13 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   onPress,
 }) => {
   const { theme } = useAppTheme();
-  const isExpense = transaction.type === 'expense';
+  const { user: currentUser } = useAuth();
+  const isExpense = transaction.type === "expense";
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return '';
+    if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
   const formatCurrency = (amount: number) => {
@@ -29,23 +31,35 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
 
   const getTitle = () => {
     if (isExpense && transaction.store) {
-      return `${transaction.category.name} at ${transaction.store.name}`;
+      return `${transaction.category.name} at ${transaction.store.name} `;
     }
     return transaction.category.name;
   };
 
   const getSubtitle = () => {
+    const parts: string[] = [];
+
+    const isCurrentUser = currentUser?.id === transaction.transaction.user.id;
+    const userName = isCurrentUser
+      ? "(you)"
+      : `${transaction.transaction.user.firstName} ${transaction.transaction.user.lastName}`.trim() ||
+        "Unknown";
+    parts.push(userName);
+
     if (isExpense && transaction.items && transaction.items.length > 0) {
       const itemCount = transaction.items.length;
-      return `${itemCount} item${itemCount > 1 ? 's' : ''}`;
+      parts.push(`${itemCount} item${itemCount > 1 ? "s" : ""}`);
+    } else if (transaction.store?.location) {
+      parts.push(transaction.store.location);
     }
-    return transaction.store?.location || '';
+
+    return parts.join(" • ");
   };
 
   return (
     <TouchableOpacity onPress={onPress} disabled={!onPress} activeOpacity={0.7}>
       <Card style={styles.card} elevation={2}>
-        {transaction.scope === 'FAMILY' && (
+        {transaction.scope === "FAMILY" && (
           <View style={styles.scopeBadge}>
             <MaterialCommunityIcons
               name="account-group"
@@ -61,8 +75,8 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
                 styles.iconContainer,
                 {
                   backgroundColor: isExpense
-                    ? theme.custom.colors.expense + '20'
-                    : theme.custom.colors.income + '20',
+                    ? theme.custom.colors.expense + "20"
+                    : theme.custom.colors.income + "20",
                 },
               ]}
             >
@@ -76,7 +90,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
                   },
                 ]}
               >
-                {isExpense ? '−' : '+'}
+                {isExpense ? "−" : "+"}
               </Text>
             </View>
             <View style={styles.info}>
@@ -90,18 +104,16 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
               >
                 {getTitle()}
               </Text>
-              {getSubtitle() && (
-                <Text
-                  style={[
-                    styles.subtitle,
-                    theme.custom.typography.caption,
-                    { color: theme.custom.colors.textSecondary },
-                  ]}
-                  numberOfLines={1}
-                >
-                  {getSubtitle()}
-                </Text>
-              )}
+              <Text
+                style={[
+                  styles.subtitle,
+                  theme.custom.typography.caption,
+                  { color: theme.custom.colors.textSecondary },
+                ]}
+                numberOfLines={1}
+              >
+                {getSubtitle()}
+              </Text>
             </View>
           </View>
           <View style={styles.rightSection}>
@@ -116,7 +128,8 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
                 },
               ]}
             >
-              {isExpense ? '−' : '+'}{formatCurrency(transaction.transaction.value)}
+              {isExpense ? "−" : "+"}
+              {formatCurrency(transaction.transaction.value)}
             </Text>
             {transaction.transaction.createdAt && (
               <Text
@@ -140,27 +153,27 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
     marginBottom: 8,
-    position: 'relative',
+    position: "relative",
   },
   scopeBadge: {
-    position: 'absolute',
+    position: "absolute",
     top: 8,
     right: 8,
-    backgroundColor: 'rgba(76, 175, 80, 0.15)',
+    backgroundColor: "rgba(76, 175, 80, 0.15)",
     borderRadius: 12,
     padding: 4,
     paddingHorizontal: 6,
     zIndex: 1,
   },
   content: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 16,
   },
   leftSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
     marginRight: 12,
   },
@@ -168,13 +181,13 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 12,
   },
   iconText: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   info: {
     flex: 1,
@@ -184,7 +197,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {},
   rightSection: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   amount: {
     marginBottom: 2,

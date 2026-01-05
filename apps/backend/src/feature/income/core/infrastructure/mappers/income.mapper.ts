@@ -1,5 +1,25 @@
-import { Income as PrismaIncome } from 'prisma/generated/prisma/client';
+import { Prisma } from 'prisma/generated/prisma/client';
 import { Income } from '../../domain/entities/income.entity';
+import { TransactionMapper } from '~feature/transaction/core/infrastructure/mappers/transaction.mapper';
+import { IncomeCategoryMapper } from '~feature/income-category/core/infrastructure/mappers/income-category.mapper';
+
+interface PrismaIncome extends Prisma.IncomeGetPayload<{
+  include: {
+    category: true;
+    transaction: {
+      include: {
+        user: {
+          select: {
+            id: true;
+            firstName: true;
+            lastName: true;
+            name: true;
+          };
+        };
+      };
+    };
+  };
+}> {}
 
 export class IncomeMapper {
   static toDomain(prismaIncome: PrismaIncome): Income {
@@ -8,6 +28,12 @@ export class IncomeMapper {
       transactionId: prismaIncome.transactionId,
       storeId: prismaIncome.storeId,
       categoryId: prismaIncome.categoryId,
+      transaction: prismaIncome.transaction
+        ? TransactionMapper.toDomain(prismaIncome.transaction)
+        : undefined,
+      category: prismaIncome.category
+        ? IncomeCategoryMapper.toDomain(prismaIncome.category)
+        : undefined,
       createdAt: prismaIncome.createdAt,
       updatedAt: prismaIncome.updatedAt,
     });

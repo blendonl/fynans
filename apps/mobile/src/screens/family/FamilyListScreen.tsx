@@ -1,34 +1,349 @@
-import React, { useEffect } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Animated, RefreshControl, Platform } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import { useFamily } from "../../context/FamilyContext";
 import { useNavigation } from "@react-navigation/native";
 import { Card, Button } from "../../components/design-system";
 import { useAppTheme } from "../../theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import RoleBadge from "../../components/family/RoleBadge";
+
+// Skeleton loader component
+const SkeletonCard = ({ theme }: { theme: any }) => {
+  const shimmerAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmerAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shimmerAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  const opacity = shimmerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.7],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.skeletonCard,
+        {
+          backgroundColor: theme.custom.colors.glassBackground,
+          borderRadius: theme.custom.borderRadius.lg,
+          padding: theme.custom.spacing.lg,
+          marginBottom: theme.custom.spacing.md,
+          opacity,
+        },
+      ]}
+    >
+      <View style={styles.cardContent}>
+        <View
+          style={[
+            styles.skeletonIcon,
+            {
+              width: 56,
+              height: 56,
+              backgroundColor: theme.custom.colors.divider,
+              borderRadius: theme.custom.borderRadius.lg,
+              marginRight: theme.custom.spacing.md,
+            },
+          ]}
+        />
+        <View style={{ flex: 1 }}>
+          <View
+            style={[
+              styles.skeletonText,
+              {
+                width: '60%',
+                height: 20,
+                backgroundColor: theme.custom.colors.divider,
+                borderRadius: 4,
+                marginBottom: 8,
+              },
+            ]}
+          />
+          <View
+            style={[
+              styles.skeletonText,
+              {
+                width: '40%',
+                height: 16,
+                backgroundColor: theme.custom.colors.divider,
+                borderRadius: 4,
+              },
+            ]}
+          />
+        </View>
+      </View>
+    </Animated.View>
+  );
+};
+
+// Family list item component to avoid hooks in renderItem
+interface FamilyListItemProps {
+  item: any;
+  index: number;
+  theme: any;
+  onPress: (familyId: string) => void;
+}
+
+const FamilyListItem: React.FC<FamilyListItemProps> = ({ item, index, theme, onPress }) => {
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        delay: index * 100,
+        useNativeDriver: true,
+        tension: 50,
+        friction: 7,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        delay: index * 100,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Animated.sequence([
+      Animated.spring(scaleAnim, {
+        toValue: 0.98,
+        useNativeDriver: true,
+        tension: 300,
+        friction: 20,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        tension: 300,
+        friction: 20,
+      }),
+    ]).start();
+
+    setTimeout(() => {
+      onPress(item.id);
+    }, 100);
+  };
+
+  const memberCount = item.members?.length || 0;
+
+  return (
+    <Animated.View
+      style={{
+        transform: [{ scale: scaleAnim }],
+        opacity: fadeAnim,
+        marginBottom: theme.custom.spacing.md,
+      }}
+    >
+      <TouchableOpacity
+        onPress={handlePress}
+        activeOpacity={1}
+        style={{
+          borderRadius: theme.custom.borderRadius.lg,
+          overflow: 'hidden',
+        }}
+      >
+        <BlurView
+          intensity={Platform.OS === 'ios' ? 20 : 15}
+          tint={theme.dark ? 'dark' : 'light'}
+          style={StyleSheet.absoluteFill}
+        />
+
+        <LinearGradient
+          colors={[
+            `${theme.custom.colors.familyGroup}14`,
+            `${theme.custom.colors.familyGroup}08`,
+          ]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+
+        <View
+          style={[
+            styles.familyCard,
+            {
+              padding: theme.custom.spacing.lg,
+              borderWidth: 1.5,
+              borderColor: theme.custom.colors.glassBorder,
+              borderRadius: theme.custom.borderRadius.lg,
+              ...Platform.select({
+                ios: {
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 8,
+                },
+                android: {
+                  elevation: 4,
+                },
+              }),
+            }
+          ]}
+        >
+          <View style={styles.cardContent}>
+            <View style={[
+              styles.iconContainer,
+              {
+                backgroundColor: theme.custom.colors.familyGroupLight,
+                borderRadius: theme.custom.borderRadius.lg,
+                padding: theme.custom.spacing.md,
+                marginRight: theme.custom.spacing.md,
+              }
+            ]}>
+              <MaterialCommunityIcons
+                name="account-group"
+                size={28}
+                color={theme.custom.colors.familyGroup}
+              />
+            </View>
+
+            <View style={styles.textContent}>
+              <Text style={[
+                styles.familyName,
+                { color: theme.colors.onSurface },
+                theme.custom.typography.h4,
+                { fontWeight: '700' },
+              ]}>
+                {item.name}
+              </Text>
+              <View style={styles.metaRow}>
+                <Text style={[
+                  styles.balance,
+                  {
+                    color: parseFloat(item.balance) >= 0
+                      ? theme.custom.colors.income
+                      : theme.custom.colors.expense,
+                    fontWeight: '600',
+                  },
+                  theme.custom.typography.caption,
+                ]}>
+                  ${item.balance.toFixed(2)}
+                </Text>
+                {memberCount > 0 && (
+                  <>
+                    <Text style={{ color: theme.custom.colors.divider, marginHorizontal: 8 }}>•</Text>
+                    <MaterialCommunityIcons
+                      name="account-multiple"
+                      size={14}
+                      color={theme.custom.colors.textSecondary}
+                      style={{ marginRight: 4 }}
+                    />
+                    <Text style={[
+                      { color: theme.custom.colors.textSecondary },
+                      theme.custom.typography.caption,
+                    ]}>
+                      {memberCount} {memberCount === 1 ? 'member' : 'members'}
+                    </Text>
+                  </>
+                )}
+              </View>
+            </View>
+
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={24}
+              color={theme.colors.primary}
+            />
+          </View>
+
+          {/* Role badge overlay - top right */}
+          {item.currentUserRole && (
+            <View style={styles.roleBadgeContainer}>
+              <RoleBadge role={item.currentUserRole} iconOnly />
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
 
 export default function FamilyListScreen() {
   const { theme } = useAppTheme();
   const { families, pendingInvitations, fetchFamilies, fetchPendingInvitations, loading } = useFamily();
   const navigation = useNavigation();
+  const [refreshing, setRefreshing] = React.useState(false);
+  const bannerSlideAnim = useRef(new Animated.Value(-100)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     fetchFamilies();
     fetchPendingInvitations();
   }, []);
 
-  if (loading) {
+  useEffect(() => {
+    if (pendingInvitations.length > 0) {
+      Animated.spring(bannerSlideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 50,
+        friction: 7,
+      }).start();
+    }
+  }, [pendingInvitations.length]);
+
+  useEffect(() => {
+    // Pulse animation for empty state icon
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([fetchFamilies(), fetchPendingInvitations()]);
+    setRefreshing(false);
+  };
+
+  if (loading && families.length === 0) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text style={[
-          styles.loadingText,
-          { color: theme.custom.colors.textSecondary },
-          theme.custom.typography.body,
-        ]}>
-          Loading families...
-        </Text>
-      </View>
+      <SafeAreaView
+        style={[
+          styles.container,
+          {
+            backgroundColor: theme.colors.background,
+            padding: theme.custom.spacing.lg,
+            paddingTop: theme.custom.spacing.xxl,
+          }
+        ]}
+        edges={['top']}
+      >
+        <SkeletonCard theme={theme} />
+        <SkeletonCard theme={theme} />
+        <SkeletonCard theme={theme} />
+      </SafeAreaView>
     );
   }
 
@@ -37,116 +352,186 @@ export default function FamilyListScreen() {
       styles.container,
       {
         backgroundColor: theme.colors.background,
-        padding: theme.custom.spacing.md,
+        padding: theme.custom.spacing.lg,
+        paddingTop: theme.custom.spacing.xxl,
       }
     ]} edges={['top']}>
       {pendingInvitations.length > 0 && (
-        <TouchableOpacity
-          style={[
-            styles.invitationBanner,
-            {
-              backgroundColor: theme.colors.primary,
-              borderRadius: theme.custom.borderRadius.md,
-              padding: theme.custom.spacing.sm,
-              marginBottom: theme.custom.spacing.md,
-            }
-          ]}
-          onPress={() => navigation.navigate("PendingInvitations" as never)}
+        <Animated.View
+          style={{
+            transform: [{ translateY: bannerSlideAnim }],
+            marginBottom: theme.custom.spacing.lg,
+          }}
         >
-          <MaterialCommunityIcons
-            name="email-alert"
-            size={20}
-            color={theme.colors.onPrimary}
-            style={{ marginRight: theme.custom.spacing.sm }}
-          />
-          <Text style={[
-            styles.invitationText,
-            { color: theme.colors.onPrimary },
-            theme.custom.typography.bodyMedium,
-          ]}>
-            You have {pendingInvitations.length} pending invitation(s)
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.invitationBanner,
+              {
+                borderRadius: theme.custom.borderRadius.xl,
+                overflow: 'hidden',
+                ...Platform.select({
+                  ios: {
+                    shadowColor: theme.colors.primary,
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                  },
+                  android: {
+                    elevation: 8,
+                  },
+                }),
+              }
+            ]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              navigation.navigate("PendingInvitations" as never);
+            }}
+            activeOpacity={0.9}
+          >
+            <BlurView
+              intensity={20}
+              tint={theme.dark ? 'dark' : 'light'}
+              style={StyleSheet.absoluteFill}
+            />
+            <LinearGradient
+              colors={[
+                theme.custom.colors.gradientPrimaryStart,
+                theme.custom.colors.gradientPrimaryEnd,
+              ]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+            <View style={[
+              styles.bannerContent,
+              {
+                padding: theme.custom.spacing.md + 4,
+              }
+            ]}>
+              <MaterialCommunityIcons
+                name="email-alert"
+                size={24}
+                color={theme.colors.onPrimary}
+                style={{ marginRight: theme.custom.spacing.md }}
+              />
+              <Text style={[
+                styles.invitationText,
+                { color: theme.colors.onPrimary },
+                theme.custom.typography.bodyMedium,
+              ]}>
+                You have {pendingInvitations.length} pending invitation{pendingInvitations.length > 1 ? 's' : ''}
+              </Text>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={20}
+                color={theme.colors.onPrimary}
+                style={{ marginLeft: 'auto' }}
+              />
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
       )}
 
       <Button
         title="+ Create New Family"
-        onPress={() => navigation.navigate("CreateFamily" as never)}
-        style={{ marginBottom: theme.custom.spacing.md }}
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          navigation.navigate("CreateFamily" as never);
+        }}
+        variant="glass"
+        style={{ marginBottom: theme.custom.spacing.xl }}
       />
 
       <FlatList
         data={families}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate("FamilyDetail" as never, { familyId: item.id } as never)
-            }
-            activeOpacity={0.7}
-          >
-            <Card style={[
-              styles.familyCard,
-              {
-                marginBottom: theme.custom.spacing.sm,
-                padding: theme.custom.spacing.md,
-              }
-            ]}>
-              <View style={styles.cardContent}>
-                <View style={[
-                  styles.iconContainer,
-                  {
-                    backgroundColor: theme.custom.colors.familyGroupLight,
-                    borderRadius: theme.custom.borderRadius.lg,
-                    padding: theme.custom.spacing.sm,
-                    marginRight: theme.custom.spacing.sm,
-                  }
-                ]}>
-                  <MaterialCommunityIcons
-                    name="account-group"
-                    size={24}
-                    color={theme.custom.colors.familyGroup}
-                  />
-                </View>
-                <View style={styles.textContent}>
-                  <Text style={[
-                    styles.familyName,
-                    { color: theme.colors.onSurface },
-                    theme.custom.typography.h5,
-                  ]}>
-                    {item.name}
-                  </Text>
-                  <Text style={[
-                    styles.balance,
-                    { color: theme.custom.colors.textSecondary },
-                    theme.custom.typography.caption,
-                  ]}>
-                    Balance: ${item.balance.toFixed(2)}
-                  </Text>
-                </View>
-                <MaterialCommunityIcons
-                  name="chevron-right"
-                  size={24}
-                  color={theme.custom.colors.textDisabled}
-                />
-              </View>
-            </Card>
-          </TouchableOpacity>
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={theme.colors.primary}
+            colors={[theme.colors.primary]}
+          />
+        }
+        renderItem={({ item, index }) => (
+          <FamilyListItem
+            item={item}
+            index={index}
+            theme={theme}
+            onPress={(familyId) => {
+              navigation.navigate("FamilyDetail" as never, { familyId } as never);
+            }}
+          />
         )}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <MaterialCommunityIcons
-              name="account-group-outline"
-              size={64}
-              color={theme.custom.colors.textDisabled}
-            />
-            <Text style={[
-              styles.emptyText,
-              { color: theme.custom.colors.textSecondary },
-              theme.custom.typography.body,
-            ]}>
-              No families yet. Create one!
-            </Text>
+            <View
+              style={{
+                borderRadius: theme.custom.borderRadius.xl,
+                overflow: 'hidden',
+                padding: theme.custom.spacing.xxl,
+                alignItems: 'center',
+              }}
+            >
+              <BlurView
+                intensity={Platform.OS === 'ios' ? 25 : 20}
+                tint={theme.dark ? 'dark' : 'light'}
+                style={StyleSheet.absoluteFill}
+              />
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: theme.custom.colors.glassBackground,
+                  borderWidth: 1.5,
+                  borderColor: theme.custom.colors.glassBorder,
+                  borderRadius: theme.custom.borderRadius.xl,
+                }}
+              />
+
+              <Animated.View
+                style={{
+                  transform: [{ scale: pulseAnim }],
+                }}
+              >
+                <View
+                  style={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: theme.custom.borderRadius.round,
+                    backgroundColor: `${theme.custom.colors.familyGroup}20`,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: theme.custom.spacing.lg,
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name="account-group-outline"
+                    size={56}
+                    color={theme.custom.colors.familyGroup}
+                  />
+                </View>
+              </Animated.View>
+
+              <Text style={[
+                styles.emptyTitle,
+                { color: theme.colors.onSurface },
+                theme.custom.typography.h3,
+                { fontWeight: '700', marginBottom: theme.custom.spacing.sm },
+              ]}>
+                Your family financial hub starts here
+              </Text>
+              <Text style={[
+                styles.emptyText,
+                { color: theme.custom.colors.textSecondary, textAlign: 'center' },
+                theme.custom.typography.body,
+              ]}>
+                Create a family to start tracking finances together
+              </Text>
+            </View>
           </View>
         }
       />
@@ -166,15 +551,21 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
   },
-  invitationBanner: {
+  skeletonCard: {},
+  skeletonIcon: {},
+  skeletonText: {},
+  invitationBanner: {},
+  bannerContent: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
   },
   invitationText: {
     fontWeight: "600",
+    flex: 1,
   },
-  familyCard: {},
+  familyCard: {
+    position: 'relative',
+  },
   cardContent: {
     flexDirection: "row",
     alignItems: "center",
@@ -184,17 +575,26 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   familyName: {
-    fontWeight: "600",
     marginBottom: 4,
   },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   balance: {},
+  roleBadgeContainer: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+  },
   emptyContainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 48,
+    marginTop: 24,
   },
+  emptyTitle: {},
   emptyText: {
     textAlign: "center",
-    marginTop: 16,
+    maxWidth: 280,
   },
 });

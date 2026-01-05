@@ -12,6 +12,7 @@ import { GetFamiliesUseCase } from './application/use-cases/get-families.use-cas
 import { GetPendingInvitationsUseCase } from './application/use-cases/get-pending-invitations.use-case';
 import { GetFamilyWithMembersUseCase } from './application/use-cases/get-family-with-members.use-case';
 import { RemoveFamilyMemberUseCase } from './application/use-cases/remove-family-member.use-case';
+import { VerifyFamilyMembershipUseCase } from './application/use-cases/verify-family-membership.use-case';
 import { FamilyBalanceService } from './application/services/family-balance.service';
 
 @Module({
@@ -34,6 +35,7 @@ import { FamilyBalanceService } from './application/services/family-balance.serv
     GetPendingInvitationsUseCase,
     GetFamilyWithMembersUseCase,
     RemoveFamilyMemberUseCase,
+    VerifyFamilyMembershipUseCase,
     FamilyBalanceService,
   ],
   exports: [
@@ -48,6 +50,7 @@ import { FamilyBalanceService } from './application/services/family-balance.serv
     GetPendingInvitationsUseCase,
     GetFamilyWithMembersUseCase,
     RemoveFamilyMemberUseCase,
+    VerifyFamilyMembershipUseCase,
     FamilyBalanceService,
   ],
 })

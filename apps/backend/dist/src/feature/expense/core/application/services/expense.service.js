@@ -41,8 +41,8 @@ let ExpenseService = class ExpenseService {
     async findById(id, userId) {
         return this.getExpenseByIdUseCase.execute(id, userId);
     }
-    async findAll(filters, pagination) {
-        return this.listExpensesUseCase.execute(filters, pagination);
+    async findAll(userId, filters, pagination) {
+        return this.listExpensesUseCase.execute(userId, filters, pagination);
     }
     async update(id, userId, dto) {
         return this.updateExpenseUseCase.execute(id, userId, dto);

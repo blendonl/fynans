@@ -8,6 +8,7 @@ import ProfileScreen from '../screens/profile/ProfileScreen';
 import NotificationsScreen from '../screens/notifications/NotificationsScreen';
 import { useAppTheme } from '../theme';
 import { useNotifications } from '../context/NotificationContext';
+import { useFamily } from '../context/FamilyContext';
 import { GlassTabBar } from '../components/navigation/GlassTabBar';
 
 const Tab = createBottomTabNavigator();
@@ -15,6 +16,7 @@ const Tab = createBottomTabNavigator();
 export default function MainTabs() {
     const { theme } = useAppTheme();
     const { unreadCount } = useNotifications();
+    const { pendingInvitations } = useFamily();
 
     return (
         <Tab.Navigator
@@ -60,6 +62,7 @@ export default function MainTabs() {
                 name="Family"
                 component={FamilyListScreen}
                 options={{
+                    tabBarBadge: pendingInvitations.length > 0 ? pendingInvitations.length : undefined,
                     tabBarIcon: ({ focused, color }) => (
                         <MaterialCommunityIcons
                             name={focused ? 'account-group' : 'account-group-outline'}

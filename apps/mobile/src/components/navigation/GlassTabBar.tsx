@@ -83,11 +83,20 @@ export function GlassTabBar({ state, descriptors, navigation }: BottomTabBarProp
               onLongPress={onLongPress}
               style={styles.tab}
             >
-              {options.tabBarIcon && options.tabBarIcon({
-                focused: isFocused,
-                color: iconColor,
-                size: 26
-              })}
+              <View style={styles.iconContainer}>
+                {options.tabBarIcon && options.tabBarIcon({
+                  focused: isFocused,
+                  color: iconColor,
+                  size: 26
+                })}
+                {options.tabBarBadge != null && (
+                  <View style={[styles.badge, { backgroundColor: theme.colors.error }]}>
+                    <Text style={styles.badgeText}>
+                      {options.tabBarBadge}
+                    </Text>
+                  </View>
+                )}
+              </View>
               {options.tabBarShowLabel !== false && (
                 <Text
                   style={[
@@ -151,6 +160,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 8,
+  },
+  iconContainer: {
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -10,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '600',
   },
   label: {
     fontSize: 12,

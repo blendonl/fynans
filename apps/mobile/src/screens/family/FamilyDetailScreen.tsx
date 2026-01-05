@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,13 @@ import {
   RefreshControl,
   ActivityIndicator,
   TouchableOpacity,
+  Animated,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import { useFamily } from '../../context/FamilyContext';
 import { useAuth } from '../../context/AuthContext';
 import { useRoute, useNavigation } from '@react-navigation/native';
@@ -79,9 +84,35 @@ export default function FamilyDetailScreen() {
   // Mock recent transactions - replace with actual API call
   const [recentTransactions] = useState<Transaction[]>([]);
 
+  // Animated values
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const bottomButtonSlideAnim = useRef(new Animated.Value(100)).current;
+  const sectionFadeAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     fetchFamilyDetails();
   }, [familyId]);
+
+  useEffect(() => {
+    if (family) {
+      // Animate bottom buttons sliding up
+      Animated.spring(bottomButtonSlideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 50,
+        friction: 7,
+        delay: 300,
+      }).start();
+
+      // Animate sections fading in
+      Animated.timing(sectionFadeAnim, {
+        toValue: 1,
+        duration: 600,
+        delay: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [family]);
 
   const fetchFamilyDetails = async () => {
     try {
@@ -217,12 +248,25 @@ export default function FamilyDetailScreen() {
     },
   ];
 
+  // Parallax transformations
+  const headerScale = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [1, 0.9],
+    extrapolate: 'clamp',
+  });
+
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [1, 0.7],
+    extrapolate: 'clamp',
+  });
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       edges={['top']}
     >
-      <ScrollView
+      <Animated.ScrollView
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -232,82 +276,215 @@ export default function FamilyDetailScreen() {
           />
         }
         showsVerticalScrollIndicator={false}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
         contentContainerStyle={{
-          padding: theme.custom.spacing.md,
-          paddingBottom: 100, // Extra padding for bottom buttons
+          padding: theme.custom.spacing.lg,
+          paddingBottom: 120, // Extra padding for bottom buttons
         }}
       >
-        {/* Family Header */}
-        <View style={[styles.header, { marginBottom: theme.custom.spacing.lg }]}>
-          <View style={[
-            styles.headerIcon,
+        {/* Hero Family Header with Gradient */}
+        <Animated.View
+          style={[
+            styles.header,
             {
-              backgroundColor: theme.custom.colors.familyGroupLight,
-              borderRadius: theme.custom.borderRadius.round,
-              padding: theme.custom.spacing.md,
-              marginBottom: theme.custom.spacing.sm,
+              marginBottom: theme.custom.spacing.xl,
+              transform: [{ scale: headerScale }],
+              opacity: headerOpacity,
             }
-          ]}>
-            <MaterialCommunityIcons
-              name="account-group"
-              size={32}
-              color={theme.custom.colors.familyGroup}
+          ]}
+        >
+          <View
+            style={{
+              borderRadius: theme.custom.borderRadius.xl,
+              overflow: 'hidden',
+              padding: theme.custom.spacing.lg,
+              alignItems: 'center',
+            }}
+          >
+            <LinearGradient
+              colors={[
+                `${theme.custom.colors.familyGroup}20`,
+                `${theme.custom.colors.familyGroup}10`,
+              ]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+
+            <View style={[
+              styles.headerIcon,
+              {
+                backgroundColor: theme.custom.colors.familyGroupLight,
+                borderRadius: theme.custom.borderRadius.round,
+                padding: theme.custom.spacing.lg,
+                marginBottom: theme.custom.spacing.md,
+                ...Platform.select({
+                  ios: {
+                    shadowColor: theme.custom.colors.familyGroup,
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                  },
+                  android: {
+                    elevation: 6,
+                  },
+                }),
+              }
+            ]}>
+              <MaterialCommunityIcons
+                name="account-group"
+                size={48}
+                color={theme.custom.colors.familyGroup}
+              />
+            </View>
+
+            <Text style={[
+              styles.familyName,
+              { color: theme.colors.onBackground },
+              theme.custom.typography.h1,
+              { fontWeight: '700', textAlign: 'center' },
+            ]}>
+              {family.name}
+            </Text>
+
+            <Text style={[
+              styles.createdDate,
+              { color: theme.custom.colors.textSecondary },
+              theme.custom.typography.caption,
+              { textAlign: 'center', marginTop: theme.custom.spacing.xs },
+            ]}>
+              Created {formatDate(family.createdAt)}
+            </Text>
+          </View>
+        </Animated.View>
+
+        {/* Stats Card wrapped in glass */}
+        <Animated.View
+          style={{
+            opacity: sectionFadeAnim,
+            transform: [
+              {
+                translateY: sectionFadeAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [20, 0],
+                }),
+              },
+            ],
+          }}
+        >
+          <View
+            style={{
+              borderRadius: theme.custom.borderRadius.lg,
+              overflow: 'hidden',
+              marginBottom: theme.custom.spacing.lg,
+            }}
+          >
+            <BlurView
+              intensity={Platform.OS === 'ios' ? 20 : 15}
+              tint={theme.dark ? 'dark' : 'light'}
+              style={StyleSheet.absoluteFill}
+            />
+            <LinearGradient
+              colors={[
+                `${theme.colors.primary}08`,
+                'transparent',
+              ]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+            <View style={{ padding: theme.custom.spacing.md }}>
+              <FamilyStatsCard
+                stats={stats}
+                columns={2}
+              />
+            </View>
+          </View>
+        </Animated.View>
+
+        {/* Members Section */}
+        <Animated.View
+          style={[
+            styles.section,
+            {
+              marginTop: theme.custom.spacing.xxl,
+              opacity: sectionFadeAnim,
+              transform: [
+                {
+                  translateY: sectionFadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [30, 0],
+                  }),
+                },
+              ],
+            }
+          ]}
+        >
+          <View style={styles.sectionHeader}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: theme.custom.colors.glassBackground,
+                paddingHorizontal: theme.custom.spacing.md,
+                paddingVertical: theme.custom.spacing.sm,
+                borderRadius: theme.custom.borderRadius.round,
+              }}
+            >
+              <Text style={[
+                styles.sectionTitle,
+                { color: theme.colors.onBackground },
+                theme.custom.typography.h3,
+                { fontWeight: '700' },
+              ]}>
+                Members
+              </Text>
+              <View style={[
+                styles.badge,
+                {
+                  backgroundColor: `${theme.colors.primary}20`,
+                  borderRadius: theme.custom.borderRadius.round,
+                  paddingHorizontal: theme.custom.spacing.sm,
+                  paddingVertical: 4,
+                  marginLeft: theme.custom.spacing.sm,
+                },
+              ]}>
+                <Text style={[
+                  styles.badgeText,
+                  { color: theme.colors.primary },
+                  theme.custom.typography.small,
+                  { fontWeight: '700' },
+                ]}>
+                  {family.members.length}
+                </Text>
+              </View>
+            </View>
+          </View>
+          <View
+            style={{
+              height: 2,
+              marginTop: theme.custom.spacing.sm,
+              marginBottom: theme.custom.spacing.md,
+              borderRadius: 1,
+              overflow: 'hidden',
+            }}
+          >
+            <LinearGradient
+              colors={[
+                theme.custom.colors.gradientPrimaryStart,
+                theme.custom.colors.gradientPrimaryEnd,
+              ]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ flex: 1 }}
             />
           </View>
 
-          <Text style={[
-            styles.familyName,
-            { color: theme.colors.onBackground },
-            theme.custom.typography.h2,
-          ]}>
-            {family.name}
-          </Text>
-
-          <Text style={[
-            styles.createdDate,
-            { color: theme.custom.colors.textSecondary },
-            theme.custom.typography.caption,
-          ]}>
-            Created {formatDate(family.createdAt)}
-          </Text>
-        </View>
-
-        {/* Stats Card */}
-        <FamilyStatsCard
-          stats={stats}
-          columns={2}
-        />
-
-        {/* Members Section */}
-        <View style={[styles.section, { marginTop: theme.custom.spacing.lg }]}>
-          <View style={styles.sectionHeader}>
-            <Text style={[
-              styles.sectionTitle,
-              { color: theme.colors.onBackground },
-              theme.custom.typography.h4,
-            ]}>
-              Members
-            </Text>
-            <View style={[
-              styles.badge,
-              {
-                backgroundColor: theme.custom.colors.primaryLight + '20',
-                borderRadius: theme.custom.borderRadius.round,
-                paddingHorizontal: theme.custom.spacing.sm,
-                paddingVertical: 4,
-              }
-            ]}>
-              <Text style={[
-                styles.badgeText,
-                { color: theme.colors.primary },
-                theme.custom.typography.small,
-              ]}>
-                {family.members.length}
-              </Text>
-            </View>
-          </View>
-
-          <View style={{ marginTop: theme.custom.spacing.sm }}>
+          <View>
             {family.members.map((member) => (
               <MemberListItem
                 key={member.id}
@@ -319,7 +496,7 @@ export default function FamilyDetailScreen() {
               />
             ))}
           </View>
-        </View>
+        </Animated.View>
 
         {/* Recent Activity Section */}
         {recentTransactions.length > 0 && (
@@ -401,33 +578,60 @@ export default function FamilyDetailScreen() {
             </Card>
           </View>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
 
-      {/* Fixed Bottom Action Buttons */}
-      <View style={[
-        styles.bottomActions,
-        {
-          backgroundColor: theme.colors.background,
-          borderTopColor: theme.custom.colors.divider,
-          padding: theme.custom.spacing.md,
-        }
-      ]}>
-        <Button
-          title="Invite Member"
-          onPress={() =>
-            navigation.navigate('InviteMember' as never, { familyId } as never)
+      {/* Floating Glass Bottom Action Buttons */}
+      <Animated.View
+        style={[
+          styles.bottomActions,
+          {
+            transform: [{ translateY: bottomButtonSlideAnim }],
+            marginHorizontal: theme.custom.spacing.lg,
+            marginBottom: theme.custom.spacing.lg,
+            borderRadius: theme.custom.borderRadius.xl,
+            overflow: 'hidden',
+            ...Platform.select({
+              ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: -4 },
+                shadowOpacity: 0.15,
+                shadowRadius: 12,
+              },
+              android: {
+                elevation: 12,
+              },
+            }),
           }
-          style={{ marginBottom: theme.custom.spacing.sm }}
+        ]}
+      >
+        <BlurView
+          intensity={80}
+          tint={theme.dark ? 'dark' : 'light'}
+          style={StyleSheet.absoluteFill}
         />
+        <View style={{ padding: theme.custom.spacing.md }}>
+          <Button
+            title="Invite Member"
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              navigation.navigate('InviteMember' as never, { familyId } as never);
+            }}
+            variant="glass"
+            style={{ marginBottom: theme.custom.spacing.sm }}
+          />
 
-        <Button
-          title="Leave Family"
-          onPress={handleLeave}
-          style={{
-            backgroundColor: theme.colors.error,
-          }}
-        />
-      </View>
+          <Button
+            title="Leave Family"
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              handleLeave();
+            }}
+            style={{
+              backgroundColor: theme.colors.error,
+            }}
+          />
+        </View>
+      </Animated.View>
     </SafeAreaView>
   );
 }
@@ -507,11 +711,5 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    borderTopWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 8,
   },
 });

@@ -7,6 +7,7 @@ import { UpdateIncomeUseCase } from '../use-cases/update-income.use-case';
 import { DeleteIncomeUseCase } from '../use-cases/delete-income.use-case';
 import { CreateIncomeDto } from '../dto/create-income.dto';
 import { UpdateIncomeDto } from '../dto/update-income.dto';
+import { IncomeFilters } from '../dto/income-filters.dto';
 import { Income } from '../../domain/entities/income.entity';
 import { PaginatedResult } from '../../domain/repositories/income.repository.interface';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
@@ -35,10 +36,11 @@ export class IncomeService {
   }
 
   async findAll(
-    storeId?: string,
+    userId: string,
+    filters?: IncomeFilters,
     pagination?: Pagination,
   ): Promise<PaginatedResult<Income>> {
-    return this.listIncomesUseCase.execute(storeId, pagination);
+    return this.listIncomesUseCase.execute(userId, filters, pagination);
   }
 
   async update(id: string, dto: UpdateIncomeDto): Promise<Income> {

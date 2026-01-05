@@ -161,12 +161,7 @@ export default function AddIncomeScreen({ navigation }: any) {
 
       await apiClient.post("/transactions", payload);
       imageUpload.clearImages();
-      Alert.alert("Success", "Income created successfully", [
-        {
-          text: "OK",
-          onPress: () => navigation.goBack(),
-        },
-      ]);
+      navigation.navigate("Transactions");
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to create income");
     } finally {
