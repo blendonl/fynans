@@ -39,6 +39,7 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
     const { theme } = useAppTheme();
     const glassStyles = createGlassStyles(theme.custom.colors);
     const slideAnim = useRef(new Animated.Value(0)).current;
+    const [containerWidth, setContainerWidth] = React.useState(0);
 
     // Handle boolean toggle mode
     if (!options && label && typeof value === 'boolean' && onValueChange) {
@@ -102,23 +103,27 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
         return theme.colors.primary;
     };
 
-    const containerWidth = 100; // percentage
-    const optionWidth = containerWidth / options.length;
+    const padding = 4;
+    const optionWidthPercent = 100 / options.length;
+    const optionWidthPx = (containerWidth - padding * 2) / options.length;
 
     return (
-        <View style={[glassStyles.glassCard, styles.container, style]}>
+        <View
+            style={[glassStyles.glassCard, styles.container, style]}
+            onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
+        >
             {/* Animated indicator */}
             <Animated.View
                 style={[
                     styles.indicator,
                     {
                         backgroundColor: getOptionColor(options[selectedIndex]),
-                        width: `${optionWidth}%`,
+                        width: `${optionWidthPercent}%`,
                         transform: [
                             {
                                 translateX: slideAnim.interpolate({
                                     inputRange: options.map((_, i) => i),
-                                    outputRange: options.map((_, i) => i * (optionWidth / 100) * 100),
+                                    outputRange: options.map((_, i) => i * optionWidthPx),
                                 }),
                             },
                         ],
@@ -134,7 +139,7 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
                 return (
                     <TouchableOpacity
                         key={option.value}
-                        style={[styles.option, { width: `${optionWidth}%` }]}
+                        style={[styles.option, { width: `${optionWidthPercent}%` }]}
                         onPress={() => onChange(option.value)}
                         activeOpacity={0.7}
                     >

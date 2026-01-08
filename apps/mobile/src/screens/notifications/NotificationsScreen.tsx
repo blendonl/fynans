@@ -1,16 +1,54 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   View,
-  FlatList,
+  SectionList,
   StyleSheet,
   RefreshControl,
   Text,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { IconButton } from 'react-native-paper';
+import { useFocusEffect } from '@react-navigation/native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { useNotifications } from '../../context/NotificationContext';
 import { useAppTheme } from '../../theme';
+import { transactionService } from '../../services/transactionService';
+import { SwipeableNotification } from '../../components/notifications/SwipeableNotification';
+import { NotificationSectionHeader } from '../../components/notifications/NotificationSectionHeader';
+
+interface NotificationSection {
+  title: string;
+  data: any[];
+}
+
+const groupNotificationsByDate = (notifications: any[]): NotificationSection[] => {
+  const now = new Date();
+  const today: any[] = [];
+  const yesterday: any[] = [];
+  const earlier: any[] = [];
+
+  notifications.forEach((notif) => {
+    const diffMs = now.getTime() - new Date(notif.createdAt).getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    if (diffHours < 24) {
+      today.push(notif);
+    } else if (diffHours < 48) {
+      yesterday.push(notif);
+    } else {
+      earlier.push(notif);
+    }
+  });
+
+  const sections: NotificationSection[] = [];
+  if (today.length > 0) sections.push({ title: 'Today', data: today });
+  if (yesterday.length > 0) sections.push({ title: 'Yesterday', data: yesterday });
+  if (earlier.length > 0) sections.push({ title: 'Earlier', data: earlier });
+
+  return sections;
+};
 
 export default function NotificationsScreen({ navigation }: any) {
   const {
@@ -23,20 +61,44 @@ export default function NotificationsScreen({ navigation }: any) {
     deleteNotification,
   } = useNotifications();
   const { theme } = useAppTheme();
+  const [navigating, setNavigating] = useState(false);
 
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchNotifications();
+    }, [])
+  );
+
+  const sections = useMemo(
+    () => groupNotificationsByDate(notifications),
+    [notifications]
+  );
 
   const handleNotificationPress = async (notification: any) => {
     if (!notification.isRead) {
       await markAsRead(notification.id);
     }
 
-    // Navigate based on actionUrl if available
-    if (notification.actionUrl) {
-      // Parse and navigate to appropriate screen
-      console.log('Navigate to:', notification.actionUrl);
+    if (notification.type === 'FAMILY_EXPENSE_CREATED' && notification.data?.expenseId) {
+      try {
+        setNavigating(true);
+        const transaction = await transactionService.fetchExpenseById(notification.data.expenseId);
+        navigation.navigate('TransactionDetail', { transaction });
+      } catch (error) {
+        console.error('Failed to fetch expense:', error);
+      } finally {
+        setNavigating(false);
+      }
+    } else if (notification.type === 'FAMILY_INCOME_CREATED' && notification.data?.incomeId) {
+      try {
+        setNavigating(true);
+        const transaction = await transactionService.fetchIncomeById(notification.data.incomeId);
+        navigation.navigate('TransactionDetail', { transaction });
+      } catch (error) {
+        console.error('Failed to fetch income:', error);
+      } finally {
+        setNavigating(false);
+      }
     }
   };
 
@@ -44,93 +106,104 @@ export default function NotificationsScreen({ navigation }: any) {
     await deleteNotification(id);
   };
 
-  const unreadNotifications = notifications.filter((n) => !n.isRead);
-
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       edges={['top']}
     >
-      <View style={styles.header}>
-        <Text
-          style={[
-            styles.title,
-            { color: theme.colors.onBackground, fontSize: 24, fontWeight: 'bold' },
-          ]}
-        >
-          Notifications
-        </Text>
-        {unreadNotifications.length > 0 && (
-          <TouchableOpacity onPress={markAllAsRead}>
-            <Text style={{ color: theme.colors.primary }}>Mark all as read</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      <FlatList
-        data={notifications}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+      {unreadCount > 0 && (
+        <View style={styles.markAllReadContainer}>
           <TouchableOpacity
             style={[
-              styles.notificationItem,
+              styles.markAllReadButton,
               {
-                backgroundColor: item.isRead
-                  ? theme.colors.surface
-                  : theme.colors.primaryContainer,
+                borderRadius: theme.custom.borderRadius.sm,
+                overflow: 'hidden',
               },
             ]}
-            onPress={() => handleNotificationPress(item)}
+            onPress={markAllAsRead}
           >
-            <View style={styles.notificationContent}>
-              <Text
-                style={[
-                  styles.notificationTitle,
-                  { color: theme.colors.onSurface },
-                ]}
-              >
-                {item.title}
-              </Text>
-              <Text
-                style={[
-                  styles.notificationMessage,
-                  { color: theme.colors.onSurfaceVariant },
-                ]}
-                numberOfLines={2}
-              >
-                {item.message}
-              </Text>
-              <Text
-                style={[
-                  styles.notificationTime,
-                  { color: theme.colors.onSurfaceVariant },
-                ]}
-              >
-                {new Date(item.createdAt).toLocaleString()}
-              </Text>
-            </View>
-            <IconButton
-              icon="delete"
-              size={20}
-              onPress={() => handleDelete(item.id)}
+            <BlurView
+              intensity={20}
+              tint={theme.dark ? 'dark' : 'light'}
+              style={StyleSheet.absoluteFill}
             />
+            <Text
+              style={[
+                styles.markAllReadText,
+                { color: theme.colors.primary },
+              ]}
+            >
+              Mark all as read
+            </Text>
           </TouchableOpacity>
-        )}
-        refreshControl={
-          <RefreshControl
-            refreshing={loading}
-            onRefresh={fetchNotifications}
+        </View>
+      )}
+
+      <SectionList
+        sections={sections}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item, index, section }) => (
+          <SwipeableNotification
+            notification={item}
+            onPress={() => handleNotificationPress(item)}
+            onDelete={() => handleDelete(item.id)}
+            isFirst={index === 0 && section.title === sections[0]?.title}
           />
+        )}
+        renderSectionHeader={({ section, section: { title } }) => (
+          <NotificationSectionHeader
+            title={title}
+            isFirst={sections[0]?.title === title}
+          />
+        )}
+        stickySectionHeadersEnabled={true}
+        refreshControl={
+          <RefreshControl refreshing={loading} onRefresh={fetchNotifications} />
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={{ color: theme.colors.onSurfaceVariant }}>
-              No notifications yet
+            <MaterialCommunityIcons
+              name="bell-outline"
+              size={64}
+              color={theme.custom.colors.textDisabled}
+            />
+            <Text
+              style={[
+                styles.emptyTitle,
+                {
+                  color: theme.colors.onSurface,
+                  marginTop: theme.custom.spacing.md,
+                },
+              ]}
+            >
+              No notifications
+            </Text>
+            <Text
+              style={[
+                styles.emptyDescription,
+                {
+                  color: theme.custom.colors.textSecondary,
+                  marginTop: theme.custom.spacing.xs,
+                },
+              ]}
+            >
+              You're all caught up!
             </Text>
           </View>
         }
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          {
+            paddingTop: unreadCount > 0 ? 60 : 16,
+          },
+        ]}
       />
+      {navigating && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -139,41 +212,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  markAllReadContainer: {
+    position: 'absolute',
+    top: 24,
+    right: 16,
+    zIndex: 10,
+  },
+  markAllReadButton: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
-  title: {},
-  listContent: {
-    padding: 16,
-  },
-  notificationItem: {
-    flexDirection: 'row',
-    padding: 12,
-    marginBottom: 8,
-    borderRadius: 8,
-  },
-  notificationContent: {
-    flex: 1,
-  },
-  notificationTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  notificationMessage: {
+  markAllReadText: {
     fontSize: 14,
-    marginBottom: 4,
+    fontWeight: '600',
   },
-  notificationTime: {
-    fontSize: 12,
+  listContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 32,
+    paddingVertical: 64,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  emptyDescription: {
+    fontSize: 14,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

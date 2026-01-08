@@ -14,10 +14,17 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LeaveFamilyUseCase = void 0;
 const common_1 = require("@nestjs/common");
+const create_notification_use_case_1 = require("../../../../notification/core/application/use-cases/create-notification.use-case");
+const notification_type_vo_1 = require("../../../../notification/core/domain/value-objects/notification-type.vo");
+const user_service_1 = require("../../../../user/core/application/services/user.service");
 let LeaveFamilyUseCase = class LeaveFamilyUseCase {
     familyRepository;
-    constructor(familyRepository) {
+    createNotificationUseCase;
+    userService;
+    constructor(familyRepository, createNotificationUseCase, userService) {
         this.familyRepository = familyRepository;
+        this.createNotificationUseCase = createNotificationUseCase;
+        this.userService = userService;
     }
     async execute(familyId, userId) {
         const member = await this.familyRepository.findMember(familyId, userId);
@@ -33,12 +40,31 @@ let LeaveFamilyUseCase = class LeaveFamilyUseCase {
             return;
         }
         await this.familyRepository.removeMember(familyId, userId);
+        const family = await this.familyRepository.findById(familyId);
+        const leavingUser = await this.userService.findById(userId);
+        const remainingMembers = await this.familyRepository.findMembers(familyId);
+        for (const familyMember of remainingMembers) {
+            await this.createNotificationUseCase.execute({
+                userId: familyMember.userId,
+                type: notification_type_vo_1.NotificationType.FAMILY_MEMBER_LEFT,
+                data: {
+                    familyId: familyId,
+                    familyName: family?.name,
+                    memberName: leavingUser?.fullName,
+                    memberId: userId,
+                },
+                deliveryMethods: [notification_type_vo_1.DeliveryMethod.IN_APP, notification_type_vo_1.DeliveryMethod.PUSH],
+                priority: notification_type_vo_1.NotificationPriority.LOW,
+                familyId: familyId,
+            });
+        }
     }
 };
 exports.LeaveFamilyUseCase = LeaveFamilyUseCase;
 exports.LeaveFamilyUseCase = LeaveFamilyUseCase = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('FamilyRepository')),
-    __metadata("design:paramtypes", [Object])
+    __metadata("design:paramtypes", [Object, create_notification_use_case_1.CreateNotificationUseCase,
+        user_service_1.UserService])
 ], LeaveFamilyUseCase);
 //# sourceMappingURL=leave-family.use-case.js.map

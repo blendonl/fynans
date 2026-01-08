@@ -5,4 +5,5 @@ export declare class UserService {
     constructor(userRepository: IUserRepository);
     findById(id: string): Promise<User>;
     findByEmail(email: string): Promise<User | null>;
+    search(query: string, excludeFamilyId?: string, limit?: number): Promise<User[]>;
 }

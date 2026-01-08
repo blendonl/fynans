@@ -146,7 +146,7 @@ export class PrismaFamilyRepository implements IFamilyRepository {
       orderBy: { joinedAt: 'asc' },
     });
 
-    return members.map(FamilyMemberMapper.toDomain);
+    return members.map((m) => FamilyMemberMapper.toDomain(m));
   }
 
   async updateMemberRole(

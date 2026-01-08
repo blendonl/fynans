@@ -37,27 +37,27 @@ export function useExpenseItems() {
       fromReceipt: currentItem.fromReceipt,
     };
 
-    if (saveToStore && storeId) {
-      try {
-        // We need to import apiClient here or pass it in, but since this is a hook, 
-        // we can import it at the top level. 
-        // Note: I will add the import in a separate step if it's not available.
-        // Assuming apiClient is available or I will add it.
-
-        await apiClient.post(`/stores/${storeId}/items`, {
-          name: newItem.name,
-          price: newItem.price,
-          categoryId: newItem.categoryId,
-          isDiscounted: newItem.discount > 0,
-        });
-      } catch (error) {
-        console.error("Failed to save item to store:", error);
-        // We don't block adding the item to the list if saving to store fails, 
-        // but maybe we should alert the user? 
-        // For now, let's just log it as it's a "nice to have" feature 
-        // that shouldn't break the main flow.
-      }
-    }
+    // if (saveToStore && storeId) {
+    //   try {
+    //     // We need to import apiClient here or pass it in, but since this is a hook,
+    //     // we can import it at the top level.
+    //     // Note: I will add the import in a separate step if it's not available.
+    //     // Assuming apiClient is available or I will add it.
+    //
+    //     await apiClient.post(`/stores/${storeId}/items`, {
+    //       name: newItem.name,
+    //       price: newItem.price,
+    //       categoryId: newItem.categoryId,
+    //       isDiscounted: newItem.discount > 0,
+    //     });
+    //   } catch (error) {
+    //     console.error("Failed to save item to store:", error);
+    //     // We don't block adding the item to the list if saving to store fails,
+    //     // but maybe we should alert the user?
+    //     // For now, let's just log it as it's a "nice to have" feature
+    //     // that shouldn't break the main flow.
+    //   }
+    // }
 
     setItems([...items, newItem]);
     setCurrentItem({
@@ -90,7 +90,7 @@ export function useExpenseItems() {
     setCurrentItem({
       name: itemToEdit.name,
       price: itemToEdit.price.toString(),
-      discount: itemToEdit.discount > 0 ? itemToEdit.discount.toString() : '',
+      discount: itemToEdit.discount > 0 ? itemToEdit.discount.toString() : "",
       quantity: itemToEdit.quantity.toString(),
       categoryId: itemToEdit.categoryId,
       fromReceipt: itemToEdit.fromReceipt,
@@ -100,7 +100,7 @@ export function useExpenseItems() {
   };
 
   const hasMissingCategory = (item: ExpenseItem): boolean => {
-    return !item.categoryId || item.categoryId === '';
+    return !item.categoryId || item.categoryId === "";
   };
 
   return {

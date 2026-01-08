@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://192.168.0.17:3000";
 
 export const apiClient = {
   async get(endpoint: string, params?: Record<string, any>) {
@@ -17,8 +17,11 @@ export const apiClient = {
     if (params && Object.keys(params).length > 0) {
       const queryString = Object.entries(params)
         .filter(([_, value]) => value !== undefined && value !== null)
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-        .join('&');
+        .map(
+          ([key, value]) =>
+            `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+        )
+        .join("&");
       if (queryString) {
         url += `?${queryString}`;
       }
@@ -92,7 +95,11 @@ export const apiClient = {
     }
   },
 
-  async patch(endpoint: string, body: any, options?: { headers?: HeadersInit }) {
+  async patch(
+    endpoint: string,
+    body: any,
+    options?: { headers?: HeadersInit },
+  ) {
     const token = await AsyncStorage.getItem("token");
     const headers: HeadersInit = {
       "Content-Type": "application/json",

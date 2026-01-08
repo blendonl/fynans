@@ -23,7 +23,10 @@ let TransactionCoreModule = class TransactionCoreModule {
 exports.TransactionCoreModule = TransactionCoreModule;
 exports.TransactionCoreModule = TransactionCoreModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, family_core_module_1.FamilyCoreModule],
+        imports: [
+            prisma_module_1.PrismaModule,
+            family_core_module_1.FamilyCoreModule,
+        ],
         providers: [
             {
                 provide: 'TransactionRepository',

@@ -17,23 +17,32 @@ const common_1 = require("@nestjs/common");
 const transaction_service_1 = require("../../../../transaction/core/application/services/transaction.service");
 const store_service_1 = require("../../../../store/core/application/services/store.service");
 const expense_item_service_1 = require("../../../../expense-item/core/application/services/expense-item.service");
+const create_notification_use_case_1 = require("../../../../notification/core/application/use-cases/create-notification.use-case");
+const user_service_1 = require("../../../../user/core/application/services/user.service");
 const create_transaction_dto_1 = require("../../../../transaction/core/application/dto/create-transaction.dto");
 const create_store_dto_1 = require("../../../../store/core/application/dto/create-store.dto");
 const create_expense_item_dto_1 = require("../../../../expense-item/core/application/dto/create-expense-item.dto");
 const transaction_type_vo_1 = require("../../../../transaction/core/domain/value-objects/transaction-type.vo");
+const notification_type_vo_1 = require("../../../../notification/core/domain/value-objects/notification-type.vo");
 const uuid_1 = require("uuid");
 let CreateExpenseUseCase = class CreateExpenseUseCase {
     expenseRepository;
     expenseCategoryRepository;
+    familyRepository;
     transactionService;
     storeService;
     expenseItemService;
-    constructor(expenseRepository, expenseCategoryRepository, transactionService, storeService, expenseItemService) {
+    createNotificationUseCase;
+    userService;
+    constructor(expenseRepository, expenseCategoryRepository, familyRepository, transactionService, storeService, expenseItemService, createNotificationUseCase, userService) {
         this.expenseRepository = expenseRepository;
         this.expenseCategoryRepository = expenseCategoryRepository;
+        this.familyRepository = familyRepository;
         this.transactionService = transactionService;
         this.storeService = storeService;
         this.expenseItemService = expenseItemService;
+        this.createNotificationUseCase = createNotificationUseCase;
+        this.userService = userService;
     }
     async execute(dto) {
         await this.validate(dto);
@@ -63,6 +72,29 @@ let CreateExpenseUseCase = class CreateExpenseUseCase {
             discount: item.discount,
             quantity: item.quantity,
         }), store.id)));
+        if (dto.familyId) {
+            const family = await this.familyRepository.findById(dto.familyId);
+            const expenseUser = await this.userService.findById(dto.userId);
+            const allMembers = await this.familyRepository.findMembers(dto.familyId);
+            for (const familyMember of allMembers) {
+                if (familyMember.userId === dto.userId)
+                    continue;
+                await this.createNotificationUseCase.execute({
+                    userId: familyMember.userId,
+                    type: notification_type_vo_1.NotificationType.FAMILY_EXPENSE_CREATED,
+                    data: {
+                        expenseId: expense.id,
+                        familyId: dto.familyId,
+                        familyName: family?.name,
+                        userName: expenseUser?.fullName,
+                        amount: totalValue.toFixed(2),
+                    },
+                    deliveryMethods: [notification_type_vo_1.DeliveryMethod.IN_APP, notification_type_vo_1.DeliveryMethod.PUSH],
+                    priority: notification_type_vo_1.NotificationPriority.LOW,
+                    familyId: dto.familyId,
+                });
+            }
+        }
         return this.expenseRepository.findById(expense.id);
     }
     async validate(dto) {
@@ -99,8 +131,11 @@ exports.CreateExpenseUseCase = CreateExpenseUseCase = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('ExpenseRepository')),
     __param(1, (0, common_1.Inject)('ExpenseCategoryRepository')),
-    __metadata("design:paramtypes", [Object, Object, transaction_service_1.TransactionService,
+    __param(2, (0, common_1.Inject)('FamilyRepository')),
+    __metadata("design:paramtypes", [Object, Object, Object, transaction_service_1.TransactionService,
         store_service_1.StoreService,
-        expense_item_service_1.ExpenseItemService])
+        expense_item_service_1.ExpenseItemService,
+        create_notification_use_case_1.CreateNotificationUseCase,
+        user_service_1.UserService])
 ], CreateExpenseUseCase);
 //# sourceMappingURL=create-expense.use-case.js.map

@@ -18,4 +18,11 @@ export class UserService {
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findByEmail(email);
   }
+
+  async search(query: string, excludeFamilyId?: string, limit = 10): Promise<User[]> {
+    if (!query || query.trim().length < 2) {
+      return [];
+    }
+    return this.userRepository.search(query.trim(), excludeFamilyId, limit);
+  }
 }

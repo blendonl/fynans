@@ -9,6 +9,7 @@ export declare class PrismaFamilyInvitationRepository implements IFamilyInvitati
     findByFamilyId(familyId: string): Promise<FamilyInvitation[]>;
     findByInviteeEmail(email: string): Promise<FamilyInvitation[]>;
     findByInviteeId(userId: string): Promise<FamilyInvitation[]>;
+    findPendingByEmailAndFamily(email: string, familyId: string): Promise<FamilyInvitation | null>;
     update(id: string, data: Partial<FamilyInvitation>): Promise<FamilyInvitation>;
     delete(id: string): Promise<void>;
 }

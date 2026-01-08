@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { apiClient } from "../api/client";
 import { useAuth } from "./AuthContext";
+import { websocketService } from "../services/websocketService";
 
 interface Family {
   id: string;
@@ -27,6 +28,13 @@ interface FamilyMember {
 
 interface FamilyWithMembers extends Family {
   members: FamilyMember[];
+}
+
+interface UserSearchResult {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
 }
 
 interface FamilyInvitation {
@@ -55,6 +63,7 @@ interface FamilyContextType {
   declineInvitation: (invitationId: string) => Promise<void>;
   selectFamily: (family: Family | null) => void;
   getCurrentUserRole: (familyId: string) => "OWNER" | "ADMIN" | "MEMBER" | null;
+  searchUsers: (query: string, excludeFamilyId: string) => Promise<UserSearchResult[]>;
 }
 
 const FamilyContext = createContext<FamilyContextType | undefined>(undefined);
@@ -67,6 +76,7 @@ export const FamilyProvider = ({
   const { token, isLoading: authLoading } = useAuth();
   const [families, setFamilies] = useState<Family[]>([]);
   const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
+  const [subscribedFamilyId, setSubscribedFamilyId] = useState<string | null>(null);
   const [pendingInvitations, setPendingInvitations] = useState<
     FamilyInvitation[]
   >([]);
@@ -76,8 +86,37 @@ export const FamilyProvider = ({
     if (!authLoading && token) {
       fetchFamilies();
       fetchPendingInvitations();
+      setupWebSocketListeners();
     }
+
+    return () => {
+      if (token) {
+        websocketService.off('notification:new', handleFamilyNotification);
+      }
+      if (subscribedFamilyId) {
+        websocketService.unsubscribeFromFamily(subscribedFamilyId);
+      }
+    };
   }, [token, authLoading]);
+
+  const setupWebSocketListeners = () => {
+    websocketService.on('notification:new', handleFamilyNotification);
+  };
+
+  const handleFamilyNotification = (notification: any) => {
+    const familyNotificationTypes = [
+      'FAMILY_INVITATION_RECEIVED',
+      'FAMILY_INVITATION_ACCEPTED',
+      'FAMILY_INVITATION_DECLINED',
+      'FAMILY_MEMBER_JOINED',
+      'FAMILY_MEMBER_LEFT',
+    ];
+
+    if (familyNotificationTypes.includes(notification.type)) {
+      fetchPendingInvitations();
+      fetchFamilies();
+    }
+  };
 
   // Load stored family after families are fetched
   useEffect(() => {
@@ -90,7 +129,11 @@ export const FamilyProvider = ({
     const storedFamilyId = await AsyncStorage.getItem("selectedFamilyId");
     if (storedFamilyId) {
       const family = families.find((f) => f.id === storedFamilyId);
-      if (family) setSelectedFamily(family);
+      if (family) {
+        setSelectedFamily(family);
+        websocketService.subscribeToFamily(family.id);
+        setSubscribedFamilyId(family.id);
+      }
     }
   };
 
@@ -148,12 +191,20 @@ export const FamilyProvider = ({
   };
 
   const selectFamily = async (family: Family | null) => {
-    setSelectedFamily(family);
+    if (subscribedFamilyId) {
+      websocketService.unsubscribeFromFamily(subscribedFamilyId);
+    }
+
     if (family) {
+      websocketService.subscribeToFamily(family.id);
+      setSubscribedFamilyId(family.id);
       await AsyncStorage.setItem("selectedFamilyId", family.id);
     } else {
+      setSubscribedFamilyId(null);
       await AsyncStorage.removeItem("selectedFamilyId");
     }
+
+    setSelectedFamily(family);
   };
 
   const fetchFamilyWithMembers = async (
@@ -171,10 +222,20 @@ export const FamilyProvider = ({
   const getCurrentUserRole = (
     familyId: string
   ): "OWNER" | "ADMIN" | "MEMBER" | null => {
-    // This would require fetching the family with members
-    // For now, return null as a placeholder
-    // In practice, we'd cache member information or fetch it
     return null;
+  };
+
+  const searchUsers = async (
+    query: string,
+    excludeFamilyId: string
+  ): Promise<UserSearchResult[]> => {
+    if (!query || query.length < 2) {
+      return [];
+    }
+    const data = await apiClient.get(
+      `/users/search?q=${encodeURIComponent(query)}&excludeFamilyId=${excludeFamilyId}`
+    );
+    return data;
   };
 
   return (
@@ -195,6 +256,7 @@ export const FamilyProvider = ({
         declineInvitation,
         selectFamily,
         getCurrentUserRole,
+        searchUsers,
       }}
     >
       {children}

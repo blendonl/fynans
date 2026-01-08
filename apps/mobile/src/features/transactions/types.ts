@@ -3,6 +3,10 @@ export interface Transaction {
   type: "expense" | "income";
   scope: "PERSONAL" | "FAMILY";
   familyId?: string | null;
+  family?: {
+    id: string;
+    name: string;
+  };
   category: {
     id: string;
     name: string;

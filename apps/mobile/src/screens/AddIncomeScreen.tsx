@@ -4,17 +4,14 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import {
   Input,
   Button,
   Chip,
   Dropdown,
-  DropdownItem,
+  Select,
   DateTimePickerComponent,
   ToggleSwitch,
 } from "../components/design-system";
@@ -161,7 +158,7 @@ export default function AddIncomeScreen({ navigation }: any) {
 
       await apiClient.post("/transactions", payload);
       imageUpload.clearImages();
-      navigation.navigate("Transactions");
+      navigation.navigate("Main", { screen: "Transactions" });
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to create income");
     } finally {
@@ -268,16 +265,12 @@ export default function AddIncomeScreen({ navigation }: any) {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.flex}
-      keyboardVerticalOffset={100}
+    <ScrollView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView
-        style={[styles.container, { backgroundColor: theme.colors.background }]}
-        keyboardShouldPersistTaps="handled"
-      >
-        {renderCategorySelection()}
+      {renderCategorySelection()}
 
         <View style={styles.section}>
           <Text
@@ -303,7 +296,7 @@ export default function AddIncomeScreen({ navigation }: any) {
 
         {!isPersonal && families.length > 0 && (
           <View style={styles.section}>
-            <Dropdown
+            <Select
               label="Select Family"
               value={selectedFamilyId}
               items={families.map((family) => ({
@@ -376,18 +369,18 @@ export default function AddIncomeScreen({ navigation }: any) {
             style={styles.submitButton}
           />
         )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
   container: {
     flex: 1,
     padding: 16,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 350,
   },
   section: {
     marginBottom: 24,

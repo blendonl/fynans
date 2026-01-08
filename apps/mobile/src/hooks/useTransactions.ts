@@ -1,12 +1,52 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "../api/client";
 import { Transaction, TransactionFilters } from "../features/transactions/types";
+import { websocketService } from "../services/websocketService";
 
-export const useTransactions = (filters?: TransactionFilters) => {
+interface Family {
+  id: string;
+  name: string;
+}
+
+export const useTransactions = (filters?: TransactionFilters, families: Family[] = []) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+
+  const mapExpenseToTransaction = (expense: any, family?: Family): Transaction => ({
+    id: expense.id,
+    type: "expense" as const,
+    category: expense.category,
+    store: expense.store,
+    scope: expense.transaction?.scope || "PERSONAL",
+    familyId: expense.transaction?.familyId,
+    family: family ? { id: family.id, name: family.name } : undefined,
+    transaction: {
+      ...expense.transaction,
+      description: expense.transaction?.description,
+      user: expense.transaction?.user,
+    },
+    items: expense.items,
+    receiptImages: expense.receiptImages || [],
+  });
+
+  const mapIncomeToTransaction = (income: any, family?: Family): Transaction => ({
+    id: income.id,
+    type: "income" as const,
+    category: income.category || { id: income.categoryId, name: "Income" },
+    scope: income.transaction?.scope || "PERSONAL",
+    familyId: income.transaction?.familyId,
+    family: family ? { id: family.id, name: family.name } : undefined,
+    transaction: {
+      id: income.transactionId,
+      value: income.transaction?.value || 0,
+      createdAt: income.transaction?.createdAt || income.createdAt,
+      description: income.transaction?.description,
+      user: income.transaction?.user,
+    },
+    receiptImages: income.receiptImages || [],
+  });
 
   const fetchTransactions = async (isRefresh = false) => {
     try {
@@ -17,65 +57,88 @@ export const useTransactions = (filters?: TransactionFilters) => {
       }
       setError(null);
 
-      // Build query parameters from filters
-      const params: any = {};
-      if (filters?.familyId) {
-        params.familyId = filters.familyId;
+      const shouldFetchAll = !filters?.scope || filters.scope === 'all';
+
+      if (shouldFetchAll && families.length > 0) {
+        const [personalExpenses, personalIncomes] = await Promise.all([
+          apiClient.get("/expenses", {}),
+          apiClient.get("/incomes", {}),
+        ]);
+
+        const familyRequests = families.flatMap((family) => [
+          apiClient.get("/expenses", { familyId: family.id }).then((res) => ({
+            type: 'expense' as const,
+            data: res.data || [],
+            family,
+          })),
+          apiClient.get("/incomes", { familyId: family.id }).then((res) => ({
+            type: 'income' as const,
+            data: res.data || [],
+            family,
+          })),
+        ]);
+
+        const familyResults = await Promise.all(familyRequests);
+
+        const personalExpenseTransactions = (personalExpenses.data || []).map(
+          (e: any) => mapExpenseToTransaction(e)
+        );
+        const personalIncomeTransactions = (personalIncomes.data || []).map(
+          (i: any) => mapIncomeToTransaction(i)
+        );
+
+        const familyTransactions: Transaction[] = [];
+        for (const result of familyResults) {
+          if (result.type === 'expense') {
+            familyTransactions.push(
+              ...result.data.map((e: any) => mapExpenseToTransaction(e, result.family))
+            );
+          } else {
+            familyTransactions.push(
+              ...result.data.map((i: any) => mapIncomeToTransaction(i, result.family))
+            );
+          }
+        }
+
+        const allTransactionsMap = new Map<string, Transaction>();
+        [...personalExpenseTransactions, ...personalIncomeTransactions, ...familyTransactions].forEach((t) => {
+          allTransactionsMap.set(t.id, t);
+        });
+
+        const allTransactions = Array.from(allTransactionsMap.values()).sort((a, b) => {
+          const dateA = a.transaction.createdAt ? new Date(a.transaction.createdAt).getTime() : 0;
+          const dateB = b.transaction.createdAt ? new Date(b.transaction.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+
+        setTransactions(allTransactions);
+      } else {
+        const params: any = {};
+        if (filters?.familyId) {
+          params.familyId = filters.familyId;
+        }
+        if (filters?.scope && filters.scope !== 'all') {
+          params.scope = filters.scope.toUpperCase();
+        }
+
+        const [expensesResponse, incomesResponse] = await Promise.all([
+          apiClient.get("/expenses", params),
+          apiClient.get("/incomes", params),
+        ]);
+
+        const family = filters?.familyId ? families.find((f) => f.id === filters.familyId) : undefined;
+
+        const expenses = (expensesResponse.data || []).map((e: any) => mapExpenseToTransaction(e, family));
+        const incomes = (incomesResponse.data || []).map((i: any) => mapIncomeToTransaction(i, family));
+
+        const allTransactions = [...expenses, ...incomes].sort((a, b) => {
+          const dateA = a.transaction.createdAt ? new Date(a.transaction.createdAt).getTime() : 0;
+          const dateB = b.transaction.createdAt ? new Date(b.transaction.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+
+        setTransactions(allTransactions);
       }
-      if (filters?.scope && filters.scope !== 'all') {
-        params.scope = filters.scope.toUpperCase();
-      }
-
-      const [expensesResponse, incomesResponse] = await Promise.all([
-        apiClient.get("/expenses", params),
-        apiClient.get("/incomes", params),
-      ]);
-
-      const expenses: Transaction[] = (expensesResponse.data || []).map(
-        (expense: any) => ({
-          id: expense.id,
-          type: "expense" as const,
-          category: expense.category,
-          store: expense.store,
-          scope: expense.transaction?.scope || "PERSONAL",
-          transaction: {
-            ...expense.transaction,
-            description: expense.transaction?.description,
-            user: expense.transaction?.user,
-          },
-          items: expense.items,
-          receiptImages: expense.receiptImages || [],
-        }),
-      );
-
-      const incomes: Transaction[] = (incomesResponse.data || []).map(
-        (income: any) => ({
-          id: income.id,
-          type: "income" as const,
-          category: income.category || { id: income.categoryId, name: "Income" },
-          scope: income.transaction?.scope || "PERSONAL",
-          transaction: {
-            id: income.transactionId,
-            value: income.transaction?.value || 0,
-            createdAt: income.transaction?.createdAt || income.createdAt,
-            description: income.transaction?.description,
-            user: income.transaction?.user,
-          },
-          receiptImages: income.receiptImages || [],
-        }),
-      );
-
-      const allTransactions = [...expenses, ...incomes].sort((a, b) => {
-        const dateA = a.transaction.createdAt
-          ? new Date(a.transaction.createdAt).getTime()
-          : 0;
-        const dateB = b.transaction.createdAt
-          ? new Date(b.transaction.createdAt).getTime()
-          : 0;
-        return dateB - dateA;
-      });
-
-      setTransactions(allTransactions);
     } catch (err: any) {
       setError(err.message || "Failed to fetch transactions");
     } finally {
@@ -86,11 +149,25 @@ export const useTransactions = (filters?: TransactionFilters) => {
 
   const refresh = useCallback(() => {
     fetchTransactions(true);
-  }, [filters]);
+  }, [filters, families]);
 
   useEffect(() => {
     fetchTransactions();
-  }, [filters?.familyId, filters?.scope]);
+  }, [filters?.familyId, filters?.scope, families.length]);
+
+  useEffect(() => {
+    const handleTransactionNotification = (notification: any) => {
+      if (notification.type === 'FAMILY_TRANSACTION_CREATED') {
+        fetchTransactions(true);
+      }
+    };
+
+    websocketService.on('notification:new', handleTransactionNotification);
+
+    return () => {
+      websocketService.off('notification:new', handleTransactionNotification);
+    };
+  }, [filters]);
 
   const groupByMonth = (transactions: Transaction[]) => {
     const groups: { [key: string]: Transaction[] } = {};

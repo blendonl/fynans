@@ -8,12 +8,12 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Injectable, UseGuards } from '@nestjs/common';
-import { WebSocketAuthGuard } from './websocket-auth.guard';
+import { Injectable } from '@nestjs/common';
+import { AuthService } from '../../auth/core/application/services/auth.service';
 
 @WebSocketGateway({
   cors: {
-    origin: '*', // Configure appropriately for production
+    origin: '*',
   },
   namespace: '/notifications',
 })
@@ -26,14 +26,25 @@ export class NotificationGateway
 
   private userSockets: Map<string, Set<string>> = new Map();
 
-  @UseGuards(WebSocketAuthGuard)
-  async handleConnection(@ConnectedSocket() client: Socket) {
-    const userId = client.data.userId;
+  constructor(private readonly authService: AuthService) {}
 
-    if (!userId) {
+  async handleConnection(@ConnectedSocket() client: Socket) {
+    const token = this.extractToken(client);
+
+    if (!token) {
       client.disconnect();
       return;
     }
+
+    try {
+      const user = await this.authService.validateSession(token);
+      client.data.userId = user.id;
+    } catch {
+      client.disconnect();
+      return;
+    }
+
+    const userId = client.data.userId;
 
     if (!this.userSockets.has(userId)) {
       this.userSockets.set(userId, new Set());
@@ -88,5 +99,19 @@ export class NotificationGateway
   // Broadcast notification
   broadcastNotification(notification: any) {
     this.emitToUser(notification.userId, 'notification:new', notification);
+  }
+
+  private extractToken(client: Socket): string | undefined {
+    const auth =
+      client.handshake.auth?.token || client.handshake.headers?.authorization;
+
+    if (!auth) return undefined;
+
+    const parts = auth.split(' ');
+    if (parts.length === 2 && parts[0] === 'Bearer') {
+      return parts[1];
+    }
+
+    return auth;
   }
 }

@@ -16,13 +16,20 @@ exports.AcceptInvitationUseCase = void 0;
 const common_1 = require("@nestjs/common");
 const family_member_entity_1 = require("../../domain/entities/family-member.entity");
 const family_invitation_entity_1 = require("../../domain/entities/family-invitation.entity");
+const create_notification_use_case_1 = require("../../../../notification/core/application/use-cases/create-notification.use-case");
+const notification_type_vo_1 = require("../../../../notification/core/domain/value-objects/notification-type.vo");
 const uuid_1 = require("uuid");
+const user_service_1 = require("../../../../user/core/application/services/user.service");
 let AcceptInvitationUseCase = class AcceptInvitationUseCase {
     familyRepository;
     invitationRepository;
-    constructor(familyRepository, invitationRepository) {
+    createNotificationUseCase;
+    userService;
+    constructor(familyRepository, invitationRepository, createNotificationUseCase, userService) {
         this.familyRepository = familyRepository;
         this.invitationRepository = invitationRepository;
+        this.createNotificationUseCase = createNotificationUseCase;
+        this.userService = userService;
     }
     async execute(invitationId, userId) {
         const invitation = await this.invitationRepository.findById(invitationId);
@@ -53,6 +60,40 @@ let AcceptInvitationUseCase = class AcceptInvitationUseCase {
             createdAt: invitation.createdAt,
             updatedAt: new Date(),
         });
+        const family = await this.familyRepository.findById(invitation.familyId);
+        const invitee = await this.userService.findById(userId);
+        await this.createNotificationUseCase.execute({
+            userId: invitation.inviterId,
+            type: notification_type_vo_1.NotificationType.FAMILY_INVITATION_ACCEPTED,
+            data: {
+                invitationId: invitation.id,
+                familyId: invitation.familyId,
+                familyName: family?.name,
+                inviteeName: invitee?.fullName,
+            },
+            deliveryMethods: [notification_type_vo_1.DeliveryMethod.IN_APP, notification_type_vo_1.DeliveryMethod.PUSH],
+            priority: notification_type_vo_1.NotificationPriority.MEDIUM,
+            familyId: invitation.familyId,
+            invitationId: invitation.id,
+        });
+        const allMembers = await this.familyRepository.findMembers(invitation.familyId);
+        for (const familyMember of allMembers) {
+            if (familyMember.userId === userId)
+                continue;
+            await this.createNotificationUseCase.execute({
+                userId: familyMember.userId,
+                type: notification_type_vo_1.NotificationType.FAMILY_MEMBER_JOINED,
+                data: {
+                    familyId: invitation.familyId,
+                    familyName: family?.name,
+                    memberName: invitee?.fullName,
+                    memberId: userId,
+                },
+                deliveryMethods: [notification_type_vo_1.DeliveryMethod.IN_APP, notification_type_vo_1.DeliveryMethod.PUSH],
+                priority: notification_type_vo_1.NotificationPriority.LOW,
+                familyId: invitation.familyId,
+            });
+        }
         return member;
     }
 };
@@ -61,6 +102,7 @@ exports.AcceptInvitationUseCase = AcceptInvitationUseCase = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('FamilyRepository')),
     __param(1, (0, common_1.Inject)('FamilyInvitationRepository')),
-    __metadata("design:paramtypes", [Object, Object])
+    __metadata("design:paramtypes", [Object, Object, create_notification_use_case_1.CreateNotificationUseCase,
+        user_service_1.UserService])
 ], AcceptInvitationUseCase);
 //# sourceMappingURL=accept-invitation.use-case.js.map

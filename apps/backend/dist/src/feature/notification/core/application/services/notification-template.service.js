@@ -47,11 +47,17 @@ let NotificationTemplateService = class NotificationTemplateService {
                     message: `${data.memberName} left ${data.familyName}`,
                     actionUrl: `family/${data.familyId}`,
                 };
-            case notification_type_vo_1.NotificationType.FAMILY_TRANSACTION_CREATED:
+            case notification_type_vo_1.NotificationType.FAMILY_EXPENSE_CREATED:
                 return {
-                    title: 'New Transaction',
-                    message: `${data.userName} added a ${data.transactionType?.toLowerCase()} of $${data.amount} in ${data.familyName}`,
-                    actionUrl: `transactions/${data.transactionId}`,
+                    title: 'New Expense',
+                    message: `${data.userName} added an expense of $${data.amount} in ${data.familyName}`,
+                    actionUrl: `expense/${data.expenseId}`,
+                };
+            case notification_type_vo_1.NotificationType.FAMILY_INCOME_CREATED:
+                return {
+                    title: 'New Income',
+                    message: `${data.userName} added income of $${data.amount} in ${data.familyName}`,
+                    actionUrl: `income/${data.incomeId}`,
                 };
             case notification_type_vo_1.NotificationType.RECEIPT_PROCESSING_COMPLETE:
                 return {

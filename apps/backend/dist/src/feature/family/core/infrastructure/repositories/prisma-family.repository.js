@@ -122,7 +122,7 @@ let PrismaFamilyRepository = class PrismaFamilyRepository {
             where: { familyId },
             orderBy: { joinedAt: 'asc' },
         });
-        return members.map(family_member_mapper_1.FamilyMemberMapper.toDomain);
+        return members.map((m) => family_member_mapper_1.FamilyMemberMapper.toDomain(m));
     }
     async updateMemberRole(familyId, userId, role) {
         const member = await this.prisma.familyMember.update({

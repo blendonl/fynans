@@ -23,3 +23,19 @@ export class UserResponseDto {
     };
   }
 }
+
+export class UserSearchResponseDto {
+  id!: string;
+  email!: string;
+  firstName!: string;
+  lastName!: string;
+
+  static fromEntity(user: User): UserSearchResponseDto {
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    };
+  }
+}

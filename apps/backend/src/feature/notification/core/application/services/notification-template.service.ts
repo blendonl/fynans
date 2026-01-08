@@ -55,11 +55,18 @@ export class NotificationTemplateService {
           actionUrl: `family/${data.familyId}`,
         };
 
-      case NotificationType.FAMILY_TRANSACTION_CREATED:
+      case NotificationType.FAMILY_EXPENSE_CREATED:
         return {
-          title: 'New Transaction',
-          message: `${data.userName} added a ${data.transactionType?.toLowerCase()} of $${data.amount} in ${data.familyName}`,
-          actionUrl: `transactions/${data.transactionId}`,
+          title: 'New Expense',
+          message: `${data.userName} added an expense of $${data.amount} in ${data.familyName}`,
+          actionUrl: `expense/${data.expenseId}`,
+        };
+
+      case NotificationType.FAMILY_INCOME_CREATED:
+        return {
+          title: 'New Income',
+          message: `${data.userName} added income of $${data.amount} in ${data.familyName}`,
+          actionUrl: `income/${data.incomeId}`,
         };
 
       case NotificationType.RECEIPT_PROCESSING_COMPLETE:

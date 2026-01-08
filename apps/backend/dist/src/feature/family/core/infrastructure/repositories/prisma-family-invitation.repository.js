@@ -64,6 +64,17 @@ let PrismaFamilyInvitationRepository = class PrismaFamilyInvitationRepository {
         });
         return invitations.map((inv) => family_invitation_mapper_1.FamilyInvitationMapper.toDomain(inv));
     }
+    async findPendingByEmailAndFamily(email, familyId) {
+        const invitation = await this.prisma.familyInvitation.findFirst({
+            where: {
+                inviteeEmail: email,
+                familyId: familyId,
+                status: 'PENDING',
+                expiresAt: { gt: new Date() },
+            },
+        });
+        return invitation ? family_invitation_mapper_1.FamilyInvitationMapper.toDomain(invitation) : null;
+    }
     async update(id, data) {
         const updateData = {};
         if (data.status !== undefined) {

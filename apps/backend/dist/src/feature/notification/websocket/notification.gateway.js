@@ -16,16 +16,29 @@ exports.NotificationGateway = void 0;
 const websockets_1 = require("@nestjs/websockets");
 const socket_io_1 = require("socket.io");
 const common_1 = require("@nestjs/common");
-const websocket_auth_guard_1 = require("./websocket-auth.guard");
+const auth_service_1 = require("../../auth/core/application/services/auth.service");
 let NotificationGateway = class NotificationGateway {
+    authService;
     server;
     userSockets = new Map();
+    constructor(authService) {
+        this.authService = authService;
+    }
     async handleConnection(client) {
-        const userId = client.data.userId;
-        if (!userId) {
+        const token = this.extractToken(client);
+        if (!token) {
             client.disconnect();
             return;
         }
+        try {
+            const user = await this.authService.validateSession(token);
+            client.data.userId = user.id;
+        }
+        catch {
+            client.disconnect();
+            return;
+        }
+        const userId = client.data.userId;
         if (!this.userSockets.has(userId)) {
             this.userSockets.set(userId, new Set());
         }
@@ -58,6 +71,16 @@ let NotificationGateway = class NotificationGateway {
     broadcastNotification(notification) {
         this.emitToUser(notification.userId, 'notification:new', notification);
     }
+    extractToken(client) {
+        const auth = client.handshake.auth?.token || client.handshake.headers?.authorization;
+        if (!auth)
+            return undefined;
+        const parts = auth.split(' ');
+        if (parts.length === 2 && parts[0] === 'Bearer') {
+            return parts[1];
+        }
+        return auth;
+    }
 };
 exports.NotificationGateway = NotificationGateway;
 __decorate([
@@ -65,7 +88,6 @@ __decorate([
     __metadata("design:type", socket_io_1.Server)
 ], NotificationGateway.prototype, "server", void 0);
 __decorate([
-    (0, common_1.UseGuards)(websocket_auth_guard_1.WebSocketAuthGuard),
     __param(0, (0, websockets_1.ConnectedSocket)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [socket_io_1.Socket]),
@@ -100,6 +122,7 @@ exports.NotificationGateway = NotificationGateway = __decorate([
         },
         namespace: '/notifications',
     }),
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], NotificationGateway);
 //# sourceMappingURL=notification.gateway.js.map

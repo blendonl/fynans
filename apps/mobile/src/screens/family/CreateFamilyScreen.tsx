@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, Text, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, Animated } from "react-native";
+import { View, Text, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, Animated, Easing } from "react-native";
 import { useFamily } from "../../context/FamilyContext";
 import { useNavigation } from "@react-navigation/native";
-import { Input, Button, Card } from "../../components/design-system";
+import { Input, Button } from "../../components/design-system";
+import { GradientBackground } from "../../components/auth/GradientBackground";
+import { GlassCard } from "../../components/auth/GlassCard";
 import { useAppTheme } from "../../theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 
 export default function CreateFamilyScreen() {
@@ -17,86 +17,68 @@ export default function CreateFamilyScreen() {
   const navigation = useNavigation();
 
   // Animation refs
-  const iconFadeAnim = useRef(new Animated.Value(0)).current;
-  const titleFadeAnim = useRef(new Animated.Value(0)).current;
-  const subtitleFadeAnim = useRef(new Animated.Value(0)).current;
-  const formFadeAnim = useRef(new Animated.Value(0)).current;
-  const featuresFadeAnim = useRef(new Animated.Value(0)).current;
-
-  const iconPulseAnim = useRef(new Animated.Value(1)).current;
-  const iconFloatAnim = useRef(new Animated.Value(0)).current;
-  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const iconScaleAnim = useRef(new Animated.Value(0.8)).current;
+  const iconOpacityAnim = useRef(new Animated.Value(0)).current;
+  const formTranslateY = useRef(new Animated.Value(30)).current;
+  const formOpacityAnim = useRef(new Animated.Value(0)).current;
+  const orbFloat1 = useRef(new Animated.Value(0)).current;
+  const orbFloat2 = useRef(new Animated.Value(0)).current;
+  const orbFloat3 = useRef(new Animated.Value(0)).current;
 
   // Entrance sequence
   useEffect(() => {
-    Animated.stagger(200, [
-      Animated.timing(iconFadeAnim, {
+    Animated.parallel([
+      Animated.spring(iconScaleAnim, {
         toValue: 1,
-        duration: 350,
+        tension: 40,
+        friction: 7,
         useNativeDriver: true,
       }),
-      Animated.timing(titleFadeAnim, {
+      Animated.timing(iconOpacityAnim, {
         toValue: 1,
-        duration: 350,
-        useNativeDriver: true,
-      }),
-      Animated.timing(subtitleFadeAnim, {
-        toValue: 1,
-        duration: 350,
-        useNativeDriver: true,
-      }),
-      Animated.timing(formFadeAnim, {
-        toValue: 1,
-        duration: 350,
-        useNativeDriver: true,
-      }),
-      Animated.timing(featuresFadeAnim, {
-        toValue: 1,
-        duration: 350,
+        duration: 400,
         useNativeDriver: true,
       }),
     ]).start();
 
-    // Continuous pulse animation for icon
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(iconPulseAnim, {
-          toValue: 1.05,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(iconPulseAnim, {
-          toValue: 1,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    // Float animation
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(iconFloatAnim, {
-          toValue: -8,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(iconFloatAnim, {
+    setTimeout(() => {
+      Animated.parallel([
+        Animated.spring(formTranslateY, {
           toValue: 0,
-          duration: 2000,
+          tension: 50,
+          friction: 8,
           useNativeDriver: true,
         }),
-      ])
-    ).start();
+        Animated.timing(formOpacityAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, 200);
 
-    // Rotating gradient border
-    Animated.loop(
-      Animated.timing(rotateAnim, {
-        toValue: 1,
-        duration: 4000,
-        useNativeDriver: true,
-      })
-    ).start();
+    const createOrbAnimation = (anim: Animated.Value, duration: number) => {
+      return Animated.loop(
+        Animated.sequence([
+          Animated.timing(anim, {
+            toValue: 1,
+            duration,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim, {
+            toValue: 0,
+            duration,
+            easing: Easing.inOut(Easing.sin),
+            useNativeDriver: true,
+          }),
+        ])
+      );
+    };
+
+    createOrbAnimation(orbFloat1, 3000).start();
+    createOrbAnimation(orbFloat2, 4000).start();
+    createOrbAnimation(orbFloat3, 2500).start();
   }, []);
 
   const handleCreate = async () => {
@@ -127,309 +109,118 @@ export default function CreateFamilyScreen() {
     }
   };
 
-  const rotation = rotateAnim.interpolate({
+  const orb1TranslateY = orbFloat1.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
+    outputRange: [0, -20],
   });
 
-  const features = [
-    {
-      icon: 'chart-line',
-      title: 'Shared Budgets',
-      description: 'Track expenses together',
-    },
-    {
-      icon: 'account-multiple',
-      title: 'Multiple Members',
-      description: 'Invite family & friends',
-    },
-    {
-      icon: 'shield-check',
-      title: 'Secure & Private',
-      description: 'Your data is protected',
-    },
-  ];
+  const orb2TranslateY = orbFloat2.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -15],
+  });
+
+  const orb3TranslateY = orbFloat3.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -25],
+  });
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      {/* Gradient background */}
-      <LinearGradient
-        colors={[
-          `${theme.custom.colors.gradientPrimaryStart}1A`,
-          `${theme.custom.colors.gradientPrimaryEnd}1A`,
-        ]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-
-      <ScrollView
+    <GradientBackground>
+      <KeyboardAvoidingView
         style={styles.container}
-        contentContainerStyle={{
-          padding: theme.custom.spacing.xl,
-          justifyContent: 'center',
-          minHeight: '100%',
-        }}
-        showsVerticalScrollIndicator={false}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        {/* Animated Glass Orb Icon */}
-        <Animated.View
-          style={[
-            styles.iconOrbContainer,
-            {
-              opacity: iconFadeAnim,
-              transform: [
-                { scale: iconPulseAnim },
-                { translateY: iconFloatAnim },
-              ],
-              marginBottom: theme.custom.spacing.xl,
-            },
-          ]}
+        <View style={styles.orbContainer}>
+          <Animated.View
+            style={[
+              styles.orb,
+              styles.orb1,
+              { transform: [{ translateY: orb1TranslateY }] },
+            ]}
+          />
+          <Animated.View
+            style={[
+              styles.orb,
+              styles.orb2,
+              { transform: [{ translateY: orb2TranslateY }] },
+            ]}
+          />
+          <Animated.View
+            style={[
+              styles.orb,
+              styles.orb3,
+              { transform: [{ translateY: orb3TranslateY }] },
+            ]}
+          />
+        </View>
+
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           <Animated.View
             style={[
-              styles.rotatingBorder,
+              styles.heroContainer,
               {
-                borderRadius: theme.custom.borderRadius.round,
-                transform: [{ rotate: rotation }],
+                opacity: iconOpacityAnim,
+                transform: [{ scale: iconScaleAnim }],
               },
             ]}
           >
-            <LinearGradient
-              colors={[
-                theme.custom.colors.gradientPrimaryStart,
-                theme.custom.colors.gradientPrimaryEnd,
-                theme.colors.primary,
-              ]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={[StyleSheet.absoluteFill, { borderRadius: theme.custom.borderRadius.round }]}
-            />
+            <View style={styles.iconContainer}>
+              <MaterialCommunityIcons
+                name="account-group"
+                size={72}
+                color="#14B8A6"
+              />
+            </View>
+            <Text style={styles.title}>Create Your Family</Text>
+            <Text style={styles.subtitle}>Start managing finances together</Text>
           </Animated.View>
 
-          <View
-            style={[
-              styles.glassOrb,
-              {
-                borderRadius: theme.custom.borderRadius.round,
-                overflow: 'hidden',
-                ...Platform.select({
-                  ios: {
-                    shadowColor: theme.colors.primary,
-                    shadowOffset: { width: 0, height: 8 },
-                    shadowOpacity: 0.4,
-                    shadowRadius: 16,
-                  },
-                  android: {
-                    elevation: 8,
-                  },
-                }),
-              },
-            ]}
-          >
-            <BlurView
-              intensity={Platform.OS === 'ios' ? 30 : 20}
-              tint={theme.dark ? 'dark' : 'light'}
-              style={StyleSheet.absoluteFill}
-            />
-            <LinearGradient
-              colors={[
-                `${theme.custom.colors.familyGroup}40`,
-                `${theme.custom.colors.familyGroup}20`,
-              ]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={StyleSheet.absoluteFill}
-            />
-            <MaterialCommunityIcons
-              name="account-group"
-              size={64}
-              color={theme.custom.colors.familyGroup}
-            />
-          </View>
-        </Animated.View>
-
-        {/* Title with gradient effect */}
-        <Animated.View style={{ opacity: titleFadeAnim }}>
-          <Text
-            style={[
-              styles.title,
-              theme.custom.typography.h1,
-              { color: theme.colors.onBackground },
-            ]}
-          >
-            Create a New Family
-          </Text>
-        </Animated.View>
-
-        {/* Subtitle */}
-        <Animated.View style={{ opacity: subtitleFadeAnim }}>
-          <Text
-            style={[
-              styles.subtitle,
-              theme.custom.typography.body,
-              { color: theme.custom.colors.textSecondary },
-            ]}
-          >
-            Start managing finances together with your family members
-          </Text>
-        </Animated.View>
-
-        {/* Form Card */}
-        <Animated.View
-          style={[
-            { opacity: formFadeAnim, marginTop: theme.custom.spacing.xxl },
-          ]}
-        >
-          <Card
+          <Animated.View
             style={{
-              padding: theme.custom.spacing.xl,
-              overflow: 'hidden',
-              ...Platform.select({
-                ios: {
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.15,
-                  shadowRadius: 8,
-                },
-                android: {
-                  elevation: 4,
-                },
-              }),
+              opacity: formOpacityAnim,
+              transform: [{ translateY: formTranslateY }],
             }}
           >
-            <BlurView
-              intensity={Platform.OS === 'ios' ? 20 : 15}
-              tint={theme.dark ? 'dark' : 'light'}
-              style={StyleSheet.absoluteFill}
-            />
-            <LinearGradient
-              colors={[
-                `${theme.colors.surface}F2`,
-                `${theme.colors.surface}E6`,
-              ]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={StyleSheet.absoluteFill}
-            />
-
-            <View style={{ marginBottom: theme.custom.spacing.lg }}>
-              <Input
-                label="Family Name"
-                value={name}
-                onChangeText={setName}
-                placeholder="Enter family name"
-                autoFocus
-                maxLength={30}
-              />
-              <Text
-                style={[
-                  theme.custom.typography.small,
-                  {
-                    color: name.length > 30
-                      ? theme.colors.error
-                      : theme.custom.colors.textDisabled,
-                    textAlign: 'right',
-                    marginTop: 4,
-                  },
-                ]}
-              >
-                {name.length}/30
-              </Text>
-            </View>
-
-            <Button
-              title={isLoading ? "Creating..." : "Create Family"}
-              onPress={handleCreate}
-              disabled={isLoading || !name.trim()}
-              loading={isLoading}
-            />
-          </Card>
-        </Animated.View>
-
-        {/* Feature Highlights */}
-        <Animated.View
-          style={[
-            { opacity: featuresFadeAnim, marginTop: theme.custom.spacing.xxl },
-          ]}
-        >
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: theme.custom.spacing.md }}
-          >
-            {features.map((feature, index) => (
-              <Card
-                key={index}
-                style={{
-                  width: 200,
-                  padding: theme.custom.spacing.lg,
-                  overflow: 'hidden',
-                }}
-              >
-                <BlurView
-                  intensity={Platform.OS === 'ios' ? 15 : 10}
-                  tint={theme.dark ? 'dark' : 'light'}
-                  style={StyleSheet.absoluteFill}
+            <GlassCard>
+              <View style={{ marginBottom: 16 }}>
+                <Input
+                  label="Family Name"
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="Enter family name"
+                  autoFocus
+                  maxLength={30}
+                  glass
                 />
-                <LinearGradient
-                  colors={[
-                    `${theme.colors.surface}E6`,
-                    `${theme.colors.surface}CC`,
-                  ]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={StyleSheet.absoluteFill}
-                />
-
-                <View
-                  style={{
-                    backgroundColor: `${theme.colors.primary}20`,
-                    borderRadius: theme.custom.borderRadius.md,
-                    width: 48,
-                    height: 48,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: theme.custom.spacing.sm,
-                  }}
-                >
-                  <MaterialCommunityIcons
-                    name={feature.icon as any}
-                    size={24}
-                    color={theme.colors.primary}
-                  />
-                </View>
-
                 <Text
                   style={[
-                    theme.custom.typography.bodyMedium,
+                    styles.characterCount,
                     {
-                      color: theme.colors.onSurface,
-                      fontWeight: '600',
-                      marginBottom: 4,
+                      color: name.length > 30 ? '#EF4444' : 'rgba(255, 255, 255, 0.6)',
                     },
                   ]}
                 >
-                  {feature.title}
+                  {name.length}/30
                 </Text>
+              </View>
 
-                <Text
-                  style={[
-                    theme.custom.typography.small,
-                    { color: theme.custom.colors.textSecondary },
-                  ]}
-                >
-                  {feature.description}
-                </Text>
-              </Card>
-            ))}
-          </ScrollView>
-        </Animated.View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+              <Button
+                title={isLoading ? "Creating..." : "Create Family"}
+                onPress={handleCreate}
+                disabled={isLoading || !name.trim()}
+                loading={isLoading}
+                variant="glass"
+                icon="plus-circle"
+              />
+            </GlassCard>
+          </Animated.View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </GradientBackground>
   );
 }
 
@@ -437,29 +228,77 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  iconOrbContainer: {
-    alignSelf: 'center',
-    alignItems: 'center',
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
+    padding: 24,
   },
-  rotatingBorder: {
+  orbContainer: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: 'hidden',
+  },
+  orb: {
     position: 'absolute',
-    width: 128,
-    height: 128,
+    borderRadius: 999,
   },
-  glassOrb: {
+  orb1: {
     width: 120,
     height: 120,
+    top: '10%',
+    left: -40,
+    backgroundColor: 'rgba(20, 184, 166, 0.15)',
+  },
+  orb2: {
+    width: 80,
+    height: 80,
+    top: '60%',
+    right: -30,
+    backgroundColor: 'rgba(20, 184, 166, 0.1)',
+  },
+  orb3: {
+    width: 60,
+    height: 60,
+    bottom: '20%',
+    right: '20%',
+    backgroundColor: 'rgba(187, 134, 252, 0.12)',
+  },
+  heroContainer: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  iconContainer: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(20, 184, 166, 0.2)',
+    borderWidth: 2,
+    borderColor: 'rgba(20, 184, 166, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 24,
+    shadowColor: '#14B8A6',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    elevation: 8,
   },
   title: {
+    fontSize: 32,
     fontWeight: '700',
-    marginBottom: 8,
+    color: '#FFFFFF',
     textAlign: 'center',
+    marginBottom: 8,
+    letterSpacing: 0.5,
   },
   subtitle: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 32,
+  },
+  characterCount: {
+    fontSize: 12,
+    textAlign: 'right',
+    marginTop: 4,
   },
 });

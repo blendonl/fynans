@@ -3,6 +3,8 @@ import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import { apiClient } from '../api/client';
+import { navigate } from '../navigation/AppNavigator';
+import { transactionService } from './transactionService';
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
@@ -54,13 +56,13 @@ class PushNotificationService {
         deviceId: Constants.deviceId || undefined,
         deviceName: Device.modelName || undefined,
       });
-
-      console.log('Push token registered:', token.data);
-      return token.data;
-    } catch (error) {
-      console.error('Failed to register push token:', error);
-      return null;
+    } catch (error: any) {
+      if (error.response?.status !== 409) {
+        console.error('Failed to register push token:', error);
+      }
     }
+
+    return token.data;
   }
 
   setupNotificationListeners(
@@ -85,6 +87,26 @@ class PushNotificationService {
 
   async setBadgeCount(count: number) {
     await Notifications.setBadgeCountAsync(count);
+  }
+
+  async handleTransactionNotificationTap(notificationData: any) {
+    const { type, data } = notificationData;
+
+    if (type === 'FAMILY_EXPENSE_CREATED' && data?.expenseId) {
+      try {
+        const transaction = await transactionService.fetchExpenseById(data.expenseId);
+        navigate('TransactionDetail', { transaction });
+      } catch (error) {
+        console.error('Failed to fetch expense for notification:', error);
+      }
+    } else if (type === 'FAMILY_INCOME_CREATED' && data?.incomeId) {
+      try {
+        const transaction = await transactionService.fetchIncomeById(data.incomeId);
+        navigate('TransactionDetail', { transaction });
+      } catch (error) {
+        console.error('Failed to fetch income for notification:', error);
+      }
+    }
   }
 }
 

@@ -23,12 +23,13 @@ const get_family_with_members_use_case_1 = require("./application/use-cases/get-
 const remove_family_member_use_case_1 = require("./application/use-cases/remove-family-member.use-case");
 const verify_family_membership_use_case_1 = require("./application/use-cases/verify-family-membership.use-case");
 const family_balance_service_1 = require("./application/services/family-balance.service");
+const user_core_module_1 = require("../../user/core/user-core.module");
 let FamilyCoreModule = class FamilyCoreModule {
 };
 exports.FamilyCoreModule = FamilyCoreModule;
 exports.FamilyCoreModule = FamilyCoreModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, (0, common_1.forwardRef)(() => notification_module_1.NotificationModule)],
+        imports: [prisma_module_1.PrismaModule, (0, common_1.forwardRef)(() => notification_module_1.NotificationModule), user_core_module_1.UserCoreModule],
         providers: [
             {
                 provide: 'FamilyRepository',

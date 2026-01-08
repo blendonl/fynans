@@ -26,6 +26,30 @@ let PrismaUserRepository = class PrismaUserRepository {
         const user = await this.prisma.user.findUnique({ where: { email } });
         return user ? user_mapper_1.UserMapper.toDomain(user) : null;
     }
+    async search(query, excludeFamilyId, limit = 10) {
+        const users = await this.prisma.user.findMany({
+            where: {
+                AND: [
+                    {
+                        OR: [
+                            { email: { contains: query, mode: 'insensitive' } },
+                            { firstName: { contains: query, mode: 'insensitive' } },
+                            { lastName: { contains: query, mode: 'insensitive' } },
+                        ],
+                    },
+                    excludeFamilyId
+                        ? {
+                            familyMemberships: {
+                                none: { familyId: excludeFamilyId },
+                            },
+                        }
+                        : {},
+                ],
+            },
+            take: limit,
+        });
+        return users.map(user_mapper_1.UserMapper.toDomain);
+    }
 };
 exports.PrismaUserRepository = PrismaUserRepository;
 exports.PrismaUserRepository = PrismaUserRepository = __decorate([

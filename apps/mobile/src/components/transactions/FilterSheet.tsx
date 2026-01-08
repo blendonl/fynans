@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Platform, TouchableOpacity } from 'react-native';
 import { Modal, Portal } from 'react-native-paper';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button, Input, Chip, Dropdown } from '../design-system';
 import { useAppTheme } from '../../theme';
 import { useFamily } from '../../context/FamilyContext';
 import { TransactionFilters } from '../../features/transactions/types';
+import { getStartOfWeek, getStartOfMonth, getDaysAgo, getEndOfDay } from '../../utils/timeUtils';
+
+type DatePreset = 'today' | 'week' | 'month' | 'last30' | 'custom' | null;
 
 interface FilterSheetProps {
   visible: boolean;
@@ -26,6 +31,9 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({
   const { theme } = useAppTheme();
   const { families } = useFamily();
   const [localFilters, setLocalFilters] = useState<TransactionFilters>(filters);
+  const [datePreset, setDatePreset] = useState<DatePreset>(null);
+  const [showFromPicker, setShowFromPicker] = useState(false);
+  const [showToPicker, setShowToPicker] = useState(false);
 
   const handleApply = () => {
     onApply(localFilters);
@@ -44,6 +52,7 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({
       dateTo: null,
     };
     setLocalFilters(clearedFilters);
+    setDatePreset(null);
     onClear();
     onClose();
   };
@@ -69,6 +78,56 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({
     }));
   };
 
+  const applyDatePreset = (preset: DatePreset) => {
+    setDatePreset(preset);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endOfToday = getEndOfDay(new Date());
+
+    switch (preset) {
+      case 'today':
+        setLocalFilters((prev) => ({ ...prev, dateFrom: today, dateTo: endOfToday }));
+        break;
+      case 'week':
+        setLocalFilters((prev) => ({ ...prev, dateFrom: getStartOfWeek(), dateTo: endOfToday }));
+        break;
+      case 'month':
+        setLocalFilters((prev) => ({ ...prev, dateFrom: getStartOfMonth(), dateTo: endOfToday }));
+        break;
+      case 'last30':
+        setLocalFilters((prev) => ({ ...prev, dateFrom: getDaysAgo(30), dateTo: endOfToday }));
+        break;
+      case 'custom':
+        break;
+      case null:
+        setLocalFilters((prev) => ({ ...prev, dateFrom: null, dateTo: null }));
+        break;
+    }
+  };
+
+  const formatDateDisplay = (date: Date | null) => {
+    if (!date) return 'Select';
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const handleDateFromChange = (_: any, selectedDate?: Date) => {
+    setShowFromPicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      selectedDate.setHours(0, 0, 0, 0);
+      setLocalFilters((prev) => ({ ...prev, dateFrom: selectedDate }));
+      setDatePreset('custom');
+    }
+  };
+
+  const handleDateToChange = (_: any, selectedDate?: Date) => {
+    setShowToPicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      const endOfDay = getEndOfDay(selectedDate);
+      setLocalFilters((prev) => ({ ...prev, dateTo: endOfDay }));
+      setDatePreset('custom');
+    }
+  };
+
   return (
     <Portal>
       <Modal
@@ -79,7 +138,7 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({
           { backgroundColor: theme.colors.surface },
         ]}
       >
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: theme.custom.colors.border }]}>
           <Text
             style={[
               styles.title,
@@ -92,6 +151,94 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={styles.section}>
+            <Text
+              style={[
+                styles.sectionTitle,
+                theme.custom.typography.h5,
+                { color: theme.custom.colors.text },
+              ]}
+            >
+              Date Range
+            </Text>
+            <View style={styles.chipRow}>
+              <Chip
+                label="Today"
+                selected={datePreset === 'today'}
+                onPress={() => applyDatePreset(datePreset === 'today' ? null : 'today')}
+              />
+              <Chip
+                label="This Week"
+                selected={datePreset === 'week'}
+                onPress={() => applyDatePreset(datePreset === 'week' ? null : 'week')}
+              />
+              <Chip
+                label="This Month"
+                selected={datePreset === 'month'}
+                onPress={() => applyDatePreset(datePreset === 'month' ? null : 'month')}
+              />
+              <Chip
+                label="Last 30 Days"
+                selected={datePreset === 'last30'}
+                onPress={() => applyDatePreset(datePreset === 'last30' ? null : 'last30')}
+              />
+            </View>
+            <View style={styles.datePickerRow}>
+              <TouchableOpacity
+                style={[
+                  styles.dateButton,
+                  { backgroundColor: theme.custom.colors.surface, borderColor: theme.custom.colors.border },
+                ]}
+                onPress={() => setShowFromPicker(true)}
+              >
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={18}
+                  color={theme.custom.colors.textSecondary}
+                />
+                <Text style={[styles.dateButtonText, { color: theme.custom.colors.text }]}>
+                  {formatDateDisplay(localFilters.dateFrom)}
+                </Text>
+              </TouchableOpacity>
+              <Text style={[styles.dateSeparator, { color: theme.custom.colors.textSecondary }]}>to</Text>
+              <TouchableOpacity
+                style={[
+                  styles.dateButton,
+                  { backgroundColor: theme.custom.colors.surface, borderColor: theme.custom.colors.border },
+                ]}
+                onPress={() => setShowToPicker(true)}
+              >
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={18}
+                  color={theme.custom.colors.textSecondary}
+                />
+                <Text style={[styles.dateButtonText, { color: theme.custom.colors.text }]}>
+                  {formatDateDisplay(localFilters.dateTo)}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {showFromPicker && (
+              <DateTimePicker
+                value={localFilters.dateFrom || new Date()}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={handleDateFromChange}
+                maximumDate={localFilters.dateTo || new Date()}
+              />
+            )}
+            {showToPicker && (
+              <DateTimePicker
+                value={localFilters.dateTo || new Date()}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={handleDateToChange}
+                minimumDate={localFilters.dateFrom || undefined}
+                maximumDate={new Date()}
+              />
+            )}
+          </View>
+
           <View style={styles.section}>
             <Text
               style={[
@@ -202,30 +349,32 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({
             </View>
           </View>
 
-          <View style={styles.section}>
-            <Text
-              style={[
-                styles.sectionTitle,
-                theme.custom.typography.h5,
-                { color: theme.custom.colors.text },
-              ]}
-            >
-              Categories
-            </Text>
-            <View style={styles.chipRow}>
-              {categories.map((category) => (
-                <Chip
-                  key={category.id}
-                  label={category.name}
-                  selected={localFilters.categories.includes(category.id)}
-                  onPress={() => toggleCategory(category.id)}
-                />
-              ))}
+          {categories.length > 0 && (
+            <View style={styles.section}>
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  theme.custom.typography.h5,
+                  { color: theme.custom.colors.text },
+                ]}
+              >
+                Categories
+              </Text>
+              <View style={styles.chipRow}>
+                {categories.map((category) => (
+                  <Chip
+                    key={category.id}
+                    label={category.name}
+                    selected={localFilters.categories.includes(category.id)}
+                    onPress={() => toggleCategory(category.id)}
+                  />
+                ))}
+              </View>
             </View>
-          </View>
+          )}
         </ScrollView>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, { borderTopColor: theme.custom.colors.border }]}>
           <Button
             title="Clear All"
             onPress={handleClear}
@@ -264,7 +413,6 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
   },
   title: {
     textAlign: 'center',
@@ -281,6 +429,29 @@ const styles = StyleSheet.create({
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: 8,
+  },
+  datePickerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  dateButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    gap: 8,
+  },
+  dateButtonText: {
+    fontSize: 14,
+  },
+  dateSeparator: {
+    marginHorizontal: 12,
+    fontSize: 14,
   },
   row: {
     flexDirection: 'row',
@@ -294,7 +465,6 @@ const styles = StyleSheet.create({
   footer: {
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

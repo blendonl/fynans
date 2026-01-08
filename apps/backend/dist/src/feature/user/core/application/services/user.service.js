@@ -28,6 +28,12 @@ let UserService = class UserService {
     async findByEmail(email) {
         return this.userRepository.findByEmail(email);
     }
+    async search(query, excludeFamilyId, limit = 10) {
+        if (!query || query.trim().length < 2) {
+            return [];
+        }
+        return this.userRepository.search(query.trim(), excludeFamilyId, limit);
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

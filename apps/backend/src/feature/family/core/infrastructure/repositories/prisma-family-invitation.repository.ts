@@ -66,6 +66,18 @@ export class PrismaFamilyInvitationRepository
     return invitations.map((inv) => FamilyInvitationMapper.toDomain(inv));
   }
 
+  async findPendingByEmailAndFamily(email: string, familyId: string): Promise<FamilyInvitation | null> {
+    const invitation = await this.prisma.familyInvitation.findFirst({
+      where: {
+        inviteeEmail: email,
+        familyId: familyId,
+        status: 'PENDING',
+        expiresAt: { gt: new Date() },
+      },
+    });
+    return invitation ? FamilyInvitationMapper.toDomain(invitation) : null;
+  }
+
   async update(
     id: string,
     data: Partial<FamilyInvitation>,

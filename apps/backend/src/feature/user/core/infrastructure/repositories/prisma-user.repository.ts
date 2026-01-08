@@ -17,4 +17,29 @@ export class PrismaUserRepository implements IUserRepository {
     const user = await this.prisma.user.findUnique({ where: { email } });
     return user ? UserMapper.toDomain(user) : null;
   }
+
+  async search(query: string, excludeFamilyId?: string, limit = 10): Promise<User[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              { email: { contains: query, mode: 'insensitive' } },
+              { firstName: { contains: query, mode: 'insensitive' } },
+              { lastName: { contains: query, mode: 'insensitive' } },
+            ],
+          },
+          excludeFamilyId
+            ? {
+                familyMemberships: {
+                  none: { familyId: excludeFamilyId },
+                },
+              }
+            : {},
+        ],
+      },
+      take: limit,
+    });
+    return users.map(UserMapper.toDomain);
+  }
 }

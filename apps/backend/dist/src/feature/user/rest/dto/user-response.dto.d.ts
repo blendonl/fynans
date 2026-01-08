@@ -10,3 +10,10 @@ export declare class UserResponseDto {
     updatedAt: string;
     static fromEntity(user: User): UserResponseDto;
 }
+export declare class UserSearchResponseDto {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    static fromEntity(user: User): UserSearchResponseDto;
+}

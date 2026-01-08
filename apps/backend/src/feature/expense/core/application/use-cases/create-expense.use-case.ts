@@ -6,15 +6,23 @@ import {
 } from '@nestjs/common';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
 import { type IExpenseCategoryRepository } from '../../../../expense-category/core/domain/repositories/expense-category.repository.interface';
+import { type IFamilyRepository } from '../../../../family/core/domain/repositories/family.repository.interface';
 import { TransactionService } from '../../../../transaction/core/application/services/transaction.service';
 import { StoreService } from '../../../../store/core/application/services/store.service';
 import { ExpenseItemService } from '../../../../expense-item/core/application/services/expense-item.service';
+import { CreateNotificationUseCase } from '../../../../notification/core/application/use-cases/create-notification.use-case';
+import { UserService } from '../../../../user/core/application/services/user.service';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { CreateTransactionDto } from '../../../../transaction/core/application/dto/create-transaction.dto';
 import { CreateStoreDto } from '../../../../store/core/application/dto/create-store.dto';
 import { CreateExpenseItemDto } from '../../../../expense-item/core/application/dto/create-expense-item.dto';
 import { Expense } from '../../domain/entities/expense.entity';
 import { TransactionType } from '../../../../transaction/core/domain/value-objects/transaction-type.vo';
+import {
+  NotificationType,
+  DeliveryMethod,
+  NotificationPriority,
+} from '../../../../notification/core/domain/value-objects/notification-type.vo';
 import { v4 as uuid } from 'uuid';
 
 @Injectable()
@@ -24,9 +32,13 @@ export class CreateExpenseUseCase {
     private readonly expenseRepository: IExpenseRepository,
     @Inject('ExpenseCategoryRepository')
     private readonly expenseCategoryRepository: IExpenseCategoryRepository,
+    @Inject('FamilyRepository')
+    private readonly familyRepository: IFamilyRepository,
     private readonly transactionService: TransactionService,
     private readonly storeService: StoreService,
     private readonly expenseItemService: ExpenseItemService,
+    private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly userService: UserService,
   ) {}
 
   async execute(dto: CreateExpenseDto): Promise<Expense> {
@@ -77,7 +89,31 @@ export class CreateExpenseUseCase {
       ),
     );
 
-    // 7. Return created expense
+    if (dto.familyId) {
+      const family = await this.familyRepository.findById(dto.familyId);
+      const expenseUser = await this.userService.findById(dto.userId);
+      const allMembers = await this.familyRepository.findMembers(dto.familyId);
+
+      for (const familyMember of allMembers) {
+        if (familyMember.userId === dto.userId) continue;
+
+        await this.createNotificationUseCase.execute({
+          userId: familyMember.userId,
+          type: NotificationType.FAMILY_EXPENSE_CREATED,
+          data: {
+            expenseId: expense.id,
+            familyId: dto.familyId,
+            familyName: family?.name,
+            userName: expenseUser?.fullName,
+            amount: totalValue.toFixed(2),
+          },
+          deliveryMethods: [DeliveryMethod.IN_APP, DeliveryMethod.PUSH],
+          priority: NotificationPriority.LOW,
+          familyId: dto.familyId,
+        });
+      }
+    }
+
     return this.expenseRepository.findById(expense.id) as Promise<Expense>;
   }
 

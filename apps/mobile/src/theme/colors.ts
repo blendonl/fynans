@@ -62,18 +62,18 @@ export const lightColors = {
   selectionBorder: '#6200EE',
 
   // Family-specific colors
-  familyPersonal: '#6200EE',
-  familyPersonalLight: 'rgba(98, 0, 238, 0.1)',
-  familyGroup: '#4CAF50',
-  familyGroupLight: 'rgba(76, 175, 80, 0.1)',
+  familyPersonal: '#6366F1',
+  familyPersonalLight: 'rgba(99, 102, 241, 0.1)',
+  familyGroup: '#14B8A6',
+  familyGroupLight: 'rgba(20, 184, 166, 0.1)',
 
   // Role colors
   roleOwner: '#FF6B35',
   roleOwnerBackground: 'rgba(255, 107, 53, 0.1)',
   roleAdmin: '#2196F3',
   roleAdminBackground: 'rgba(33, 150, 243, 0.1)',
-  roleMember: '#9E9E9E',
-  roleMemberBackground: 'rgba(158, 158, 158, 0.1)',
+  roleMember: '#757575',
+  roleMemberBackground: 'rgba(117, 117, 117, 0.1)',
 
   // Interactive states
   hoverOverlay: 'rgba(0, 0, 0, 0.04)',
@@ -145,18 +145,18 @@ export const darkColors = {
   selectionBorder: '#BB86FC',
 
   // Family-specific colors
-  familyPersonal: '#BB86FC',
-  familyPersonalLight: 'rgba(187, 134, 252, 0.15)',
-  familyGroup: '#66BB6A',
-  familyGroupLight: 'rgba(102, 187, 106, 0.15)',
+  familyPersonal: '#818CF8',
+  familyPersonalLight: 'rgba(129, 140, 248, 0.15)',
+  familyGroup: '#2DD4BF',
+  familyGroupLight: 'rgba(45, 212, 191, 0.15)',
 
   // Role colors
   roleOwner: '#FF8A65',
   roleOwnerBackground: 'rgba(255, 138, 101, 0.15)',
   roleAdmin: '#64B5F6',
   roleAdminBackground: 'rgba(100, 181, 246, 0.15)',
-  roleMember: '#BDBDBD',
-  roleMemberBackground: 'rgba(189, 189, 189, 0.15)',
+  roleMember: '#9E9E9E',
+  roleMemberBackground: 'rgba(158, 158, 158, 0.15)',
 
   // Interactive states
   hoverOverlay: 'rgba(255, 255, 255, 0.04)',

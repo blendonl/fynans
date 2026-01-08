@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,8 +7,12 @@ import {
   Alert,
   TouchableOpacity,
   Image,
+  Animated,
+  Platform,
 } from "react-native";
-import { IconButton, Divider } from "react-native-paper";
+import { Divider } from "react-native-paper";
+import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ImageView from "react-native-image-viewing";
 import { useAppTheme } from "../../theme";
 import { Transaction } from "../../features/transactions/types";
@@ -34,6 +38,17 @@ export default function TransactionDetailScreen({
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [imageViewerIndex, setImageViewerIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 400,
+      delay: 100,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   const isExpense = transaction.type === "expense";
   const date = transaction.transaction.createdAt
@@ -105,137 +120,215 @@ export default function TransactionDetailScreen({
     );
   };
 
+  const GradientDivider = () => (
+    <View style={styles.gradientDividerContainer}>
+      <LinearGradient
+        colors={[
+          theme.custom.colors.gradientPrimaryStart,
+          theme.custom.colors.gradientPrimaryEnd,
+        ]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.gradientDivider}
+      />
+    </View>
+  );
+
+  const accentColor = isExpense
+    ? theme.custom.colors.expense
+    : theme.custom.colors.income;
+
   return (
     <View
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      <ScrollView>
-        <Card style={styles.headerCard} elevation={2}>
-          <View style={styles.header}>
-            <View style={styles.headerTop}>
-              <View
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Animated.View
+          style={[
+            styles.heroHeader,
+            {
+              opacity: fadeAnim,
+              transform: [
+                {
+                  translateY: fadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [20, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <View style={styles.heroContainer}>
+            <LinearGradient
+              colors={[`${accentColor}15`, theme.colors.background]}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+
+            <View
+              style={[
+                styles.heroIconContainer,
+                {
+                  backgroundColor: `${accentColor}15`,
+                  ...Platform.select({
+                    ios: {
+                      shadowColor: accentColor,
+                      shadowOffset: { width: 0, height: 6 },
+                      shadowOpacity: 0.25,
+                      shadowRadius: 12,
+                    },
+                    android: { elevation: 8 },
+                  }),
+                },
+              ]}
+            >
+              <CategoryIcon
+                categoryName={transaction.category?.name || "Unknown"}
+                size={40}
+                color={accentColor}
+              />
+            </View>
+
+            <View
+              style={[
+                styles.categoryBadge,
+                { backgroundColor: theme.custom.colors.glassBackground },
+              ]}
+            >
+              <Text
                 style={[
-                  styles.iconContainer,
-                  {
-                    backgroundColor: isExpense
-                      ? theme.custom.colors.error + "20"
-                      : theme.custom.colors.success + "20",
-                  },
+                  theme.custom.typography.caption,
+                  { color: theme.custom.colors.textSecondary },
                 ]}
               >
-                <CategoryIcon
-                  categoryName={transaction.category?.name || "Unknown"}
-                  size={32}
-                  color={
-                    isExpense
-                      ? theme.custom.colors.error
-                      : theme.custom.colors.success
-                  }
-                />
-              </View>
-              <View style={styles.headerActions}>
-                <IconButton
-                  icon="pencil"
-                  size={24}
-                  iconColor={theme.custom.colors.text}
-                  onPress={() => {
-                    Alert.alert(
-                      "Coming Soon",
-                      "Edit functionality will be available soon",
-                    );
-                  }}
-                />
-                <IconButton
-                  icon="delete"
-                  size={24}
-                  iconColor={theme.colors.error}
-                  onPress={handleDelete}
-                  disabled={deleting}
-                />
-              </View>
+                {transaction.category?.name || "Unknown"}
+              </Text>
             </View>
 
             <Text
               style={[
-                styles.categoryName,
-                theme.custom.typography.h4,
-                { color: theme.custom.colors.text },
-              ]}
-            >
-              {transaction.category?.name || "Unknown"}
-            </Text>
-
-            <Text
-              style={[
-                styles.amount,
-                theme.custom.typography.h3,
-                {
-                  color: isExpense
-                    ? theme.custom.colors.error
-                    : theme.custom.colors.success,
-                },
+                styles.heroAmount,
+                theme.custom.typography.h1,
+                { color: accentColor },
               ]}
             >
               {`${isExpense ? "−" : "+"} $${transaction.transaction.value.toFixed(2)}`}
             </Text>
 
-            <View style={styles.dateContainer}>
+            <View style={styles.dateTimeRow}>
+              <MaterialCommunityIcons
+                name="calendar"
+                size={14}
+                color={theme.custom.colors.textSecondary}
+              />
               <Text
                 style={[
-                  styles.date,
-                  theme.custom.typography.bodyMedium,
-                  { color: theme.custom.colors.textSecondary },
+                  theme.custom.typography.caption,
+                  { color: theme.custom.colors.textSecondary, marginLeft: 4 },
                 ]}
               >
                 {formatDate(date)}
               </Text>
+              <View
+                style={[
+                  styles.dateSeparator,
+                  { backgroundColor: theme.custom.colors.textDisabled },
+                ]}
+              />
+              <MaterialCommunityIcons
+                name="clock-outline"
+                size={14}
+                color={theme.custom.colors.textSecondary}
+              />
               <Text
                 style={[
-                  styles.time,
                   theme.custom.typography.caption,
-                  { color: theme.custom.colors.textSecondary },
+                  { color: theme.custom.colors.textSecondary, marginLeft: 4 },
                 ]}
               >
                 {formatTime(date)}
               </Text>
             </View>
+
+            <View style={styles.actionButtonsRow}>
+              <TouchableOpacity
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: theme.custom.colors.glassBackgroundStrong },
+                ]}
+                onPress={() => {
+                  Alert.alert(
+                    "Coming Soon",
+                    "Edit functionality will be available soon",
+                  );
+                }}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons
+                  name="pencil"
+                  size={20}
+                  color={theme.custom.colors.text}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: `${theme.colors.error}15` },
+                ]}
+                onPress={handleDelete}
+                disabled={deleting}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons
+                  name="delete"
+                  size={20}
+                  color={theme.colors.error}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-        </Card>
+        </Animated.View>
 
         {transaction.store && (
-          <Card style={styles.section} elevation={1}>
-            <View style={styles.sectionHeader}>
-              <Text
-                style={[
-                  styles.sectionTitle,
-                  theme.custom.typography.h5,
-                  { color: theme.custom.colors.text },
-                ]}
-              >
-                Store Information
-              </Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text
-                style={[
-                  styles.infoLabel,
-                  theme.custom.typography.bodyMedium,
-                  { color: theme.custom.colors.textSecondary },
-                ]}
-              >
-                Name
-              </Text>
-              <Text
-                style={[
-                  styles.infoValue,
-                  theme.custom.typography.body,
-                  { color: theme.custom.colors.text },
-                ]}
-              >
-                {transaction.store?.name || "Unknown"}
-              </Text>
-            </View>
-            {transaction.store.location && (
+          <Animated.View
+            style={{
+              opacity: fadeAnim,
+              transform: [
+                {
+                  translateY: fadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [15, 0],
+                  }),
+                },
+              ],
+            }}
+          >
+            <Card style={styles.section} elevation={1}>
+              <View style={styles.sectionHeaderRow}>
+                <View
+                  style={[
+                    styles.sectionHeaderPill,
+                    { backgroundColor: theme.custom.colors.glassBackground },
+                  ]}
+                >
+                  <MaterialCommunityIcons
+                    name="store"
+                    size={16}
+                    color={theme.colors.primary}
+                  />
+                  <Text
+                    style={[
+                      theme.custom.typography.h5,
+                      { color: theme.custom.colors.text, marginLeft: 8 },
+                    ]}
+                  >
+                    Store
+                  </Text>
+                </View>
+              </View>
+              <GradientDivider />
               <View style={styles.infoRow}>
                 <Text
                   style={[
@@ -244,7 +337,7 @@ export default function TransactionDetailScreen({
                     { color: theme.custom.colors.textSecondary },
                   ]}
                 >
-                  Location
+                  Name
                 </Text>
                 <Text
                   style={[
@@ -253,143 +346,312 @@ export default function TransactionDetailScreen({
                     { color: theme.custom.colors.text },
                   ]}
                 >
-                  {transaction.store.location}
+                  {transaction.store?.name || "Unknown"}
                 </Text>
               </View>
-            )}
-          </Card>
-        )}
-
-        {transaction.items && transaction.items.length > 0 && (
-          <Card style={styles.section} elevation={1}>
-            <View style={styles.sectionHeader}>
-              <Text
-                style={[
-                  styles.sectionTitle,
-                  theme.custom.typography.h5,
-                  { color: theme.custom.colors.text },
-                ]}
-              >
-                Items ({transaction.items.length})
-              </Text>
-              <Text
-                style={[
-                  styles.sectionSubtitle,
-                  theme.custom.typography.bodyMedium,
-                  { color: theme.custom.colors.textSecondary },
-                ]}
-              >
-                Total: ${calculateTotal().toFixed(2)}
-              </Text>
-            </View>
-            <Divider style={{ marginVertical: 12 }} />
-            {transaction.items.map((item, index) => (
-              <View key={index}>
-                <View style={styles.itemRow}>
-                  <View style={styles.itemInfo}>
-                    <Text
-                      style={[
-                        styles.itemName,
-                        theme.custom.typography.bodyMedium,
-                        { color: theme.custom.colors.text },
-                      ]}
-                    >
-                      {`${(item.quantity || 1) > 1 ? `${item.quantity}x ` : ""}${item.name || "Unknown item"}`}
-                    </Text>
-                    {item.discount && item.discount > 0 && (
-                      <Text
-                        style={[
-                          styles.itemDiscount,
-                          theme.custom.typography.caption,
-                          { color: theme.custom.colors.success },
-                        ]}
-                      >
-                        −${item.discount.toFixed(2)} discount
-                      </Text>
-                    )}
-                  </View>
+              {transaction.store.location && (
+                <View style={styles.infoRow}>
                   <Text
                     style={[
-                      styles.itemPrice,
+                      styles.infoLabel,
                       theme.custom.typography.bodyMedium,
+                      { color: theme.custom.colors.textSecondary },
+                    ]}
+                  >
+                    Location
+                  </Text>
+                  <Text
+                    style={[
+                      styles.infoValue,
+                      theme.custom.typography.body,
                       { color: theme.custom.colors.text },
                     ]}
                   >
-                    $
-                    {(
-                      ((item.price || 0) - (item.discount || 0)) *
-                      (item.quantity || 1)
-                    ).toFixed(2)}
+                    {transaction.store.location}
                   </Text>
                 </View>
-                {index < (transaction.items?.length || 0) - 1 && (
-                  <Divider style={{ marginVertical: 8 }} />
-                )}
+              )}
+            </Card>
+          </Animated.View>
+        )}
+
+        {transaction.items && transaction.items.length > 0 && (
+          <Animated.View
+            style={{
+              opacity: fadeAnim,
+              transform: [
+                {
+                  translateY: fadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [15, 0],
+                  }),
+                },
+              ],
+            }}
+          >
+            <Card style={styles.section} elevation={1}>
+              <View style={styles.sectionHeaderRow}>
+                <View
+                  style={[
+                    styles.sectionHeaderPill,
+                    { backgroundColor: theme.custom.colors.glassBackground },
+                  ]}
+                >
+                  <MaterialCommunityIcons
+                    name="format-list-bulleted"
+                    size={16}
+                    color={theme.colors.primary}
+                  />
+                  <Text
+                    style={[
+                      theme.custom.typography.h5,
+                      { color: theme.custom.colors.text, marginLeft: 8 },
+                    ]}
+                  >
+                    Items
+                  </Text>
+                  <View
+                    style={[
+                      styles.countBadge,
+                      { backgroundColor: `${theme.colors.primary}20` },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        theme.custom.typography.small,
+                        { color: theme.colors.primary, fontWeight: "600" },
+                      ]}
+                    >
+                      {transaction.items.length}
+                    </Text>
+                  </View>
+                </View>
+                <Text
+                  style={[
+                    theme.custom.typography.bodyMedium,
+                    { color: theme.custom.colors.textSecondary },
+                  ]}
+                >
+                  Total: ${calculateTotal().toFixed(2)}
+                </Text>
               </View>
-            ))}
-          </Card>
+              <GradientDivider />
+              {transaction.items.map((item, index) => (
+                <View key={index}>
+                  <View
+                    style={[
+                      styles.itemRow,
+                      index % 2 === 0 && {
+                        backgroundColor: `${theme.custom.colors.surfaceVariant}30`,
+                      },
+                    ]}
+                  >
+                    <View style={styles.itemLeft}>
+                      <View
+                        style={[
+                          styles.itemDot,
+                          { backgroundColor: theme.colors.primary },
+                        ]}
+                      />
+                      <View style={styles.itemDetails}>
+                        <Text
+                          style={[
+                            theme.custom.typography.bodyMedium,
+                            { color: theme.custom.colors.text },
+                          ]}
+                        >
+                          {item.name || "Unknown item"}
+                        </Text>
+                        {(item.quantity || 1) > 1 && (
+                          <Text
+                            style={[
+                              theme.custom.typography.caption,
+                              { color: theme.custom.colors.textSecondary },
+                            ]}
+                          >
+                            Qty: {item.quantity}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                    <View style={styles.itemRight}>
+                      <Text
+                        style={[
+                          theme.custom.typography.bodyMedium,
+                          { color: theme.custom.colors.text },
+                        ]}
+                      >
+                        $
+                        {(
+                          ((item.price || 0) - (item.discount || 0)) *
+                          (item.quantity || 1)
+                        ).toFixed(2)}
+                      </Text>
+                      {item.discount && item.discount > 0 && (
+                        <View
+                          style={[
+                            styles.discountBadge,
+                            { backgroundColor: `${theme.custom.colors.success}15` },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              theme.custom.typography.small,
+                              { color: theme.custom.colors.success },
+                            ]}
+                          >
+                            -${item.discount.toFixed(2)}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                  {index < (transaction.items?.length || 0) - 1 && (
+                    <Divider style={{ marginVertical: 4 }} />
+                  )}
+                </View>
+              ))}
+            </Card>
+          </Animated.View>
         )}
 
         {transaction.transaction.description && (
-          <Card style={styles.section} elevation={1}>
-            <View style={styles.sectionHeader}>
+          <Animated.View
+            style={{
+              opacity: fadeAnim,
+              transform: [
+                {
+                  translateY: fadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [15, 0],
+                  }),
+                },
+              ],
+            }}
+          >
+            <Card style={styles.section} elevation={1}>
+              <View style={styles.sectionHeaderRow}>
+                <View
+                  style={[
+                    styles.sectionHeaderPill,
+                    { backgroundColor: theme.custom.colors.glassBackground },
+                  ]}
+                >
+                  <MaterialCommunityIcons
+                    name="text"
+                    size={16}
+                    color={theme.colors.primary}
+                  />
+                  <Text
+                    style={[
+                      theme.custom.typography.h5,
+                      { color: theme.custom.colors.text, marginLeft: 8 },
+                    ]}
+                  >
+                    Description
+                  </Text>
+                </View>
+              </View>
+              <GradientDivider />
               <Text
                 style={[
-                  styles.sectionTitle,
-                  theme.custom.typography.h5,
+                  styles.description,
+                  theme.custom.typography.body,
                   { color: theme.custom.colors.text },
                 ]}
               >
-                Description
+                {transaction.transaction.description}
               </Text>
-            </View>
-            <Text
-              style={[
-                styles.description,
-                theme.custom.typography.body,
-                { color: theme.custom.colors.text },
-              ]}
-            >
-              {transaction.transaction.description}
-            </Text>
-          </Card>
+            </Card>
+          </Animated.View>
         )}
 
         {transaction.receiptImages && transaction.receiptImages.length > 0 && (
-          <Card style={styles.section} elevation={1}>
-            <View style={styles.sectionHeader}>
-              <Text
-                style={[
-                  styles.sectionTitle,
-                  theme.custom.typography.h5,
-                  { color: theme.custom.colors.text },
-                ]}
-              >
-                Receipts ({transaction.receiptImages.length})
-              </Text>
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.receiptGrid}>
-                {transaction.receiptImages.map((uri, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => handleImagePress(index)}
-                    activeOpacity={0.8}
+          <Animated.View
+            style={{
+              opacity: fadeAnim,
+              transform: [
+                {
+                  translateY: fadeAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [15, 0],
+                  }),
+                },
+              ],
+            }}
+          >
+            <Card style={styles.section} elevation={1}>
+              <View style={styles.sectionHeaderRow}>
+                <View
+                  style={[
+                    styles.sectionHeaderPill,
+                    { backgroundColor: theme.custom.colors.glassBackground },
+                  ]}
+                >
+                  <MaterialCommunityIcons
+                    name="receipt"
+                    size={16}
+                    color={theme.colors.primary}
+                  />
+                  <Text
+                    style={[
+                      theme.custom.typography.h5,
+                      { color: theme.custom.colors.text, marginLeft: 8 },
+                    ]}
                   >
-                    <Image
-                      source={{ uri }}
+                    Receipts
+                  </Text>
+                  <View
+                    style={[
+                      styles.countBadge,
+                      { backgroundColor: `${theme.colors.primary}20` },
+                    ]}
+                  >
+                    <Text
                       style={[
-                        styles.receiptThumbnail,
-                        { borderColor: theme.custom.colors.border },
+                        theme.custom.typography.small,
+                        { color: theme.colors.primary, fontWeight: "600" },
                       ]}
-                      resizeMode="cover"
-                    />
-                  </TouchableOpacity>
-                ))}
+                    >
+                      {transaction.receiptImages.length}
+                    </Text>
+                  </View>
+                </View>
               </View>
-            </ScrollView>
-          </Card>
+              <GradientDivider />
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View style={styles.receiptGrid}>
+                  {transaction.receiptImages.map((uri, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => handleImagePress(index)}
+                      activeOpacity={0.85}
+                      style={styles.receiptThumbnailWrapper}
+                    >
+                      <Image
+                        source={{ uri }}
+                        style={[
+                          styles.receiptThumbnail,
+                          { borderColor: theme.custom.colors.border },
+                        ]}
+                        resizeMode="cover"
+                      />
+                      <LinearGradient
+                        colors={["transparent", "rgba(0,0,0,0.3)"]}
+                        style={styles.receiptOverlay}
+                      />
+                      <View style={styles.receiptIndex}>
+                        <Text style={styles.receiptIndexText}>{index + 1}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
+            </Card>
+          </Animated.View>
         )}
+
+        <View style={{ height: 24 }} />
       </ScrollView>
 
       {transaction.receiptImages && transaction.receiptImages.length > 0 && (
@@ -408,57 +670,90 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  headerCard: {
-    margin: 16,
-    marginBottom: 8,
+  heroHeader: {
+    paddingTop: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
-  header: {
-    padding: 20,
+  heroContainer: {
     alignItems: "center",
+    borderRadius: 16,
+    overflow: "hidden",
+    paddingVertical: 32,
+    paddingHorizontal: 16,
   },
-  headerTop: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 16,
-  },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+  heroIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     justifyContent: "center",
     alignItems: "center",
+    marginBottom: 16,
   },
-  headerActions: {
-    flexDirection: "row",
-  },
-  categoryName: {
-    marginBottom: 8,
-  },
-  amount: {
+  categoryBadge: {
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    borderRadius: 999,
     marginBottom: 12,
   },
-  dateContainer: {
-    alignItems: "center",
+  heroAmount: {
+    marginBottom: 8,
   },
-  date: {},
-  time: {
-    marginTop: 4,
+  dateTimeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  dateSeparator: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    marginHorizontal: 8,
+  },
+  actionButtonsRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  actionButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: "center",
+    alignItems: "center",
   },
   section: {
     margin: 16,
     marginTop: 8,
     padding: 16,
   },
-  sectionHeader: {
+  sectionHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 4,
   },
-  sectionTitle: {},
-  sectionSubtitle: {},
+  sectionHeaderPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  countBadge: {
+    marginLeft: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
+  },
+  gradientDividerContainer: {
+    height: 2,
+    marginVertical: 12,
+    borderRadius: 1,
+    overflow: "hidden",
+  },
+  gradientDivider: {
+    flex: 1,
+  },
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -470,16 +765,34 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderRadius: 8,
   },
-  itemInfo: {
+  itemLeft: {
+    flexDirection: "row",
+    alignItems: "flex-start",
     flex: 1,
   },
-  itemName: {},
-  itemDiscount: {
-    marginTop: 2,
+  itemDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginTop: 6,
+    marginRight: 8,
   },
-  itemPrice: {
+  itemDetails: {
+    flex: 1,
+  },
+  itemRight: {
+    alignItems: "flex-end",
     marginLeft: 12,
+  },
+  discountBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    marginTop: 2,
   },
   description: {
     lineHeight: 24,
@@ -489,10 +802,33 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingVertical: 8,
   },
+  receiptThumbnailWrapper: {
+    position: "relative",
+    borderRadius: 12,
+    overflow: "hidden",
+  },
   receiptThumbnail: {
     width: 120,
     height: 120,
-    borderRadius: 8,
+    borderRadius: 12,
     borderWidth: 1,
+  },
+  receiptOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 12,
+  },
+  receiptIndex: {
+    position: "absolute",
+    bottom: 6,
+    right: 6,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  receiptIndexText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "600",
   },
 });

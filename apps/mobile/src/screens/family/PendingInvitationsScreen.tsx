@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { View, Text, FlatList, StyleSheet, Alert, SafeAreaView, Animated, Platform, RefreshControl } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { useFamily } from "../../context/FamilyContext";
 import { Card, Button } from "../../components/design-system";
 import { useAppTheme } from "../../theme";
@@ -11,16 +12,20 @@ import RoleBadge from "../../components/family/RoleBadge";
 
 export default function PendingInvitationsScreen() {
   const { theme } = useAppTheme();
-  const { pendingInvitations, acceptInvitation, declineInvitation } = useFamily();
+  const { pendingInvitations, acceptInvitation, declineInvitation, fetchPendingInvitations } = useFamily();
   const [refreshing, setRefreshing] = useState(false);
   const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
 
-  const onRefresh = () => {
+  useFocusEffect(
+    useCallback(() => {
+      fetchPendingInvitations();
+    }, [])
+  );
+
+  const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate refresh
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
+    await fetchPendingInvitations();
+    setRefreshing(false);
   };
 
   const handleAccept = async (invitationId: string) => {
@@ -100,34 +105,19 @@ export default function PendingInvitationsScreen() {
         <Card
           style={{
             padding: theme.custom.spacing.lg,
-            overflow: 'hidden',
             ...Platform.select({
               ios: {
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 6,
+                shadowOpacity: 0.08,
+                shadowRadius: 4,
               },
               android: {
-                elevation: 3,
+                elevation: 2,
               },
             }),
           }}
         >
-          <BlurView
-            intensity={Platform.OS === 'ios' ? 15 : 10}
-            tint={theme.dark ? 'dark' : 'light'}
-            style={StyleSheet.absoluteFill}
-          />
-          <LinearGradient
-            colors={[
-              `${theme.colors.surface}E6`,
-              `${theme.colors.surface}CC`,
-            ]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
 
           {/* Family Name */}
           <View
@@ -160,7 +150,7 @@ export default function PendingInvitationsScreen() {
                   theme.custom.typography.bodyMedium,
                   {
                     color: theme.colors.onSurface,
-                    fontWeight: '600',
+                    fontWeight: '500',
                   },
                 ]}
               >
@@ -252,23 +242,8 @@ export default function PendingInvitationsScreen() {
         style={{
           padding: theme.custom.spacing.xxl,
           alignItems: 'center',
-          overflow: 'hidden',
         }}
       >
-        <BlurView
-          intensity={Platform.OS === 'ios' ? 15 : 10}
-          tint={theme.dark ? 'dark' : 'light'}
-          style={StyleSheet.absoluteFill}
-        />
-        <LinearGradient
-          colors={[
-            `${theme.colors.surface}E6`,
-            `${theme.colors.surface}CC`,
-          ]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
 
         <View
           style={{
@@ -293,7 +268,6 @@ export default function PendingInvitationsScreen() {
             theme.custom.typography.h3,
             {
               color: theme.colors.onSurface,
-              fontWeight: '600',
               marginBottom: theme.custom.spacing.xs,
             },
           ]}
@@ -330,19 +304,6 @@ export default function PendingInvitationsScreen() {
       edges={['top']}
     >
       <View style={[styles.container, { padding: theme.custom.spacing.lg }]}>
-        <Text
-          style={[
-            theme.custom.typography.h2,
-            {
-              color: theme.colors.onBackground,
-              fontWeight: '700',
-              marginBottom: theme.custom.spacing.lg,
-            },
-          ]}
-        >
-          Pending Invitations
-        </Text>
-
         <FlatList
           data={pendingInvitations}
           keyExtractor={(item) => item.id}

@@ -1,11 +1,11 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Animated, RefreshControl, Platform } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useFamily } from "../../context/FamilyContext";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Card, Button } from "../../components/design-system";
 import { useAppTheme } from "../../theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -157,45 +157,30 @@ const FamilyListItem: React.FC<FamilyListItemProps> = ({ item, index, theme, onP
     >
       <TouchableOpacity
         onPress={handlePress}
-        activeOpacity={1}
+        activeOpacity={0.7}
         style={{
           borderRadius: theme.custom.borderRadius.lg,
           overflow: 'hidden',
         }}
       >
-        <BlurView
-          intensity={Platform.OS === 'ios' ? 20 : 15}
-          tint={theme.dark ? 'dark' : 'light'}
-          style={StyleSheet.absoluteFill}
-        />
-
-        <LinearGradient
-          colors={[
-            `${theme.custom.colors.familyGroup}14`,
-            `${theme.custom.colors.familyGroup}08`,
-          ]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
-
         <View
           style={[
             styles.familyCard,
             {
               padding: theme.custom.spacing.lg,
-              borderWidth: 1.5,
-              borderColor: theme.custom.colors.glassBorder,
+              backgroundColor: theme.colors.surface,
+              borderWidth: 1,
+              borderColor: theme.custom.colors.border,
               borderRadius: theme.custom.borderRadius.lg,
               ...Platform.select({
                 ios: {
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 8,
+                  shadowOpacity: 0.08,
+                  shadowRadius: 4,
                 },
                 android: {
-                  elevation: 4,
+                  elevation: 2,
                 },
               }),
             }
@@ -223,7 +208,7 @@ const FamilyListItem: React.FC<FamilyListItemProps> = ({ item, index, theme, onP
                 styles.familyName,
                 { color: theme.colors.onSurface },
                 theme.custom.typography.h4,
-                { fontWeight: '700' },
+                { fontWeight: '600' },
               ]}>
                 {item.name}
               </Text>
@@ -234,7 +219,7 @@ const FamilyListItem: React.FC<FamilyListItemProps> = ({ item, index, theme, onP
                     color: parseFloat(item.balance) >= 0
                       ? theme.custom.colors.income
                       : theme.custom.colors.expense,
-                    fontWeight: '600',
+                    fontWeight: '500',
                   },
                   theme.custom.typography.caption,
                 ]}>
@@ -285,12 +270,13 @@ export default function FamilyListScreen() {
   const navigation = useNavigation();
   const [refreshing, setRefreshing] = React.useState(false);
   const bannerSlideAnim = useRef(new Animated.Value(-100)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
 
-  useEffect(() => {
-    fetchFamilies();
-    fetchPendingInvitations();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchFamilies();
+      fetchPendingInvitations();
+    }, [])
+  );
 
   useEffect(() => {
     if (pendingInvitations.length > 0) {
@@ -303,23 +289,6 @@ export default function FamilyListScreen() {
     }
   }, [pendingInvitations.length]);
 
-  useEffect(() => {
-    // Pulse animation for empty state icon
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.05,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, []);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -416,7 +385,7 @@ export default function FamilyListScreen() {
               />
               <Text style={[
                 styles.invitationText,
-                { color: theme.colors.onPrimary },
+                { color: theme.colors.onPrimary, fontWeight: '500' },
                 theme.custom.typography.bodyMedium,
               ]}>
                 You have {pendingInvitations.length} pending invitation{pendingInvitations.length > 1 ? 's' : ''}
@@ -438,7 +407,6 @@ export default function FamilyListScreen() {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           navigation.navigate("CreateFamily" as never);
         }}
-        variant="glass"
         style={{ marginBottom: theme.custom.spacing.xl }}
       />
 
@@ -468,59 +436,37 @@ export default function FamilyListScreen() {
             <View
               style={{
                 borderRadius: theme.custom.borderRadius.xl,
-                overflow: 'hidden',
                 padding: theme.custom.spacing.xxl,
                 alignItems: 'center',
+                backgroundColor: theme.colors.surface,
+                borderWidth: 1,
+                borderColor: theme.custom.colors.border,
               }}
             >
-              <BlurView
-                intensity={Platform.OS === 'ios' ? 25 : 20}
-                tint={theme.dark ? 'dark' : 'light'}
-                style={StyleSheet.absoluteFill}
-              />
+
               <View
                 style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: theme.custom.colors.glassBackground,
-                  borderWidth: 1.5,
-                  borderColor: theme.custom.colors.glassBorder,
-                  borderRadius: theme.custom.borderRadius.xl,
-                }}
-              />
-
-              <Animated.View
-                style={{
-                  transform: [{ scale: pulseAnim }],
+                  width: 100,
+                  height: 100,
+                  borderRadius: theme.custom.borderRadius.round,
+                  backgroundColor: `${theme.custom.colors.familyGroup}20`,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: theme.custom.spacing.lg,
                 }}
               >
-                <View
-                  style={{
-                    width: 100,
-                    height: 100,
-                    borderRadius: theme.custom.borderRadius.round,
-                    backgroundColor: `${theme.custom.colors.familyGroup}20`,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: theme.custom.spacing.lg,
-                  }}
-                >
-                  <MaterialCommunityIcons
-                    name="account-group-outline"
-                    size={56}
-                    color={theme.custom.colors.familyGroup}
-                  />
-                </View>
-              </Animated.View>
+                <MaterialCommunityIcons
+                  name="account-group-outline"
+                  size={56}
+                  color={theme.custom.colors.familyGroup}
+                />
+              </View>
 
               <Text style={[
                 styles.emptyTitle,
                 { color: theme.colors.onSurface },
                 theme.custom.typography.h3,
-                { fontWeight: '700', marginBottom: theme.custom.spacing.sm },
+                { fontWeight: '600', marginBottom: theme.custom.spacing.sm },
               ]}>
                 Your family financial hub starts here
               </Text>
@@ -560,7 +506,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   invitationText: {
-    fontWeight: "600",
     flex: 1,
   },
   familyCard: {

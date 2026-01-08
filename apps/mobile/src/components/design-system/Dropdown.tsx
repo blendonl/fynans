@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import {
     View,
     Text,
-    FlatList,
+    ScrollView,
     TouchableOpacity,
     StyleSheet,
     ActivityIndicator,
@@ -133,17 +133,18 @@ export const Dropdown: React.FC<DropdownProps> = ({
             ) : (
                 <>
                     {items.length > 0 ? (
-                        <FlatList
-                            data={items}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <>{renderItem ? renderItem(item) : defaultRenderItem(item)}</>
-                            )}
+                        <ScrollView
                             style={[styles.list, { maxHeight }]}
                             nestedScrollEnabled
                             showsVerticalScrollIndicator={true}
-                            indicatorStyle={theme.dark ? 'white' : 'black'}
-                        />
+                            keyboardShouldPersistTaps="handled"
+                        >
+                            {items.map((item) => (
+                                <View key={item.id}>
+                                    {renderItem ? renderItem(item) : defaultRenderItem(item)}
+                                </View>
+                            ))}
+                        </ScrollView>
                     ) : (
                         <Text
                             style={[

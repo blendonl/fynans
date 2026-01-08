@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Card } from '../design-system';
 import { useAppTheme } from '../../theme';
+import { TrendIndicator } from './TrendIndicator';
 
 interface StatCardProps {
   title: string;
@@ -10,6 +11,8 @@ interface StatCardProps {
   icon: string;
   color?: string;
   subtitle?: string;
+  trend?: number; // Percentage change
+  progress?: number; // 0-100 for progress bar
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -18,6 +21,8 @@ export const StatCard: React.FC<StatCardProps> = ({
   icon,
   color,
   subtitle,
+  trend,
+  progress,
 }) => {
   const { theme } = useAppTheme();
   const iconColor = color || theme.colors.primary;
@@ -29,15 +34,18 @@ export const StatCard: React.FC<StatCardProps> = ({
           <MaterialCommunityIcons name={icon as any} size={28} color={iconColor} />
         </View>
         <View style={styles.info}>
-          <Text
-            style={[
-              styles.title,
-              theme.custom.typography.caption,
-              { color: theme.custom.colors.textSecondary },
-            ]}
-          >
-            {title}
-          </Text>
+          <View style={styles.titleRow}>
+            <Text
+              style={[
+                styles.title,
+                theme.custom.typography.caption,
+                { color: theme.custom.colors.textSecondary },
+              ]}
+            >
+              {title}
+            </Text>
+            {trend !== undefined && <TrendIndicator value={trend} compact />}
+          </View>
           <Text
             style={[
               styles.value,
@@ -57,6 +65,26 @@ export const StatCard: React.FC<StatCardProps> = ({
             >
               {subtitle}
             </Text>
+          )}
+          {progress !== undefined && (
+            <View style={styles.progressContainer}>
+              <View
+                style={[
+                  styles.progressBackground,
+                  { backgroundColor: theme.custom.colors.border },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.progressBar,
+                    {
+                      width: `${Math.min(progress, 100)}%`,
+                      backgroundColor: iconColor,
+                    },
+                  ]}
+                />
+              </View>
+            </View>
           )}
         </View>
       </View>
@@ -86,11 +114,27 @@ const styles = StyleSheet.create({
   info: {
     flex: 1,
   },
-  title: {
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 4,
   },
+  title: {},
   value: {},
   subtitle: {
     marginTop: 2,
+  },
+  progressContainer: {
+    marginTop: 8,
+  },
+  progressBackground: {
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    borderRadius: 2,
   },
 });

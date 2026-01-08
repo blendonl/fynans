@@ -121,20 +121,13 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       this.prisma.expense.findMany({
         where,
         include: {
-          transaction: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  name: true,
-                },
-              },
-            },
-          },
           category: true,
           store: true,
+          transaction: {
+            include: {
+              user: true,
+            },
+          },
           items: {
             include: {
               item: {

@@ -6,12 +6,21 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
+import { CreateNotificationUseCase } from '../../../../notification/core/application/use-cases/create-notification.use-case';
+import {
+  NotificationType,
+  DeliveryMethod,
+  NotificationPriority,
+} from '../../../../notification/core/domain/value-objects/notification-type.vo';
+import { UserService } from '~feature/user/core/application/services/user.service';
 
 @Injectable()
 export class RemoveFamilyMemberUseCase {
   constructor(
     @Inject('FamilyRepository')
     private readonly familyRepository: IFamilyRepository,
+    private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly userService: UserService,
   ) {}
 
   async execute(
@@ -66,5 +75,44 @@ export class RemoveFamilyMemberUseCase {
     const newBalance =
       await this.familyRepository.calculateFamilyBalance(familyId);
     await this.familyRepository.updateFamilyBalance(familyId, newBalance);
+
+    // Get family and removed user details for notifications
+    const family = await this.familyRepository.findById(familyId);
+    const removedUser = await this.userService.findById(targetUserId);
+
+    // Notify all remaining family members (except the admin who removed)
+    const remainingMembers = await this.familyRepository.findMembers(familyId);
+    for (const familyMember of remainingMembers) {
+      if (familyMember.userId === requestingUserId) continue;
+
+      await this.createNotificationUseCase.execute({
+        userId: familyMember.userId,
+        type: NotificationType.FAMILY_MEMBER_LEFT,
+        data: {
+          familyId: familyId,
+          familyName: family?.name,
+          memberName: removedUser?.fullName,
+          memberId: targetUserId,
+        },
+        deliveryMethods: [DeliveryMethod.IN_APP, DeliveryMethod.PUSH],
+        priority: NotificationPriority.LOW,
+        familyId: familyId,
+      });
+    }
+
+    // Notify the removed user
+    await this.createNotificationUseCase.execute({
+      userId: targetUserId,
+      type: NotificationType.FAMILY_MEMBER_LEFT,
+      data: {
+        familyId: familyId,
+        familyName: family?.name,
+        memberName: 'You were',
+        memberId: targetUserId,
+      },
+      deliveryMethods: [DeliveryMethod.IN_APP, DeliveryMethod.PUSH],
+      priority: NotificationPriority.MEDIUM,
+      familyId: familyId,
+    });
   }
 }

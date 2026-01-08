@@ -18,14 +18,17 @@ const family_invitation_entity_1 = require("../../domain/entities/family-invitat
 const create_notification_use_case_1 = require("../../../../notification/core/application/use-cases/create-notification.use-case");
 const notification_type_vo_1 = require("../../../../notification/core/domain/value-objects/notification-type.vo");
 const uuid_1 = require("uuid");
+const user_service_1 = require("../../../../user/core/application/services/user.service");
 let InviteMemberUseCase = class InviteMemberUseCase {
     familyRepository;
     invitationRepository;
     createNotificationUseCase;
-    constructor(familyRepository, invitationRepository, createNotificationUseCase) {
+    userService;
+    constructor(familyRepository, invitationRepository, createNotificationUseCase, userService) {
         this.familyRepository = familyRepository;
         this.invitationRepository = invitationRepository;
         this.createNotificationUseCase = createNotificationUseCase;
+        this.userService = userService;
     }
     async execute(dto, inviterId) {
         const member = await this.familyRepository.findMember(dto.familyId, inviterId);
@@ -34,6 +37,17 @@ let InviteMemberUseCase = class InviteMemberUseCase {
         }
         if (!member.canManageMembers()) {
             throw new common_1.ForbiddenException('No permission to invite members');
+        }
+        const inviteeUser = await this.userService.findByEmail(dto.inviteeEmail);
+        if (inviteeUser) {
+            const existingMember = await this.familyRepository.findMember(dto.familyId, inviteeUser.id);
+            if (existingMember) {
+                throw new common_1.ConflictException('User is already a member of this family');
+            }
+        }
+        const pendingInvitation = await this.invitationRepository.findPendingByEmailAndFamily(dto.inviteeEmail, dto.familyId);
+        if (pendingInvitation) {
+            throw new common_1.ConflictException('A pending invitation already exists for this email');
         }
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 7);
@@ -62,6 +76,23 @@ let InviteMemberUseCase = class InviteMemberUseCase {
             familyId: dto.familyId,
             invitationId: invitation.id,
         });
+        if (inviteeUser && inviteeUser.emailVerified) {
+            const inviter = await this.userService.findById(inviterId);
+            await this.createNotificationUseCase.execute({
+                userId: inviteeUser.id,
+                type: notification_type_vo_1.NotificationType.FAMILY_INVITATION_RECEIVED,
+                data: {
+                    invitationId: invitation.id,
+                    familyId: dto.familyId,
+                    familyName: family?.name,
+                    inviterName: inviter?.fullName,
+                },
+                deliveryMethods: [notification_type_vo_1.DeliveryMethod.IN_APP, notification_type_vo_1.DeliveryMethod.PUSH],
+                priority: notification_type_vo_1.NotificationPriority.MEDIUM,
+                familyId: dto.familyId,
+                invitationId: invitation.id,
+            });
+        }
         return invitation;
     }
 };
@@ -70,6 +101,7 @@ exports.InviteMemberUseCase = InviteMemberUseCase = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('FamilyRepository')),
     __param(1, (0, common_1.Inject)('FamilyInvitationRepository')),
-    __metadata("design:paramtypes", [Object, Object, create_notification_use_case_1.CreateNotificationUseCase])
+    __metadata("design:paramtypes", [Object, Object, create_notification_use_case_1.CreateNotificationUseCase,
+        user_service_1.UserService])
 ], InviteMemberUseCase);
 //# sourceMappingURL=invite-member.use-case.js.map

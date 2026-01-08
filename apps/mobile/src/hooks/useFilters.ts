@@ -1,9 +1,9 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Transaction, TransactionFilters } from '../features/transactions/types';
-import { useFamily } from '../context/FamilyContext';
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 export const useFilters = () => {
-  const { selectedFamily } = useFamily();
   const [filters, setFilters] = useState<TransactionFilters>({
     type: 'all',
     scope: 'all',
@@ -16,15 +16,24 @@ export const useFilters = () => {
   });
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Sync familyId filter with selected family context
   useEffect(() => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      familyId: selectedFamily?.id || null,
-      scope: selectedFamily ? 'family' : 'all',
-    }));
-  }, [selectedFamily]);
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [searchQuery]);
 
   const applyFilters = (newFilters: TransactionFilters) => {
     setFilters(newFilters);
@@ -52,11 +61,11 @@ export const useFilters = () => {
       filters.maxAmount !== '' ||
       filters.dateFrom !== null ||
       filters.dateTo !== null ||
-      searchQuery !== ''
+      debouncedSearchQuery !== ''
     );
-  }, [filters, searchQuery]);
+  }, [filters, debouncedSearchQuery]);
 
-  const filterTransactions = (transactions: Transaction[]) => {
+  const filterTransactions = useCallback((transactions: Transaction[]) => {
     return transactions.filter((transaction) => {
       if (filters.type !== 'all' && transaction.type !== filters.type) {
         return false;
@@ -96,22 +105,25 @@ export const useFilters = () => {
         }
       }
 
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
+      if (debouncedSearchQuery) {
+        const query = debouncedSearchQuery.toLowerCase();
         const categoryMatch = transaction.category.name.toLowerCase().includes(query);
         const storeMatch = transaction.store?.name.toLowerCase().includes(query);
         const itemsMatch = transaction.items?.some((item) =>
           item.name.toLowerCase().includes(query)
         );
+        const memberName = `${transaction.transaction.user?.firstName || ''} ${transaction.transaction.user?.lastName || ''}`.toLowerCase().trim();
+        const memberMatch = memberName.includes(query);
+        const familyMatch = transaction.family?.name?.toLowerCase().includes(query) || false;
 
-        if (!categoryMatch && !storeMatch && !itemsMatch) {
+        if (!categoryMatch && !storeMatch && !itemsMatch && !memberMatch && !familyMatch) {
           return false;
         }
       }
 
       return true;
     });
-  };
+  }, [filters, debouncedSearchQuery]);
 
   const getActiveFilterCount = () => {
     let count = 0;

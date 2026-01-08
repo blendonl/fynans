@@ -5,8 +5,6 @@ import {
   StyleSheet,
   View,
   Text,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import {
   Button,
@@ -112,7 +110,7 @@ export default function AddExpenseScreen({ navigation }: any) {
 
       await apiClient.post("/expenses", payload);
       imageUpload.clearImages();
-      navigation.navigate("Transactions");
+      navigation.navigate("Main", { screen: "Transactions" });
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to create expense");
     } finally {
@@ -156,18 +154,14 @@ export default function AddExpenseScreen({ navigation }: any) {
 
   return (
     <>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.flex}
-        keyboardVerticalOffset={100}
+      <ScrollView
+        style={[
+          styles.container,
+          { backgroundColor: theme.colors.background },
+        ]}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
       >
-        <ScrollView
-          style={[
-            styles.container,
-            { backgroundColor: theme.colors.background },
-          ]}
-          keyboardShouldPersistTaps="handled"
-        >
           <Button
             title="Scan Receipt"
             onPress={handleScanReceipt}
@@ -314,8 +308,7 @@ export default function AddExpenseScreen({ navigation }: any) {
               style={styles.submitButton}
             />
           )}
-        </ScrollView>
-      </KeyboardAvoidingView>
+      </ScrollView>
 
       <AddStoreModal
         visible={stores.showAddStoreModal}
@@ -332,12 +325,13 @@ export default function AddExpenseScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
   container: {
     flex: 1,
     padding: 16,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 350,
   },
   scanButton: {
     marginBottom: 16,

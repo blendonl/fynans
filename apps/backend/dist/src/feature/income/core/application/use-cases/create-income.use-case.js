@@ -14,12 +14,24 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateIncomeUseCase = void 0;
 const common_1 = require("@nestjs/common");
+const transaction_service_1 = require("../../../../transaction/core/application/services/transaction.service");
+const create_notification_use_case_1 = require("../../../../notification/core/application/use-cases/create-notification.use-case");
+const user_service_1 = require("../../../../user/core/application/services/user.service");
+const notification_type_vo_1 = require("../../../../notification/core/domain/value-objects/notification-type.vo");
 let CreateIncomeUseCase = class CreateIncomeUseCase {
     incomeRepository;
     incomeCategoryRepository;
-    constructor(incomeRepository, incomeCategoryRepository) {
+    familyRepository;
+    transactionService;
+    createNotificationUseCase;
+    userService;
+    constructor(incomeRepository, incomeCategoryRepository, familyRepository, transactionService, createNotificationUseCase, userService) {
         this.incomeRepository = incomeRepository;
         this.incomeCategoryRepository = incomeCategoryRepository;
+        this.familyRepository = familyRepository;
+        this.transactionService = transactionService;
+        this.createNotificationUseCase = createNotificationUseCase;
+        this.userService = userService;
     }
     async execute(dto) {
         await this.validate(dto);
@@ -28,6 +40,30 @@ let CreateIncomeUseCase = class CreateIncomeUseCase {
             storeId: dto.storeId,
             categoryId: dto.categoryId,
         });
+        const transaction = await this.transactionService.findById(dto.transactionId);
+        if (transaction.familyId) {
+            const family = await this.familyRepository.findById(transaction.familyId);
+            const incomeUser = await this.userService.findById(transaction.userId);
+            const allMembers = await this.familyRepository.findMembers(transaction.familyId);
+            for (const familyMember of allMembers) {
+                if (familyMember.userId === transaction.userId)
+                    continue;
+                await this.createNotificationUseCase.execute({
+                    userId: familyMember.userId,
+                    type: notification_type_vo_1.NotificationType.FAMILY_INCOME_CREATED,
+                    data: {
+                        incomeId: income.id,
+                        familyId: transaction.familyId,
+                        familyName: family?.name,
+                        userName: incomeUser?.fullName,
+                        amount: transaction.value.toString(),
+                    },
+                    deliveryMethods: [notification_type_vo_1.DeliveryMethod.IN_APP, notification_type_vo_1.DeliveryMethod.PUSH],
+                    priority: notification_type_vo_1.NotificationPriority.LOW,
+                    familyId: transaction.familyId,
+                });
+            }
+        }
         return income;
     }
     async validate(dto) {
@@ -55,6 +91,9 @@ exports.CreateIncomeUseCase = CreateIncomeUseCase = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('IncomeRepository')),
     __param(1, (0, common_1.Inject)('IncomeCategoryRepository')),
-    __metadata("design:paramtypes", [Object, Object])
+    __param(2, (0, common_1.Inject)('FamilyRepository')),
+    __metadata("design:paramtypes", [Object, Object, Object, transaction_service_1.TransactionService,
+        create_notification_use_case_1.CreateNotificationUseCase,
+        user_service_1.UserService])
 ], CreateIncomeUseCase);
 //# sourceMappingURL=create-income.use-case.js.map

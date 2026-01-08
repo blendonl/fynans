@@ -15,10 +15,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeclineInvitationUseCase = void 0;
 const common_1 = require("@nestjs/common");
 const family_invitation_entity_1 = require("../../domain/entities/family-invitation.entity");
+const create_notification_use_case_1 = require("../../../../notification/core/application/use-cases/create-notification.use-case");
+const notification_type_vo_1 = require("../../../../notification/core/domain/value-objects/notification-type.vo");
+const user_service_1 = require("../../../../user/core/application/services/user.service");
 let DeclineInvitationUseCase = class DeclineInvitationUseCase {
     invitationRepository;
-    constructor(invitationRepository) {
+    familyRepository;
+    createNotificationUseCase;
+    userService;
+    constructor(invitationRepository, familyRepository, createNotificationUseCase, userService) {
         this.invitationRepository = invitationRepository;
+        this.familyRepository = familyRepository;
+        this.createNotificationUseCase = createNotificationUseCase;
+        this.userService = userService;
     }
     async execute(invitationId, userId) {
         const invitation = await this.invitationRepository.findById(invitationId);
@@ -39,12 +48,30 @@ let DeclineInvitationUseCase = class DeclineInvitationUseCase {
             createdAt: invitation.createdAt,
             updatedAt: new Date(),
         });
+        const family = await this.familyRepository.findById(invitation.familyId);
+        const decliner = await this.userService.findById(userId);
+        await this.createNotificationUseCase.execute({
+            userId: invitation.inviterId,
+            type: notification_type_vo_1.NotificationType.FAMILY_INVITATION_DECLINED,
+            data: {
+                invitationId: invitation.id,
+                familyId: invitation.familyId,
+                familyName: family?.name,
+                inviteeName: decliner?.fullName || invitation.inviteeEmail,
+            },
+            deliveryMethods: [notification_type_vo_1.DeliveryMethod.IN_APP, notification_type_vo_1.DeliveryMethod.PUSH],
+            priority: notification_type_vo_1.NotificationPriority.LOW,
+            familyId: invitation.familyId,
+            invitationId: invitation.id,
+        });
     }
 };
 exports.DeclineInvitationUseCase = DeclineInvitationUseCase;
 exports.DeclineInvitationUseCase = DeclineInvitationUseCase = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('FamilyInvitationRepository')),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, common_1.Inject)('FamilyRepository')),
+    __metadata("design:paramtypes", [Object, Object, create_notification_use_case_1.CreateNotificationUseCase,
+        user_service_1.UserService])
 ], DeclineInvitationUseCase);
 //# sourceMappingURL=decline-invitation.use-case.js.map

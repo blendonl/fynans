@@ -88,24 +88,26 @@ const StatItem: React.FC<{ stat: StatItem; index: number; columns: number; theme
                     {
                         padding: theme.custom.spacing.md,
                         borderRadius: theme.custom.borderRadius.lg,
-                        overflow: 'hidden',
+                        backgroundColor: theme.colors.surface,
                         borderWidth: 1,
-                        borderColor: `${stat.color || theme.colors.primary}30`,
+                        borderColor: theme.custom.colors.border,
+                        ...Platform.select({
+                            ios: {
+                                shadowColor: '#000',
+                                shadowOffset: { width: 0, height: 1 },
+                                shadowOpacity: 0.05,
+                                shadowRadius: 2,
+                            },
+                            android: {
+                                elevation: 1,
+                            },
+                        }),
                     },
                 ]}
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
-                activeOpacity={1}
+                activeOpacity={0.7}
             >
-                <LinearGradient
-                    colors={[
-                        `${stat.color || theme.colors.primary}14`,
-                        `${stat.color || theme.colors.primary}08`,
-                    ]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={StyleSheet.absoluteFill}
-                />
 
                 {stat.icon && (
                     <View
@@ -113,21 +115,10 @@ const StatItem: React.FC<{ stat: StatItem; index: number; columns: number; theme
                             styles.iconContainer,
                             {
                                 backgroundColor: stat.color
-                                    ? `${stat.color}20`
-                                    : theme.custom.colors.primaryLight + '20',
+                                    ? `${stat.color}15`
+                                    : `${theme.colors.primary}15`,
                                 borderRadius: theme.custom.borderRadius.lg,
                                 marginBottom: theme.custom.spacing.sm,
-                                ...Platform.select({
-                                    ios: {
-                                        shadowColor: stat.color || theme.colors.primary,
-                                        shadowOffset: { width: 0, height: 2 },
-                                        shadowOpacity: 0.2,
-                                        shadowRadius: 4,
-                                    },
-                                    android: {
-                                        elevation: 3,
-                                    },
-                                }),
                             },
                         ]}
                     >
@@ -154,7 +145,7 @@ const StatItem: React.FC<{ stat: StatItem; index: number; columns: number; theme
                         style={[
                             styles.statValue,
                             theme.custom.typography.h4,
-                            { fontWeight: '700' },
+                            { fontWeight: '600' },
                         ]}
                     />
                 ) : (
@@ -164,7 +155,7 @@ const StatItem: React.FC<{ stat: StatItem; index: number; columns: number; theme
                             theme.custom.typography.h4,
                             {
                                 color: stat.valueColor || theme.colors.onSurface,
-                                fontWeight: '700',
+                                fontWeight: '600',
                             },
                         ]}
                     >
@@ -181,23 +172,6 @@ export const FamilyStatsCard: React.FC<FamilyStatsCardProps> = ({
     columns = 2,
 }) => {
     const { theme } = useAppTheme();
-    const pulseAnim = useRef(new Animated.Value(1)).current;
-
-    useEffect(() => {
-        // Subtle pulse animation on mount
-        Animated.sequence([
-            Animated.timing(pulseAnim, {
-                toValue: 1.02,
-                duration: 300,
-                useNativeDriver: true,
-            }),
-            Animated.timing(pulseAnim, {
-                toValue: 1,
-                duration: 300,
-                useNativeDriver: true,
-            }),
-        ]).start();
-    }, []);
 
     return (
         <View style={[styles.card, { padding: theme.custom.spacing.lg }]}>

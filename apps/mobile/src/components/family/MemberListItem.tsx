@@ -7,14 +7,25 @@ import { useAppTheme } from '../../theme';
 import { Card } from '../design-system';
 import RoleBadge from './RoleBadge';
 
-// Generate a personalized gradient based on user ID
-const generateGradientColors = (userId: string, baseColor: string): string[] => {
+const AVATAR_COLOR_PALETTE = [
+  ['#6366F1', '#8B5CF6'],
+  ['#14B8A6', '#06B6D4'],
+  ['#F59E0B', '#F97316'],
+  ['#EF4444', '#EC4899'],
+  ['#10B981', '#059669'],
+  ['#8B5CF6', '#A855F7'],
+  ['#06B6D4', '#0EA5E9'],
+  ['#F97316', '#FB923C'],
+  ['#EC4899', '#F472B6'],
+  ['#3B82F6', '#6366F1'],
+  ['#84CC16', '#22C55E'],
+  ['#F43F5E', '#FB7185'],
+] as const;
+
+const getAvatarColors = (userId: string): string[] => {
   const hash = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const hue = hash % 360;
-  return [
-    `hsl(${hue}, 70%, 60%)`,
-    `hsl(${(hue + 30) % 360}, 70%, 50%)`,
-  ] as const;
+  const index = hash % AVATAR_COLOR_PALETTE.length;
+  return [...AVATAR_COLOR_PALETTE[index]];
 };
 
 type Role = 'OWNER' | 'ADMIN' | 'MEMBER';
@@ -88,7 +99,7 @@ export const MemberListItem: React.FC<MemberListItemProps> = ({
 
   const showRemoveButton = canManage && !isCurrentUser && member.role !== 'OWNER';
 
-  const avatarGradientColors = generateGradientColors(member.userId, theme.colors.primary);
+  const avatarGradientColors = getAvatarColors(member.userId);
 
   // Pulse animation for current user's avatar
   useEffect(() => {
@@ -227,7 +238,7 @@ export const MemberListItem: React.FC<MemberListItemProps> = ({
                   <Text
                     style={[
                       styles.name,
-                      { color: theme.colors.onSurface },
+                      { color: theme.colors.onSurface, fontWeight: '500' },
                       theme.custom.typography.bodyMedium,
                     ]}
                     numberOfLines={1}
@@ -290,7 +301,7 @@ export const MemberListItem: React.FC<MemberListItemProps> = ({
                         color: parseFloat(member.balance.toString()) >= 0
                           ? theme.custom.colors.income
                           : theme.custom.colors.expense,
-                        fontWeight: '600',
+                        fontWeight: '500',
                       },
                       theme.custom.typography.small,
                     ]}>
@@ -364,7 +375,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   name: {
-    fontWeight: '600',
     flex: 1,
   },
   badgeContainer: {

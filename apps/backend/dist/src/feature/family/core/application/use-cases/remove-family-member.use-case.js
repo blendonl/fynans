@@ -14,10 +14,17 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RemoveFamilyMemberUseCase = void 0;
 const common_1 = require("@nestjs/common");
+const create_notification_use_case_1 = require("../../../../notification/core/application/use-cases/create-notification.use-case");
+const notification_type_vo_1 = require("../../../../notification/core/domain/value-objects/notification-type.vo");
+const user_service_1 = require("../../../../user/core/application/services/user.service");
 let RemoveFamilyMemberUseCase = class RemoveFamilyMemberUseCase {
     familyRepository;
-    constructor(familyRepository) {
+    createNotificationUseCase;
+    userService;
+    constructor(familyRepository, createNotificationUseCase, userService) {
         this.familyRepository = familyRepository;
+        this.createNotificationUseCase = createNotificationUseCase;
+        this.userService = userService;
     }
     async execute(familyId, targetUserId, requestingUserId) {
         const requestingMember = await this.familyRepository.findMember(familyId, requestingUserId);
@@ -40,12 +47,46 @@ let RemoveFamilyMemberUseCase = class RemoveFamilyMemberUseCase {
         await this.familyRepository.removeMember(familyId, targetUserId);
         const newBalance = await this.familyRepository.calculateFamilyBalance(familyId);
         await this.familyRepository.updateFamilyBalance(familyId, newBalance);
+        const family = await this.familyRepository.findById(familyId);
+        const removedUser = await this.userService.findById(targetUserId);
+        const remainingMembers = await this.familyRepository.findMembers(familyId);
+        for (const familyMember of remainingMembers) {
+            if (familyMember.userId === requestingUserId)
+                continue;
+            await this.createNotificationUseCase.execute({
+                userId: familyMember.userId,
+                type: notification_type_vo_1.NotificationType.FAMILY_MEMBER_LEFT,
+                data: {
+                    familyId: familyId,
+                    familyName: family?.name,
+                    memberName: removedUser?.fullName,
+                    memberId: targetUserId,
+                },
+                deliveryMethods: [notification_type_vo_1.DeliveryMethod.IN_APP, notification_type_vo_1.DeliveryMethod.PUSH],
+                priority: notification_type_vo_1.NotificationPriority.LOW,
+                familyId: familyId,
+            });
+        }
+        await this.createNotificationUseCase.execute({
+            userId: targetUserId,
+            type: notification_type_vo_1.NotificationType.FAMILY_MEMBER_LEFT,
+            data: {
+                familyId: familyId,
+                familyName: family?.name,
+                memberName: 'You were',
+                memberId: targetUserId,
+            },
+            deliveryMethods: [notification_type_vo_1.DeliveryMethod.IN_APP, notification_type_vo_1.DeliveryMethod.PUSH],
+            priority: notification_type_vo_1.NotificationPriority.MEDIUM,
+            familyId: familyId,
+        });
     }
 };
 exports.RemoveFamilyMemberUseCase = RemoveFamilyMemberUseCase;
 exports.RemoveFamilyMemberUseCase = RemoveFamilyMemberUseCase = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)('FamilyRepository')),
-    __metadata("design:paramtypes", [Object])
+    __metadata("design:paramtypes", [Object, create_notification_use_case_1.CreateNotificationUseCase,
+        user_service_1.UserService])
 ], RemoveFamilyMemberUseCase);
 //# sourceMappingURL=remove-family-member.use-case.js.map

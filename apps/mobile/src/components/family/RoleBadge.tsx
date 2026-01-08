@@ -48,7 +48,6 @@ export const RoleBadge: React.FC<RoleBadgeProps> = ({
 
   // Animations
   const scaleAnim = useRef(new Animated.Value(0)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     // Entrance animation
@@ -58,31 +57,13 @@ export const RoleBadge: React.FC<RoleBadgeProps> = ({
       tension: 150,
       friction: 8,
     }).start();
-
-    // Pulse animation only for OWNER
-    if (role === 'OWNER') {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.02,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    }
   }, [role]);
 
   return (
     <Animated.View
       style={[
         {
-          transform: [{ scale: Animated.multiply(scaleAnim, pulseAnim) }],
+          transform: [{ scale: scaleAnim }],
           borderRadius: theme.custom.borderRadius.round,
           overflow: 'hidden',
         },
@@ -139,6 +120,7 @@ export const RoleBadge: React.FC<RoleBadgeProps> = ({
               textShadowColor: `${config.color}40`,
               textShadowOffset: { width: 0, height: 1 },
               textShadowRadius: 2,
+              fontWeight: '600',
             },
             theme.custom.typography.small,
           ]}>
@@ -163,7 +145,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   label: {
-    fontWeight: '700',
     fontSize: 11,
     marginLeft: 6,
     letterSpacing: 0.8,

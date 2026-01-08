@@ -14,6 +14,8 @@ const store_core_module_1 = require("../../store/core/store-core.module");
 const expense_category_core_module_1 = require("../../expense-category/core/expense-category-core.module");
 const expense_item_core_module_1 = require("../../expense-item/core/expense-item-core.module");
 const family_core_module_1 = require("../../family/core/family-core.module");
+const notification_core_module_1 = require("../../notification/core/notification-core.module");
+const user_core_module_1 = require("../../user/core/user-core.module");
 const prisma_expense_repository_1 = require("./infrastructure/repositories/prisma-expense.repository");
 const create_expense_use_case_1 = require("./application/use-cases/create-expense.use-case");
 const get_expense_by_id_use_case_1 = require("./application/use-cases/get-expense-by-id.use-case");
@@ -35,6 +37,8 @@ exports.ExpenseCoreModule = ExpenseCoreModule = __decorate([
             expense_category_core_module_1.ExpenseCategoryCoreModule,
             expense_item_core_module_1.ExpenseItemCoreModule,
             family_core_module_1.FamilyCoreModule,
+            (0, common_1.forwardRef)(() => notification_core_module_1.NotificationCoreModule),
+            user_core_module_1.UserCoreModule,
         ],
         providers: [
             {

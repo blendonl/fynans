@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   View,
   Text,
@@ -10,22 +10,23 @@ import {
   TouchableOpacity,
   Animated,
   Platform,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
-import { useFamily } from '../../context/FamilyContext';
-import { useAuth } from '../../context/AuthContext';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import { Card, Button } from '../../components/design-system';
-import { useAppTheme } from '../../theme';
-import MemberListItem from '../../components/family/MemberListItem';
-import FamilyStatsCard from '../../components/family/FamilyStatsCard';
-import FamilyActivityItem from '../../components/family/FamilyActivityItem';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
+import * as Haptics from "expo-haptics";
+import { useFamily } from "../../context/FamilyContext";
+import { useAuth } from "../../context/AuthContext";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { Card, Button } from "../../components/design-system";
+import { useAppTheme } from "../../theme";
+import MemberListItem from "../../components/family/MemberListItem";
+import FamilyStatsCard from "../../components/family/FamilyStatsCard";
+import FamilyActivityItem from "../../components/family/FamilyActivityItem";
+import InviteMemberModal from "../../components/family/InviteMemberModal";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-type Role = 'OWNER' | 'ADMIN' | 'MEMBER';
+type Role = "OWNER" | "ADMIN" | "MEMBER";
 
 interface FamilyMember {
   id: string;
@@ -36,8 +37,8 @@ interface FamilyMember {
   user: {
     id: string;
     email: string;
-    firstName: string | null;
-    lastName: string | null;
+    firstName: string;
+    lastName: string;
   };
 }
 
@@ -53,7 +54,7 @@ interface FamilyWithMembers {
 // Mock recent transactions - in a real app, this would come from an API
 interface Transaction {
   id: string;
-  type: 'INCOME' | 'EXPENSE';
+  type: "INCOME" | "EXPENSE";
   description: string;
   amount: number;
   timestamp: string;
@@ -63,10 +64,10 @@ interface Transaction {
 
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
   });
 };
 
@@ -80,13 +81,13 @@ export default function FamilyDetailScreen() {
   const [family, setFamily] = useState<FamilyWithMembers | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   // Mock recent transactions - replace with actual API call
   const [recentTransactions] = useState<Transaction[]>([]);
 
   // Animated values
   const scrollY = useRef(new Animated.Value(0)).current;
-  const bottomButtonSlideAnim = useRef(new Animated.Value(100)).current;
   const sectionFadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -95,15 +96,6 @@ export default function FamilyDetailScreen() {
 
   useEffect(() => {
     if (family) {
-      // Animate bottom buttons sliding up
-      Animated.spring(bottomButtonSlideAnim, {
-        toValue: 0,
-        useNativeDriver: true,
-        tension: 50,
-        friction: 7,
-        delay: 300,
-      }).start();
-
       // Animate sections fading in
       Animated.timing(sectionFadeAnim, {
         toValue: 1,
@@ -120,8 +112,8 @@ export default function FamilyDetailScreen() {
       const data = await fetchFamilyWithMembers(familyId);
       setFamily(data);
     } catch (error) {
-      console.error('Failed to fetch family details', error);
-      Alert.alert('Error', 'Failed to load family details');
+      console.error("Failed to fetch family details", error);
+      Alert.alert("Error", "Failed to load family details");
     } finally {
       setLoading(false);
     }
@@ -135,25 +127,29 @@ export default function FamilyDetailScreen() {
 
   const handleLeave = () => {
     const currentMember = family?.members.find((m) => m.userId === user?.id);
-    if (currentMember?.role === 'OWNER' && family && family.members.length > 1) {
+    if (
+      currentMember?.role === "OWNER" &&
+      family &&
+      family.members.length > 1
+    ) {
       Alert.alert(
-        'Cannot Leave',
-        'As the owner, you must transfer ownership or remove all members before leaving.'
+        "Cannot Leave",
+        "As the owner, you must transfer ownership or remove all members before leaving.",
       );
       return;
     }
 
-    Alert.alert('Leave Family', 'Are you sure you want to leave this family?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert("Leave Family", "Are you sure you want to leave this family?", [
+      { text: "Cancel", style: "cancel" },
       {
-        text: 'Leave',
-        style: 'destructive',
+        text: "Leave",
+        style: "destructive",
         onPress: async () => {
           try {
             await leaveFamily(familyId);
             navigation.goBack();
           } catch (error) {
-            Alert.alert('Error', 'Failed to leave family');
+            Alert.alert("Error", "Failed to leave family");
           }
         },
       },
@@ -165,23 +161,54 @@ export default function FamilyDetailScreen() {
       await removeMember(familyId, userId);
       await fetchFamilyDetails();
     } catch (error) {
-      Alert.alert('Error', 'Failed to remove member');
+      Alert.alert("Error", "Failed to remove member");
     }
   };
 
   const currentMember = family?.members.find((m) => m.userId === user?.id);
-  const canManageMembers = currentMember?.role === 'OWNER' || currentMember?.role === 'ADMIN';
+  const canManageMembers =
+    currentMember?.role === "OWNER" || currentMember?.role === "ADMIN";
+
+  const stats = useMemo(() => {
+    if (!family) return [];
+    return [
+      {
+        label: "Total Balance",
+        value: `$${family.balance.toFixed(2)}`,
+        icon: "wallet" as const,
+        color: theme.colors.primary,
+        valueColor: theme.colors.primary,
+      },
+      {
+        label: "Members",
+        value: family.members.length,
+        icon: "account-group" as const,
+        color: theme.custom.colors.familyGroup,
+      },
+      {
+        label: "Created",
+        value: formatDate(family.createdAt),
+        icon: "calendar" as const,
+        color: theme.custom.colors.info,
+      },
+    ];
+  }, [family?.balance, family?.members.length, family?.createdAt, theme]);
 
   if (loading && !family) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+        edges={["top"]}
+      >
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text style={[
-            styles.loadingText,
-            { color: theme.custom.colors.textSecondary },
-            theme.custom.typography.body,
-          ]}>
+          <Text
+            style={[
+              styles.loadingText,
+              { color: theme.custom.colors.textSecondary },
+              theme.custom.typography.body,
+            ]}
+          >
             Loading family details...
           </Text>
         </View>
@@ -191,80 +218,51 @@ export default function FamilyDetailScreen() {
 
   if (!family) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+        edges={["top"]}
+      >
         <View style={styles.errorContainer}>
           <MaterialCommunityIcons
             name="alert-circle"
             size={64}
             color={theme.colors.error}
           />
-          <Text style={[
-            styles.errorText,
-            { color: theme.colors.error },
-            theme.custom.typography.h4,
-          ]}>
+          <Text
+            style={[
+              styles.errorText,
+              { color: theme.colors.error },
+              theme.custom.typography.h4,
+            ]}
+          >
             Family not found
           </Text>
-          <Button title="Go Back" onPress={() => navigation.goBack()} />
+          <View style={{ gap: 12 }}>
+            <Button title="Retry" onPress={fetchFamilyDetails} />
+            <Button title="Go Back" onPress={() => navigation.goBack()} />
+          </View>
         </View>
       </SafeAreaView>
     );
   }
 
-  // Calculate stats
-  const totalTransactions = recentTransactions.length;
-  const topContributor = family.members.reduce((prev, current) =>
-    (prev.balance > current.balance) ? prev : current
-  );
-  const topContributorName = topContributor.user.firstName && topContributor.user.lastName
-    ? `${topContributor.user.firstName} ${topContributor.user.lastName}`
-    : topContributor.user.email;
-
-  const stats = [
-    {
-      label: 'Total Balance',
-      value: `$${family.balance.toFixed(2)}`,
-      icon: 'wallet' as const,
-      color: theme.colors.primary,
-      valueColor: theme.colors.primary,
-    },
-    {
-      label: 'Members',
-      value: family.members.length,
-      icon: 'account-group' as const,
-      color: theme.custom.colors.familyGroup,
-    },
-    {
-      label: 'Created',
-      value: formatDate(family.createdAt),
-      icon: 'calendar' as const,
-      color: theme.custom.colors.info,
-    },
-    {
-      label: 'Top Contributor',
-      value: topContributorName.split(' ')[0] || topContributorName.substring(0, 10),
-      icon: 'trophy' as const,
-      color: theme.custom.colors.warning,
-    },
-  ];
-
   // Parallax transformations
   const headerScale = scrollY.interpolate({
     inputRange: [0, 100],
     outputRange: [1, 0.9],
-    extrapolate: 'clamp',
+    extrapolate: "clamp",
   });
 
   const headerOpacity = scrollY.interpolate({
     inputRange: [0, 100],
     outputRange: [1, 0.7],
-    extrapolate: 'clamp',
+    extrapolate: "clamp",
   });
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
-      edges={['top']}
+      edges={["top"]}
     >
       <Animated.ScrollView
         refreshControl={
@@ -278,12 +276,11 @@ export default function FamilyDetailScreen() {
         showsVerticalScrollIndicator={false}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
+          { useNativeDriver: true },
         )}
         scrollEventThrottle={16}
         contentContainerStyle={{
           padding: theme.custom.spacing.lg,
-          paddingBottom: 120, // Extra padding for bottom buttons
         }}
       >
         {/* Hero Family Header with Gradient */}
@@ -294,15 +291,15 @@ export default function FamilyDetailScreen() {
               marginBottom: theme.custom.spacing.xl,
               transform: [{ scale: headerScale }],
               opacity: headerOpacity,
-            }
+            },
           ]}
         >
           <View
             style={{
               borderRadius: theme.custom.borderRadius.xl,
-              overflow: 'hidden',
+              overflow: "hidden",
               padding: theme.custom.spacing.lg,
-              alignItems: 'center',
+              alignItems: "center",
             }}
           >
             <LinearGradient
@@ -315,26 +312,28 @@ export default function FamilyDetailScreen() {
               style={StyleSheet.absoluteFill}
             />
 
-            <View style={[
-              styles.headerIcon,
-              {
-                backgroundColor: theme.custom.colors.familyGroupLight,
-                borderRadius: theme.custom.borderRadius.round,
-                padding: theme.custom.spacing.lg,
-                marginBottom: theme.custom.spacing.md,
-                ...Platform.select({
-                  ios: {
-                    shadowColor: theme.custom.colors.familyGroup,
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 8,
-                  },
-                  android: {
-                    elevation: 6,
-                  },
-                }),
-              }
-            ]}>
+            <View
+              style={[
+                styles.headerIcon,
+                {
+                  backgroundColor: theme.custom.colors.familyGroupLight,
+                  borderRadius: theme.custom.borderRadius.round,
+                  padding: theme.custom.spacing.lg,
+                  marginBottom: theme.custom.spacing.md,
+                  ...Platform.select({
+                    ios: {
+                      shadowColor: theme.custom.colors.familyGroup,
+                      shadowOffset: { width: 0, height: 4 },
+                      shadowOpacity: 0.3,
+                      shadowRadius: 8,
+                    },
+                    android: {
+                      elevation: 6,
+                    },
+                  }),
+                },
+              ]}
+            >
               <MaterialCommunityIcons
                 name="account-group"
                 size={48}
@@ -342,27 +341,31 @@ export default function FamilyDetailScreen() {
               />
             </View>
 
-            <Text style={[
-              styles.familyName,
-              { color: theme.colors.onBackground },
-              theme.custom.typography.h1,
-              { fontWeight: '700', textAlign: 'center' },
-            ]}>
+            <Text
+              style={[
+                styles.familyName,
+                { color: theme.colors.onBackground },
+                theme.custom.typography.h1,
+                { fontWeight: "700", textAlign: "center" },
+              ]}
+            >
               {family.name}
             </Text>
 
-            <Text style={[
-              styles.createdDate,
-              { color: theme.custom.colors.textSecondary },
-              theme.custom.typography.caption,
-              { textAlign: 'center', marginTop: theme.custom.spacing.xs },
-            ]}>
+            <Text
+              style={[
+                styles.createdDate,
+                { color: theme.custom.colors.textSecondary },
+                theme.custom.typography.caption,
+                { textAlign: "center", marginTop: theme.custom.spacing.xs },
+              ]}
+            >
               Created {formatDate(family.createdAt)}
             </Text>
           </View>
         </Animated.View>
 
-        {/* Stats Card wrapped in glass */}
+        {/* Stats Card */}
         <Animated.View
           style={{
             opacity: sectionFadeAnim,
@@ -374,36 +377,10 @@ export default function FamilyDetailScreen() {
                 }),
               },
             ],
+            marginBottom: theme.custom.spacing.lg,
           }}
         >
-          <View
-            style={{
-              borderRadius: theme.custom.borderRadius.lg,
-              overflow: 'hidden',
-              marginBottom: theme.custom.spacing.lg,
-            }}
-          >
-            <BlurView
-              intensity={Platform.OS === 'ios' ? 20 : 15}
-              tint={theme.dark ? 'dark' : 'light'}
-              style={StyleSheet.absoluteFill}
-            />
-            <LinearGradient
-              colors={[
-                `${theme.colors.primary}08`,
-                'transparent',
-              ]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              style={StyleSheet.absoluteFill}
-            />
-            <View style={{ padding: theme.custom.spacing.md }}>
-              <FamilyStatsCard
-                stats={stats}
-                columns={2}
-              />
-            </View>
-          </View>
+          <FamilyStatsCard stats={stats} columns={3} />
         </Animated.View>
 
         {/* Members Section */}
@@ -421,44 +398,50 @@ export default function FamilyDetailScreen() {
                   }),
                 },
               ],
-            }
+            },
           ]}
         >
           <View style={styles.sectionHeader}>
             <View
               style={{
-                flexDirection: 'row',
-                alignItems: 'center',
+                flexDirection: "row",
+                alignItems: "center",
                 backgroundColor: theme.custom.colors.glassBackground,
                 paddingHorizontal: theme.custom.spacing.md,
                 paddingVertical: theme.custom.spacing.sm,
                 borderRadius: theme.custom.borderRadius.round,
               }}
             >
-              <Text style={[
-                styles.sectionTitle,
-                { color: theme.colors.onBackground },
-                theme.custom.typography.h3,
-                { fontWeight: '700' },
-              ]}>
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  { color: theme.colors.onBackground },
+                  theme.custom.typography.h3,
+                  { fontWeight: "600" },
+                ]}
+              >
                 Members
               </Text>
-              <View style={[
-                styles.badge,
-                {
-                  backgroundColor: `${theme.colors.primary}20`,
-                  borderRadius: theme.custom.borderRadius.round,
-                  paddingHorizontal: theme.custom.spacing.sm,
-                  paddingVertical: 4,
-                  marginLeft: theme.custom.spacing.sm,
-                },
-              ]}>
-                <Text style={[
-                  styles.badgeText,
-                  { color: theme.colors.primary },
-                  theme.custom.typography.small,
-                  { fontWeight: '700' },
-                ]}>
+              <View
+                style={[
+                  styles.badge,
+                  {
+                    backgroundColor: `${theme.colors.primary}20`,
+                    borderRadius: theme.custom.borderRadius.round,
+                    paddingHorizontal: theme.custom.spacing.sm,
+                    paddingVertical: 4,
+                    marginLeft: theme.custom.spacing.sm,
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.badgeText,
+                    { color: theme.colors.primary },
+                    theme.custom.typography.small,
+                    { fontWeight: "600" },
+                  ]}
+                >
                   {family.members.length}
                 </Text>
               </View>
@@ -470,7 +453,7 @@ export default function FamilyDetailScreen() {
               marginTop: theme.custom.spacing.sm,
               marginBottom: theme.custom.spacing.md,
               borderRadius: 1,
-              overflow: 'hidden',
+              overflow: "hidden",
             }}
           >
             <LinearGradient
@@ -500,26 +483,34 @@ export default function FamilyDetailScreen() {
 
         {/* Recent Activity Section */}
         {recentTransactions.length > 0 && (
-          <View style={[styles.section, { marginTop: theme.custom.spacing.lg }]}>
+          <View
+            style={[styles.section, { marginTop: theme.custom.spacing.lg }]}
+          >
             <View style={styles.sectionHeader}>
-              <Text style={[
-                styles.sectionTitle,
-                { color: theme.colors.onBackground },
-                theme.custom.typography.h4,
-              ]}>
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  { color: theme.colors.onBackground },
+                  theme.custom.typography.h4,
+                ]}
+              >
                 Recent Activity
               </Text>
               <TouchableOpacity
                 onPress={() => {
                   // Navigate to transactions filtered by family
-                  (navigation as any).navigate('Main', { screen: 'Transactions' });
+                  (navigation as any).navigate("Main", {
+                    screen: "Transactions",
+                  });
                 }}
               >
-                <Text style={[
-                  styles.viewAllText,
-                  { color: theme.colors.primary },
-                  theme.custom.typography.bodyMedium,
-                ]}>
+                <Text
+                  style={[
+                    styles.viewAllText,
+                    { color: theme.colors.primary, fontWeight: "500" },
+                    theme.custom.typography.bodyMedium,
+                  ]}
+                >
                   View All
                 </Text>
               </TouchableOpacity>
@@ -527,10 +518,13 @@ export default function FamilyDetailScreen() {
 
             <View style={{ marginTop: theme.custom.spacing.sm }}>
               {recentTransactions.slice(0, 5).map((transaction) => {
-                const member = family.members.find(m => m.userId === transaction.userId);
-                const memberName = member?.user.firstName && member?.user.lastName
-                  ? `${member.user.firstName} ${member.user.lastName}`
-                  : member?.user.email || 'Unknown';
+                const member = family.members.find(
+                  (m) => m.userId === transaction.userId,
+                );
+                const memberName =
+                  member?.user.firstName && member?.user.lastName
+                    ? `${member.user.firstName} ${member.user.lastName}`
+                    : member?.user.email || "Unknown";
 
                 return (
                   <FamilyActivityItem
@@ -553,71 +547,61 @@ export default function FamilyDetailScreen() {
 
         {/* Empty state for no activity */}
         {recentTransactions.length === 0 && (
-          <View style={[styles.emptyActivity, { marginTop: theme.custom.spacing.lg }]}>
+          <View
+            style={[
+              styles.emptyActivity,
+              { marginTop: theme.custom.spacing.lg },
+            ]}
+          >
             <Card style={{ padding: theme.custom.spacing.lg }}>
               <MaterialCommunityIcons
                 name="history"
                 size={48}
                 color={theme.custom.colors.textDisabled}
-                style={{ alignSelf: 'center', marginBottom: theme.custom.spacing.sm }}
+                style={{
+                  alignSelf: "center",
+                  marginBottom: theme.custom.spacing.sm,
+                }}
               />
-              <Text style={[
-                styles.emptyText,
-                { color: theme.custom.colors.textSecondary },
-                theme.custom.typography.body,
-              ]}>
+              <Text
+                style={[
+                  styles.emptyText,
+                  {
+                    color: theme.custom.colors.textSecondary,
+                    fontWeight: "500",
+                  },
+                  theme.custom.typography.body,
+                ]}
+              >
                 No recent activity
               </Text>
-              <Text style={[
-                styles.emptySubtext,
-                { color: theme.custom.colors.textDisabled },
-                theme.custom.typography.caption,
-              ]}>
+              <Text
+                style={[
+                  styles.emptySubtext,
+                  { color: theme.custom.colors.textDisabled },
+                  theme.custom.typography.caption,
+                ]}
+              >
                 Transactions will appear here
               </Text>
             </Card>
           </View>
         )}
-      </Animated.ScrollView>
 
-      {/* Floating Glass Bottom Action Buttons */}
-      <Animated.View
-        style={[
-          styles.bottomActions,
-          {
-            transform: [{ translateY: bottomButtonSlideAnim }],
-            marginHorizontal: theme.custom.spacing.lg,
-            marginBottom: theme.custom.spacing.lg,
-            borderRadius: theme.custom.borderRadius.xl,
-            overflow: 'hidden',
-            ...Platform.select({
-              ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: -4 },
-                shadowOpacity: 0.15,
-                shadowRadius: 12,
-              },
-              android: {
-                elevation: 12,
-              },
-            }),
-          }
-        ]}
-      >
-        <BlurView
-          intensity={80}
-          tint={theme.dark ? 'dark' : 'light'}
-          style={StyleSheet.absoluteFill}
-        />
-        <View style={{ padding: theme.custom.spacing.md }}>
+        {/* Action Buttons */}
+        <View
+          style={{
+            marginTop: theme.custom.spacing.xl,
+            gap: theme.custom.spacing.md,
+            paddingBottom: theme.custom.spacing.lg,
+          }}
+        >
           <Button
             title="Invite Member"
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              navigation.navigate('InviteMember' as never, { familyId } as never);
+              setShowInviteModal(true);
             }}
-            variant="glass"
-            style={{ marginBottom: theme.custom.spacing.sm }}
           />
 
           <Button
@@ -631,7 +615,16 @@ export default function FamilyDetailScreen() {
             }}
           />
         </View>
-      </Animated.View>
+      </Animated.ScrollView>
+
+      <InviteMemberModal
+        visible={showInviteModal}
+        onClose={() => {
+          setShowInviteModal(false);
+          fetchFamilyDetails();
+        }}
+        familyId={familyId}
+      />
     </SafeAreaView>
   );
 }
@@ -642,74 +635,59 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   loadingText: {
     marginTop: 16,
   },
   errorContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   errorText: {
-    fontWeight: '600',
     marginTop: 16,
     marginBottom: 24,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   headerIcon: {
     width: 64,
     height: 64,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   familyName: {
-    fontWeight: '700',
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 4,
   },
   createdDate: {
-    textAlign: 'center',
+    textAlign: "center",
   },
   section: {},
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 8,
   },
-  sectionTitle: {
-    fontWeight: '600',
-  },
+  sectionTitle: {},
   badge: {
     minWidth: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
-  badgeText: {
-    fontWeight: '700',
-  },
-  viewAllText: {
-    fontWeight: '600',
-  },
+  badgeText: {},
+  viewAllText: {},
   emptyActivity: {},
   emptyText: {
-    textAlign: 'center',
-    fontWeight: '600',
+    textAlign: "center",
     marginBottom: 4,
   },
   emptySubtext: {
-    textAlign: 'center',
-  },
-  bottomActions: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    textAlign: "center",
   },
 });

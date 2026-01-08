@@ -1,10 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Card } from "../design-system";
 import { useAppTheme } from "../../theme";
 import { Transaction } from "../../features/transactions/types";
 import { useAuth } from "../../context/AuthContext";
+import { getCategoryIcon } from "../../utils/categoryIcons";
+import { formatRelativeDate } from "../../utils/timeUtils";
 
 interface TransactionCardProps {
   transaction: Transaction;
@@ -18,26 +20,23 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   const { theme } = useAppTheme();
   const { user: currentUser } = useAuth();
   const isExpense = transaction.type === "expense";
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  };
+  const hasReceipts = transaction.receiptImages && transaction.receiptImages.length > 0;
 
   const formatCurrency = (amount: number) => {
     return `$${amount.toFixed(2)}`;
   };
 
-  const getTitle = () => {
-    if (isExpense && transaction.store) {
-      return `${transaction.category.name} at ${transaction.store.name} `;
-    }
-    return transaction.category.name;
-  };
-
   const getSubtitle = () => {
     const parts: string[] = [];
+
+    if (isExpense && transaction.store) {
+      parts.push(transaction.store.name);
+    }
+
+    if (isExpense && transaction.items && transaction.items.length > 0) {
+      const itemCount = transaction.items.length;
+      parts.push(`${itemCount} item${itemCount > 1 ? "s" : ""}`);
+    }
 
     const isCurrentUser = currentUser?.id === transaction.transaction.user.id;
     const userName = isCurrentUser
@@ -46,28 +45,12 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
         "Unknown";
     parts.push(userName);
 
-    if (isExpense && transaction.items && transaction.items.length > 0) {
-      const itemCount = transaction.items.length;
-      parts.push(`${itemCount} item${itemCount > 1 ? "s" : ""}`);
-    } else if (transaction.store?.location) {
-      parts.push(transaction.store.location);
-    }
-
     return parts.join(" • ");
   };
 
   return (
     <TouchableOpacity onPress={onPress} disabled={!onPress} activeOpacity={0.7}>
       <Card style={styles.card} elevation={2}>
-        {transaction.scope === "FAMILY" && (
-          <View style={styles.scopeBadge}>
-            <MaterialCommunityIcons
-              name="account-group"
-              size={12}
-              color="#4CAF50"
-            />
-          </View>
-        )}
         <View style={styles.content}>
           <View style={styles.leftSection}>
             <View
@@ -75,35 +58,50 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
                 styles.iconContainer,
                 {
                   backgroundColor: isExpense
-                    ? theme.custom.colors.expense + "20"
-                    : theme.custom.colors.income + "20",
+                    ? theme.custom.colors.expense + "15"
+                    : theme.custom.colors.income + "15",
                 },
               ]}
             >
-              <Text
-                style={[
-                  styles.iconText,
-                  {
-                    color: isExpense
-                      ? theme.custom.colors.expense
-                      : theme.custom.colors.income,
-                  },
-                ]}
-              >
-                {isExpense ? "−" : "+"}
+              <Text style={styles.iconEmoji}>
+                {getCategoryIcon(transaction.category.name)}
               </Text>
             </View>
             <View style={styles.info}>
-              <Text
-                style={[
-                  styles.title,
-                  theme.custom.typography.bodyMedium,
-                  { color: theme.custom.colors.text },
-                ]}
-                numberOfLines={1}
-              >
-                {getTitle()}
-              </Text>
+              <View style={styles.titleRow}>
+                <Text
+                  style={[
+                    styles.title,
+                    theme.custom.typography.bodyMedium,
+                    { color: theme.custom.colors.text },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {transaction.category.name}
+                </Text>
+                {transaction.scope === "FAMILY" && (
+                  <View
+                    style={[
+                      styles.familyBadge,
+                      { backgroundColor: theme.custom.colors.income + "20" },
+                    ]}
+                  >
+                    <MaterialCommunityIcons
+                      name="account-group"
+                      size={10}
+                      color={theme.custom.colors.income}
+                    />
+                    <Text
+                      style={[
+                        styles.familyBadgeText,
+                        { color: theme.custom.colors.income },
+                      ]}
+                    >
+                      Family
+                    </Text>
+                  </View>
+                )}
+              </View>
               <Text
                 style={[
                   styles.subtitle,
@@ -120,18 +118,27 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
             <Text
               style={[
                 styles.amount,
-                theme.custom.typography.h5,
+                theme.custom.typography.bodyMedium,
                 {
                   color: isExpense
                     ? theme.custom.colors.expense
                     : theme.custom.colors.income,
+                  fontWeight: "600",
                 },
               ]}
             >
               {isExpense ? "−" : "+"}
               {formatCurrency(transaction.transaction.value)}
             </Text>
-            {transaction.transaction.createdAt && (
+            <View style={styles.dateRow}>
+              {hasReceipts && (
+                <MaterialCommunityIcons
+                  name="paperclip"
+                  size={12}
+                  color={theme.custom.colors.textSecondary}
+                  style={styles.receiptIcon}
+                />
+              )}
               <Text
                 style={[
                   styles.date,
@@ -139,9 +146,9 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
                   { color: theme.custom.colors.textSecondary },
                 ]}
               >
-                {formatDate(transaction.transaction.createdAt)}
+                {formatRelativeDate(transaction.transaction.createdAt)}
               </Text>
-            )}
+            </View>
           </View>
         </View>
       </Card>
@@ -152,24 +159,13 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
-    marginBottom: 8,
-    position: "relative",
-  },
-  scopeBadge: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    backgroundColor: "rgba(76, 175, 80, 0.15)",
-    borderRadius: 12,
-    padding: 4,
-    paddingHorizontal: 6,
-    zIndex: 1,
+    marginBottom: 10,
   },
   content: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
+    padding: 14,
   },
   leftSection: {
     flexDirection: "row",
@@ -178,29 +174,53 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 46,
+    height: 46,
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
   },
-  iconText: {
-    fontSize: 24,
-    fontWeight: "600",
+  iconEmoji: {
+    fontSize: 22,
   },
   info: {
     flex: 1,
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 3,
+  },
   title: {
-    marginBottom: 2,
+    marginRight: 8,
+    flexShrink: 1,
+  },
+  familyBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    gap: 3,
+  },
+  familyBadgeText: {
+    fontSize: 10,
+    fontWeight: "600",
   },
   subtitle: {},
   rightSection: {
     alignItems: "flex-end",
   },
   amount: {
-    marginBottom: 2,
+    marginBottom: 3,
+  },
+  dateRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  receiptIcon: {
+    marginRight: 4,
   },
   date: {},
 });

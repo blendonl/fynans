@@ -14,9 +14,10 @@ import { GetFamilyWithMembersUseCase } from './application/use-cases/get-family-
 import { RemoveFamilyMemberUseCase } from './application/use-cases/remove-family-member.use-case';
 import { VerifyFamilyMembershipUseCase } from './application/use-cases/verify-family-membership.use-case';
 import { FamilyBalanceService } from './application/services/family-balance.service';
+import { UserCoreModule } from '~feature/user/core/user-core.module';
 
 @Module({
-  imports: [PrismaModule, forwardRef(() => NotificationModule)],
+  imports: [PrismaModule, forwardRef(() => NotificationModule), UserCoreModule],
   providers: [
     {
       provide: 'FamilyRepository',
