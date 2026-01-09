@@ -30,7 +30,7 @@ services:
       - postgres
       - paddleocr
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin}@postgres:5437/db
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin}@postgres:5432/db
       - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-your-secret-key-minimum-32-characters-long-change-this-in-production}
       - BETTER_AUTH_URL=${BETTER_AUTH_URL:-http://localhost:3000}
       - PORT=3000
