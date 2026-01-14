@@ -7,8 +7,8 @@ export declare class CreateExpenseItemRequestDto {
 }
 export declare class CreateExpenseRequestDto {
     categoryId: string;
-    storeName: string;
-    storeLocation: string;
+    storeName?: string;
+    storeLocation?: string;
     items: CreateExpenseItemRequestDto[];
     familyId?: string;
     scope?: 'PERSONAL' | 'FAMILY';

@@ -50,7 +50,14 @@ let CreateExpenseUseCase = class CreateExpenseUseCase {
         if (!category) {
             throw new common_1.NotFoundException('Expense category not found');
         }
-        const store = await this.storeService.createOrFind(new create_store_dto_1.CreateStoreDto(dto.storeName, dto.storeLocation));
+        let store = null;
+        console.log('Category isConnectedToStore:', category);
+        if (category.isConnectedToStore) {
+            if (!dto.storeName || !dto.storeLocation) {
+                throw new common_1.BadRequestException('Store information is required for this category');
+            }
+            store = await this.storeService.createOrFind(new create_store_dto_1.CreateStoreDto(dto.storeName, dto.storeLocation));
+        }
         const totalValue = dto.items.reduce((sum, item) => {
             const itemPrice = item.itemPrice;
             const discount = item.discount ?? 0;
@@ -61,17 +68,19 @@ let CreateExpenseUseCase = class CreateExpenseUseCase {
         const expense = await this.expenseRepository.create({
             id: expenseId,
             transactionId: transaction.id,
-            storeId: store.id,
+            storeId: store?.id,
             categoryId: dto.categoryId,
         });
-        await Promise.all(dto.items.map((item) => this.expenseItemService.create(new create_expense_item_dto_1.CreateExpenseItemDto({
-            expenseId: expense.id,
-            categoryId: item.categoryId,
-            itemName: item.itemName,
-            itemPrice: item.itemPrice,
-            discount: item.discount,
-            quantity: item.quantity,
-        }), store.id)));
+        if (store) {
+            await Promise.all(dto.items.map((item) => this.expenseItemService.create(new create_expense_item_dto_1.CreateExpenseItemDto({
+                expenseId: expense.id,
+                categoryId: item.categoryId,
+                itemName: item.itemName,
+                itemPrice: item.itemPrice,
+                discount: item.discount,
+                quantity: item.quantity,
+            }), store.id)));
+        }
         if (dto.familyId) {
             const family = await this.familyRepository.findById(dto.familyId);
             const expenseUser = await this.userService.findById(dto.userId);
@@ -104,11 +113,14 @@ let CreateExpenseUseCase = class CreateExpenseUseCase {
         if (!dto.categoryId || dto.categoryId.trim() === '') {
             throw new common_1.BadRequestException('Category ID is required');
         }
-        if (!dto.storeName || dto.storeName.trim() === '') {
-            throw new common_1.BadRequestException('Store name is required');
-        }
-        if (!dto.storeLocation || dto.storeLocation.trim() === '') {
-            throw new common_1.BadRequestException('Store location is required');
+        const category = await this.expenseCategoryRepository.findById(dto.categoryId);
+        if (category?.isConnectedToStore) {
+            if (!dto.storeName || dto.storeName.trim() === '') {
+                throw new common_1.BadRequestException('Store name is required for this category');
+            }
+            if (!dto.storeLocation || dto.storeLocation.trim() === '') {
+                throw new common_1.BadRequestException('Store location is required for this category');
+            }
         }
         if (!dto.items || dto.items.length === 0) {
             throw new common_1.BadRequestException('At least one item is required');

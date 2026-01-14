@@ -30,6 +30,7 @@ export class CreateExpenseItemRequestDto {
   discount?: number;
 
   @IsNumber()
+  @Min(0.001)
   @Type(() => Number)
   quantity!: number;
 }
@@ -40,12 +41,12 @@ export class CreateExpenseRequestDto {
   categoryId!: string;
 
   @IsString()
-  @IsNotEmpty()
-  storeName!: string;
+  @IsOptional()
+  storeName?: string;
 
   @IsString()
-  @IsNotEmpty()
-  storeLocation!: string;
+  @IsOptional()
+  storeLocation?: string;
 
   @ValidateNested({ each: true })
   @Type(() => CreateExpenseItemRequestDto)

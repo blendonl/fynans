@@ -51,9 +51,19 @@ export class CreateExpenseUseCase {
       throw new NotFoundException('Expense category not found');
     }
 
-    const store = await this.storeService.createOrFind(
-      new CreateStoreDto(dto.storeName, dto.storeLocation),
-    );
+    let store = null;
+
+    console.log('Category isConnectedToStore:', category);
+    if (category.isConnectedToStore) {
+      if (!dto.storeName || !dto.storeLocation) {
+        throw new BadRequestException(
+          'Store information is required for this category',
+        );
+      }
+      store = await this.storeService.createOrFind(
+        new CreateStoreDto(dto.storeName, dto.storeLocation),
+      );
+    }
 
     const totalValue = dto.items.reduce((sum, item) => {
       const itemPrice = item.itemPrice;
@@ -62,32 +72,40 @@ export class CreateExpenseUseCase {
     }, 0);
 
     const transaction = await this.transactionService.create(
-      new CreateTransactionDto(dto.userId, TransactionType.EXPENSE, totalValue, dto.recordedAt, dto.familyId),
+      new CreateTransactionDto(
+        dto.userId,
+        TransactionType.EXPENSE,
+        totalValue,
+        dto.recordedAt,
+        dto.familyId,
+      ),
     );
 
     const expenseId = uuid();
     const expense = await this.expenseRepository.create({
       id: expenseId,
       transactionId: transaction.id,
-      storeId: store.id,
+      storeId: store?.id,
       categoryId: dto.categoryId,
     } as Partial<Expense>);
 
-    await Promise.all(
-      dto.items.map((item) =>
-        this.expenseItemService.create(
-          new CreateExpenseItemDto({
-            expenseId: expense.id,
-            categoryId: item.categoryId,
-            itemName: item.itemName,
-            itemPrice: item.itemPrice,
-            discount: item.discount,
-            quantity: item.quantity,
-          }),
-          store.id,
+    if (store) {
+      await Promise.all(
+        dto.items.map((item) =>
+          this.expenseItemService.create(
+            new CreateExpenseItemDto({
+              expenseId: expense.id,
+              categoryId: item.categoryId,
+              itemName: item.itemName,
+              itemPrice: item.itemPrice,
+              discount: item.discount,
+              quantity: item.quantity,
+            }),
+            store.id,
+          ),
         ),
-      ),
-    );
+      );
+    }
 
     if (dto.familyId) {
       const family = await this.familyRepository.findById(dto.familyId);
@@ -126,19 +144,28 @@ export class CreateExpenseUseCase {
       throw new BadRequestException('Category ID is required');
     }
 
-    if (!dto.storeName || dto.storeName.trim() === '') {
-      throw new BadRequestException('Store name is required');
-    }
+    const category = await this.expenseCategoryRepository.findById(
+      dto.categoryId,
+    );
 
-    if (!dto.storeLocation || dto.storeLocation.trim() === '') {
-      throw new BadRequestException('Store location is required');
+    if (category?.isConnectedToStore) {
+      if (!dto.storeName || dto.storeName.trim() === '') {
+        throw new BadRequestException(
+          'Store name is required for this category',
+        );
+      }
+
+      if (!dto.storeLocation || dto.storeLocation.trim() === '') {
+        throw new BadRequestException(
+          'Store location is required for this category',
+        );
+      }
     }
 
     if (!dto.items || dto.items.length === 0) {
       throw new BadRequestException('At least one item is required');
     }
 
-    // Validate all items
     for (const item of dto.items) {
       if (item.itemPrice < 0) {
         throw new BadRequestException('Item price must be non-negative');

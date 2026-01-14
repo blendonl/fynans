@@ -73,7 +73,7 @@ export const FamilyProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { token, isLoading: authLoading } = useAuth();
+  const { user, token, isLoading: authLoading } = useAuth();
   const [families, setFamilies] = useState<Family[]>([]);
   const [selectedFamily, setSelectedFamily] = useState<Family | null>(null);
   const [subscribedFamilyId, setSubscribedFamilyId] = useState<string | null>(null);
@@ -83,7 +83,7 @@ export const FamilyProvider = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && token) {
+    if (!authLoading && user && token) {
       fetchFamilies();
       fetchPendingInvitations();
       setupWebSocketListeners();
@@ -97,7 +97,7 @@ export const FamilyProvider = ({
         websocketService.unsubscribeFromFamily(subscribedFamilyId);
       }
     };
-  }, [token, authLoading]);
+  }, [user, token, authLoading]);
 
   const setupWebSocketListeners = () => {
     websocketService.on('notification:new', handleFamilyNotification);

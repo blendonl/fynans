@@ -35,8 +35,8 @@ let ExpenseController = class ExpenseController {
         const coreDto = new create_expense_dto_1.CreateExpenseDto({
             userId: user.id,
             categoryId: createDto.categoryId,
-            storeName: createDto.storeName,
-            storeLocation: createDto.storeLocation,
+            storeName: createDto.storeName || '',
+            storeLocation: createDto.storeLocation || '',
             familyId: createDto.familyId,
             items: createDto.items.map((item) => new create_expense_item_dto_1.CreateExpenseItemDto({
                 expenseId: '',

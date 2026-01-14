@@ -5,7 +5,7 @@ model ExpenseItem {
 
   price    Decimal
   discount Decimal
-  quantity Int     @default(1)
+  quantity Decimal @default(1)
 
   item     StoreItem           @relation(fields: [itemId], references: [id])
   expense  Expense             @relation(fields: [expenseId], references: [id])

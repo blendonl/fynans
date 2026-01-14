@@ -43,6 +43,7 @@ __decorate([
 ], CreateExpenseItemRequestDto.prototype, "discount", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0.001),
     (0, class_transformer_1.Type)(() => Number),
     __metadata("design:type", Number)
 ], CreateExpenseItemRequestDto.prototype, "quantity", void 0);
@@ -63,12 +64,12 @@ __decorate([
 ], CreateExpenseRequestDto.prototype, "categoryId", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateExpenseRequestDto.prototype, "storeName", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateExpenseRequestDto.prototype, "storeLocation", void 0);
 __decorate([
