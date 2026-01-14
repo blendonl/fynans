@@ -110,7 +110,7 @@ export default function SignupScreen({ navigation }: any) {
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
-                        error={!!errors.firstName && touchedFields.firstName}
+                        error={!!errors.firstName && !!touchedFields.firstName}
                         leftIcon="account"
                       />
                       <FormErrorMessage
@@ -131,7 +131,7 @@ export default function SignupScreen({ navigation }: any) {
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
-                        error={!!errors.lastName && touchedFields.lastName}
+                        error={!!errors.lastName && !!touchedFields.lastName}
                         leftIcon="account"
                       />
                       <FormErrorMessage
@@ -154,7 +154,7 @@ export default function SignupScreen({ navigation }: any) {
                         onBlur={onBlur}
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        error={!!errors.email && touchedFields.email}
+                        error={!!errors.email && !!touchedFields.email}
                         leftIcon="email"
                       />
                       <FormErrorMessage
@@ -176,7 +176,7 @@ export default function SignupScreen({ navigation }: any) {
                         onChangeText={onChange}
                         onBlur={onBlur}
                         secureTextEntry={!showPassword}
-                        error={!!errors.password && touchedFields.password}
+                        error={!!errors.password && !!touchedFields.password}
                         leftIcon="lock"
                         rightIcon={showPassword ? 'eye-off' : 'eye'}
                         onRightIconPress={() => setShowPassword(!showPassword)}
@@ -201,7 +201,7 @@ export default function SignupScreen({ navigation }: any) {
                         onChangeText={onChange}
                         onBlur={onBlur}
                         secureTextEntry={!showConfirmPassword}
-                        error={!!errors.confirmPassword && touchedFields.confirmPassword}
+                        error={!!errors.confirmPassword && !!touchedFields.confirmPassword}
                         leftIcon="lock"
                         rightIcon={showConfirmPassword ? 'eye-off' : 'eye'}
                         onRightIconPress={() => setShowConfirmPassword(!showConfirmPassword)}

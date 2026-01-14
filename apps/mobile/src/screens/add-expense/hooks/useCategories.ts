@@ -13,6 +13,10 @@ export function useCategories() {
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [isConnectedToStore, setIsConnectedToStore] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -23,7 +27,11 @@ export function useCategories() {
     try {
       setLoading(true);
       const response = await apiClient.get("/expense-categories");
-      setCategories(response.data || []);
+      const normalizedCategories = (response.data || []).map((cat: any) => ({
+        ...cat,
+        isConnectedToStore: Boolean(cat.isConnectedToStore),
+      }));
+      setCategories(normalizedCategories);
     } catch (error: any) {
       Alert.alert("Error", "Failed to fetch categories");
     } finally {
@@ -34,7 +42,11 @@ export function useCategories() {
   const fetchItemCategories = async () => {
     try {
       const response = await apiClient.get("/expense-item-categories");
-      setItemCategories(response.data || []);
+      const normalizedCategories = (response.data || []).map((cat: any) => ({
+        ...cat,
+        isConnectedToStore: Boolean(cat.isConnectedToStore),
+      }));
+      setItemCategories(normalizedCategories);
     } catch (error: any) {
       console.error("Failed to fetch item categories:", error);
     }
@@ -64,7 +76,13 @@ export function useCategories() {
   };
 
   const handleCreateNewCategory = async () => {
-    const trimmedName = categoryInput.trim();
+    setNewCategoryName(categoryInput.trim());
+    setShowCategoryDropdown(false);
+    setShowAddCategoryModal(true);
+  };
+
+  const handleConfirmCreateCategory = async () => {
+    const trimmedName = newCategoryName.trim();
 
     if (!trimmedName) {
       Alert.alert("Error", "Please enter a category name");
@@ -77,6 +95,7 @@ export function useCategories() {
 
     if (existingCategory) {
       handleCategorySelect(existingCategory);
+      setShowAddCategoryModal(false);
       return;
     }
 
@@ -84,17 +103,20 @@ export function useCategories() {
       setLoading(true);
       const response = await apiClient.post("/expense-categories", {
         name: trimmedName,
-        isConnectedToStore: true,
+        isConnectedToStore: isConnectedToStore,
       });
 
       const newCategory: Category = {
         id: response.id,
         name: response.name,
-        isConnectedToStore: response.isConnectedToStore,
+        isConnectedToStore: Boolean(response.isConnectedToStore),
       };
 
       setCategories([...categories, newCategory]);
       handleCategorySelect(newCategory);
+      setShowAddCategoryModal(false);
+      setNewCategoryName("");
+      setIsConnectedToStore(false);
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to create category");
     } finally {
@@ -116,10 +138,17 @@ export function useCategories() {
     filteredCategories,
     showCategoryDropdown,
     loading,
+    showAddCategoryModal,
+    newCategoryName,
+    isConnectedToStore,
     handleCategoryInputChange,
     handleCategorySelect,
     handleCreateNewCategory,
+    handleConfirmCreateCategory,
     clearCategory,
     setShowCategoryDropdown,
+    setShowAddCategoryModal,
+    setNewCategoryName,
+    setIsConnectedToStore,
   };
 }

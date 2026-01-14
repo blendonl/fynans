@@ -24,6 +24,7 @@ import { CategorySelector } from "./components/CategorySelector";
 import { StoreSelector } from "./components/StoreSelector";
 import { ExpenseItemsForm } from "./components/ExpenseItemsForm";
 import { AddStoreModal } from "./components/AddStoreModal";
+import { AddCategoryModal } from "./components/AddCategoryModal";
 import { ReceiptCamera } from "../transactions/add/components/ReceiptCamera";
 import { ReceiptPreview } from "../../components/transactions/ReceiptPreview";
 
@@ -45,7 +46,7 @@ export default function AddExpenseScreen({ navigation }: any) {
     categories.selectedCategory?.isConnectedToStore === true;
   const hasScannedItems = expenseItems.items.some((item) => item.fromReceipt);
   const hasStoreData = stores.storeInput.trim() !== "";
-  const showStoreSection = isGroceryExpense || hasScannedItems || hasStoreData;
+  const showStoreSection = isGroceryExpense;
   const showItemsList = expenseItems.items.length > 0;
   const isEditingItem =
     expenseItems.currentItem.name !== "" ||
@@ -63,6 +64,11 @@ export default function AddExpenseScreen({ navigation }: any) {
 
     if (!isPersonal && !selectedFamilyId) {
       Alert.alert("Error", "Please select a family for this expense");
+      return;
+    }
+
+    if (isGroceryExpense && !stores.selectedStore && !stores.storeInput) {
+      Alert.alert("Error", "Please select a store for this category");
       return;
     }
 
@@ -93,9 +99,8 @@ export default function AddExpenseScreen({ navigation }: any) {
 
       const payload = {
         categoryId: categories.selectedCategory.id,
-        storeName:
-          (showStoreSection ? stores.storeInput : "General") || "General",
-        storeLocation: stores.storeLocation || "Unknown",
+        storeName: showStoreSection ? stores.storeInput : undefined,
+        storeLocation: showStoreSection ? stores.storeLocation : undefined,
         recordedAt: recordedAt.toISOString(),
         scope: isPersonal ? "PERSONAL" : "FAMILY",
         familyId: !isPersonal ? selectedFamilyId : null,
@@ -104,7 +109,7 @@ export default function AddExpenseScreen({ navigation }: any) {
           itemName: item.name,
           itemPrice: item.price,
           discount: item.discount,
-          quantity: item.quantity,
+          quantity: parseFloat(item.quantity.toString()) || 1,
         })),
       };
 
@@ -319,6 +324,21 @@ export default function AddExpenseScreen({ navigation }: any) {
         onStoreLocation={stores.setNewStoreLocation}
         onCreate={stores.handleCreateNewStore}
         onClose={() => stores.setShowAddStoreModal(false)}
+      />
+
+      <AddCategoryModal
+        visible={categories.showAddCategoryModal}
+        categoryName={categories.newCategoryName}
+        isConnectedToStore={categories.isConnectedToStore}
+        loading={categories.loading}
+        onCategoryName={categories.setNewCategoryName}
+        onIsConnectedToStore={categories.setIsConnectedToStore}
+        onCreate={categories.handleConfirmCreateCategory}
+        onClose={() => {
+          categories.setShowAddCategoryModal(false);
+          categories.setNewCategoryName("");
+          categories.setIsConnectedToStore(false);
+        }}
       />
     </>
   );

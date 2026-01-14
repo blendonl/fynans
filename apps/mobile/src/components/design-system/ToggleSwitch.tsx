@@ -41,7 +41,6 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
     const slideAnim = useRef(new Animated.Value(0)).current;
     const [containerWidth, setContainerWidth] = React.useState(0);
 
-    // Handle boolean toggle mode
     if (!options && label && typeof value === 'boolean' && onValueChange) {
         return (
             <TouchableOpacity

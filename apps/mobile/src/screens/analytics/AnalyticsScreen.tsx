@@ -64,9 +64,13 @@ export default function AnalyticsScreen() {
           setTimePeriod(savedPeriod as TimePeriod);
         }
         if (savedDates) {
-          const { start, end } = JSON.parse(savedDates);
-          setCustomStartDate(new Date(start));
-          setCustomEndDate(new Date(end));
+          try {
+            const { start, end } = JSON.parse(savedDates);
+            setCustomStartDate(new Date(start));
+            setCustomEndDate(new Date(end));
+          } catch (error) {
+            console.error('Failed to parse saved dates:', error);
+          }
         }
       } catch {}
     };
@@ -313,7 +317,7 @@ export default function AnalyticsScreen() {
         {/* Custom Date Range Modal */}
         <Modal
           visible={showDateModal}
-          transparent
+          transparent={true}
           animationType="fade"
           onRequestClose={() => setShowDateModal(false)}
         >

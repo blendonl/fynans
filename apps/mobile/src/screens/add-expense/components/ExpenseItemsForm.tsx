@@ -14,7 +14,7 @@ import {
   Chip,
   Dropdown,
 } from "../../../components/design-system";
-import { PriceInput } from "../../../components/forms";
+import { PriceInput, QuantityInput } from "../../../components/forms";
 import { useAppTheme } from "../../../theme";
 import { apiClient } from "../../../api/client";
 import { AddItemCategoryModal } from "./AddItemCategoryModal";
@@ -22,9 +22,9 @@ import { AddItemCategoryModal } from "./AddItemCategoryModal";
 interface StoreItem {
   id: string;
   name: string;
-  price: number;
-  discount: number;
-  categoryId: string;
+  price?: number;
+  discount?: number;
+  categoryId?: string;
 }
 
 interface ExpenseItemsFormProps {
@@ -81,9 +81,7 @@ export function ExpenseItemsForm({
   }, [itemCategories]);
 
   useEffect(() => {
-    if (selectedStore) {
-      fetchStoreItems();
-    }
+    fetchStoreItems();
   }, [selectedStore?.id]);
 
   useEffect(() => {
@@ -112,9 +110,11 @@ export function ExpenseItemsForm({
 
   const fetchStoreItems = async () => {
     try {
-      const response = await apiClient.get(
-        `/stores/${selectedStore?.id}/items`,
-      );
+      const endpoint = selectedStore 
+        ? `/stores/${selectedStore.id}/items`
+        : `/items`;
+      
+      const response = await apiClient.get(endpoint);
 
       setStoreItems(response.data);
     } catch (error) {
@@ -137,10 +137,10 @@ export function ExpenseItemsForm({
   const handleSelectStoreItem = (item: StoreItem) => {
     onCurrentItemChange({
       name: item.name,
-      price: item.price.toString(),
-      discount: item.discount > 0 ? item.discount.toString() : "",
+      price: item.price?.toString() || "",
+      discount: item.discount && item.discount > 0 ? item.discount.toString() : "",
       quantity: "1",
-      categoryId: item.categoryId,
+      categoryId: item.categoryId || "",
     });
 
     const category = localItemCategories.find(
@@ -279,7 +279,7 @@ export function ExpenseItemsForm({
         return (
           <Card
             key={index}
-            style={[styles.itemCard, needsCategory && styles.itemCardError]}
+            style={needsCategory ? {...styles.itemCard, ...styles.itemCardError} : styles.itemCard}
             elevation={1}
           >
             <View style={styles.itemContent}>
@@ -291,7 +291,7 @@ export function ExpenseItemsForm({
                     { color: theme.custom.colors.text },
                   ]}
                 >
-                  {item.quantity > 1 && `${item.quantity}x `}
+                  {item.quantity > 1 && `${Number(item.quantity) % 1 === 0 ? item.quantity : Number(item.quantity).toFixed(3).replace(/\.?0+$/, '')}x `}
                   {item.name}
                 </Text>
 
@@ -389,7 +389,9 @@ export function ExpenseItemsForm({
               items={filteredStoreItems.map((item) => ({
                 id: item.id,
                 label: item.name,
-                subtitle: `$${item.price.toFixed(2)}${item.discount > 0 ? ` (-$${item.discount.toFixed(2)})` : ""}`,
+                subtitle: item.price !== undefined 
+                  ? `$${item.price.toFixed(2)}${item.discount && item.discount > 0 ? ` (-$${item.discount.toFixed(2)})` : ""}`
+                  : undefined,
               }))}
               visible={showItemDropdown}
               onSelect={(item) => {
@@ -423,15 +425,13 @@ export function ExpenseItemsForm({
                 }
                 placeholder="0.00"
               />
-              <Input
+              <QuantityInput
                 label="Quantity"
                 value={currentItem.quantity}
-                onChangeText={(text) => {
-                  const cleaned = text.replace(/[^0-9]/g, "");
-                  onCurrentItemChange({ ...currentItem, quantity: cleaned });
-                }}
+                onChangeText={(text) =>
+                  onCurrentItemChange({ ...currentItem, quantity: text })
+                }
                 placeholder="1"
-                keyboardType="number-pad"
               />
 
               {!isExistingItem && (

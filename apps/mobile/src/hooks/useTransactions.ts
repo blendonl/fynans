@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "../api/client";
 import { Transaction, TransactionFilters } from "../features/transactions/types";
 import { websocketService } from "../services/websocketService";
+import { useAuth } from "../context/AuthContext";
 
 interface Family {
   id: string;
@@ -9,6 +10,7 @@ interface Family {
 }
 
 export const useTransactions = (filters?: TransactionFilters, families: Family[] = []) => {
+  const { user, token, isLoading: authLoading } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -152,8 +154,10 @@ export const useTransactions = (filters?: TransactionFilters, families: Family[]
   }, [filters, families]);
 
   useEffect(() => {
-    fetchTransactions();
-  }, [filters?.familyId, filters?.scope, families.length]);
+    if (!authLoading && user && token) {
+      fetchTransactions();
+    }
+  }, [filters?.familyId, filters?.scope, families.length, authLoading, user, token]);
 
   useEffect(() => {
     const handleTransactionNotification = (notification: any) => {

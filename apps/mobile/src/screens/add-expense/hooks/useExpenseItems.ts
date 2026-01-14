@@ -32,7 +32,7 @@ export function useExpenseItems() {
       name: currentItem.name,
       price: parseFloat(currentItem.price),
       discount: currentItem.discount ? parseFloat(currentItem.discount) : 0,
-      quantity: parseInt(currentItem.quantity) || 1,
+      quantity: parseFloat(currentItem.quantity) || 1,
       categoryId: currentItem.categoryId,
       fromReceipt: currentItem.fromReceipt,
     };
@@ -75,10 +75,12 @@ export function useExpenseItems() {
 
   const handleUpdateQuantity = (index: number, change: number) => {
     const newItems = [...items];
-    const newQuantity = newItems[index].quantity + change;
+    const currentQty = newItems[index].quantity;
+    const increment = Math.abs(change) < 1 ? 0.1 : 1;
+    const newQuantity = currentQty + (change > 0 ? increment : -increment);
 
-    if (newQuantity > 0) {
-      newItems[index].quantity = newQuantity;
+    if (newQuantity >= 0.1) {
+      newItems[index].quantity = parseFloat(newQuantity.toFixed(3));
       setItems(newItems);
     } else {
       handleRemoveItem(index);

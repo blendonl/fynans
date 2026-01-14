@@ -3073,8 +3073,10 @@ __metadata:
     "@nestjs/config": "npm:^4.0.2"
     "@nestjs/core": "npm:^11.0.1"
     "@nestjs/platform-express": "npm:^11.0.1"
+    "@nestjs/platform-socket.io": "npm:^11.1.11"
     "@nestjs/schematics": "npm:^11.0.0"
     "@nestjs/testing": "npm:^11.0.1"
+    "@nestjs/websockets": "npm:^11.1.11"
     "@prisma/adapter-pg": "npm:^7.1.0"
     "@prisma/client": "npm:^7.1.0"
     "@prisma/config": "npm:^7.1.0"
@@ -3093,6 +3095,7 @@ __metadata:
     eslint: "npm:^9.18.0"
     eslint-config-prettier: "npm:^10.0.1"
     eslint-plugin-prettier: "npm:^5.2.2"
+    expo-server-sdk: "npm:^4.0.0"
     globals: "npm:^16.0.0"
     jest: "npm:^30.0.0"
     multer: "npm:^2.0.2"
@@ -3102,6 +3105,7 @@ __metadata:
     reflect-metadata: "npm:^0.2.2"
     rxjs: "npm:^7.8.1"
     sharp: "npm:^0.33.0"
+    socket.io: "npm:^4.8.3"
     source-map-support: "npm:^0.5.21"
     supertest: "npm:^7.0.0"
     tesseract.js: "npm:^7.0.0"
@@ -3167,6 +3171,7 @@ __metadata:
     "@nestjs/platform-socket.io": "npm:^11.1.11"
     "@nestjs/websockets": "npm:^11.1.11"
     expo-server-sdk: "npm:^4.0.0"
+    react-native-screens: "npm:^4.19.0"
     socket.io: "npm:^4.8.3"
   languageName: unknown
   linkType: soft
@@ -11994,6 +11999,19 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 10c0/3c8df21a1dbac83116b9c9bd5d20b7c1bb7649ecef44a111af6fb6b237241f5f4d692189eec30a69f5701b857249257da3621b9e17165460a2bb71faac7b92ae
+  languageName: node
+  linkType: hard
+
+"react-native-screens@npm:^4.19.0":
+  version: 4.19.0
+  resolution: "react-native-screens@npm:4.19.0"
+  dependencies:
+    react-freeze: "npm:^1.0.0"
+    warn-once: "npm:^0.1.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/e66328c8782ad4af352c418e5a4ae0cd5011d5010a9fad23e9740353d8076027c197d344b7465c5d529d862954dc80d9d0db444846e59cc1bee46a5459817562
   languageName: node
   linkType: hard
 

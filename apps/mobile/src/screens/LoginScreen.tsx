@@ -122,7 +122,7 @@ export default function LoginScreen({ navigation }: any) {
                         onBlur={onBlur}
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        error={!!errors.email && touchedFields.email}
+                        error={!!errors.email && !!touchedFields.email}
                         leftIcon="email"
                       />
                       <FormErrorMessage
@@ -144,7 +144,7 @@ export default function LoginScreen({ navigation }: any) {
                         onChangeText={onChange}
                         onBlur={onBlur}
                         secureTextEntry={!showPassword}
-                        error={!!errors.password && touchedFields.password}
+                        error={!!errors.password && !!touchedFields.password}
                         leftIcon="lock"
                         rightIcon={showPassword ? "eye-off" : "eye"}
                         onRightIconPress={() => setShowPassword(!showPassword)}

@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+type HeadersInit = Record<string, string>;
+
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://192.168.0.17:3000";
 
 export const apiClient = {
@@ -153,11 +155,21 @@ async function handleResponse(response: Response) {
     return null;
   }
   const text = await response.text();
-  const data = text ? JSON.parse(text) : {};
+  let data = {};
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch (error) {
+      console.error('JSON parse error:', error);
+      data = {};
+    }
+  }
 
   if (!response.ok) {
-    const error = (data && data.message) || response.statusText;
-    throw new Error(error);
+    const errorMessage = (data && typeof data === 'object' && 'message' in data && (data as any).message) || response.statusText;
+    throw new Error(errorMessage);
   }
+
+  console.log('[API Response]', response.url, 'Data:', JSON.stringify(data, null, 2));
   return data;
 }
