@@ -26,6 +26,7 @@ interface ToggleSwitchProps {
     onValueChange?: (value: boolean) => void;
     label?: string;
     style?: ViewStyle;
+    compact?: boolean;
 }
 
 export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
@@ -35,6 +36,7 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
     onValueChange,
     label,
     style,
+    compact = false,
 }) => {
     const { theme } = useAppTheme();
     const glassStyles = createGlassStyles(theme.custom.colors);
@@ -138,22 +140,22 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
                 return (
                     <TouchableOpacity
                         key={option.value}
-                        style={[styles.option, { width: `${optionWidthPercent}%` }]}
+                        style={[compact ? styles.optionCompact : styles.option, { width: `${optionWidthPercent}%` }]}
                         onPress={() => onChange(option.value)}
                         activeOpacity={0.7}
                     >
                         {option.icon && (
                             <MaterialCommunityIcons
                                 name={option.icon as any}
-                                size={20}
+                                size={compact ? 16 : 20}
                                 color={isSelected ? '#FFFFFF' : theme.custom.colors.textSecondary}
                                 style={styles.icon}
                             />
                         )}
                         <Text
                             style={[
-                                styles.optionText,
-                                theme.custom.typography.bodyMedium,
+                                compact ? styles.optionTextCompact : styles.optionText,
+                                compact ? theme.custom.typography.small : theme.custom.typography.bodyMedium,
                                 {
                                     color: isSelected ? '#FFFFFF' : theme.custom.colors.text,
                                     fontWeight: isSelected ? '600' : '400',
@@ -199,8 +201,19 @@ const styles = StyleSheet.create({
     icon: {
         marginRight: 6,
     },
+    optionCompact: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        zIndex: 1,
+    },
     optionText: {
         fontSize: 15,
+    },
+    optionTextCompact: {
+        fontSize: 13,
     },
     booleanContainer: {
         flexDirection: 'row',

@@ -1,12 +1,7 @@
-import React, { createRef } from "react";
-import { NavigationContainer, NavigationContainerRef } from "@react-navigation/native";
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-
-export const navigationRef = createRef<NavigationContainerRef<any>>();
-
-export function navigate(name: string, params?: object) {
-  navigationRef.current?.navigate(name, params);
-}
+import { navigationRef } from "./navigationService";
 import { useAuth } from "../context/AuthContext";
 import { useAppTheme } from "../theme";
 import LoginScreen from "../screens/LoginScreen";

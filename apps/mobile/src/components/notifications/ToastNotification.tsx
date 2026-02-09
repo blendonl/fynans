@@ -105,6 +105,7 @@ export const ToastNotification: React.FC = () => {
       INCOME_ADDED: theme.custom.colors.income,
       FAMILY_MEMBER_JOINED: theme.custom.colors.success,
       BUDGET_ALERT: theme.custom.colors.warning,
+      ITEM_REMOVED: theme.custom.colors.warning,
     };
     return colorMap[type] || theme.custom.colors.info;
   };
@@ -187,6 +188,21 @@ export const ToastNotification: React.FC = () => {
             </Text>
           </View>
 
+          {currentToast.action && (
+            <TouchableOpacity
+              style={[styles.actionButton, { backgroundColor: `${accentColor}20` }]}
+              onPress={() => {
+                currentToast.action?.onPress();
+                dismissToast();
+              }}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Text style={[styles.actionText, { color: accentColor }]}>
+                {currentToast.action.label}
+              </Text>
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity
             style={styles.dismissButton}
             onPress={dismissToast}
@@ -231,5 +247,15 @@ const styles = StyleSheet.create({
   message: {},
   dismissButton: {
     padding: 4,
+  },
+  actionButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  actionText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
 });

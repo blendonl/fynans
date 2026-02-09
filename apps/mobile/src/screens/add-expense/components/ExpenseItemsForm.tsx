@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Alert, StyleSheet } from "react-native";
+import { View, Text, Alert, StyleSheet, ViewStyle } from "react-native";
 import { IconButton } from "react-native-paper";
+import * as Haptics from "expo-haptics";
 import {
   Category,
   ExpenseItem,
@@ -18,6 +19,7 @@ import { PriceInput, QuantityInput } from "../../../components/forms";
 import { useAppTheme } from "../../../theme";
 import { apiClient } from "../../../api/client";
 import { AddItemCategoryModal } from "./AddItemCategoryModal";
+import { formatCurrency, formatQuantity } from "../../../utils/currency";
 
 interface StoreItem {
   id: string;
@@ -32,9 +34,12 @@ interface ExpenseItemsFormProps {
   currentItem: CurrentItem;
   itemCategories: Category[];
   selectedStore: Store | null;
+  editingIndex: number | null;
+  itemErrors: Record<string, string>;
   onCurrentItemChange: (item: CurrentItem) => void;
   onAddItem: (storeId?: string, saveToStore?: boolean) => void;
   onEditItem: (index: number) => void;
+  onCancelEdit: () => void;
   onRemoveItem: (index: number) => void;
   onUpdateQuantity: (index: number, change: number) => void;
   showAddItemForm?: boolean;
@@ -45,9 +50,12 @@ export function ExpenseItemsForm({
   currentItem,
   itemCategories,
   selectedStore,
+  editingIndex,
+  itemErrors,
   onCurrentItemChange,
   onAddItem,
   onEditItem,
+  onCancelEdit,
   onRemoveItem,
   onUpdateQuantity,
   showAddItemForm = true,
@@ -110,10 +118,10 @@ export function ExpenseItemsForm({
 
   const fetchStoreItems = async () => {
     try {
-      const endpoint = selectedStore 
+      const endpoint = selectedStore
         ? `/stores/${selectedStore.id}/items`
         : `/items`;
-      
+
       const response = await apiClient.get(endpoint);
 
       setStoreItems(response.data);
@@ -258,6 +266,11 @@ export function ExpenseItemsForm({
     }
   }, [currentItem, localItemCategories]);
 
+  const runningTotal = items.reduce(
+    (sum, item) => sum + (item.price - item.discount) * item.quantity,
+    0,
+  );
+
   return (
     <View style={styles.section}>
       <Text
@@ -275,11 +288,16 @@ export function ExpenseItemsForm({
         const itemCategory = localItemCategories.find(
           (cat) => cat.id === item.categoryId,
         );
+        const isBeingEdited = editingIndex === index;
 
         return (
           <Card
             key={index}
-            style={needsCategory ? {...styles.itemCard, ...styles.itemCardError} : styles.itemCard}
+            style={StyleSheet.flatten([
+              styles.itemCard,
+              needsCategory && { borderWidth: 2, borderColor: theme.custom.colors.error },
+              isBeingEdited && { opacity: 0.5 },
+            ]) as ViewStyle}
             elevation={1}
           >
             <View style={styles.itemContent}>
@@ -291,7 +309,7 @@ export function ExpenseItemsForm({
                     { color: theme.custom.colors.text },
                   ]}
                 >
-                  {item.quantity > 1 && `${Number(item.quantity) % 1 === 0 ? item.quantity : Number(item.quantity).toFixed(3).replace(/\.?0+$/, '')}x `}
+                  {item.quantity > 1 && `${formatQuantity(Number(item.quantity))}x `}
                   {item.name}
                 </Text>
 
@@ -324,19 +342,24 @@ export function ExpenseItemsForm({
                     { color: theme.custom.colors.textSecondary },
                   ]}
                 >
-                  ${item.price.toFixed(2)}
-                  {item.discount > 0 && ` (-$${item.discount.toFixed(2)})`}
+                  {formatCurrency(item.price)}
+                  {item.discount > 0 && ` (-${formatCurrency(item.discount)})`}
+                  {(item.discount > 0 || item.quantity !== 1) &&
+                    ` = ${formatCurrency((item.price - item.discount) * item.quantity)}`}
                 </Text>
               </View>
 
               <View style={styles.itemActions}>
-                {item.fromReceipt && (
-                  <IconButton
-                    icon="pencil"
-                    size={20}
-                    onPress={() => onEditItem(index)}
-                  />
-                )}
+                <IconButton
+                  icon="pencil"
+                  size={20}
+                  onPress={() => onEditItem(index)}
+                />
+                <IconButton
+                  icon="delete-outline"
+                  size={20}
+                  onPress={() => onRemoveItem(index)}
+                />
 
                 <View style={styles.quantityControls}>
                   <IconButton
@@ -364,6 +387,32 @@ export function ExpenseItemsForm({
         );
       })}
 
+      {items.length > 0 && (
+        <View
+          style={[
+            styles.totalRow,
+            { borderTopColor: theme.custom.colors.divider },
+          ]}
+        >
+          <Text
+            style={[
+              theme.custom.typography.bodyMedium,
+              { color: theme.custom.colors.text, fontWeight: "600" },
+            ]}
+          >
+            Total
+          </Text>
+          <Text
+            style={[
+              theme.custom.typography.bodyMedium,
+              { color: theme.custom.colors.text, fontWeight: "600" },
+            ]}
+          >
+            {formatCurrency(runningTotal)}
+          </Text>
+        </View>
+      )}
+
       {showAddItemForm && (
         <View style={styles.formSection}>
           <Text
@@ -373,7 +422,7 @@ export function ExpenseItemsForm({
               { color: theme.custom.colors.text },
             ]}
           >
-            Add New Item
+            {editingIndex !== null ? "Edit Item" : "Add New Item"}
           </Text>
 
           <View>
@@ -383,14 +432,16 @@ export function ExpenseItemsForm({
               onChangeText={handleItemNameChange}
               onFocus={() => setShowItemDropdown(true)}
               leftIcon="cart"
+              error={!!itemErrors.name}
+              errorText={itemErrors.name}
             />
 
             <Dropdown
               items={filteredStoreItems.map((item) => ({
                 id: item.id,
                 label: item.name,
-                subtitle: item.price !== undefined 
-                  ? `$${item.price.toFixed(2)}${item.discount && item.discount > 0 ? ` (-$${item.discount.toFixed(2)})` : ""}`
+                subtitle: item.price !== undefined
+                  ? `${formatCurrency(item.price)}${item.discount && item.discount > 0 ? ` (-${formatCurrency(item.discount)})` : ""}`
                   : undefined,
               }))}
               visible={showItemDropdown}
@@ -416,6 +467,8 @@ export function ExpenseItemsForm({
                   onCurrentItemChange({ ...currentItem, price: text })
                 }
                 placeholder="0.00"
+                error={!!itemErrors.price}
+                errorText={itemErrors.price}
               />
               <PriceInput
                 label="Discount (optional)"
@@ -443,8 +496,18 @@ export function ExpenseItemsForm({
                       { color: theme.custom.colors.text },
                     ]}
                   >
-                    Item Category
+                    Category
                   </Text>
+                  {itemErrors.categoryId && (
+                    <Text
+                      style={[
+                        theme.custom.typography.caption,
+                        { color: theme.custom.colors.error, marginBottom: 4 },
+                      ]}
+                    >
+                      {itemErrors.categoryId}
+                    </Text>
+                  )}
                   {selectedItemCategory && !showCategoryDropdown ? (
                     <View style={styles.selectedContainer}>
                       <Chip
@@ -494,13 +557,25 @@ export function ExpenseItemsForm({
           )}
 
           {showPriceFields && (
-            <Button
-              title="Add Item"
-              onPress={() => onAddItem(selectedStore?.id, isCreatingNewItem)}
-              variant="secondary"
-              fullWidth
-              style={styles.addButton}
-            />
+            <View style={styles.formButtons}>
+              <Button
+                title={editingIndex !== null ? "Update Item" : "Add Item"}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  onAddItem(selectedStore?.id, isCreatingNewItem);
+                }}
+                variant="primary"
+                style={styles.flexButton}
+              />
+              {editingIndex !== null && (
+                <Button
+                  title="Cancel"
+                  onPress={onCancelEdit}
+                  variant="outlined"
+                  style={styles.flexButton}
+                />
+              )}
+            </View>
           )}
         </View>
       )}
@@ -547,10 +622,6 @@ const styles = StyleSheet.create({
   itemPrice: {
     marginTop: 2,
   },
-  itemCardError: {
-    borderWidth: 2,
-    borderColor: "#EF4444",
-  },
   itemWarning: {
     marginTop: 2,
   },
@@ -568,7 +639,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   label: {
-    marginTop: 12,
+    marginTop: 16,
     marginBottom: 8,
   },
   selectedContainer: {
@@ -577,11 +648,24 @@ const styles = StyleSheet.create({
   selectedChip: {
     alignSelf: "flex-start",
   },
-  addButton: {
+  formButtons: {
+    flexDirection: "row",
+    gap: 12,
     marginTop: 16,
+  },
+  flexButton: {
+    flex: 1,
   },
   quantityControls: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  totalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    borderTopWidth: 1,
+    marginBottom: 8,
   },
 });

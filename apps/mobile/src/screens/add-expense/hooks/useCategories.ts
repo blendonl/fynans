@@ -57,7 +57,7 @@ export function useCategories() {
     setShowCategoryDropdown(true);
 
     if (text.trim() === "") {
-      setFilteredCategories([]);
+      setFilteredCategories(categories);
       setSelectedCategory(null);
       return;
     }

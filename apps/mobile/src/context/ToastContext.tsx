@@ -1,10 +1,16 @@
 import React, { createContext, useState, useContext, useRef, useCallback } from 'react';
 
+export interface ToastAction {
+  label: string;
+  onPress: () => void;
+}
+
 export interface ToastData {
   type: string;
   title: string;
   message: string;
   actionUrl?: string;
+  action?: ToastAction;
 }
 
 interface ToastContextType {

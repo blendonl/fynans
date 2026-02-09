@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Store } from "../../../features/expenses/types";
 import { Input, Card, Dropdown, DropdownItem } from "../../../components/design-system";
 import { useAppTheme } from "../../../theme";
@@ -78,14 +79,11 @@ export function StoreSelector({
               </Text>
             </View>
             <TouchableOpacity onPress={onClear} style={styles.clearButton}>
-              <Text
-                style={[
-                  styles.clearText,
-                  { color: theme.custom.colors.textSecondary },
-                ]}
-              >
-                ✕
-              </Text>
+              <MaterialCommunityIcons
+                name="close"
+                size={20}
+                color={theme.custom.colors.textSecondary}
+              />
             </TouchableOpacity>
           </View>
         </Card>
@@ -105,7 +103,7 @@ export function StoreSelector({
         onSelect={handleDropdownSelect}
         onCreate={onAddNew}
         createLabel="+ Add new store"
-        showCreateOption={true}
+        showCreateOption={storeInput.trim() !== "" && !stores.some(s => s.name.toLowerCase() === storeInput.toLowerCase())}
         emptyMessage="No stores found"
       />
     </View>
@@ -137,9 +135,5 @@ const styles = StyleSheet.create({
   },
   clearButton: {
     padding: 8,
-  },
-  clearText: {
-    fontSize: 20,
-    fontWeight: 'bold',
   },
 });

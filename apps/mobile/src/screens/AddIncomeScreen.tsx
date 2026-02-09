@@ -11,22 +11,32 @@ import {
   Button,
   Chip,
   Dropdown,
-  Select,
   DateTimePickerComponent,
-  ToggleSwitch,
 } from "../components/design-system";
 import { PriceInput } from "../components/forms";
 import { useAppTheme } from "../theme";
 import { apiClient } from "../api/client";
-import { useFamily } from "../context/FamilyContext";
 import { useImageUpload } from "../hooks/useImageUpload";
 import { ReceiptCamera } from "./transactions/add/components/ReceiptCamera";
 import { ReceiptPreview } from "../components/transactions/ReceiptPreview";
 import { Category } from "../features/expenses/types";
 
-export default function AddIncomeScreen({ navigation }: any) {
+type TransactionScope = "PERSONAL" | "FAMILY";
+
+interface AddIncomeScreenProps {
+  navigation: any;
+  hasDataRef?: React.MutableRefObject<boolean>;
+  scope: TransactionScope;
+  selectedFamilyId: string | null;
+}
+
+export default function AddIncomeScreen({
+  navigation,
+  hasDataRef,
+  scope,
+  selectedFamilyId,
+}: AddIncomeScreenProps) {
   const { theme } = useAppTheme();
-  const { families } = useFamily();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -40,14 +50,20 @@ export default function AddIncomeScreen({ navigation }: any) {
   const [incomeAmount, setIncomeAmount] = useState("");
   const [incomeDescription, setIncomeDescription] = useState("");
   const [recordedAt, setRecordedAt] = useState<Date>(new Date());
-  const [isPersonal, setIsPersonal] = useState(true);
-  const [selectedFamilyId, setSelectedFamilyId] = useState<string | null>(null);
 
   const imageUpload = useImageUpload();
 
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (!hasDataRef) return;
+    hasDataRef.current =
+      selectedCategory !== null ||
+      incomeAmount !== "" ||
+      incomeDescription !== "";
+  }, [selectedCategory, incomeAmount, incomeDescription, hasDataRef]);
 
   const fetchCategories = async () => {
     try {
@@ -127,7 +143,7 @@ export default function AddIncomeScreen({ navigation }: any) {
       return;
     }
 
-    if (!isPersonal && !selectedFamilyId) {
+    if (scope === "FAMILY" && !selectedFamilyId) {
       Alert.alert("Error", "Please select a family for this income");
       return;
     }
@@ -152,7 +168,7 @@ export default function AddIncomeScreen({ navigation }: any) {
         description: incomeDescription,
         categoryId: selectedCategory.id,
         recordedAt: recordedAt.toISOString(),
-        familyId: !isPersonal ? selectedFamilyId : undefined,
+        familyId: scope === "FAMILY" ? selectedFamilyId : undefined,
         receiptImages: receiptUrls,
       };
 
@@ -272,57 +288,6 @@ export default function AddIncomeScreen({ navigation }: any) {
     >
       {renderCategorySelection()}
 
-        <View style={styles.section}>
-          <Text
-            style={[
-              styles.sectionTitle,
-              theme.custom.typography.h5,
-              { color: theme.custom.colors.text },
-            ]}
-          >
-            Income Type
-          </Text>
-          <ToggleSwitch
-            label="Personal Income"
-            value={isPersonal}
-            onValueChange={(value) => {
-              setIsPersonal(value);
-              if (value) {
-                setSelectedFamilyId(null);
-              }
-            }}
-          />
-        </View>
-
-        {!isPersonal && families.length > 0 && (
-          <View style={styles.section}>
-            <Select
-              label="Select Family"
-              value={selectedFamilyId}
-              items={families.map((family) => ({
-                label: family.name,
-                value: family.id,
-              }))}
-              onValueChange={setSelectedFamilyId}
-              placeholder="Choose a family"
-            />
-          </View>
-        )}
-
-        {!isPersonal && families.length === 0 && (
-          <View style={styles.section}>
-            <Text
-              style={[
-                styles.warningText,
-                { color: theme.custom.colors.warning || theme.colors.error },
-              ]}
-            >
-              You are not part of any family. Create or join a family to add
-              family income.
-            </Text>
-          </View>
-        )}
-
         {selectedCategory && renderIncomeForm()}
 
         {selectedCategory && (
@@ -359,16 +324,14 @@ export default function AddIncomeScreen({ navigation }: any) {
           </View>
         )}
 
-        {canSubmit() && (
-          <Button
-            title="Create Income"
-            onPress={handleSubmit}
-            loading={loading || imageUpload.uploading}
-            disabled={loading || imageUpload.uploading}
-            fullWidth
-            style={styles.submitButton}
-          />
-        )}
+        <Button
+          title="Create Income"
+          onPress={handleSubmit}
+          loading={loading || imageUpload.uploading}
+          disabled={!canSubmit() || loading || imageUpload.uploading}
+          fullWidth
+          style={styles.submitButton}
+        />
     </ScrollView>
   );
 }
@@ -380,7 +343,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 350,
+    paddingBottom: 100,
   },
   section: {
     marginBottom: 24,
@@ -393,12 +356,6 @@ const styles = StyleSheet.create({
   },
   selectedChip: {
     alignSelf: "flex-start",
-  },
-  warningText: {
-    fontSize: 14,
-    fontStyle: "italic",
-    textAlign: "center",
-    marginTop: 8,
   },
   submitButton: {
     marginTop: 16,

@@ -72,7 +72,7 @@ export function AddCategoryModal({
 
           <View style={styles.toggleContainer}>
             <ToggleSwitch
-              label="Connect to Store"
+              label="Requires store selection"
               value={isConnectedToStore}
               onValueChange={onIsConnectedToStore}
             />
@@ -83,7 +83,7 @@ export function AddCategoryModal({
                 { color: theme.custom.colors.textSecondary },
               ]}
             >
-              Enable if this category requires store information
+              Turn on for categories where you shop at specific stores (e.g., Groceries)
             </Text>
           </View>
 
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   },
   helperText: {
     marginTop: 4,
-    marginLeft: 2,
+    marginLeft: 4,
   },
   modalButtons: {
     flexDirection: "row",

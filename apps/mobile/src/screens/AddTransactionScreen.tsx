@@ -1,34 +1,74 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
     View,
+    Text,
     StyleSheet,
     Animated,
     Dimensions,
     TouchableWithoutFeedback,
-    TouchableOpacity,
+    PanResponder,
     Keyboard,
     Platform,
+    Alert,
+    BackHandler,
 } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ToggleSwitch } from '../components/design-system';
+import { ToggleSwitch, Select } from '../components/design-system';
 import { useAppTheme } from '../theme';
+import { useFamily } from '../context/FamilyContext';
 import AddExpenseScreen from './AddExpenseScreen';
 import AddIncomeScreen from './AddIncomeScreen';
 
 type TransactionType = 'EXPENSE' | 'INCOME';
+type TransactionScope = 'PERSONAL' | 'FAMILY';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SHEET_HEIGHT = SCREEN_HEIGHT * 0.85;
 
 export default function AddTransactionScreen({ navigation, route }: any) {
     const { theme } = useAppTheme();
+    const { families } = useFamily();
     const initialType = route?.params?.initialType || 'EXPENSE';
     const [transactionType, setTransactionType] = useState<TransactionType>(initialType);
+    const [scope, setScope] = useState<TransactionScope>('PERSONAL');
+    const [selectedFamilyId, setSelectedFamilyId] = useState<string | null>(null);
 
     const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const keyboardOffset = useRef(new Animated.Value(0)).current;
+    const dragY = useRef(new Animated.Value(0)).current;
+    const hasDataRef = useRef(false);
+
+    const DISMISS_THRESHOLD = 150;
+
+    const panResponder = useRef(
+        PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onMoveShouldSetPanResponder: (_, gestureState) =>
+                gestureState.dy > 5,
+            onPanResponderMove: (_, gestureState) => {
+                if (gestureState.dy > 0) {
+                    dragY.setValue(gestureState.dy);
+                }
+            },
+            onPanResponderRelease: (_, gestureState) => {
+                if (gestureState.dy > DISMISS_THRESHOLD || gestureState.vy > 0.5) {
+                    handleClose();
+                    Animated.timing(dragY, {
+                        toValue: 0,
+                        duration: 200,
+                        useNativeDriver: true,
+                    }).start();
+                } else {
+                    Animated.spring(dragY, {
+                        toValue: 0,
+                        useNativeDriver: true,
+                        bounciness: 8,
+                    }).start();
+                }
+            },
+        })
+    ).current;
 
     useEffect(() => {
         Animated.parallel([
@@ -75,7 +115,15 @@ export default function AddTransactionScreen({ navigation, route }: any) {
         };
     }, []);
 
-    const handleClose = () => {
+    useEffect(() => {
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            handleClose();
+            return true;
+        });
+        return () => backHandler.remove();
+    }, []);
+
+    const dismissSheet = () => {
         Animated.parallel([
             Animated.timing(slideAnim, {
                 toValue: SCREEN_HEIGHT,
@@ -92,6 +140,21 @@ export default function AddTransactionScreen({ navigation, route }: any) {
         });
     };
 
+    const handleClose = () => {
+        if (hasDataRef.current) {
+            Alert.alert(
+                "Discard changes?",
+                "You have unsaved data. Are you sure you want to leave?",
+                [
+                    { text: "Keep editing", style: "cancel" },
+                    { text: "Discard", style: "destructive", onPress: dismissSheet },
+                ],
+            );
+        } else {
+            dismissSheet();
+        }
+    };
+
     const toggleOptions = [
         {
             value: 'EXPENSE',
@@ -103,6 +166,11 @@ export default function AddTransactionScreen({ navigation, route }: any) {
             label: 'Income',
             icon: 'plus-circle',
         },
+    ];
+
+    const scopeOptions = [
+        { value: 'PERSONAL', label: 'Personal', icon: 'account' },
+        { value: 'FAMILY', label: 'Family', icon: 'account-group' },
     ];
 
     return (
@@ -129,11 +197,15 @@ export default function AddTransactionScreen({ navigation, route }: any) {
                         transform: [
                             { translateY: slideAnim },
                             { translateY: keyboardOffset },
+                            { translateY: dragY },
                         ],
                     },
                 ]}
             >
-                    <View style={styles.handleContainer}>
+                    <View
+                        style={styles.handleContainer}
+                        {...panResponder.panHandlers}
+                    >
                         <LinearGradient
                             colors={[
                                 theme.custom.colors.primaryLight,
@@ -154,36 +226,89 @@ export default function AddTransactionScreen({ navigation, route }: any) {
                     </View>
 
                     <View style={[styles.header, { borderBottomColor: theme.custom.colors.divider }]}>
-                        <View style={styles.toggleContainer}>
+                        <View style={styles.headerContent}>
                             <ToggleSwitch
                                 options={toggleOptions}
                                 value={transactionType}
-                                onChange={(value) => setTransactionType(value as TransactionType)}
+                                onChange={(value) => {
+                                    if (hasDataRef.current) {
+                                        Alert.alert(
+                                            "Switch tab?",
+                                            "Switching will clear your current form data.",
+                                            [
+                                                { text: "Cancel", style: "cancel" },
+                                                {
+                                                    text: "Switch",
+                                                    style: "destructive",
+                                                    onPress: () => setTransactionType(value as TransactionType),
+                                                },
+                                            ],
+                                        );
+                                    } else {
+                                        setTransactionType(value as TransactionType);
+                                    }
+                                }}
+                                style={{ backgroundColor: theme.colors.surface }}
                             />
+
+                            <View style={styles.scopeRow}>
+                                <ToggleSwitch
+                                    options={scopeOptions}
+                                    value={scope}
+                                    onChange={(value) => {
+                                        setScope(value as TransactionScope);
+                                        if (value === 'PERSONAL') {
+                                            setSelectedFamilyId(null);
+                                        }
+                                    }}
+                                    compact
+                                    style={{ backgroundColor: theme.colors.surface }}
+                                />
+                            </View>
+
+                            {scope === 'FAMILY' && families.length > 0 && (
+                                <View style={styles.familySelector}>
+                                    <Select
+                                        label="Select Family"
+                                        value={selectedFamilyId}
+                                        items={families.map((family) => ({
+                                            label: family.name,
+                                            value: family.id,
+                                        }))}
+                                        onValueChange={setSelectedFamilyId}
+                                        placeholder="Choose a family"
+                                    />
+                                </View>
+                            )}
+
+                            {scope === 'FAMILY' && families.length === 0 && (
+                                <Text
+                                    style={[
+                                        styles.warningText,
+                                        { color: theme.custom.colors.warning || theme.colors.error },
+                                    ]}
+                                >
+                                    You are not part of any family. Create or join a family first.
+                                </Text>
+                            )}
                         </View>
-                        <TouchableOpacity
-                            onPress={handleClose}
-                            style={[
-                                styles.closeButton,
-                                {
-                                    backgroundColor: theme.custom.colors.glassBackground,
-                                    borderRadius: theme.custom.borderRadius.round,
-                                },
-                            ]}
-                        >
-                            <MaterialCommunityIcons
-                                name="close"
-                                size={22}
-                                color={theme.colors.onSurface}
-                            />
-                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.content}>
                         {transactionType === 'EXPENSE' ? (
-                            <AddExpenseScreen navigation={navigation} />
+                            <AddExpenseScreen
+                                navigation={navigation}
+                                hasDataRef={hasDataRef}
+                                scope={scope}
+                                selectedFamilyId={selectedFamilyId}
+                            />
                         ) : (
-                            <AddIncomeScreen navigation={navigation} />
+                            <AddIncomeScreen
+                                navigation={navigation}
+                                hasDataRef={hasDataRef}
+                                scope={scope}
+                                selectedFamilyId={selectedFamilyId}
+                            />
                         )}
                     </View>
             </Animated.View>
@@ -214,22 +339,27 @@ const styles = StyleSheet.create({
         borderRadius: 3,
     },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderBottomWidth: 1,
     },
-    toggleContainer: {
-        flex: 1,
-        marginRight: 12,
+    headerContent: {
+        gap: 8,
     },
-    closeButton: {
-        padding: 8,
+    scopeRow: {
+        marginTop: 4,
+    },
+    familySelector: {
+        marginTop: 4,
     },
     content: {
         flex: 1,
         minHeight: 0,
+    },
+    warningText: {
+        fontSize: 13,
+        fontStyle: 'italic',
+        textAlign: 'center',
+        marginTop: 4,
     },
 });

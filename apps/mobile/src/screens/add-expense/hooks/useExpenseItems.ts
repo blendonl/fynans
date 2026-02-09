@@ -1,32 +1,45 @@
 import { useState } from "react";
-import { Alert } from "react-native";
 import { ExpenseItem, CurrentItem } from "../../../features/expenses/types";
-import { apiClient } from "../../../api/client";
+
+const EMPTY_CURRENT_ITEM: CurrentItem = {
+  name: "",
+  price: "",
+  discount: "",
+  quantity: "1",
+  categoryId: "",
+};
 
 export function useExpenseItems() {
   const [items, setItems] = useState<ExpenseItem[]>([]);
   const [currentItem, setCurrentItem] = useState<CurrentItem>({
-    name: "",
-    price: "",
-    discount: "",
-    quantity: "1",
-    categoryId: "",
+    ...EMPTY_CURRENT_ITEM,
   });
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [itemErrors, setItemErrors] = useState<Record<string, string>>({});
+  const [lastRemovedItem, setLastRemovedItem] = useState<{
+    item: ExpenseItem;
+    index: number;
+  } | null>(null);
 
   const handleAddItem = async (storeId?: string, saveToStore?: boolean) => {
+    const errors: Record<string, string> = {};
+
     if (!currentItem.name?.trim()) {
-      Alert.alert("Error", "Please enter item name");
-      return;
+      errors.name = "Please enter item name";
     }
     if (!currentItem.price || parseFloat(currentItem.price) <= 0) {
-      Alert.alert("Error", "Please enter a valid price");
+      errors.price = "Please enter a valid price";
+    }
+    if (!currentItem.categoryId) {
+      errors.categoryId = "Please select an item category";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setItemErrors(errors);
       return;
     }
 
-    if (!currentItem.categoryId) {
-      Alert.alert("Error", `Please select an item category `);
-      return;
-    }
+    setItemErrors({});
 
     const newItem: ExpenseItem = {
       name: currentItem.name,
@@ -37,40 +50,30 @@ export function useExpenseItems() {
       fromReceipt: currentItem.fromReceipt,
     };
 
-    // if (saveToStore && storeId) {
-    //   try {
-    //     // We need to import apiClient here or pass it in, but since this is a hook,
-    //     // we can import it at the top level.
-    //     // Note: I will add the import in a separate step if it's not available.
-    //     // Assuming apiClient is available or I will add it.
-    //
-    //     await apiClient.post(`/stores/${storeId}/items`, {
-    //       name: newItem.name,
-    //       price: newItem.price,
-    //       categoryId: newItem.categoryId,
-    //       isDiscounted: newItem.discount > 0,
-    //     });
-    //   } catch (error) {
-    //     console.error("Failed to save item to store:", error);
-    //     // We don't block adding the item to the list if saving to store fails,
-    //     // but maybe we should alert the user?
-    //     // For now, let's just log it as it's a "nice to have" feature
-    //     // that shouldn't break the main flow.
-    //   }
-    // }
+    if (editingIndex !== null) {
+      const newItems = [...items];
+      newItems[editingIndex] = newItem;
+      setItems(newItems);
+      setEditingIndex(null);
+    } else {
+      setItems([...items, newItem]);
+    }
 
-    setItems([...items, newItem]);
-    setCurrentItem({
-      name: "",
-      price: "",
-      discount: "",
-      quantity: "1",
-      categoryId: "",
-    });
+    setCurrentItem({ ...EMPTY_CURRENT_ITEM });
   };
 
   const handleRemoveItem = (index: number) => {
+    const removedItem = items[index];
+    setLastRemovedItem({ item: removedItem, index });
     setItems(items.filter((_, i) => i !== index));
+  };
+
+  const undoRemoveItem = () => {
+    if (!lastRemovedItem) return;
+    const newItems = [...items];
+    newItems.splice(lastRemovedItem.index, 0, lastRemovedItem.item);
+    setItems(newItems);
+    setLastRemovedItem(null);
   };
 
   const handleUpdateQuantity = (index: number, change: number) => {
@@ -79,12 +82,8 @@ export function useExpenseItems() {
     const increment = Math.abs(change) < 1 ? 0.1 : 1;
     const newQuantity = currentQty + (change > 0 ? increment : -increment);
 
-    if (newQuantity >= 0.1) {
-      newItems[index].quantity = parseFloat(newQuantity.toFixed(3));
-      setItems(newItems);
-    } else {
-      handleRemoveItem(index);
-    }
+    newItems[index].quantity = parseFloat(Math.max(newQuantity, 0.1).toFixed(3));
+    setItems(newItems);
   };
 
   const handleEditItem = (index: number) => {
@@ -97,8 +96,14 @@ export function useExpenseItems() {
       categoryId: itemToEdit.categoryId,
       fromReceipt: itemToEdit.fromReceipt,
     });
+    setEditingIndex(index);
+    setItemErrors({});
+  };
 
-    handleRemoveItem(index);
+  const cancelEdit = () => {
+    setEditingIndex(null);
+    setCurrentItem({ ...EMPTY_CURRENT_ITEM });
+    setItemErrors({});
   };
 
   const hasMissingCategory = (item: ExpenseItem): boolean => {
@@ -108,11 +113,16 @@ export function useExpenseItems() {
   return {
     items,
     currentItem,
+    editingIndex,
+    itemErrors,
+    lastRemovedItem,
     handleAddItem,
     setCurrentItem,
     handleRemoveItem,
+    undoRemoveItem,
     handleUpdateQuantity,
     handleEditItem,
+    cancelEdit,
     hasMissingCategory,
     setItems,
   };

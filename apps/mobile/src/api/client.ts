@@ -155,21 +155,24 @@ async function handleResponse(response: Response) {
     return null;
   }
   const text = await response.text();
-  let data = {};
-  if (text) {
-    try {
-      data = JSON.parse(text);
-    } catch (error) {
-      console.error('JSON parse error:', error);
-      data = {};
+
+  let data: any = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    if (!response.ok) {
+      throw new Error(text || `Request failed with status ${response.status}`);
     }
+    throw new Error(`Invalid JSON response: ${text}`);
   }
 
   if (!response.ok) {
-    const errorMessage = (data && typeof data === 'object' && 'message' in data && (data as any).message) || response.statusText;
+    const errorMessage =
+      (data && typeof data === 'object' && 'message' in data && data.message) ||
+      response.statusText ||
+      `Request failed with status ${response.status}`;
     throw new Error(errorMessage);
   }
 
-  console.log('[API Response]', response.url, 'Data:', JSON.stringify(data, null, 2));
   return data;
 }

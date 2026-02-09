@@ -80,7 +80,7 @@ export function CategorySelector({
 
       <Dropdown
         items={dropdownItems}
-        visible={showDropdown && (categoryInput.trim() !== "" || filteredCategories.length > 0)}
+        visible={showDropdown}
         loading={loading}
         onSelect={handleDropdownSelect}
         onCreate={onCreateNew}

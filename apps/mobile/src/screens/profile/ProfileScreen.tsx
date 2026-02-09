@@ -194,7 +194,7 @@ export default function ProfileScreen({ navigation }: any) {
           <SettingItem
             icon="help-circle"
             title="Help & Support"
-            onPress={() => Alert.alert('Help & Support', 'Contact us at support@mmoneymanager.com')}
+            onPress={() => Alert.alert('Help & Support', 'Contact us at support@fynans.com')}
           />
         </Card>
 
