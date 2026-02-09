@@ -16,7 +16,9 @@
     "mobile:start": "yarn workspace @mmoneymanager/mobile start",
     "mobile:ios": "yarn workspace @mmoneymanager/mobile ios",
     "mobile:android": "yarn workspace @mmoneymanager/mobile android",
-    "shared:build": "yarn workspace @mmoneymanager/shared build"
+    "shared:build": "yarn workspace @mmoneymanager/shared build",
+    "web:dev": "yarn workspace @mmoneymanager/web dev",
+    "web:build": "yarn workspace @mmoneymanager/web build"
   },
   "resolutions": {
     "react": "19.1.0",
