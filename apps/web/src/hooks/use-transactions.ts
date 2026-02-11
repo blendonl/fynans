@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import type { Transaction, TransactionFilters, Family } from "@mmoneymanager/shared";
+import type { Transaction, TransactionFilters, Family } from "@fynans/shared";
 
 function mapExpenseToTransaction(expense: Record<string, unknown>, family?: Family): Transaction {
   const tx = expense.transaction as Record<string, unknown> | undefined;

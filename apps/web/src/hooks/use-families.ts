@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import type { Family, FamilyWithMembers, FamilyInvitation } from "@mmoneymanager/shared";
+import type { Family, FamilyWithMembers, FamilyInvitation } from "@fynans/shared";
 
 export function useFamilies() {
   const queryClient = useQueryClient();

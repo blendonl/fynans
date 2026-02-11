@@ -1,5 +1,5 @@
 {
-  "name": "@mmoneymanager/web",
+  "name": "@fynans/web",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fynans/shared": "workspace:*",
     "@hookform/resolvers": "^3.9.0",
-    "@mmoneymanager/shared": "workspace:*",
     "@radix-ui/react-alert-dialog": "^1.1.0",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-dialog": "^1.1.0",

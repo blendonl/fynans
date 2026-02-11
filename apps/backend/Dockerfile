@@ -6,7 +6,7 @@ COPY package.json yarn.lock .yarnrc.yml tsconfig.base.json ./
 COPY .yarn ./.yarn
 COPY apps/backend/package.json ./apps/backend/
 
-RUN corepack enable && yarn workspaces focus @mmoneymanager/backend
+RUN corepack enable && yarn workspaces focus @fynans/backend
 
 COPY apps/backend ./apps/backend
 
@@ -24,7 +24,7 @@ COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
 COPY apps/backend/package.json ./apps/backend/
 
-RUN corepack enable && yarn workspaces focus @mmoneymanager/backend --production
+RUN corepack enable && yarn workspaces focus @fynans/backend --production
 
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
 COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma

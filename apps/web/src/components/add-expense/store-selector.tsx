@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, Plus, MapPin } from "lucide-react";
-import type { Store } from "@mmoneymanager/shared";
+import type { Store } from "@fynans/shared";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

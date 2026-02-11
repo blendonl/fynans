@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { formatCurrency } from "@mmoneymanager/shared";
-import type { Transaction } from "@mmoneymanager/shared";
+import { formatCurrency } from "@fynans/shared";
+import type { Transaction } from "@fynans/shared";
 import { Badge } from "@/components/ui/badge";
 
 interface TransactionRowProps {

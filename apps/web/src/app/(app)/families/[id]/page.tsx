@@ -4,7 +4,7 @@ import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, UserPlus, LogOut, Trash2 } from "lucide-react";
 import { useFamilyDetail, useFamilies } from "@/hooks/use-families";
-import { formatCurrency } from "@mmoneymanager/shared";
+import { formatCurrency } from "@fynans/shared";
 import { useAuth } from "@/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

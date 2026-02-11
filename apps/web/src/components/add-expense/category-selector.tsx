@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { X, Plus, Tag } from "lucide-react";
-import type { Category } from "@mmoneymanager/shared";
+import type { Category } from "@fynans/shared";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

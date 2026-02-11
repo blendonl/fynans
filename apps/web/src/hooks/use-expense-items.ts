@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ExpenseItem, CurrentItem } from "@mmoneymanager/shared";
+import type { ExpenseItem, CurrentItem } from "@fynans/shared";
 
 const EMPTY_CURRENT_ITEM: CurrentItem = {
   name: "",

@@ -1,8 +1,8 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
-import { formatCurrency } from "@mmoneymanager/shared";
-import type { Transaction } from "@mmoneymanager/shared";
+import { formatCurrency } from "@fynans/shared";
+import type { Transaction } from "@fynans/shared";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -125,7 +125,7 @@ export function TransactionDetail({ transaction, onDelete, isDeleting }: Transac
             <CardTitle>Receipts</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {transaction.receiptImages.map((url, i) => (
                 <img
                   key={i}

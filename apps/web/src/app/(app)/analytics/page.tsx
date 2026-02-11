@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransactions, getStats } from "@/hooks/use-transactions";
-import { formatCurrency } from "@mmoneymanager/shared";
+import { formatCurrency } from "@fynans/shared";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GlassCard } from "@/components/glass/glass-card";
 

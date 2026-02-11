@@ -1,6 +1,6 @@
 "use client";
 
-import type { Transaction } from "@mmoneymanager/shared";
+import type { Transaction } from "@fynans/shared";
 import { groupByMonth } from "@/hooks/use-transactions";
 import { TransactionGroup } from "./transaction-group";
 import { Card } from "@/components/ui/card";

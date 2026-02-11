@@ -2,7 +2,7 @@
 
 import { TrendingUp, TrendingDown, DollarSign } from "lucide-react";
 import { GlassCard } from "@/components/glass/glass-card";
-import { formatCurrency } from "@mmoneymanager/shared";
+import { formatCurrency } from "@fynans/shared";
 
 interface StatsCardProps {
   totalIncome: number;

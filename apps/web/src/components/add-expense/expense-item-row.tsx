@@ -1,8 +1,8 @@
 "use client";
 
 import { Pencil, Trash2 } from "lucide-react";
-import { formatCurrency, formatQuantity } from "@mmoneymanager/shared";
-import type { ExpenseItem } from "@mmoneymanager/shared";
+import { formatCurrency, formatQuantity } from "@fynans/shared";
+import type { ExpenseItem } from "@fynans/shared";
 import { Button } from "@/components/ui/button";
 
 interface ExpenseItemRowProps {

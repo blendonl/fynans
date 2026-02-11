@@ -1,5 +1,5 @@
 {
-  "name": "@mmoneymanager/root",
+  "name": "@fynans/root",
   "version": "0.0.1",
   "private": true,
   "workspaces": [
@@ -7,18 +7,18 @@
     "packages/*"
   ],
   "scripts": {
-    "backend:dev": "yarn workspace @mmoneymanager/backend start:dev",
-    "backend:build": "yarn workspace @mmoneymanager/backend build",
-    "backend:start": "yarn workspace @mmoneymanager/backend start",
-    "backend:start:prod": "yarn workspace @mmoneymanager/backend start:prod",
-    "backend:test": "yarn workspace @mmoneymanager/backend test",
-    "backend:test:e2e": "yarn workspace @mmoneymanager/backend test:e2e",
-    "mobile:start": "yarn workspace @mmoneymanager/mobile start",
-    "mobile:ios": "yarn workspace @mmoneymanager/mobile ios",
-    "mobile:android": "yarn workspace @mmoneymanager/mobile android",
-    "shared:build": "yarn workspace @mmoneymanager/shared build",
-    "web:dev": "yarn workspace @mmoneymanager/web dev",
-    "web:build": "yarn workspace @mmoneymanager/web build"
+    "backend:dev": "yarn workspace @fynans/backend start:dev",
+    "backend:build": "yarn workspace @fynans/backend build",
+    "backend:start": "yarn workspace @fynans/backend start",
+    "backend:start:prod": "yarn workspace @fynans/backend start:prod",
+    "backend:test": "yarn workspace @fynans/backend test",
+    "backend:test:e2e": "yarn workspace @fynans/backend test:e2e",
+    "mobile:start": "yarn workspace @fynans/mobile start",
+    "mobile:ios": "yarn workspace @fynans/mobile ios",
+    "mobile:android": "yarn workspace @fynans/mobile android",
+    "shared:build": "yarn workspace @fynans/shared build",
+    "web:dev": "yarn workspace @fynans/web dev",
+    "web:build": "yarn workspace @fynans/web build"
   },
   "resolutions": {
     "react": "19.1.0",

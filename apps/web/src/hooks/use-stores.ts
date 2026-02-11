@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import type { Store } from "@mmoneymanager/shared";
+import type { Store } from "@fynans/shared";
 
 export function useStores(search: string) {
   const queryClient = useQueryClient();

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Plus, Users } from "lucide-react";
 import { useFamilies } from "@/hooks/use-families";
-import { formatCurrency } from "@mmoneymanager/shared";
+import { formatCurrency } from "@fynans/shared";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

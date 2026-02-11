@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { TransactionDetail } from "@/components/transactions/transaction-detail";
-import type { Transaction } from "@mmoneymanager/shared";
+import type { Transaction } from "@fynans/shared";
 
 export default function TransactionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);

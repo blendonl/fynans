@@ -1,13 +1,13 @@
 "use client";
 
 import { Plus, Check, X } from "lucide-react";
-import type { CurrentItem, Category } from "@mmoneymanager/shared";
+import type { CurrentItem, Category } from "@fynans/shared";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ExpenseItemRow } from "./expense-item-row";
-import type { ExpenseItem } from "@mmoneymanager/shared";
+import type { ExpenseItem } from "@fynans/shared";
 
 interface ExpenseItemsFormProps {
   items: ExpenseItem[];
@@ -55,8 +55,8 @@ export function ExpenseItemsForm({
 
       <div className="border border-border rounded-lg p-4 space-y-3">
         <Label>{editingIndex !== null ? "Edit Item" : "Add Item"}</Label>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="col-span-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="col-span-2 sm:col-span-4">
             <Input
               placeholder="Item name"
               value={currentItem.name}

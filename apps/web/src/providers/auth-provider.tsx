@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import type { User } from "@mmoneymanager/shared";
+import type { User } from "@fynans/shared";
 import { apiClient } from "@/lib/api-client";
 import { getToken, setToken, removeToken } from "@/lib/auth";
 
