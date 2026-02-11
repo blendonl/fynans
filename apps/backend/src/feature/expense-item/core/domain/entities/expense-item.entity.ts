@@ -8,7 +8,7 @@ export interface ExpenseItemProps {
   categoryId: string;
   price: Decimal;
   discount: Decimal;
-  quantity: number;
+  quantity: Decimal;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,7 +50,7 @@ export class ExpenseItem {
       throw new Error('Discount must be non-negative');
     }
 
-    if (!props.quantity || props.quantity < 1) {
+    if (!props.quantity || props.quantity.toNumber() < 1) {
       throw new Error('Quantity must be at least 1');
     }
 
@@ -95,7 +95,7 @@ export class ExpenseItem {
     return this.props.discount;
   }
 
-  get quantity(): number {
+  get quantity(): Decimal {
     return this.props.quantity;
   }
 
@@ -127,7 +127,7 @@ export class ExpenseItem {
       categoryId: this.props.categoryId,
       price: this.props.price.toNumber(),
       discount: this.props.discount.toNumber(),
-      quantity: this.props.quantity,
+      quantity: this.props.quantity.toNumber(),
       finalPrice: this.getFinalPrice().toNumber(),
       discountPercentage: this.getDiscountPercentage(),
       createdAt: this.props.createdAt,
