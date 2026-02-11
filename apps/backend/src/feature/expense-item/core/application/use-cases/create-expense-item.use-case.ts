@@ -45,7 +45,7 @@ export class CreateExpenseItemUseCase {
       categoryId: dto.categoryId,
       price: new Decimal(dto.itemPrice),
       discount: new Decimal(dto.discount ?? 0),
-      quantity: dto.quantity ?? 1,
+      quantity: new Decimal(dto.quantity ?? 1),
     } as Partial<ExpenseItem>);
 
     return expenseItem;

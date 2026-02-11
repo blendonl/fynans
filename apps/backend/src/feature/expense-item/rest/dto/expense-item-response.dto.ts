@@ -27,7 +27,7 @@ export class ExpenseItemResponseDto {
     dto.discountPercentage = item.getDiscountPercentage();
     dto.createdAt = item.createdAt;
     dto.updatedAt = item.updatedAt;
-    dto.quantity = item.quantity;
+    dto.quantity = item.quantity.toNumber();
     return dto;
   }
 
