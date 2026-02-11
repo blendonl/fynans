@@ -33,6 +33,6 @@ COPY --from=builder /app/apps/backend/prisma.config.ts ./apps/backend/prisma.con
 WORKDIR /app/apps/backend
 RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" npx prisma generate
 
-EXPOSE 3000
+EXPOSE 3001
 
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
