@@ -17,14 +17,14 @@ export function AppHeader() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-border bg-surface px-6">
-      <div className="md:hidden">
+    <header className="flex h-16 items-center justify-between border-b border-border bg-surface px-6 pt-[env(safe-area-inset-top)]">
+      <div className="lg:hidden">
         <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-[var(--gradient-primary-start)] to-[var(--gradient-primary-end)] flex items-center justify-center">
           <span className="text-white font-bold text-sm">M</span>
         </div>
       </div>
 
-      <div className="hidden md:block" />
+      <div className="hidden lg:block" />
 
       <div className="flex items-center gap-3">
         <Button

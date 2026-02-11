@@ -23,7 +23,7 @@ export function MobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-surface">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)]">
       <div className="flex items-center justify-around py-2">
         {NAV_ITEMS.map((item) => {
           const isActive =
@@ -35,7 +35,7 @@ export function MobileNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center gap-1 px-3 py-1 text-xs",
+                "flex flex-col items-center gap-1 px-3 py-1 text-xs active:scale-95 transition-transform",
                 isActive ? "text-primary" : "text-text-secondary"
               )}
             >
