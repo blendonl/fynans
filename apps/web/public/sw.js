@@ -31,6 +31,10 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
   if (event.request.mode === "navigate") {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request)),
@@ -41,7 +45,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        if (response.ok && event.request.url.startsWith(self.location.origin)) {
+        if (response.ok) {
           const clone = response.clone();
           caches
             .open(CACHE_NAME)
