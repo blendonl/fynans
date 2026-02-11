@@ -1919,6 +1919,173 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fynans/backend@workspace:apps/backend":
+  version: 0.0.0-use.local
+  resolution: "@fynans/backend@workspace:apps/backend"
+  dependencies:
+    "@eslint/eslintrc": "npm:^3.2.0"
+    "@eslint/js": "npm:^9.18.0"
+    "@nestjs/cli": "npm:^11.0.0"
+    "@nestjs/common": "npm:^11.0.1"
+    "@nestjs/config": "npm:^4.0.2"
+    "@nestjs/core": "npm:^11.0.1"
+    "@nestjs/platform-express": "npm:^11.0.1"
+    "@nestjs/platform-socket.io": "npm:^11.1.11"
+    "@nestjs/schematics": "npm:^11.0.0"
+    "@nestjs/testing": "npm:^11.0.1"
+    "@nestjs/websockets": "npm:^11.1.11"
+    "@prisma/adapter-pg": "npm:^7.1.0"
+    "@prisma/client": "npm:^7.1.0"
+    "@prisma/config": "npm:^7.1.0"
+    "@types/express": "npm:^5.0.0"
+    "@types/jest": "npm:^30.0.0"
+    "@types/multer": "npm:^2.0.0"
+    "@types/node": "npm:^22.10.7"
+    "@types/pg": "npm:^8"
+    "@types/sharp": "npm:^0.32.0"
+    "@types/supertest": "npm:^6.0.2"
+    "@types/uuid": "npm:^11.0.0"
+    better-auth: "npm:^1.4.7"
+    class-transformer: "npm:^0.5.1"
+    class-validator: "npm:^0.14.3"
+    dotenv: "npm:^17.2.3"
+    eslint: "npm:^9.18.0"
+    eslint-config-prettier: "npm:^10.0.1"
+    eslint-plugin-prettier: "npm:^5.2.2"
+    expo-server-sdk: "npm:^4.0.0"
+    globals: "npm:^16.0.0"
+    jest: "npm:^30.0.0"
+    multer: "npm:^2.0.2"
+    pg: "npm:^8.16.3"
+    prettier: "npm:^3.4.2"
+    prisma: "npm:^7.1.0"
+    reflect-metadata: "npm:^0.2.2"
+    rxjs: "npm:^7.8.1"
+    sharp: "npm:^0.33.0"
+    socket.io: "npm:^4.8.3"
+    source-map-support: "npm:^0.5.21"
+    supertest: "npm:^7.0.0"
+    tesseract.js: "npm:^7.0.0"
+    ts-jest: "npm:^29.2.5"
+    ts-loader: "npm:^9.5.2"
+    ts-node: "npm:^10.9.2"
+    tsconfig-paths: "npm:^4.2.0"
+    typescript: "npm:^5.7.3"
+    typescript-eslint: "npm:^8.20.0"
+    uuid: "npm:^13.0.0"
+  languageName: unknown
+  linkType: soft
+
+"@fynans/mobile@workspace:apps/mobile":
+  version: 0.0.0-use.local
+  resolution: "@fynans/mobile@workspace:apps/mobile"
+  dependencies:
+    "@babel/core": "npm:^7.25.2"
+    "@hookform/resolvers": "npm:^5.2.2"
+    "@react-native-async-storage/async-storage": "npm:^2.2.0"
+    "@react-native-community/datetimepicker": "npm:8.4.4"
+    "@react-native-picker/picker": "npm:^2.11.4"
+    "@react-navigation/bottom-tabs": "npm:^7.8.12"
+    "@react-navigation/native": "npm:^7.1.25"
+    "@react-navigation/native-stack": "npm:^7.8.6"
+    "@react-navigation/stack": "npm:^7.6.12"
+    "@types/react": "npm:~19.1.10"
+    expo: "npm:^54.0.0"
+    expo-apple-authentication: "npm:^8.0.8"
+    expo-auth-session: "npm:^7.0.10"
+    expo-blur: "npm:^15.0.8"
+    expo-constants: "npm:^18.0.12"
+    expo-crypto: "npm:^15.0.8"
+    expo-dev-client: "npm:~6.0.20"
+    expo-device: "npm:^8.0.10"
+    expo-file-system: "npm:^19.0.21"
+    expo-haptics: "npm:^15.0.8"
+    expo-image-picker: "npm:^17.0.10"
+    expo-linear-gradient: "npm:^15.0.8"
+    expo-notifications: "npm:^0.32.15"
+    expo-status-bar: "npm:~3.0.0"
+    expo-web-browser: "npm:^15.0.10"
+    react: "npm:19.1.0"
+    react-hook-form: "npm:^7.69.0"
+    react-native: "npm:0.81.5"
+    react-native-chart-kit: "npm:^6.12.0"
+    react-native-gesture-handler: "npm:~2.28.0"
+    react-native-image-viewing: "npm:^0.2.2"
+    react-native-paper: "npm:^5.14.5"
+    react-native-safe-area-context: "npm:~5.6.0"
+    react-native-screens: "npm:~4.16.0"
+    react-native-svg: "npm:^15.15.1"
+    react-native-vector-icons: "npm:^10.3.0"
+    socket.io-client: "npm:^4.8.3"
+    zod: "npm:^4.2.1"
+  languageName: unknown
+  linkType: soft
+
+"@fynans/root@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@fynans/root@workspace:."
+  dependencies:
+    "@nestjs/platform-socket.io": "npm:^11.1.11"
+    "@nestjs/websockets": "npm:^11.1.11"
+    expo-server-sdk: "npm:^4.0.0"
+    react-native-screens: "npm:^4.19.0"
+    socket.io: "npm:^4.8.3"
+  languageName: unknown
+  linkType: soft
+
+"@fynans/shared@workspace:*, @fynans/shared@workspace:packages/shared":
+  version: 0.0.0-use.local
+  resolution: "@fynans/shared@workspace:packages/shared"
+  dependencies:
+    zod: "npm:^3.24.0"
+  languageName: unknown
+  linkType: soft
+
+"@fynans/web@workspace:apps/web":
+  version: 0.0.0-use.local
+  resolution: "@fynans/web@workspace:apps/web"
+  dependencies:
+    "@fynans/shared": "workspace:*"
+    "@hookform/resolvers": "npm:^3.9.0"
+    "@radix-ui/react-alert-dialog": "npm:^1.1.0"
+    "@radix-ui/react-avatar": "npm:^1.1.0"
+    "@radix-ui/react-dialog": "npm:^1.1.0"
+    "@radix-ui/react-dropdown-menu": "npm:^2.1.0"
+    "@radix-ui/react-label": "npm:^2.1.0"
+    "@radix-ui/react-popover": "npm:^1.1.0"
+    "@radix-ui/react-progress": "npm:^1.1.0"
+    "@radix-ui/react-scroll-area": "npm:^1.2.0"
+    "@radix-ui/react-select": "npm:^2.1.0"
+    "@radix-ui/react-separator": "npm:^1.1.0"
+    "@radix-ui/react-slot": "npm:^1.1.0"
+    "@radix-ui/react-tabs": "npm:^1.1.0"
+    "@radix-ui/react-tooltip": "npm:^1.1.0"
+    "@tailwindcss/postcss": "npm:^4.0.0"
+    "@tanstack/react-query": "npm:^5.60.0"
+    "@types/js-cookie": "npm:^3.0.6"
+    "@types/node": "npm:^22.0.0"
+    "@types/react": "npm:^19.0.0"
+    "@types/react-dom": "npm:^19.0.0"
+    class-variance-authority: "npm:^0.7.0"
+    clsx: "npm:^2.1.0"
+    date-fns: "npm:^4.1.0"
+    js-cookie: "npm:^3.0.5"
+    lucide-react: "npm:^0.460.0"
+    next: "npm:15.1.0"
+    next-themes: "npm:^0.4.3"
+    react: "npm:19.1.0"
+    react-day-picker: "npm:^9.4.0"
+    react-dom: "npm:19.1.0"
+    react-hook-form: "npm:^7.53.0"
+    socket.io-client: "npm:^4.8.3"
+    sonner: "npm:^1.7.0"
+    tailwind-merge: "npm:^2.6.0"
+    tailwindcss: "npm:^4.0.0"
+    typescript: "npm:^5.7.0"
+    zod: "npm:^3.24.0"
+  languageName: unknown
+  linkType: soft
+
 "@hono/node-server@npm:1.19.6":
   version: 1.19.6
   resolution: "@hono/node-server@npm:1.19.6"
@@ -3141,173 +3308,6 @@ __metadata:
   checksum: 10c0/5d6dcf478af732972083ab2889c294b57f1028fa13c2c240d7a4aaa079c2c75df7ef0dcbdda5419147fc6704b4adf96b2de92f1a9a72ac21c6350c4014fffe6c
   languageName: node
   linkType: hard
-
-"@mmoneymanager/backend@workspace:apps/backend":
-  version: 0.0.0-use.local
-  resolution: "@mmoneymanager/backend@workspace:apps/backend"
-  dependencies:
-    "@eslint/eslintrc": "npm:^3.2.0"
-    "@eslint/js": "npm:^9.18.0"
-    "@nestjs/cli": "npm:^11.0.0"
-    "@nestjs/common": "npm:^11.0.1"
-    "@nestjs/config": "npm:^4.0.2"
-    "@nestjs/core": "npm:^11.0.1"
-    "@nestjs/platform-express": "npm:^11.0.1"
-    "@nestjs/platform-socket.io": "npm:^11.1.11"
-    "@nestjs/schematics": "npm:^11.0.0"
-    "@nestjs/testing": "npm:^11.0.1"
-    "@nestjs/websockets": "npm:^11.1.11"
-    "@prisma/adapter-pg": "npm:^7.1.0"
-    "@prisma/client": "npm:^7.1.0"
-    "@prisma/config": "npm:^7.1.0"
-    "@types/express": "npm:^5.0.0"
-    "@types/jest": "npm:^30.0.0"
-    "@types/multer": "npm:^2.0.0"
-    "@types/node": "npm:^22.10.7"
-    "@types/pg": "npm:^8"
-    "@types/sharp": "npm:^0.32.0"
-    "@types/supertest": "npm:^6.0.2"
-    "@types/uuid": "npm:^11.0.0"
-    better-auth: "npm:^1.4.7"
-    class-transformer: "npm:^0.5.1"
-    class-validator: "npm:^0.14.3"
-    dotenv: "npm:^17.2.3"
-    eslint: "npm:^9.18.0"
-    eslint-config-prettier: "npm:^10.0.1"
-    eslint-plugin-prettier: "npm:^5.2.2"
-    expo-server-sdk: "npm:^4.0.0"
-    globals: "npm:^16.0.0"
-    jest: "npm:^30.0.0"
-    multer: "npm:^2.0.2"
-    pg: "npm:^8.16.3"
-    prettier: "npm:^3.4.2"
-    prisma: "npm:^7.1.0"
-    reflect-metadata: "npm:^0.2.2"
-    rxjs: "npm:^7.8.1"
-    sharp: "npm:^0.33.0"
-    socket.io: "npm:^4.8.3"
-    source-map-support: "npm:^0.5.21"
-    supertest: "npm:^7.0.0"
-    tesseract.js: "npm:^7.0.0"
-    ts-jest: "npm:^29.2.5"
-    ts-loader: "npm:^9.5.2"
-    ts-node: "npm:^10.9.2"
-    tsconfig-paths: "npm:^4.2.0"
-    typescript: "npm:^5.7.3"
-    typescript-eslint: "npm:^8.20.0"
-    uuid: "npm:^13.0.0"
-  languageName: unknown
-  linkType: soft
-
-"@mmoneymanager/mobile@workspace:apps/mobile":
-  version: 0.0.0-use.local
-  resolution: "@mmoneymanager/mobile@workspace:apps/mobile"
-  dependencies:
-    "@babel/core": "npm:^7.25.2"
-    "@hookform/resolvers": "npm:^5.2.2"
-    "@react-native-async-storage/async-storage": "npm:^2.2.0"
-    "@react-native-community/datetimepicker": "npm:8.4.4"
-    "@react-native-picker/picker": "npm:^2.11.4"
-    "@react-navigation/bottom-tabs": "npm:^7.8.12"
-    "@react-navigation/native": "npm:^7.1.25"
-    "@react-navigation/native-stack": "npm:^7.8.6"
-    "@react-navigation/stack": "npm:^7.6.12"
-    "@types/react": "npm:~19.1.10"
-    expo: "npm:^54.0.0"
-    expo-apple-authentication: "npm:^8.0.8"
-    expo-auth-session: "npm:^7.0.10"
-    expo-blur: "npm:^15.0.8"
-    expo-constants: "npm:^18.0.12"
-    expo-crypto: "npm:^15.0.8"
-    expo-dev-client: "npm:~6.0.20"
-    expo-device: "npm:^8.0.10"
-    expo-file-system: "npm:^19.0.21"
-    expo-haptics: "npm:^15.0.8"
-    expo-image-picker: "npm:^17.0.10"
-    expo-linear-gradient: "npm:^15.0.8"
-    expo-notifications: "npm:^0.32.15"
-    expo-status-bar: "npm:~3.0.0"
-    expo-web-browser: "npm:^15.0.10"
-    react: "npm:19.1.0"
-    react-hook-form: "npm:^7.69.0"
-    react-native: "npm:0.81.5"
-    react-native-chart-kit: "npm:^6.12.0"
-    react-native-gesture-handler: "npm:~2.28.0"
-    react-native-image-viewing: "npm:^0.2.2"
-    react-native-paper: "npm:^5.14.5"
-    react-native-safe-area-context: "npm:~5.6.0"
-    react-native-screens: "npm:~4.16.0"
-    react-native-svg: "npm:^15.15.1"
-    react-native-vector-icons: "npm:^10.3.0"
-    socket.io-client: "npm:^4.8.3"
-    zod: "npm:^4.2.1"
-  languageName: unknown
-  linkType: soft
-
-"@mmoneymanager/root@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@mmoneymanager/root@workspace:."
-  dependencies:
-    "@nestjs/platform-socket.io": "npm:^11.1.11"
-    "@nestjs/websockets": "npm:^11.1.11"
-    expo-server-sdk: "npm:^4.0.0"
-    react-native-screens: "npm:^4.19.0"
-    socket.io: "npm:^4.8.3"
-  languageName: unknown
-  linkType: soft
-
-"@mmoneymanager/shared@workspace:*, @mmoneymanager/shared@workspace:packages/shared":
-  version: 0.0.0-use.local
-  resolution: "@mmoneymanager/shared@workspace:packages/shared"
-  dependencies:
-    zod: "npm:^3.24.0"
-  languageName: unknown
-  linkType: soft
-
-"@mmoneymanager/web@workspace:apps/web":
-  version: 0.0.0-use.local
-  resolution: "@mmoneymanager/web@workspace:apps/web"
-  dependencies:
-    "@hookform/resolvers": "npm:^3.9.0"
-    "@mmoneymanager/shared": "workspace:*"
-    "@radix-ui/react-alert-dialog": "npm:^1.1.0"
-    "@radix-ui/react-avatar": "npm:^1.1.0"
-    "@radix-ui/react-dialog": "npm:^1.1.0"
-    "@radix-ui/react-dropdown-menu": "npm:^2.1.0"
-    "@radix-ui/react-label": "npm:^2.1.0"
-    "@radix-ui/react-popover": "npm:^1.1.0"
-    "@radix-ui/react-progress": "npm:^1.1.0"
-    "@radix-ui/react-scroll-area": "npm:^1.2.0"
-    "@radix-ui/react-select": "npm:^2.1.0"
-    "@radix-ui/react-separator": "npm:^1.1.0"
-    "@radix-ui/react-slot": "npm:^1.1.0"
-    "@radix-ui/react-tabs": "npm:^1.1.0"
-    "@radix-ui/react-tooltip": "npm:^1.1.0"
-    "@tailwindcss/postcss": "npm:^4.0.0"
-    "@tanstack/react-query": "npm:^5.60.0"
-    "@types/js-cookie": "npm:^3.0.6"
-    "@types/node": "npm:^22.0.0"
-    "@types/react": "npm:^19.0.0"
-    "@types/react-dom": "npm:^19.0.0"
-    class-variance-authority: "npm:^0.7.0"
-    clsx: "npm:^2.1.0"
-    date-fns: "npm:^4.1.0"
-    js-cookie: "npm:^3.0.5"
-    lucide-react: "npm:^0.460.0"
-    next: "npm:15.1.0"
-    next-themes: "npm:^0.4.3"
-    react: "npm:19.1.0"
-    react-day-picker: "npm:^9.4.0"
-    react-dom: "npm:19.1.0"
-    react-hook-form: "npm:^7.53.0"
-    socket.io-client: "npm:^4.8.3"
-    sonner: "npm:^1.7.0"
-    tailwind-merge: "npm:^2.6.0"
-    tailwindcss: "npm:^4.0.0"
-    typescript: "npm:^5.7.0"
-    zod: "npm:^3.24.0"
-  languageName: unknown
-  linkType: soft
 
 "@mrleebo/prisma-ast@npm:0.12.1":
   version: 0.12.1
