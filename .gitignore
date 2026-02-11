@@ -1,8 +1,15 @@
 # compiled output
 /dist
+**/dist
 /node_modules
 /apps/mobile/node_modules
 /build
+
+# Next.js build output
+.next
+
+# Package manager
+package-lock.json
 
 # Prevent compiled JS files in src
 /src/**/*.js

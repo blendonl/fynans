@@ -1,9 +1,0 @@
-export * from './store-core.module';
-export * from './application/services/store.service';
-export * from './application/services/store-item.service';
-export * from './application/dto/create-store.dto';
-export * from './application/dto/create-store-item.dto';
-export * from './domain/entities/store.entity';
-export * from './domain/entities/store-item.entity';
-export * from './domain/repositories/store.repository.interface';
-export { IStoreItemRepository } from './domain/repositories/store-item.repository.interface';

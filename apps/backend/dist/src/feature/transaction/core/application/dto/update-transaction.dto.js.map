@@ -1,1 +1,0 @@
-{"version":3,"file":"update-transaction.dto.js","sourceRoot":"","sources":["../../../../../../../src/feature/transaction/core/application/dto/update-transaction.dto.ts"],"names":[],"mappings":";;;AAEA,MAAa,oBAAoB;IAC/B,IAAI,CAAmB;IACvB,KAAK,CAAU;IAEf,YAAY,IAAgD;QAC1D,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC,IAAI,CAAC;QACtB,IAAI,CAAC,KAAK,GAAG,IAAI,CAAC,KAAK,CAAC;IAC1B,CAAC;CACF;AARD,oDAQC"}

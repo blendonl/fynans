@@ -1,1 +1,0 @@
-{"version":3,"file":"update-expense.dto.js","sourceRoot":"","sources":["../../../../../../../src/feature/expense/core/application/dto/update-expense.dto.ts"],"names":[],"mappings":";;;AAAA,MAAa,gBAAgB;IAC3B,UAAU,CAAU;IACpB,OAAO,CAAU;IAEjB,YAAY,IAA+C;QACzD,IAAI,CAAC,UAAU,GAAG,IAAI,CAAC,UAAU,CAAC;QAClC,IAAI,CAAC,OAAO,GAAG,IAAI,CAAC,OAAO,CAAC;IAC9B,CAAC;CACF;AARD,4CAQC"}
