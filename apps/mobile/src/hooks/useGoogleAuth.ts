@@ -15,7 +15,7 @@ export const useGoogleAuth = () => {
     setError(null);
     try {
       const redirectUri = AuthSession.makeRedirectUri({
-        scheme: 'mmoneymanager',
+        scheme: 'fynans',
         path: 'auth/callback',
       });
 

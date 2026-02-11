@@ -1,4 +1,4 @@
-package com.mmoneymanager.app
+package com.fynans.app
 
 import android.os.Build
 import android.os.Bundle

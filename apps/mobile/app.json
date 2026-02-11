@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "scheme": "mmoneymanager",
+    "scheme": "fynans",
     "icon": "./assets/icon.png",
     "plugins": [
       [
@@ -18,11 +18,11 @@
       ]
     ],
     "ios": {
-      "bundleIdentifier": "com.mmoneymanager.app",
+      "bundleIdentifier": "com.fynans.app",
       "supportsTablet": true
     },
     "android": {
-      "package": "com.mmoneymanager.app",
+      "package": "com.fynans.app",
       "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
