@@ -38,6 +38,7 @@ export function GoogleSignInButton() {
       const response = await fetch(`${API_URL}/api/auth/sign-in/social`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ provider: "google", callbackURL }),
       });
       const data = await response.json();
