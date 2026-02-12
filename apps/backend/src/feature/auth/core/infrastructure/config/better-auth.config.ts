@@ -63,5 +63,11 @@ export function createBetterAuthInstance(prisma: PrismaClient) {
     trustedOrigins,
     secret: process.env.BETTER_AUTH_SECRET,
     baseURL: process.env.BETTER_AUTH_URL,
+    advanced: {
+      crossSubDomainCookies: {
+        enabled: true,
+        domain: process.env.COOKIE_DOMAIN || undefined,
+      },
+    },
   });
 }
