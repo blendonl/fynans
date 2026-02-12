@@ -3,11 +3,13 @@ model Account {
   userId       String    @map("user_id")
   accountId    String    @map("account_id")
   providerId   String    @map("provider_id")
-  accessToken  String?   @map("access_token")
-  refreshToken String?   @map("refresh_token")
-  idToken      String?   @map("id_token")
-  expiresAt    DateTime? @map("expires_at")
-  password     String?
+  accessToken          String?   @map("access_token")
+  refreshToken         String?   @map("refresh_token")
+  idToken              String?   @map("id_token")
+  accessTokenExpiresAt DateTime? @map("access_token_expires_at")
+  scope                String?
+  expiresAt            DateTime? @map("expires_at")
+  password             String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
