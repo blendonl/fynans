@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
-import { createBetterAuthInstance } from '../../infrastructure/config/better-auth.config';
+import { BetterAuthProvider } from '../../infrastructure/providers/better-auth.provider';
 import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
 import { AuthResultDto } from '../dto/auth-result.dto';
@@ -15,16 +15,17 @@ import { User } from '../../../../user/core/domain/entities/user.entity';
 export class AuthService {
   private betterAuth;
 
-  constructor(private readonly prisma: PrismaService) {
-    this.betterAuth = createBetterAuthInstance(this.prisma);
+  constructor(
+    private readonly prisma: PrismaService,
+    betterAuthProvider: BetterAuthProvider,
+  ) {
+    this.betterAuth = betterAuthProvider.auth;
   }
 
   async register(dto: RegisterDto): Promise<AuthResultDto> {
-    console.log(1);
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
-    console.log(2);
 
     if (existingUser) {
       throw new ConflictException('User with this email already exists');
@@ -140,20 +141,5 @@ export class AuthService {
         authorization: `Bearer ${token}`,
       },
     });
-  }
-
-  private validateRegisterDto(dto: RegisterDto): void {
-    if (!dto.email?.includes('@')) {
-      throw new BadRequestException('Valid email is required');
-    }
-    if (!dto.password || dto.password.length < 8) {
-      throw new BadRequestException('Password must be at least 8 characters');
-    }
-    if (!dto.firstName?.trim()) {
-      throw new BadRequestException('First name is required');
-    }
-    if (!dto.lastName?.trim()) {
-      throw new BadRequestException('Last name is required');
-    }
   }
 }
