@@ -4,6 +4,7 @@
 /node_modules
 /apps/mobile/node_modules
 /build
+*.tsbuildinfo
 
 # Next.js build output
 .next
