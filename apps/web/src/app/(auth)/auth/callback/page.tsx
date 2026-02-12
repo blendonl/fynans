@@ -2,9 +2,10 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Cookies from "js-cookie";
 import { setToken } from "@/lib/auth";
 import Link from "next/link";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 function AuthCallback() {
   const router = useRouter();
@@ -12,15 +13,26 @@ function AuthCallback() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    const token =
-      searchParams.get("token") ||
-      Cookies.get("better-auth.session_token");
-    if (token) {
-      setToken(token);
+    const tokenFromParams = searchParams.get("token");
+    if (tokenFromParams) {
+      setToken(tokenFromParams);
       router.replace("/");
-    } else {
-      setError(true);
+      return;
     }
+
+    fetch(`${API_URL}/api/auth/get-session`, {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.session?.token) {
+          setToken(data.session.token);
+          router.replace("/");
+        } else {
+          setError(true);
+        }
+      })
+      .catch(() => setError(true));
   }, [searchParams, router]);
 
   if (error) {
