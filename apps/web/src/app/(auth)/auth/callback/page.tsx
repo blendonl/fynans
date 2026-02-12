@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Cookies from "js-cookie";
 import { setToken } from "@/lib/auth";
 import Link from "next/link";
 
@@ -11,7 +12,9 @@ function AuthCallback() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    const token = searchParams.get("token");
+    const token =
+      searchParams.get("token") ||
+      Cookies.get("better-auth.session_token");
     if (token) {
       setToken(token);
       router.replace("/");
