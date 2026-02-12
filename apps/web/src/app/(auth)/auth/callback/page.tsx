@@ -1,0 +1,39 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { setToken } from "@/lib/auth";
+import Link from "next/link";
+
+export default function AuthCallbackPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const token = searchParams.get("token");
+    if (token) {
+      setToken(token);
+      router.replace("/");
+    } else {
+      setError(true);
+    }
+  }, [searchParams, router]);
+
+  if (error) {
+    return (
+      <div className="text-center space-y-4">
+        <p className="text-error">Authentication failed. No token received.</p>
+        <Link href="/login" className="text-primary hover:underline font-medium">
+          Back to login
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="text-center">
+      <p className="text-text-secondary">Signing you in...</p>
+    </div>
+  );
+}

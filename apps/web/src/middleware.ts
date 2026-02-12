@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const AUTH_PAGES = ["/login", "/register"];
+const AUTH_PAGES = ["/login", "/register", "/auth/callback"];
 const PROTECTED_PREFIX = "/";
 
 export function middleware(request: NextRequest) {
