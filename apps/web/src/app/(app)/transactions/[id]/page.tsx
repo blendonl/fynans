@@ -54,25 +54,27 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
 
   if (isLoading) {
     return (
-      <div className="max-w-2xl mx-auto space-y-4">
-        <div className="h-48 rounded-xl bg-surface-variant animate-pulse" />
+      <div className="space-y-6">
+        <div className="h-8 w-40 rounded-md bg-surface-variant skeleton-shimmer" />
+        <div className="h-56 rounded-2xl bg-surface-variant/30 skeleton-shimmer" />
+        <div className="h-40 rounded-2xl bg-surface-variant/30 skeleton-shimmer" />
       </div>
     );
   }
 
   if (!transaction) {
     return (
-      <div className="max-w-2xl mx-auto text-center py-12">
+      <div className="text-center py-12">
         <p className="text-text-secondary">Transaction not found</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <Button variant="ghost" onClick={() => router.back()}>
+    <div className="space-y-6 dash-animate-in">
+      <Button variant="ghost" onClick={() => router.back()} className="text-text-secondary">
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back
+        Back to Transactions
       </Button>
       <TransactionDetail
         transaction={transaction}

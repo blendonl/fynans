@@ -1,53 +1,130 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useTransactions } from "@/hooks/use-transactions";
+import { useInfiniteTransactions } from "@/hooks/use-transactions";
 import { useFamilies } from "@/hooks/use-families";
-import { TransactionFilters } from "@/components/transactions/transaction-filters";
+import { useCategories } from "@/hooks/use-categories";
+import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
+import { TransactionFilters, type AdvancedFilters } from "@/components/transactions/transaction-filters";
 import { TransactionList } from "@/components/transactions/transaction-list";
+import { TransactionsSummary } from "@/components/transactions/transactions-summary";
+
+const EMPTY_ADVANCED: AdvancedFilters = {
+  dateFrom: "",
+  dateTo: "",
+  minAmount: "",
+  maxAmount: "",
+  categories: [],
+};
 
 export default function TransactionsPage() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [scopeFilter, setScopeFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>(EMPTY_ADVANCED);
   const { families } = useFamilies();
+  const { categories } = useCategories();
 
-  const { data: transactions = [], isLoading } = useTransactions(
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteTransactions(
     {
-      type: typeFilter as "all" | "expense" | "income",
-      scope: scopeFilter as "all" | "personal" | "family",
-      familyId: null,
-      categories: [],
-      minAmount: "",
-      maxAmount: "",
-      dateFrom: null,
-      dateTo: null,
+      type: typeFilter !== "all" ? typeFilter : undefined,
+      scope: scopeFilter !== "all" ? scopeFilter : undefined,
+      dateFrom: advancedFilters.dateFrom || undefined,
+      dateTo: advancedFilters.dateTo || undefined,
+      minAmount: advancedFilters.minAmount || undefined,
+      maxAmount: advancedFilters.maxAmount || undefined,
     },
     families
   );
 
+  const allTransactions = useMemo(
+    () => data?.pages.flatMap((page) => page.transactions) ?? [],
+    [data]
+  );
+
   const filtered = useMemo(() => {
-    return transactions.filter((t) => {
-      if (typeFilter !== "all" && t.type !== typeFilter) return false;
-      if (scopeFilter === "personal" && t.scope !== "PERSONAL") return false;
-      if (scopeFilter === "family" && t.scope !== "FAMILY") return false;
+    const query = searchQuery.toLowerCase().trim();
+    if (!query && advancedFilters.categories.length === 0) return allTransactions;
+
+    return allTransactions.filter((t) => {
+      if (query) {
+        const categoryMatch = t.category.name.toLowerCase().includes(query);
+        const storeMatch = t.store?.name.toLowerCase().includes(query);
+        const descMatch = t.transaction.description?.toLowerCase().includes(query);
+        if (!categoryMatch && !storeMatch && !descMatch) return false;
+      }
+
+      if (
+        advancedFilters.categories.length > 0 &&
+        !advancedFilters.categories.includes(t.category.id)
+      ) {
+        return false;
+      }
+
       return true;
     });
-  }, [transactions, typeFilter, scopeFilter]);
+  }, [allTransactions, searchQuery, advancedFilters.categories]);
+
+  const stats = useMemo(() => {
+    if (!data?.pages.length) return { totalExpenses: 0, totalIncome: 0, net: 0 };
+    const totalExpenses = filtered
+      .filter((t) => t.type === "expense")
+      .reduce((sum, t) => sum + t.transaction.value, 0);
+    const totalIncome = filtered
+      .filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + t.transaction.value, 0);
+    return { totalExpenses, totalIncome, net: totalIncome - totalExpenses };
+  }, [data, filtered]);
+
+  const loadMoreRef = useIntersectionObserver(() => fetchNextPage(), {
+    enabled: !!hasNextPage && !isFetchingNextPage,
+  });
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8">
+      <div className="dash-animate-in">
+        <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider">
+          Overview
+        </span>
         <h1 className="text-2xl font-bold text-text">Transactions</h1>
       </div>
 
-      <TransactionFilters
-        typeFilter={typeFilter}
-        scopeFilter={scopeFilter}
-        onTypeChange={setTypeFilter}
-        onScopeChange={setScopeFilter}
-      />
+      <div className="dash-animate-in dash-delay-1">
+        <TransactionsSummary
+          totalIncome={stats.totalIncome}
+          totalExpenses={stats.totalExpenses}
+          net={stats.net}
+        />
+      </div>
 
-      <TransactionList transactions={filtered} isLoading={isLoading} />
+      <div className="dash-animate-in dash-delay-2">
+        <TransactionFilters
+          typeFilter={typeFilter}
+          scopeFilter={scopeFilter}
+          searchQuery={searchQuery}
+          advancedFilters={advancedFilters}
+          categories={categories}
+          onTypeChange={setTypeFilter}
+          onScopeChange={setScopeFilter}
+          onSearchChange={setSearchQuery}
+          onAdvancedFiltersChange={setAdvancedFilters}
+        />
+      </div>
+
+      <div className="dash-animate-in dash-delay-3">
+        <TransactionList
+          transactions={filtered}
+          isLoading={isLoading}
+          loadMoreRef={loadMoreRef}
+          isFetchingNextPage={isFetchingNextPage}
+        />
+      </div>
     </div>
   );
 }
