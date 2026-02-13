@@ -12,23 +12,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
-interface AddStoreDialogProps {
+interface AddItemCategoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialName: string;
-  onSubmit: (name: string, location: string) => void;
+  onSubmit: (name: string) => void;
   isLoading: boolean;
 }
 
-export function AddStoreDialog({
+export function AddItemCategoryDialog({
   open,
   onOpenChange,
   initialName,
   onSubmit,
   isLoading,
-}: AddStoreDialogProps) {
+}: AddItemCategoryDialogProps) {
   const [name, setName] = useState(initialName);
-  const [location, setLocation] = useState("");
 
   useEffect(() => { setName(initialName); }, [initialName]);
 
@@ -36,20 +35,12 @@ export function AddStoreDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Store</DialogTitle>
+          <DialogTitle>Create Item Category</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Store Name</Label>
+            <Label>Category Name</Label>
             <Input value={name} onChange={(e) => setName(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label>Location</Label>
-            <Input
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Store location"
-            />
           </div>
         </div>
         <DialogFooter>
@@ -57,9 +48,9 @@ export function AddStoreDialog({
             Cancel
           </Button>
           <Button
-            onClick={() => onSubmit(name, location)}
+            onClick={() => onSubmit(name)}
             loading={isLoading}
-            disabled={!name.trim() || !location.trim()}
+            disabled={!name.trim()}
           >
             Create
           </Button>

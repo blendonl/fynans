@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { X, Plus, MapPin } from "lucide-react";
+import { useMemo } from "react";
 import type { Store } from "@fynans/shared";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
+import { Label } from "@/components/ui/label";
 
 interface StoreSelectorProps {
   stores: Store[];
@@ -15,6 +13,9 @@ interface StoreSelectorProps {
   onSearch: (query: string) => void;
   onCreateNew: (name: string) => void;
   isLoading: boolean;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
 }
 
 export function StoreSelector({
@@ -25,76 +26,41 @@ export function StoreSelector({
   onSearch,
   onCreateNew,
   isLoading,
+  onLoadMore,
+  hasMore,
+  isLoadingMore,
 }: StoreSelectorProps) {
-  const [search, setSearch] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-
-  if (selectedStore) {
-    return (
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-text">Store</label>
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="gap-1 py-1.5 px-3">
-            <MapPin className="h-3 w-3" />
-            {selectedStore.name}
-            <button onClick={onClear} className="ml-1 hover:opacity-70">
-              <X className="h-3 w-3" />
-            </button>
-          </Badge>
-        </div>
-      </div>
-    );
-  }
+  const options: ComboboxOption[] = useMemo(
+    () =>
+      stores.map((store) => ({
+        value: store.id,
+        label: store.name,
+        sublabel: store.location || undefined,
+      })),
+    [stores]
+  );
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium text-text">Store</label>
-      <Input
-        placeholder="Search for a store"
-        value={search}
-        onChange={(e) => {
-          setSearch(e.target.value);
-          onSearch(e.target.value);
-          setIsOpen(true);
+      <Label>Store</Label>
+      <Combobox
+        options={options}
+        value={selectedStore?.id ?? null}
+        displayValue={selectedStore?.name}
+        onChange={(id) => {
+          const store = stores.find((s) => s.id === id);
+          if (store) onSelect(store);
         }}
-        onFocus={() => setIsOpen(true)}
+        onClear={onClear}
+        onSearchChange={onSearch}
+        onCreateNew={onCreateNew}
+        onLoadMore={onLoadMore}
+        hasMore={hasMore}
+        isLoadingMore={isLoadingMore}
+        placeholder="Search for a store"
+        isLoading={isLoading}
+        showAllOnFocus
       />
-      {isOpen && search.trim() && (
-        <div className="border border-border rounded-lg bg-dropdown-bg shadow-md max-h-48 overflow-y-auto">
-          {isLoading ? (
-            <div className="p-3 text-sm text-text-secondary">Loading...</div>
-          ) : (
-            <>
-              {stores.map((store) => (
-                <button
-                  key={store.id}
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-dropdown-hover transition-colors"
-                  onClick={() => {
-                    onSelect(store);
-                    setSearch("");
-                    setIsOpen(false);
-                  }}
-                >
-                  <p>{store.name}</p>
-                  <p className="text-xs text-text-secondary">{store.location}</p>
-                </button>
-              ))}
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-primary"
-                onClick={() => {
-                  onCreateNew(search.trim());
-                  setSearch("");
-                  setIsOpen(false);
-                }}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add new store
-              </Button>
-            </>
-          )}
-        </div>
-      )}
     </div>
   );
 }

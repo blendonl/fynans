@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +29,8 @@ export function AddCategoryDialog({
 }: AddCategoryDialogProps) {
   const [name, setName] = useState(initialName);
   const [isConnectedToStore, setIsConnectedToStore] = useState(false);
+
+  useEffect(() => { setName(initialName); }, [initialName]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

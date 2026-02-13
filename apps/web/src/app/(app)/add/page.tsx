@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { format } from "date-fns";
 import { formatCurrency } from "@fynans/shared";
 import type { Category, Store, ExpenseItem } from "@fynans/shared";
 import { apiClient } from "@/lib/api-client";
@@ -11,12 +12,12 @@ import { useCategories } from "@/hooks/use-categories";
 import { useStores } from "@/hooks/use-stores";
 import { useExpenseItems } from "@/hooks/use-expense-items";
 import { useFamilies } from "@/hooks/use-families";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CategorySelector } from "@/components/add-expense/category-selector";
 import { StoreSelector } from "@/components/add-expense/store-selector";
@@ -24,62 +25,110 @@ import { ExpenseItemsForm } from "@/components/add-expense/expense-items-form";
 import { FormProgress } from "@/components/add-expense/form-progress";
 import { AddCategoryDialog } from "@/components/add-expense/add-category-dialog";
 import { AddStoreDialog } from "@/components/add-expense/add-store-dialog";
+import { AddItemCategoryDialog } from "@/components/add-expense/add-item-category-dialog";
+
+function localNow() {
+  return format(new Date(), "yyyy-MM-dd'T'HH:mm");
+}
 
 export default function AddTransactionPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState("expense");
+  const [scope, setScope] = useState<"PERSONAL" | "FAMILY">("PERSONAL");
+  const [familyId, setFamilyId] = useState<string>("");
+  const { families } = useFamilies();
+
+  const onSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    queryClient.invalidateQueries({ queryKey: ["transactions-infinite"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard-transaction-stats"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard-expense-stats"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard-recent"] });
+    router.push("/transactions");
+  };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="space-y-6">
       <h1 className="text-2xl font-bold text-text">Add Transaction</h1>
 
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="w-full">
-          <TabsTrigger value="expense" className="flex-1">Expense</TabsTrigger>
-          <TabsTrigger value="income" className="flex-1">Income</TabsTrigger>
-        </TabsList>
-        <TabsContent value="expense">
-          <ExpenseForm
-            onSuccess={() => {
-              queryClient.invalidateQueries({ queryKey: ["transactions"] });
-              router.push("/transactions");
-            }}
-          />
-        </TabsContent>
-        <TabsContent value="income">
-          <IncomeForm
-            onSuccess={() => {
-              queryClient.invalidateQueries({ queryKey: ["transactions"] });
-              router.push("/transactions");
-            }}
-          />
-        </TabsContent>
-      </Tabs>
+      <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3">
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList className="w-full">
+            <TabsTrigger value="expense" className="flex-1">Expense</TabsTrigger>
+            <TabsTrigger value="income" className="flex-1">Income</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <div className="flex gap-2">
+          <Select value={scope} onValueChange={(v) => setScope(v as "PERSONAL" | "FAMILY")}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="PERSONAL">Personal</SelectItem>
+              <SelectItem value="FAMILY">Family</SelectItem>
+            </SelectContent>
+          </Select>
+          {scope === "FAMILY" && (
+            <Select value={familyId} onValueChange={setFamilyId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select family" />
+              </SelectTrigger>
+              <SelectContent>
+                {families.map((f) => (
+                  <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+      </div>
+
+      {tab === "expense" ? (
+        <ExpenseForm onSuccess={onSuccess} scope={scope} familyId={familyId} />
+      ) : (
+        <IncomeForm onSuccess={onSuccess} scope={scope} familyId={familyId} />
+      )}
     </div>
   );
 }
 
-function ExpenseForm({ onSuccess }: { onSuccess: () => void }) {
-  const { categories, itemCategories, isLoading: categoriesLoading, createCategory } = useCategories();
+function ExpenseForm({ onSuccess, scope, familyId }: { onSuccess: () => void; scope: "PERSONAL" | "FAMILY"; familyId: string }) {
+  const [categorySearch, setCategorySearch] = useState("");
+  const {
+    categories,
+    itemCategories,
+    isLoading: categoriesLoading,
+    fetchNextCategoryPage,
+    hasNextCategoryPage,
+    isFetchingNextCategoryPage,
+    createCategory,
+    createItemCategory,
+  } = useCategories(categorySearch);
   const [storeSearch, setStoreSearch] = useState("");
-  const { stores, isLoading: storesLoading, createStore } = useStores(storeSearch);
+  const {
+    stores,
+    isLoading: storesLoading,
+    fetchNextPage: fetchNextStorePage,
+    hasNextPage: hasNextStorePage,
+    isFetchingNextPage: isFetchingNextStorePage,
+    createStore,
+  } = useStores(storeSearch);
   const expenseItems = useExpenseItems();
-  const { families } = useFamilies();
 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [isItemized, setIsItemized] = useState(false);
   const [simpleAmount, setSimpleAmount] = useState("");
   const [simpleNote, setSimpleNote] = useState("");
-  const [scope, setScope] = useState<"PERSONAL" | "FAMILY">("PERSONAL");
-  const [familyId, setFamilyId] = useState<string>("");
-  const [recordedAt, setRecordedAt] = useState(new Date().toISOString().slice(0, 16));
+  const [recordedAt, setRecordedAt] = useState(localNow);
 
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [showStoreDialog, setShowStoreDialog] = useState(false);
   const [newStoreName, setNewStoreName] = useState("");
+  const [showItemCategoryDialog, setShowItemCategoryDialog] = useState(false);
+  const [newItemCategoryName, setNewItemCategoryName] = useState("");
 
   const isGroceryExpense = selectedCategory?.isConnectedToStore === true;
 
@@ -131,6 +180,13 @@ function ExpenseForm({ onSuccess }: { onSuccess: () => void }) {
     return expenseItems.items.length > 0;
   };
 
+  const validationMessage = () => {
+    if (!selectedCategory) return "Select a category to continue";
+    if (!isItemized && (!simpleAmount || parseFloat(simpleAmount) <= 0)) return "Enter an amount";
+    if (isItemized && expenseItems.items.length === 0) return "Add at least one item";
+    return null;
+  };
+
   const progressSteps = [
     { label: "Category", completed: selectedCategory !== null, active: selectedCategory === null },
     ...(isGroceryExpense
@@ -148,8 +204,12 @@ function ExpenseForm({ onSuccess }: { onSuccess: () => void }) {
           selectedCategory={selectedCategory}
           onSelect={setSelectedCategory}
           onClear={() => setSelectedCategory(null)}
+          onSearch={setCategorySearch}
           onCreateNew={(name) => { setNewCategoryName(name); setShowCategoryDialog(true); }}
           isLoading={categoriesLoading}
+          onLoadMore={() => fetchNextCategoryPage()}
+          hasMore={hasNextCategoryPage}
+          isLoadingMore={isFetchingNextCategoryPage}
         />
 
         {selectedCategory && !isItemized && (
@@ -192,56 +252,41 @@ function ExpenseForm({ onSuccess }: { onSuccess: () => void }) {
                 onSearch={setStoreSearch}
                 onCreateNew={(name) => { setNewStoreName(name); setShowStoreDialog(true); }}
                 isLoading={storesLoading}
+                onLoadMore={() => fetchNextStorePage()}
+                hasMore={hasNextStorePage}
+                isLoadingMore={isFetchingNextStorePage}
               />
             )}
 
-            <ExpenseItemsForm
-              items={expenseItems.items}
-              currentItem={expenseItems.currentItem}
-              itemCategories={itemCategories}
-              editingIndex={expenseItems.editingIndex}
-              itemErrors={expenseItems.itemErrors}
-              onCurrentItemChange={expenseItems.setCurrentItem}
-              onAddItem={expenseItems.handleAddItem}
-              onEditItem={expenseItems.handleEditItem}
-              onCancelEdit={expenseItems.cancelEdit}
-              onRemoveItem={expenseItems.handleRemoveItem}
-            />
+            {(!isGroceryExpense || selectedStore) && (
+              <ExpenseItemsForm
+                items={expenseItems.items}
+                currentItem={expenseItems.currentItem}
+                itemCategories={itemCategories}
+                editingIndex={expenseItems.editingIndex}
+                itemErrors={expenseItems.itemErrors}
+                storeId={selectedStore?.id}
+                onCurrentItemChange={expenseItems.setCurrentItem}
+                onAddItem={expenseItems.handleAddItem}
+                onEditItem={expenseItems.handleEditItem}
+                onCancelEdit={expenseItems.cancelEdit}
+                onRemoveItem={expenseItems.handleRemoveItem}
+                onInsertItem={expenseItems.handleInsertItem}
+                onQuickAddItem={expenseItems.handleQuickAddItem}
+                onQuantityChange={expenseItems.handleUpdateQuantity}
+                onCreateNewItemCategory={(name) => { setNewItemCategoryName(name); setShowItemCategoryDialog(true); }}
+                isLoadingCategories={categoriesLoading}
+              />
+            )}
+
+            <Button variant="ghost" className="text-primary" onClick={() => setIsItemized(false)}>
+              Switch to simple mode
+            </Button>
           </>
         )}
 
         {selectedCategory && (
           <>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Scope</Label>
-                <Select value={scope} onValueChange={(v) => setScope(v as "PERSONAL" | "FAMILY")}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="PERSONAL">Personal</SelectItem>
-                    <SelectItem value="FAMILY">Family</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {scope === "FAMILY" && (
-                <div className="space-y-2">
-                  <Label>Family</Label>
-                  <Select value={familyId} onValueChange={setFamilyId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select family" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {families.map((f) => (
-                        <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-
             <div className="space-y-2">
               <Label>Date & Time</Label>
               <Input
@@ -259,6 +304,9 @@ function ExpenseForm({ onSuccess }: { onSuccess: () => void }) {
             >
               Create Expense
             </Button>
+            {!canSubmit() && (
+              <p className="text-xs text-text-secondary text-center">{validationMessage()}</p>
+            )}
           </>
         )}
 
@@ -285,21 +333,30 @@ function ExpenseForm({ onSuccess }: { onSuccess: () => void }) {
           }}
           isLoading={createStore.isPending}
         />
+
+        <AddItemCategoryDialog
+          open={showItemCategoryDialog}
+          onOpenChange={setShowItemCategoryDialog}
+          initialName={newItemCategoryName}
+          onSubmit={async (name) => {
+            const cat = await createItemCategory.mutateAsync({ name });
+            expenseItems.setCurrentItem({ ...expenseItems.currentItem, categoryId: cat.id });
+            setShowItemCategoryDialog(false);
+          }}
+          isLoading={createItemCategory.isPending}
+        />
       </CardContent>
     </Card>
   );
 }
 
-function IncomeForm({ onSuccess }: { onSuccess: () => void }) {
-  const { categories, isLoading: categoriesLoading, createCategory } = useCategories();
-  const { families } = useFamilies();
+function IncomeForm({ onSuccess, scope, familyId }: { onSuccess: () => void; scope: "PERSONAL" | "FAMILY"; familyId: string }) {
+  const { incomeCategories, isLoading: categoriesLoading, createCategory } = useCategories();
 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [scope, setScope] = useState<"PERSONAL" | "FAMILY">("PERSONAL");
-  const [familyId, setFamilyId] = useState<string>("");
-  const [recordedAt, setRecordedAt] = useState(new Date().toISOString().slice(0, 16));
+  const [recordedAt, setRecordedAt] = useState(localNow);
 
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -326,14 +383,21 @@ function IncomeForm({ onSuccess }: { onSuccess: () => void }) {
 
   const canSubmit = selectedCategory && amount && parseFloat(amount) > 0;
 
+  const validationMessage = () => {
+    if (!selectedCategory) return "Select a category to continue";
+    if (!amount || parseFloat(amount) <= 0) return "Enter an amount";
+    return null;
+  };
+
   return (
     <Card className="mt-4">
       <CardContent className="p-6 space-y-6">
         <CategorySelector
-          categories={categories}
+          categories={incomeCategories}
           selectedCategory={selectedCategory}
           onSelect={setSelectedCategory}
           onClear={() => setSelectedCategory(null)}
+          onSearch={() => {}}
           onCreateNew={(name) => { setNewCategoryName(name); setShowCategoryDialog(true); }}
           isLoading={categoriesLoading}
         />
@@ -361,36 +425,6 @@ function IncomeForm({ onSuccess }: { onSuccess: () => void }) {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Scope</Label>
-                <Select value={scope} onValueChange={(v) => setScope(v as "PERSONAL" | "FAMILY")}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="PERSONAL">Personal</SelectItem>
-                    <SelectItem value="FAMILY">Family</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {scope === "FAMILY" && (
-                <div className="space-y-2">
-                  <Label>Family</Label>
-                  <Select value={familyId} onValueChange={setFamilyId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select family" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {families.map((f) => (
-                        <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-
             <div className="space-y-2">
               <Label>Date & Time</Label>
               <Input
@@ -408,6 +442,9 @@ function IncomeForm({ onSuccess }: { onSuccess: () => void }) {
             >
               Create Income
             </Button>
+            {!canSubmit && (
+              <p className="text-xs text-text-secondary text-center">{validationMessage()}</p>
+            )}
           </>
         )}
 
