@@ -14,16 +14,19 @@ export class ListExpenseCategoriesUseCase {
   ) {}
 
   async execute(
+    userId: string,
     parentId?: string | null,
     pagination?: Pagination,
+    filters?: { search?: string },
   ): Promise<PaginatedResult<ExpenseCategory>> {
     if (parentId !== undefined) {
       return this.expenseCategoryRepository.findByParentId(
+        userId,
         parentId,
         pagination,
       );
     }
 
-    return this.expenseCategoryRepository.findAll(pagination);
+    return this.expenseCategoryRepository.findAll(userId, pagination, filters);
   }
 }

@@ -7,6 +7,7 @@ import {
 import { ExpenseCategory } from '../../domain/entities/expense-category.entity';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
 import { ExpenseCategoryMapper } from '../mappers/expense-category.mapper';
+import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
 
 @Injectable()
 export class PrismaExpenseCategoryRepository implements IExpenseCategoryRepository {
@@ -41,15 +42,27 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
   }
 
   async findAll(
+    userId: string,
     pagination?: Pagination,
+    filters?: { search?: string },
   ): Promise<PaginatedResult<ExpenseCategory>> {
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const where: any = {
+      users: { some: { userId: { in: visibleUserIds } } },
+    };
+
+    if (filters?.search) {
+      where.name = { contains: filters.search, mode: 'insensitive' };
+    }
+
     const [categories, total] = await Promise.all([
       this.prisma.expenseCategory.findMany({
+        where,
         orderBy: { name: 'asc' },
         skip: pagination?.skip,
         take: pagination?.take,
       }),
-      this.prisma.expenseCategory.count(),
+      this.prisma.expenseCategory.count({ where }),
     ]);
 
     return {
@@ -59,17 +72,24 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
   }
 
   async findByParentId(
+    userId: string,
     parentId: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<ExpenseCategory>> {
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const where = {
+      parentId,
+      users: { some: { userId: { in: visibleUserIds } } },
+    };
+
     const [categories, total] = await Promise.all([
       this.prisma.expenseCategory.findMany({
-        where: { parentId },
+        where,
         orderBy: { name: 'asc' },
         skip: pagination?.skip,
         take: pagination?.take,
       }),
-      this.prisma.expenseCategory.count({ where: { parentId } }),
+      this.prisma.expenseCategory.count({ where }),
     ]);
 
     return {
@@ -85,6 +105,14 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
     });
 
     return categories.map(ExpenseCategoryMapper.toDomain);
+  }
+
+  async linkToUser(categoryId: string, userId: string): Promise<void> {
+    await this.prisma.userExpenseCategory.upsert({
+      where: { userId_categoryId: { userId, categoryId } },
+      create: { userId, categoryId },
+      update: {},
+    });
   }
 
   async update(

@@ -10,13 +10,14 @@ export class CreateOrFindStoreUseCase {
     private readonly storeRepository: IStoreRepository,
   ) {}
 
-  async execute(dto: CreateStoreDto): Promise<Store> {
+  async execute(dto: CreateStoreDto, userId: string): Promise<Store> {
     const existingStore = await this.storeRepository.findByNameAndLocation(
       dto.name,
       dto.location,
     );
 
     if (existingStore) {
+      await this.storeRepository.linkToUser(existingStore.id, userId);
       return existingStore;
     }
 
@@ -24,6 +25,8 @@ export class CreateOrFindStoreUseCase {
       name: dto.name,
       location: dto.location,
     } as Partial<Store>);
+
+    await this.storeRepository.linkToUser(store.id, userId);
 
     return store;
   }

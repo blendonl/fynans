@@ -58,6 +58,8 @@ export class AuthController {
   @Post('me')
   @HttpCode(HttpStatus.OK)
   async me(@CurrentUser() user: User) {
+    console.log('Current user:', user);
+
     return {
       id: user.id,
       email: user.email,

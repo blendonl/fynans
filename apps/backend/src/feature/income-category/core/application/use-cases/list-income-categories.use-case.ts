@@ -14,16 +14,18 @@ export class ListIncomeCategoriesUseCase {
   ) {}
 
   async execute(
+    userId: string,
     parentId?: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<IncomeCategory>> {
     if (parentId !== undefined) {
       return this.incomeCategoryRepository.findByParentId(
+        userId,
         parentId,
         pagination,
       );
     }
 
-    return this.incomeCategoryRepository.findAll(pagination);
+    return this.incomeCategoryRepository.findAll(userId, pagination);
   }
 }

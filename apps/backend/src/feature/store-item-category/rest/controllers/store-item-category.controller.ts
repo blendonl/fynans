@@ -17,6 +17,8 @@ import { StoreItemCategoryResponseDto } from '../dto/store-item-category-respons
 import { CreateStoreItemCategoryDto } from '../../core/application/dto/create-store-item-category.dto';
 import { UpdateStoreItemCategoryDto } from '../../core/application/dto/update-store-item-category.dto';
 import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
+import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
+import { User } from '../../../user/core/domain/entities/user.entity';
 
 @Controller('expense-item-categories')
 export class StoreItemCategoryController {
@@ -26,18 +28,22 @@ export class StoreItemCategoryController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createDto: CreateStoreItemCategoryRequestDto) {
+  async create(
+    @Body() createDto: CreateStoreItemCategoryRequestDto,
+    @CurrentUser() user: User,
+  ) {
     const coreDto = new CreateStoreItemCategoryDto(
       createDto.name,
       createDto.parentId,
     );
 
-    const category = await this.storeItemCategoryService.create(coreDto);
+    const category = await this.storeItemCategoryService.create(coreDto, user.id);
     return StoreItemCategoryResponseDto.fromEntity(category);
   }
 
   @Get()
   async findAll(
+    @CurrentUser() user: User,
     @Query('parentId') parentId?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -45,6 +51,7 @@ export class StoreItemCategoryController {
     const pagination = new Pagination(page, limit);
 
     const result = await this.storeItemCategoryService.findAll(
+      user.id,
       parentId,
       pagination,
     );
@@ -58,10 +65,9 @@ export class StoreItemCategoryController {
   }
 
   @Get('tree')
-  async getTree() {
-    const tree = await this.storeItemCategoryService.getTree();
+  async getTree(@CurrentUser() user: User) {
+    const tree = await this.storeItemCategoryService.getTree(user.id);
 
-    // Transform tree to include response DTOs
     const transformTree = (node: any) => ({
       category: StoreItemCategoryResponseDto.fromEntity(node.category),
       children: node.children.map(transformTree),

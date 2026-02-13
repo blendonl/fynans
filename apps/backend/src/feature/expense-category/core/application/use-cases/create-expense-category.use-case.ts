@@ -10,8 +10,17 @@ export class CreateExpenseCategoryUseCase {
     private readonly expenseCategoryRepository: IExpenseCategoryRepository,
   ) {}
 
-  async execute(dto: CreateExpenseCategoryDto): Promise<ExpenseCategory> {
+  async execute(
+    dto: CreateExpenseCategoryDto,
+    userId: string,
+  ): Promise<ExpenseCategory> {
     await this.validate(dto);
+
+    const existing = await this.expenseCategoryRepository.findByName(dto.name);
+    if (existing) {
+      await this.expenseCategoryRepository.linkToUser(existing.id, userId);
+      return existing;
+    }
 
     const category = await this.expenseCategoryRepository.create({
       name: dto.name,
@@ -19,17 +28,12 @@ export class CreateExpenseCategoryUseCase {
       isConnectedToStore: dto.isConnectedToStore,
     } as Partial<ExpenseCategory>);
 
+    await this.expenseCategoryRepository.linkToUser(category.id, userId);
+
     return category;
   }
 
   private async validate(dto: CreateExpenseCategoryDto): Promise<void> {
-    const existingCategory = await this.expenseCategoryRepository.findByName(
-      dto.name,
-    );
-    if (existingCategory) {
-      throw new BadRequestException('Category name must be unique');
-    }
-
     if (!dto.parentId) {
       return;
     }

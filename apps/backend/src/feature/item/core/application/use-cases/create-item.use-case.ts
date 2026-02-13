@@ -13,13 +13,15 @@ export class CreateItemUseCase {
     private readonly categoryRepository: IStoreItemCategoryRepository,
   ) {}
 
-  async execute(dto: CreateItemDto): Promise<Item> {
+  async execute(dto: CreateItemDto, userId: string): Promise<Item> {
     await this.validate(dto);
 
     const item = await this.itemRepository.create({
       name: dto.name,
       categoryId: dto.categoryId,
     } as Partial<Item>);
+
+    await this.itemRepository.linkToUser(item.id, userId);
 
     return item;
   }
@@ -33,7 +35,6 @@ export class CreateItemUseCase {
       throw new BadRequestException('Category ID is required');
     }
 
-    // Validate category exists
     const category = await this.categoryRepository.findById(dto.categoryId);
     if (!category) {
       throw new BadRequestException('Category not found');

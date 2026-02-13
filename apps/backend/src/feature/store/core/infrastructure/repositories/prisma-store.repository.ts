@@ -7,10 +7,11 @@ import {
 import { Store } from '../../domain/entities/store.entity';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
 import { StoreMapper } from '../mappers/store.mapper';
+import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
 
 @Injectable()
 export class PrismaStoreRepository implements IStoreRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: Partial<Store>): Promise<Store> {
     const store = await this.prisma.store.create({
@@ -62,10 +63,14 @@ export class PrismaStoreRepository implements IStoreRepository {
   }
 
   async findAll(
+    userId: string,
     filters?: { search?: string },
     pagination?: Pagination,
   ): Promise<PaginatedResult<Store>> {
-    const where: any = {};
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const where: any = {
+      users: { some: { userId: { in: visibleUserIds } } },
+    };
 
     if (filters?.search) {
       where.name = {
@@ -88,6 +93,14 @@ export class PrismaStoreRepository implements IStoreRepository {
       data: stores.map(StoreMapper.toDomain),
       total,
     };
+  }
+
+  async linkToUser(storeId: string, userId: string): Promise<void> {
+    await this.prisma.userStore.upsert({
+      where: { userId_storeId: { userId, storeId } },
+      create: { userId, storeId },
+      update: {},
+    });
   }
 
   async update(id: string, data: Partial<Store>): Promise<Store> {

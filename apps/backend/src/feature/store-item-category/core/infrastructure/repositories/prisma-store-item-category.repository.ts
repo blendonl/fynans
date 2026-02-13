@@ -7,6 +7,7 @@ import {
 import { StoreItemCategory } from '../../domain/entities/store-item-category.entity';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
 import { StoreItemCategoryMapper } from '../mappers/store-item-category.mapper';
+import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
 
 @Injectable()
 export class PrismaStoreItemCategoryRepository
@@ -33,16 +34,31 @@ export class PrismaStoreItemCategoryRepository
     return category ? StoreItemCategoryMapper.toDomain(category) : null;
   }
 
+  async findByName(name: string): Promise<StoreItemCategory | null> {
+    const category = await this.prisma.itemCategory.findFirst({
+      where: { name: { equals: name, mode: 'insensitive' } },
+    });
+
+    return category ? StoreItemCategoryMapper.toDomain(category) : null;
+  }
+
   async findAll(
+    userId: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<StoreItemCategory>> {
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const where = {
+      users: { some: { userId: { in: visibleUserIds } } },
+    };
+
     const [categories, total] = await Promise.all([
       this.prisma.itemCategory.findMany({
+        where,
         orderBy: { name: 'asc' },
         skip: pagination?.skip,
         take: pagination?.take,
       }),
-      this.prisma.itemCategory.count(),
+      this.prisma.itemCategory.count({ where }),
     ]);
 
     return {
@@ -52,17 +68,24 @@ export class PrismaStoreItemCategoryRepository
   }
 
   async findByParentId(
+    userId: string,
     parentId: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<StoreItemCategory>> {
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const where = {
+      parentId,
+      users: { some: { userId: { in: visibleUserIds } } },
+    };
+
     const [categories, total] = await Promise.all([
       this.prisma.itemCategory.findMany({
-        where: { parentId },
+        where,
         orderBy: { name: 'asc' },
         skip: pagination?.skip,
         take: pagination?.take,
       }),
-      this.prisma.itemCategory.count({ where: { parentId } }),
+      this.prisma.itemCategory.count({ where }),
     ]);
 
     return {
@@ -78,6 +101,14 @@ export class PrismaStoreItemCategoryRepository
     });
 
     return categories.map(StoreItemCategoryMapper.toDomain);
+  }
+
+  async linkToUser(categoryId: string, userId: string): Promise<void> {
+    await this.prisma.userItemCategory.upsert({
+      where: { userId_categoryId: { userId, categoryId } },
+      create: { userId, categoryId },
+      update: {},
+    });
   }
 
   async update(

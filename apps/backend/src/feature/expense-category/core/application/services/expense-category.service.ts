@@ -22,8 +22,11 @@ export class ExpenseCategoryService {
     private readonly deleteExpenseCategoryUseCase: DeleteExpenseCategoryUseCase,
   ) {}
 
-  async create(dto: CreateExpenseCategoryDto): Promise<ExpenseCategory> {
-    return this.createExpenseCategoryUseCase.execute(dto);
+  async create(
+    dto: CreateExpenseCategoryDto,
+    userId: string,
+  ): Promise<ExpenseCategory> {
+    return this.createExpenseCategoryUseCase.execute(dto, userId);
   }
 
   async findById(id: string): Promise<ExpenseCategory> {
@@ -31,14 +34,16 @@ export class ExpenseCategoryService {
   }
 
   async findAll(
+    userId: string,
     parentId?: string | null,
     pagination?: Pagination,
+    filters?: { search?: string },
   ): Promise<PaginatedResult<ExpenseCategory>> {
-    return this.listExpenseCategoriesUseCase.execute(parentId, pagination);
+    return this.listExpenseCategoriesUseCase.execute(userId, parentId, pagination, filters);
   }
 
-  async getTree(): Promise<CategoryTree[]> {
-    return this.getCategoryTreeUseCase.execute();
+  async getTree(userId: string): Promise<CategoryTree[]> {
+    return this.getCategoryTreeUseCase.execute(userId);
   }
 
   async update(

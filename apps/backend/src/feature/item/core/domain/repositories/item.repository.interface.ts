@@ -12,10 +12,16 @@ export interface IItemRepository {
     categoryId: string,
   ): Promise<Item | null>;
   findByCategoryId(
+    userId: string,
     categoryId: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<Item>>;
-  findAll(pagination?: Pagination): Promise<PaginatedResult<Item>>;
+  findAll(
+    userId: string,
+    filters?: { search?: string },
+    pagination?: Pagination,
+  ): Promise<PaginatedResult<Item>>;
+  linkToUser(itemId: string, userId: string): Promise<void>;
   update(id: string, data: Partial<Item>): Promise<Item>;
   delete(id: string): Promise<void>;
 }

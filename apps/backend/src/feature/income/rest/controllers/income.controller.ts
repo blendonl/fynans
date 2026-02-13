@@ -28,7 +28,10 @@ export class IncomeController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createDto: CreateIncomeRequestDto) {
+  async create(
+    @Body() createDto: CreateIncomeRequestDto,
+    @CurrentUser() user: User,
+  ) {
     const coreDto = new CreateIncomeDto(
       createDto.transactionId,
       createDto.storeId,

@@ -15,9 +15,11 @@ export interface IStoreRepository {
   ): Promise<Store | null>;
   findBySimilarName(name: string): Promise<Store | null>;
   findAll(
+    userId: string,
     filters?: { search?: string },
     pagination?: Pagination,
   ): Promise<PaginatedResult<Store>>;
+  linkToUser(storeId: string, userId: string): Promise<void>;
   update(id: string, data: Partial<Store>): Promise<Store>;
   delete(id: string): Promise<void>;
 }

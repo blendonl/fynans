@@ -10,12 +10,18 @@ export interface IExpenseCategoryRepository {
   create(data: Partial<ExpenseCategory>): Promise<ExpenseCategory>;
   findById(id: string): Promise<ExpenseCategory | null>;
   findByName(name: string): Promise<ExpenseCategory | null>;
-  findAll(pagination?: Pagination): Promise<PaginatedResult<ExpenseCategory>>;
+  findAll(
+    userId: string,
+    pagination?: Pagination,
+    filters?: { search?: string },
+  ): Promise<PaginatedResult<ExpenseCategory>>;
   findByParentId(
+    userId: string,
     parentId: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<ExpenseCategory>>;
   findChildren(parentId: string): Promise<ExpenseCategory[]>;
+  linkToUser(categoryId: string, userId: string): Promise<void>;
   update(
     id: string,
     data: Partial<ExpenseCategory>,

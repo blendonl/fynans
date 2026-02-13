@@ -14,8 +14,8 @@ export class StoreItemService {
     private readonly listStoreItemsUseCase: ListStoreItemsUseCase,
   ) {}
 
-  async createOrFind(dto: CreateStoreItemDto): Promise<StoreItem> {
-    return this.createOrFindStoreItemUseCase.execute(dto);
+  async createOrFind(dto: CreateStoreItemDto, userId: string): Promise<StoreItem> {
+    return this.createOrFindStoreItemUseCase.execute(dto, userId);
   }
 
   async findById(id: string): Promise<StoreItem> {
@@ -23,9 +23,10 @@ export class StoreItemService {
   }
 
   async findAll(
+    userId: string,
     filters: StoreItemFilters,
     pagination: Pagination,
   ): Promise<{ data: StoreItem[]; total: number }> {
-    return this.listStoreItemsUseCase.execute(filters, pagination);
+    return this.listStoreItemsUseCase.execute(userId, filters, pagination);
   }
 }

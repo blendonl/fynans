@@ -17,6 +17,8 @@ import { ItemResponseDto } from '../dto/item-response.dto';
 import { CreateItemDto } from '../../core/application/dto/create-item.dto';
 import { UpdateItemDto } from '../../core/application/dto/update-item.dto';
 import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
+import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
+import { User } from '../../../user/core/domain/entities/user.entity';
 
 @Controller('items')
 export class ItemController {
@@ -24,22 +26,27 @@ export class ItemController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createDto: CreateItemRequestDto) {
+  async create(
+    @Body() createDto: CreateItemRequestDto,
+    @CurrentUser() user: User,
+  ) {
     const coreDto = new CreateItemDto(createDto.name, createDto.categoryId);
 
-    const item = await this.itemService.create(coreDto);
+    const item = await this.itemService.create(coreDto, user.id);
     return ItemResponseDto.fromEntity(item);
   }
 
   @Get()
   async findAll(
+    @CurrentUser() user: User,
     @Query('categoryId') categoryId?: string,
+    @Query('search') search?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
     const pagination = new Pagination(page, limit);
 
-    const result = await this.itemService.findAll(categoryId, pagination);
+    const result = await this.itemService.findAll(user.id, categoryId, { search }, pagination);
 
     return {
       data: ItemResponseDto.fromEntities(result.data),

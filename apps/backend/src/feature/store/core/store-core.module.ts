@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
 import { ItemCoreModule } from '../../item/core/item-core.module';
+import { StoreItemCategoryCoreModule } from '../../store-item-category/core/store-item-category-core.module';
 import { PrismaStoreRepository } from './infrastructure/repositories/prisma-store.repository';
 import { PrismaStoreItemRepository } from './infrastructure/repositories/prisma-store-item.repository';
 import { CreateOrFindStoreUseCase } from './application/use-cases/create-or-find-store.use-case';
@@ -14,7 +15,7 @@ import { StoreService } from './application/services/store.service';
 import { StoreItemService } from './application/services/store-item.service';
 
 @Module({
-  imports: [PrismaModule, ItemCoreModule],
+  imports: [PrismaModule, ItemCoreModule, StoreItemCategoryCoreModule],
   providers: [
     {
       provide: 'StoreRepository',

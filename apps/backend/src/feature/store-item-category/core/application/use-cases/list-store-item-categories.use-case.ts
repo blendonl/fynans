@@ -14,16 +14,18 @@ export class ListStoreItemCategoriesUseCase {
   ) {}
 
   async execute(
+    userId: string,
     parentId?: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<StoreItemCategory>> {
     if (parentId !== undefined) {
       return this.storeItemCategoryRepository.findByParentId(
+        userId,
         parentId,
         pagination,
       );
     }
 
-    return this.storeItemCategoryRepository.findAll(pagination);
+    return this.storeItemCategoryRepository.findAll(userId, pagination);
   }
 }

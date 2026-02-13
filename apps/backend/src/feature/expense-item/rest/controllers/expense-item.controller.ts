@@ -18,6 +18,8 @@ import { ExpenseItemResponseDto } from '../dto/expense-item-response.dto';
 import { CreateExpenseItemDto } from '../../core/application/dto/create-expense-item.dto';
 import { UpdateExpenseItemDto } from '../../core/application/dto/update-expense-item.dto';
 import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
+import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
+import { User } from '../../../user/core/domain/entities/user.entity';
 
 @Controller('expense-items')
 export class ExpenseItemController {
@@ -27,6 +29,7 @@ export class ExpenseItemController {
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body() createDto: CreateExpenseItemRequestDto,
+    @CurrentUser() user: User,
     @Query('storeId') storeId?: string,
   ) {
     if (!storeId) {
@@ -42,7 +45,7 @@ export class ExpenseItemController {
       itemId: createDto.itemId,
     });
 
-    const item = await this.expenseItemService.create(coreDto, storeId);
+    const item = await this.expenseItemService.create(coreDto, storeId, user.id);
     return ExpenseItemResponseDto.fromEntity(item);
   }
 

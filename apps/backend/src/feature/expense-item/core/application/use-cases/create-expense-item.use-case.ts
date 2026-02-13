@@ -20,6 +20,7 @@ export class CreateExpenseItemUseCase {
   async execute(
     dto: CreateExpenseItemDto,
     storeId: string,
+    userId: string,
   ): Promise<ExpenseItem> {
     await this.validate(dto);
 
@@ -35,9 +36,12 @@ export class CreateExpenseItemUseCase {
           dto.itemPrice,
           dto.categoryId,
         ),
+        userId,
       );
       itemId = storeItem.id;
     }
+
+    await this.storeItemCategoryRepository.linkToUser(dto.categoryId, userId);
 
     const expenseItem = await this.expenseItemRepository.create({
       expenseId: dto.expenseId,

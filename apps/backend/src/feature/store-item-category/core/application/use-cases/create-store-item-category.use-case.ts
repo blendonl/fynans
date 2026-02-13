@@ -10,13 +10,24 @@ export class CreateStoreItemCategoryUseCase {
     private readonly storeItemCategoryRepository: IStoreItemCategoryRepository,
   ) {}
 
-  async execute(dto: CreateStoreItemCategoryDto): Promise<StoreItemCategory> {
+  async execute(
+    dto: CreateStoreItemCategoryDto,
+    userId: string,
+  ): Promise<StoreItemCategory> {
     await this.validate(dto);
+
+    const existing = await this.storeItemCategoryRepository.findByName(dto.name);
+    if (existing) {
+      await this.storeItemCategoryRepository.linkToUser(existing.id, userId);
+      return existing;
+    }
 
     const category = await this.storeItemCategoryRepository.create({
       name: dto.name,
       parentId: dto.parentId ?? null,
     } as Partial<StoreItemCategory>);
+
+    await this.storeItemCategoryRepository.linkToUser(category.id, userId);
 
     return category;
   }
@@ -26,7 +37,6 @@ export class CreateStoreItemCategoryUseCase {
       throw new BadRequestException('Category name is required');
     }
 
-    // Validate parent exists if provided
     if (dto.parentId) {
       const parent =
         await this.storeItemCategoryRepository.findById(dto.parentId);

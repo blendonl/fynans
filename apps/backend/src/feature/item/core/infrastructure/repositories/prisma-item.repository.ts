@@ -7,6 +7,7 @@ import {
 import { Item } from '../../domain/entities/item.entity';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
 import { ItemMapper } from '../mappers/item.mapper';
+import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
 
 @Injectable()
 export class PrismaItemRepository implements IItemRepository {
@@ -74,12 +75,19 @@ export class PrismaItemRepository implements IItemRepository {
   }
 
   async findByCategoryId(
+    userId: string,
     categoryId: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<Item>> {
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const where = {
+      categoryId,
+      users: { some: { userId: { in: visibleUserIds } } },
+    };
+
     const [items, total] = await Promise.all([
       this.prisma.item.findMany({
-        where: { categoryId },
+        where,
         orderBy: { name: 'asc' },
         skip: pagination?.skip,
         take: pagination?.take,
@@ -87,7 +95,7 @@ export class PrismaItemRepository implements IItemRepository {
           category: true,
         },
       }),
-      this.prisma.item.count({ where: { categoryId } }),
+      this.prisma.item.count({ where }),
     ]);
 
     return {
@@ -98,9 +106,26 @@ export class PrismaItemRepository implements IItemRepository {
     };
   }
 
-  async findAll(pagination?: Pagination): Promise<PaginatedResult<Item>> {
+  async findAll(
+    userId: string,
+    filters?: { search?: string },
+    pagination?: Pagination,
+  ): Promise<PaginatedResult<Item>> {
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const where: any = {
+      users: { some: { userId: { in: visibleUserIds } } },
+    };
+
+    if (filters?.search) {
+      where.name = {
+        contains: filters.search,
+        mode: 'insensitive',
+      };
+    }
+
     const [items, total] = await Promise.all([
       this.prisma.item.findMany({
+        where,
         orderBy: { name: 'asc' },
         skip: pagination?.skip,
         take: pagination?.take,
@@ -108,7 +133,7 @@ export class PrismaItemRepository implements IItemRepository {
           category: true,
         },
       }),
-      this.prisma.item.count(),
+      this.prisma.item.count({ where }),
     ]);
 
     return {
@@ -117,6 +142,14 @@ export class PrismaItemRepository implements IItemRepository {
       page: pagination?.page ?? 1,
       limit: pagination?.limit ?? 10,
     };
+  }
+
+  async linkToUser(itemId: string, userId: string): Promise<void> {
+    await this.prisma.userItem.upsert({
+      where: { userId_itemId: { userId, itemId } },
+      create: { userId, itemId },
+      update: {},
+    });
   }
 
   async update(id: string, data: Partial<Item>): Promise<Item> {

@@ -25,8 +25,9 @@ export class ExpenseItemService {
   async create(
     dto: CreateExpenseItemDto,
     storeId: string,
+    userId: string,
   ): Promise<ExpenseItem> {
-    return this.createExpenseItemUseCase.execute(dto, storeId);
+    return this.createExpenseItemUseCase.execute(dto, storeId, userId);
   }
 
   async findById(id: string): Promise<ExpenseItem> {

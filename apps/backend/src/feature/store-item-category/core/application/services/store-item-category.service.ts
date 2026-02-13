@@ -22,8 +22,11 @@ export class StoreItemCategoryService {
     private readonly deleteStoreItemCategoryUseCase: DeleteStoreItemCategoryUseCase,
   ) {}
 
-  async create(dto: CreateStoreItemCategoryDto): Promise<StoreItemCategory> {
-    return this.createStoreItemCategoryUseCase.execute(dto);
+  async create(
+    dto: CreateStoreItemCategoryDto,
+    userId: string,
+  ): Promise<StoreItemCategory> {
+    return this.createStoreItemCategoryUseCase.execute(dto, userId);
   }
 
   async findById(id: string): Promise<StoreItemCategory> {
@@ -31,14 +34,15 @@ export class StoreItemCategoryService {
   }
 
   async findAll(
+    userId: string,
     parentId?: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<StoreItemCategory>> {
-    return this.listStoreItemCategoriesUseCase.execute(parentId, pagination);
+    return this.listStoreItemCategoriesUseCase.execute(userId, parentId, pagination);
   }
 
-  async getTree(): Promise<ItemCategoryTree[]> {
-    return this.getItemCategoryTreeUseCase.execute();
+  async getTree(userId: string): Promise<ItemCategoryTree[]> {
+    return this.getItemCategoryTreeUseCase.execute(userId);
   }
 
   async update(

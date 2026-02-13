@@ -14,24 +14,28 @@ export class GetIncomeCategoryTreeUseCase {
     private readonly incomeCategoryRepository: IIncomeCategoryRepository,
   ) {}
 
-  async execute(): Promise<IncomeCategoryTree[]> {
+  async execute(userId: string): Promise<IncomeCategoryTree[]> {
     const rootCategories = await this.incomeCategoryRepository.findByParentId(
+      userId,
       null,
     );
 
     const trees = await Promise.all(
-      rootCategories.data.map((category) => this.buildTree(category)),
+      rootCategories.data.map((category) => this.buildTree(userId, category)),
     );
 
     return trees;
   }
 
-  private async buildTree(category: IncomeCategory): Promise<IncomeCategoryTree> {
+  private async buildTree(
+    userId: string,
+    category: IncomeCategory,
+  ): Promise<IncomeCategoryTree> {
     const children =
       await this.incomeCategoryRepository.findChildren(category.id);
 
     const childTrees = await Promise.all(
-      children.map((child) => this.buildTree(child)),
+      children.map((child) => this.buildTree(userId, child)),
     );
 
     return {

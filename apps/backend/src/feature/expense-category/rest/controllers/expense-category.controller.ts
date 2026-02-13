@@ -17,6 +17,8 @@ import { ExpenseCategoryResponseDto } from '../dto/expense-category-response.dto
 import { CreateExpenseCategoryDto } from '../../core/application/dto/create-expense-category.dto';
 import { UpdateExpenseCategoryDto } from '../../core/application/dto/update-expense-category.dto';
 import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
+import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
+import { User } from '../../../user/core/domain/entities/user.entity';
 
 @Controller('expense-categories')
 export class ExpenseCategoryController {
@@ -26,28 +28,35 @@ export class ExpenseCategoryController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createDto: CreateExpenseCategoryRequestDto) {
+  async create(
+    @Body() createDto: CreateExpenseCategoryRequestDto,
+    @CurrentUser() user: User,
+  ) {
     const coreDto = new CreateExpenseCategoryDto(
       createDto.name,
       createDto.isConnectedToStore,
       createDto.parentId,
     );
 
-    const category = await this.expenseCategoryService.create(coreDto);
+    const category = await this.expenseCategoryService.create(coreDto, user.id);
     return ExpenseCategoryResponseDto.fromEntity(category);
   }
 
   @Get()
   async findAll(
+    @CurrentUser() user: User,
     @Query('parentId') parentId?: string,
+    @Query('search') search?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
     const pagination = new Pagination(page, limit);
 
     const result = await this.expenseCategoryService.findAll(
+      user.id,
       parentId,
       pagination,
+      { search },
     );
 
     return {
@@ -59,10 +68,9 @@ export class ExpenseCategoryController {
   }
 
   @Get('tree')
-  async getTree() {
-    const tree = await this.expenseCategoryService.getTree();
+  async getTree(@CurrentUser() user: User) {
+    const tree = await this.expenseCategoryService.getTree(user.id);
 
-    // Transform tree to include response DTOs
     const transformTree = (node: any) => ({
       category: ExpenseCategoryResponseDto.fromEntity(node.category),
       children: node.children.map(transformTree),

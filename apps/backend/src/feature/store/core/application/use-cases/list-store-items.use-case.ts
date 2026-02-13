@@ -5,6 +5,7 @@ import { Pagination } from '../../../../transaction/core/application/dto/paginat
 
 export interface StoreItemFilters {
   storeId?: string;
+  search?: string;
 }
 
 @Injectable()
@@ -15,15 +16,18 @@ export class ListStoreItemsUseCase {
   ) {}
 
   async execute(
+    userId: string,
     filters: StoreItemFilters,
     pagination: Pagination,
   ): Promise<{ data: StoreItem[]; total: number }> {
     if (filters.storeId) {
       return this.storeItemRepository.findByStoreId(
+        userId,
         filters.storeId,
+        filters.search,
         pagination,
       );
     }
-    return this.storeItemRepository.findAll(pagination);
+    return this.storeItemRepository.findAll(userId, pagination);
   }
 }

@@ -22,8 +22,11 @@ export class IncomeCategoryService {
     private readonly deleteIncomeCategoryUseCase: DeleteIncomeCategoryUseCase,
   ) {}
 
-  async create(dto: CreateIncomeCategoryDto): Promise<IncomeCategory> {
-    return this.createIncomeCategoryUseCase.execute(dto);
+  async create(
+    dto: CreateIncomeCategoryDto,
+    userId: string,
+  ): Promise<IncomeCategory> {
+    return this.createIncomeCategoryUseCase.execute(dto, userId);
   }
 
   async findById(id: string): Promise<IncomeCategory> {
@@ -31,14 +34,15 @@ export class IncomeCategoryService {
   }
 
   async findAll(
+    userId: string,
     parentId?: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<IncomeCategory>> {
-    return this.listIncomeCategoriesUseCase.execute(parentId, pagination);
+    return this.listIncomeCategoriesUseCase.execute(userId, parentId, pagination);
   }
 
-  async getTree(): Promise<IncomeCategoryTree[]> {
-    return this.getIncomeCategoryTreeUseCase.execute();
+  async getTree(userId: string): Promise<IncomeCategoryTree[]> {
+    return this.getIncomeCategoryTreeUseCase.execute(userId);
   }
 
   async update(

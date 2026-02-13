@@ -9,12 +9,18 @@ export interface PaginatedResult<T> {
 export interface IStoreItemCategoryRepository {
   create(data: Partial<StoreItemCategory>): Promise<StoreItemCategory>;
   findById(id: string): Promise<StoreItemCategory | null>;
-  findAll(pagination?: Pagination): Promise<PaginatedResult<StoreItemCategory>>;
+  findByName(name: string): Promise<StoreItemCategory | null>;
+  findAll(
+    userId: string,
+    pagination?: Pagination,
+  ): Promise<PaginatedResult<StoreItemCategory>>;
   findByParentId(
+    userId: string,
     parentId: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<StoreItemCategory>>;
   findChildren(parentId: string): Promise<StoreItemCategory[]>;
+  linkToUser(categoryId: string, userId: string): Promise<void>;
   update(
     id: string,
     data: Partial<StoreItemCategory>,

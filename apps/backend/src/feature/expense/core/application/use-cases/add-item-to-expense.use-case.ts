@@ -19,6 +19,7 @@ export class AddItemToExpenseUseCase {
     expenseId: string,
     itemDto: CreateExpenseItemDto,
     storeId: string,
+    userId: string,
   ): Promise<Expense> {
     const expense = await this.expenseRepository.findById(expenseId);
 
@@ -26,8 +27,7 @@ export class AddItemToExpenseUseCase {
       throw new NotFoundException('Expense not found');
     }
 
-    // 1. Add item to expense
-    await this.expenseItemService.create(itemDto, storeId);
+    await this.expenseItemService.create(itemDto, storeId, userId);
 
     // 2. Recalculate total
     const newTotal = await this.expenseItemService.calculateTotal(expenseId);

@@ -1,7 +1,7 @@
 import { IsOptional, IsInt, Min, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class QueryStoreItemDto {
+export class QueryExpenseCategoryDto {
   @IsOptional()
   @IsString()
   search?: string;

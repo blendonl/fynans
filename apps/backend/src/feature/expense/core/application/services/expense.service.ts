@@ -66,7 +66,8 @@ export class ExpenseService {
     expenseId: string,
     itemDto: CreateExpenseItemDto,
     storeId: string,
+    userId: string,
   ): Promise<Expense> {
-    return this.addItemToExpenseUseCase.execute(expenseId, itemDto, storeId);
+    return this.addItemToExpenseUseCase.execute(expenseId, itemDto, storeId, userId);
   }
 }

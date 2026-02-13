@@ -22,8 +22,8 @@ export class ItemService {
     private readonly deleteItemUseCase: DeleteItemUseCase,
   ) {}
 
-  async create(dto: CreateItemDto): Promise<Item> {
-    return this.createItemUseCase.execute(dto);
+  async create(dto: CreateItemDto, userId: string): Promise<Item> {
+    return this.createItemUseCase.execute(dto, userId);
   }
 
   async findById(id: string): Promise<Item> {
@@ -31,10 +31,12 @@ export class ItemService {
   }
 
   async findAll(
+    userId: string,
     categoryId?: string,
+    filters?: { search?: string },
     pagination?: Pagination,
   ): Promise<PaginatedResult<Item>> {
-    return this.listItemsUseCase.execute(categoryId, pagination);
+    return this.listItemsUseCase.execute(userId, categoryId, filters, pagination);
   }
 
   async findByName(name: string): Promise<Item | null> {

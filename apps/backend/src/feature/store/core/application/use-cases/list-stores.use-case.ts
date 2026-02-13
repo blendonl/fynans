@@ -4,20 +4,21 @@ import { Store } from '../../domain/entities/store.entity';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
 
 export interface StoreFilters {
-    search?: string;
+  search?: string;
 }
 
 @Injectable()
 export class ListStoresUseCase {
-    constructor(
-        @Inject('StoreRepository')
-        private readonly storeRepository: IStoreRepository,
-    ) { }
+  constructor(
+    @Inject('StoreRepository')
+    private readonly storeRepository: IStoreRepository,
+  ) {}
 
-    async execute(
-        filters: StoreFilters,
-        pagination: Pagination,
-    ): Promise<{ data: Store[]; total: number }> {
-        return this.storeRepository.findAll(filters, pagination);
-    }
+  async execute(
+    userId: string,
+    filters: StoreFilters,
+    pagination: Pagination,
+  ): Promise<{ data: Store[]; total: number }> {
+    return this.storeRepository.findAll(userId, filters, pagination);
+  }
 }

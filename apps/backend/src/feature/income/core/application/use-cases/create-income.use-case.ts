@@ -43,6 +43,9 @@ export class CreateIncomeUseCase {
     } as Partial<Income>);
 
     const transaction = await this.transactionService.findById(dto.transactionId);
+
+    await this.incomeCategoryRepository.linkToUser(dto.categoryId, transaction.userId);
+
     if (transaction.familyId) {
       const family = await this.familyRepository.findById(transaction.familyId);
       const incomeUser = await this.userService.findById(transaction.userId);

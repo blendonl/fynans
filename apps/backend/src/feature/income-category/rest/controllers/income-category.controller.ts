@@ -17,6 +17,8 @@ import { IncomeCategoryResponseDto } from '../dto/income-category-response.dto';
 import { CreateIncomeCategoryDto } from '../../core/application/dto/create-income-category.dto';
 import { UpdateIncomeCategoryDto } from '../../core/application/dto/update-income-category.dto';
 import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
+import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
+import { User } from '../../../user/core/domain/entities/user.entity';
 
 @Controller('income-categories')
 export class IncomeCategoryController {
@@ -26,18 +28,22 @@ export class IncomeCategoryController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createDto: CreateIncomeCategoryRequestDto) {
+  async create(
+    @Body() createDto: CreateIncomeCategoryRequestDto,
+    @CurrentUser() user: User,
+  ) {
     const coreDto = new CreateIncomeCategoryDto(
       createDto.name,
       createDto.parentId,
     );
 
-    const category = await this.incomeCategoryService.create(coreDto);
+    const category = await this.incomeCategoryService.create(coreDto, user.id);
     return IncomeCategoryResponseDto.fromEntity(category);
   }
 
   @Get()
   async findAll(
+    @CurrentUser() user: User,
     @Query('parentId') parentId?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -45,6 +51,7 @@ export class IncomeCategoryController {
     const pagination = new Pagination(page, limit);
 
     const result = await this.incomeCategoryService.findAll(
+      user.id,
       parentId,
       pagination,
     );
@@ -58,8 +65,8 @@ export class IncomeCategoryController {
   }
 
   @Get('tree')
-  async getTree() {
-    const tree = await this.incomeCategoryService.getTree();
+  async getTree(@CurrentUser() user: User) {
+    const tree = await this.incomeCategoryService.getTree(user.id);
 
     const transformTree = (node: any) => ({
       category: IncomeCategoryResponseDto.fromEntity(node.category),

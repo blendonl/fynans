@@ -51,9 +51,10 @@ export class CreateExpenseUseCase {
       throw new NotFoundException('Expense category not found');
     }
 
+    await this.expenseCategoryRepository.linkToUser(dto.categoryId, dto.userId);
+
     let store = null;
 
-    console.log('Category isConnectedToStore:', category);
     if (category.isConnectedToStore) {
       if (!dto.storeName || !dto.storeLocation) {
         throw new BadRequestException(
@@ -62,6 +63,7 @@ export class CreateExpenseUseCase {
       }
       store = await this.storeService.createOrFind(
         new CreateStoreDto(dto.storeName, dto.storeLocation),
+        dto.userId,
       );
     }
 
@@ -102,6 +104,7 @@ export class CreateExpenseUseCase {
               quantity: item.quantity,
             }),
             store.id,
+            dto.userId,
           ),
         ),
       );

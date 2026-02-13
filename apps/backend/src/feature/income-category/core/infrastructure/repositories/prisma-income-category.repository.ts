@@ -7,6 +7,7 @@ import {
 import { IncomeCategory } from '../../domain/entities/income-category.entity';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
 import { IncomeCategoryMapper } from '../mappers/income-category.mapper';
+import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
 
 @Injectable()
 export class PrismaIncomeCategoryRepository
@@ -33,16 +34,31 @@ export class PrismaIncomeCategoryRepository
     return category ? IncomeCategoryMapper.toDomain(category) : null;
   }
 
+  async findByName(name: string): Promise<IncomeCategory | null> {
+    const category = await this.prisma.incomeCategory.findUnique({
+      where: { name },
+    });
+
+    return category ? IncomeCategoryMapper.toDomain(category) : null;
+  }
+
   async findAll(
+    userId: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<IncomeCategory>> {
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const where = {
+      users: { some: { userId: { in: visibleUserIds } } },
+    };
+
     const [categories, total] = await Promise.all([
       this.prisma.incomeCategory.findMany({
+        where,
         orderBy: { name: 'asc' },
         skip: pagination?.skip,
         take: pagination?.take,
       }),
-      this.prisma.incomeCategory.count(),
+      this.prisma.incomeCategory.count({ where }),
     ]);
 
     return {
@@ -52,17 +68,24 @@ export class PrismaIncomeCategoryRepository
   }
 
   async findByParentId(
+    userId: string,
     parentId: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<IncomeCategory>> {
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const where = {
+      parentId,
+      users: { some: { userId: { in: visibleUserIds } } },
+    };
+
     const [categories, total] = await Promise.all([
       this.prisma.incomeCategory.findMany({
-        where: { parentId },
+        where,
         orderBy: { name: 'asc' },
         skip: pagination?.skip,
         take: pagination?.take,
       }),
-      this.prisma.incomeCategory.count({ where: { parentId } }),
+      this.prisma.incomeCategory.count({ where }),
     ]);
 
     return {
@@ -78,6 +101,14 @@ export class PrismaIncomeCategoryRepository
     });
 
     return categories.map(IncomeCategoryMapper.toDomain);
+  }
+
+  async linkToUser(categoryId: string, userId: string): Promise<void> {
+    await this.prisma.userIncomeCategory.upsert({
+      where: { userId_categoryId: { userId, categoryId } },
+      create: { userId, categoryId },
+      update: {},
+    });
   }
 
   async update(

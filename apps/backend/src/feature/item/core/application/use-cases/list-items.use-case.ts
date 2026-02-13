@@ -14,16 +14,19 @@ export class ListItemsUseCase {
   ) {}
 
   async execute(
+    userId: string,
     categoryId?: string,
+    filters?: { search?: string },
     pagination?: Pagination,
   ): Promise<PaginatedResult<Item>> {
     if (categoryId) {
       return await this.itemRepository.findByCategoryId(
+        userId,
         categoryId,
         pagination,
       );
     }
 
-    return await this.itemRepository.findAll(pagination);
+    return await this.itemRepository.findAll(userId, filters, pagination);
   }
 }
