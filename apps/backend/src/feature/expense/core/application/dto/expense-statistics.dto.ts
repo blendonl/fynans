@@ -2,14 +2,14 @@ export class ExpenseStatistics {
   totalExpenses: number;
   expenseCount: number;
   averageExpense: number;
-  expensesByCategory: { categoryId: string; total: number }[];
+  expensesByCategory: { categoryId: string; categoryName: string; total: number }[];
   expensesByStore: { storeId: string; total: number }[];
 
   constructor(
     totalExpenses: number,
     expenseCount: number,
     averageExpense: number,
-    expensesByCategory: { categoryId: string; total: number }[],
+    expensesByCategory: { categoryId: string; categoryName: string; total: number }[],
     expensesByStore: { storeId: string; total: number }[],
   ) {
     this.totalExpenses = totalExpenses;

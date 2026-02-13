@@ -32,6 +32,9 @@ export function useFamilies() {
     mutationFn: async ({ familyId, email }: { familyId: string; email: string }) => {
       await apiClient.post(`/families/${familyId}/invitations`, { inviteeEmail: email });
     },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["family-sent-invitations", variables.familyId] });
+    },
   });
 
   const removeMember = useMutation({
@@ -92,4 +95,31 @@ export function useFamilyDetail(familyId: string) {
     },
     enabled: !!familyId,
   });
+}
+
+export function useFamilySentInvitations(familyId: string) {
+  const queryClient = useQueryClient();
+
+  const sentInvitationsQuery = useQuery({
+    queryKey: ["family-sent-invitations", familyId],
+    queryFn: async () => {
+      return (await apiClient.get(`/families/${familyId}/invitations/pending`)) as FamilyInvitation[];
+    },
+    enabled: !!familyId,
+  });
+
+  const cancelInvitation = useMutation({
+    mutationFn: async (invitationId: string) => {
+      await apiClient.post(`/families/invitations/${invitationId}/cancel`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["family-sent-invitations", familyId] });
+    },
+  });
+
+  return {
+    sentInvitations: sentInvitationsQuery.data || [],
+    isLoading: sentInvitationsQuery.isLoading,
+    cancelInvitation,
+  };
 }

@@ -26,8 +26,8 @@ interface TransactionDetailProps {
 export function TransactionDetail({ transaction, onDelete, isDeleting }: TransactionDetailProps) {
   const isExpense = transaction.type === "expense";
 
-  const date = transaction.transaction.createdAt
-    ? new Date(transaction.transaction.createdAt).toLocaleDateString("en-US", {
+  const date = transaction.transaction.recordedAt
+    ? new Date(transaction.transaction.recordedAt).toLocaleDateString("en-US", {
         weekday: "long",
         year: "numeric",
         month: "long",

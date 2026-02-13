@@ -54,12 +54,12 @@ export function GoogleSignInButton() {
     <Button
       type="button"
       variant="outline"
-      className="w-full"
+      className="w-full h-12 text-[15px] font-medium gap-3 shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-200"
       loading={loading}
       onClick={handleGoogleSignIn}
     >
       <GoogleIcon />
-      <span className="ml-2">Sign in with Google</span>
+      Continue with Google
     </Button>
   );
 }

@@ -3,8 +3,8 @@ import { CreateExpenseItemDto } from '../../../../expense-item/core/application/
 export class CreateExpenseDto {
   userId: string;
   categoryId: string;
-  storeName: string;
-  storeLocation: string;
+  storeName?: string;
+  storeLocation?: string;
   items: CreateExpenseItemDto[];
   familyId?: string;
   scope?: 'PERSONAL' | 'FAMILY';
@@ -13,8 +13,8 @@ export class CreateExpenseDto {
   constructor(data: {
     userId: string;
     categoryId: string;
-    storeName: string;
-    storeLocation: string;
+    storeName?: string;
+    storeLocation?: string;
     items: CreateExpenseItemDto[];
     familyId?: string;
     recordedAt?: Date;

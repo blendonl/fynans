@@ -2,8 +2,8 @@
 
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, UserPlus, LogOut, Trash2 } from "lucide-react";
-import { useFamilyDetail, useFamilies } from "@/hooks/use-families";
+import { ArrowLeft, UserPlus, LogOut, Trash2, Clock, X } from "lucide-react";
+import { useFamilyDetail, useFamilies, useFamilySentInvitations } from "@/hooks/use-families";
 import { formatCurrency } from "@fynans/shared";
 import { useAuth } from "@/providers/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
   const { user } = useAuth();
   const { data: family, isLoading } = useFamilyDetail(id);
   const { inviteMember, removeMember, leaveFamily } = useFamilies();
+  const { sentInvitations, cancelInvitation } = useFamilySentInvitations(id);
   const [showInvite, setShowInvite] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
 
@@ -87,6 +88,35 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
               </div>
             ))}
           </div>
+
+          {sentInvitations.length > 0 && (
+            <>
+              <h3 className="font-medium text-text">
+                Pending Invitations ({sentInvitations.length})
+              </h3>
+              <div className="space-y-2">
+                {sentInvitations.map((invitation) => (
+                  <div key={invitation.id} className="flex items-center justify-between p-3 rounded-lg bg-surface-variant">
+                    <div>
+                      <p className="text-sm font-medium text-text">{invitation.inviteeEmail}</p>
+                      <p className="text-xs text-text-secondary flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        Expires {new Date(invitation.expiresAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-error"
+                      onClick={() => cancelInvitation.mutate(invitation.id)}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
 
           <Button
             variant="outline"

@@ -162,7 +162,7 @@ export type ExpenseGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type ExpenseGroupByOutputType = {
   id: string
   transactionId: string
-  storeId: string
+  storeId: string | null
   categoryId: string
   description: string | null
   createdAt: Date
@@ -193,21 +193,21 @@ export type ExpenseWhereInput = {
   NOT?: Prisma.ExpenseWhereInput | Prisma.ExpenseWhereInput[]
   id?: Prisma.StringFilter<"Expense"> | string
   transactionId?: Prisma.StringFilter<"Expense"> | string
-  storeId?: Prisma.StringFilter<"Expense"> | string
+  storeId?: Prisma.StringNullableFilter<"Expense"> | string | null
   categoryId?: Prisma.StringFilter<"Expense"> | string
   description?: Prisma.StringNullableFilter<"Expense"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
   category?: Prisma.XOR<Prisma.ExpenseCategoryScalarRelationFilter, Prisma.ExpenseCategoryWhereInput>
   transaction?: Prisma.XOR<Prisma.TransactionScalarRelationFilter, Prisma.TransactionWhereInput>
-  store?: Prisma.XOR<Prisma.StoreScalarRelationFilter, Prisma.StoreWhereInput>
+  store?: Prisma.XOR<Prisma.StoreNullableScalarRelationFilter, Prisma.StoreWhereInput> | null
   items?: Prisma.ExpenseItemListRelationFilter
 }
 
 export type ExpenseOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   transactionId?: Prisma.SortOrder
-  storeId?: Prisma.SortOrder
+  storeId?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -224,21 +224,21 @@ export type ExpenseWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ExpenseWhereInput | Prisma.ExpenseWhereInput[]
   OR?: Prisma.ExpenseWhereInput[]
   NOT?: Prisma.ExpenseWhereInput | Prisma.ExpenseWhereInput[]
-  storeId?: Prisma.StringFilter<"Expense"> | string
+  storeId?: Prisma.StringNullableFilter<"Expense"> | string | null
   categoryId?: Prisma.StringFilter<"Expense"> | string
   description?: Prisma.StringNullableFilter<"Expense"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
   category?: Prisma.XOR<Prisma.ExpenseCategoryScalarRelationFilter, Prisma.ExpenseCategoryWhereInput>
   transaction?: Prisma.XOR<Prisma.TransactionScalarRelationFilter, Prisma.TransactionWhereInput>
-  store?: Prisma.XOR<Prisma.StoreScalarRelationFilter, Prisma.StoreWhereInput>
+  store?: Prisma.XOR<Prisma.StoreNullableScalarRelationFilter, Prisma.StoreWhereInput> | null
   items?: Prisma.ExpenseItemListRelationFilter
 }, "id" | "transactionId">
 
 export type ExpenseOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   transactionId?: Prisma.SortOrder
-  storeId?: Prisma.SortOrder
+  storeId?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -254,7 +254,7 @@ export type ExpenseScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ExpenseScalarWhereWithAggregatesInput | Prisma.ExpenseScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Expense"> | string
   transactionId?: Prisma.StringWithAggregatesFilter<"Expense"> | string
-  storeId?: Prisma.StringWithAggregatesFilter<"Expense"> | string
+  storeId?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
   categoryId?: Prisma.StringWithAggregatesFilter<"Expense"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Expense"> | Date | string
@@ -268,14 +268,14 @@ export type ExpenseCreateInput = {
   updatedAt?: Date | string
   category: Prisma.ExpenseCategoryCreateNestedOneWithoutExpensesInput
   transaction: Prisma.TransactionCreateNestedOneWithoutExpenseInput
-  store: Prisma.StoreCreateNestedOneWithoutExpensesInput
+  store?: Prisma.StoreCreateNestedOneWithoutExpensesInput
   items?: Prisma.ExpenseItemCreateNestedManyWithoutExpenseInput
 }
 
 export type ExpenseUncheckedCreateInput = {
   id: string
   transactionId: string
-  storeId: string
+  storeId?: string | null
   categoryId: string
   description?: string | null
   createdAt?: Date | string
@@ -290,14 +290,14 @@ export type ExpenseUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.ExpenseCategoryUpdateOneRequiredWithoutExpensesNestedInput
   transaction?: Prisma.TransactionUpdateOneRequiredWithoutExpenseNestedInput
-  store?: Prisma.StoreUpdateOneRequiredWithoutExpensesNestedInput
+  store?: Prisma.StoreUpdateOneWithoutExpensesNestedInput
   items?: Prisma.ExpenseItemUpdateManyWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.StringFieldUpdateOperationsInput | string
+  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -308,7 +308,7 @@ export type ExpenseUncheckedUpdateInput = {
 export type ExpenseCreateManyInput = {
   id: string
   transactionId: string
-  storeId: string
+  storeId?: string | null
   categoryId: string
   description?: string | null
   createdAt?: Date | string
@@ -325,7 +325,7 @@ export type ExpenseUpdateManyMutationInput = {
 export type ExpenseUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.StringFieldUpdateOperationsInput | string
+  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -519,13 +519,13 @@ export type ExpenseCreateWithoutItemsInput = {
   updatedAt?: Date | string
   category: Prisma.ExpenseCategoryCreateNestedOneWithoutExpensesInput
   transaction: Prisma.TransactionCreateNestedOneWithoutExpenseInput
-  store: Prisma.StoreCreateNestedOneWithoutExpensesInput
+  store?: Prisma.StoreCreateNestedOneWithoutExpensesInput
 }
 
 export type ExpenseUncheckedCreateWithoutItemsInput = {
   id: string
   transactionId: string
-  storeId: string
+  storeId?: string | null
   categoryId: string
   description?: string | null
   createdAt?: Date | string
@@ -555,13 +555,13 @@ export type ExpenseUpdateWithoutItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.ExpenseCategoryUpdateOneRequiredWithoutExpensesNestedInput
   transaction?: Prisma.TransactionUpdateOneRequiredWithoutExpenseNestedInput
-  store?: Prisma.StoreUpdateOneRequiredWithoutExpensesNestedInput
+  store?: Prisma.StoreUpdateOneWithoutExpensesNestedInput
 }
 
 export type ExpenseUncheckedUpdateWithoutItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.StringFieldUpdateOperationsInput | string
+  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -574,14 +574,14 @@ export type ExpenseCreateWithoutCategoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   transaction: Prisma.TransactionCreateNestedOneWithoutExpenseInput
-  store: Prisma.StoreCreateNestedOneWithoutExpensesInput
+  store?: Prisma.StoreCreateNestedOneWithoutExpensesInput
   items?: Prisma.ExpenseItemCreateNestedManyWithoutExpenseInput
 }
 
 export type ExpenseUncheckedCreateWithoutCategoryInput = {
   id: string
   transactionId: string
-  storeId: string
+  storeId?: string | null
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -620,7 +620,7 @@ export type ExpenseScalarWhereInput = {
   NOT?: Prisma.ExpenseScalarWhereInput | Prisma.ExpenseScalarWhereInput[]
   id?: Prisma.StringFilter<"Expense"> | string
   transactionId?: Prisma.StringFilter<"Expense"> | string
-  storeId?: Prisma.StringFilter<"Expense"> | string
+  storeId?: Prisma.StringNullableFilter<"Expense"> | string | null
   categoryId?: Prisma.StringFilter<"Expense"> | string
   description?: Prisma.StringNullableFilter<"Expense"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
@@ -679,13 +679,13 @@ export type ExpenseCreateWithoutTransactionInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.ExpenseCategoryCreateNestedOneWithoutExpensesInput
-  store: Prisma.StoreCreateNestedOneWithoutExpensesInput
+  store?: Prisma.StoreCreateNestedOneWithoutExpensesInput
   items?: Prisma.ExpenseItemCreateNestedManyWithoutExpenseInput
 }
 
 export type ExpenseUncheckedCreateWithoutTransactionInput = {
   id: string
-  storeId: string
+  storeId?: string | null
   categoryId: string
   description?: string | null
   createdAt?: Date | string
@@ -715,13 +715,13 @@ export type ExpenseUpdateWithoutTransactionInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.ExpenseCategoryUpdateOneRequiredWithoutExpensesNestedInput
-  store?: Prisma.StoreUpdateOneRequiredWithoutExpensesNestedInput
+  store?: Prisma.StoreUpdateOneWithoutExpensesNestedInput
   items?: Prisma.ExpenseItemUpdateManyWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateWithoutTransactionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.StringFieldUpdateOperationsInput | string
+  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -732,7 +732,7 @@ export type ExpenseUncheckedUpdateWithoutTransactionInput = {
 export type ExpenseCreateManyCategoryInput = {
   id: string
   transactionId: string
-  storeId: string
+  storeId?: string | null
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -744,14 +744,14 @@ export type ExpenseUpdateWithoutCategoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transaction?: Prisma.TransactionUpdateOneRequiredWithoutExpenseNestedInput
-  store?: Prisma.StoreUpdateOneRequiredWithoutExpensesNestedInput
+  store?: Prisma.StoreUpdateOneWithoutExpensesNestedInput
   items?: Prisma.ExpenseItemUpdateManyWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.StringFieldUpdateOperationsInput | string
+  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -761,7 +761,7 @@ export type ExpenseUncheckedUpdateWithoutCategoryInput = {
 export type ExpenseUncheckedUpdateManyWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.StringFieldUpdateOperationsInput | string
+  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -846,7 +846,7 @@ export type ExpenseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   updatedAt?: boolean
   category?: boolean | Prisma.ExpenseCategoryDefaultArgs<ExtArgs>
   transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
-  store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>
+  store?: boolean | Prisma.Expense$storeArgs<ExtArgs>
   items?: boolean | Prisma.Expense$itemsArgs<ExtArgs>
   _count?: boolean | Prisma.ExpenseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["expense"]>
@@ -861,7 +861,7 @@ export type ExpenseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   updatedAt?: boolean
   category?: boolean | Prisma.ExpenseCategoryDefaultArgs<ExtArgs>
   transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
-  store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>
+  store?: boolean | Prisma.Expense$storeArgs<ExtArgs>
 }, ExtArgs["result"]["expense"]>
 
 export type ExpenseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -874,7 +874,7 @@ export type ExpenseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   updatedAt?: boolean
   category?: boolean | Prisma.ExpenseCategoryDefaultArgs<ExtArgs>
   transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
-  store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>
+  store?: boolean | Prisma.Expense$storeArgs<ExtArgs>
 }, ExtArgs["result"]["expense"]>
 
 export type ExpenseSelectScalar = {
@@ -891,19 +891,19 @@ export type ExpenseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type ExpenseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.ExpenseCategoryDefaultArgs<ExtArgs>
   transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
-  store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>
+  store?: boolean | Prisma.Expense$storeArgs<ExtArgs>
   items?: boolean | Prisma.Expense$itemsArgs<ExtArgs>
   _count?: boolean | Prisma.ExpenseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ExpenseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.ExpenseCategoryDefaultArgs<ExtArgs>
   transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
-  store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>
+  store?: boolean | Prisma.Expense$storeArgs<ExtArgs>
 }
 export type ExpenseIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.ExpenseCategoryDefaultArgs<ExtArgs>
   transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
-  store?: boolean | Prisma.StoreDefaultArgs<ExtArgs>
+  store?: boolean | Prisma.Expense$storeArgs<ExtArgs>
 }
 
 export type $ExpensePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -911,13 +911,13 @@ export type $ExpensePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     category: Prisma.$ExpenseCategoryPayload<ExtArgs>
     transaction: Prisma.$TransactionPayload<ExtArgs>
-    store: Prisma.$StorePayload<ExtArgs>
+    store: Prisma.$StorePayload<ExtArgs> | null
     items: Prisma.$ExpenseItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     transactionId: string
-    storeId: string
+    storeId: string | null
     categoryId: string
     description: string | null
     createdAt: Date
@@ -1318,7 +1318,7 @@ export interface Prisma__ExpenseClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   category<T extends Prisma.ExpenseCategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExpenseCategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__ExpenseCategoryClient<runtime.Types.Result.GetResult<Prisma.$ExpenseCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   transaction<T extends Prisma.TransactionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TransactionDefaultArgs<ExtArgs>>): Prisma.Prisma__TransactionClient<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  store<T extends Prisma.StoreDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StoreDefaultArgs<ExtArgs>>): Prisma.Prisma__StoreClient<runtime.Types.Result.GetResult<Prisma.$StorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  store<T extends Prisma.Expense$storeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Expense$storeArgs<ExtArgs>>): Prisma.Prisma__StoreClient<runtime.Types.Result.GetResult<Prisma.$StorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.Expense$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Expense$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpenseItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1749,6 +1749,25 @@ export type ExpenseDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Expenses to delete.
    */
   limit?: number
+}
+
+/**
+ * Expense.store
+ */
+export type Expense$storeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Store
+   */
+  select?: Prisma.StoreSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Store
+   */
+  omit?: Prisma.StoreOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StoreInclude<ExtArgs> | null
+  where?: Prisma.StoreWhereInput
 }
 
 /**

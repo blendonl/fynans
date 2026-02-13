@@ -7,9 +7,9 @@ export interface ExpenseProps {
   id: string;
   category: ExpenseCategory;
   transaction: Transaction;
-  store: Store;
+  store: Store | null;
   transactionId: string;
-  storeId: string;
+  storeId: string | null;
   categoryId: string;
   items?: ExpenseItem[];
   createdAt: Date;
@@ -33,10 +33,6 @@ export class Expense {
       throw new Error('Transaction ID is required');
     }
 
-    if (!props.storeId || props.storeId.trim() === '') {
-      throw new Error('Store ID is required');
-    }
-
     if (!props.categoryId || props.categoryId.trim() === '') {
       throw new Error('Category ID is required');
     }
@@ -58,7 +54,7 @@ export class Expense {
     return this.props.transactionId;
   }
 
-  get storeId(): string {
+  get storeId(): string | null {
     return this.props.storeId;
   }
 
@@ -74,7 +70,7 @@ export class Expense {
     return this.props.updatedAt;
   }
 
-  get store(): Store {
+  get store(): Store | null {
     return this.props.store;
   }
 

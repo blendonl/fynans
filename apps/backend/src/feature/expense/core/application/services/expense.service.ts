@@ -5,11 +5,13 @@ import { ListExpensesUseCase } from '../use-cases/list-expenses.use-case';
 import { UpdateExpenseUseCase } from '../use-cases/update-expense.use-case';
 import { DeleteExpenseUseCase } from '../use-cases/delete-expense.use-case';
 import { GetExpenseStatisticsUseCase } from '../use-cases/get-expense-statistics.use-case';
+import { GetExpenseTrendsUseCase } from '../use-cases/get-expense-trends.use-case';
 import { AddItemToExpenseUseCase } from '../use-cases/add-item-to-expense.use-case';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { UpdateExpenseDto } from '../dto/update-expense.dto';
 import { ExpenseFilters } from '../dto/expense-filters.dto';
 import { ExpenseStatistics } from '../dto/expense-statistics.dto';
+import { ExpenseTrendPoint } from '../dto/expense-trends.dto';
 import { Expense } from '../../domain/entities/expense.entity';
 import { PaginatedResult } from '../../domain/repositories/expense.repository.interface';
 import { CreateExpenseItemDto } from '~feature/expense-item/core';
@@ -24,6 +26,7 @@ export class ExpenseService {
     private readonly updateExpenseUseCase: UpdateExpenseUseCase,
     private readonly deleteExpenseUseCase: DeleteExpenseUseCase,
     private readonly getExpenseStatisticsUseCase: GetExpenseStatisticsUseCase,
+    private readonly getExpenseTrendsUseCase: GetExpenseTrendsUseCase,
     private readonly addItemToExpenseUseCase: AddItemToExpenseUseCase,
   ) {}
 
@@ -60,6 +63,24 @@ export class ExpenseService {
     filters?: ExpenseFilters,
   ): Promise<ExpenseStatistics> {
     return this.getExpenseStatisticsUseCase.execute(userId, filters);
+  }
+
+  async getTrends(
+    userId: string,
+    dateFrom: Date,
+    dateTo: Date,
+    groupBy: string,
+    filters?: ExpenseFilters,
+    maxLabels?: number,
+  ): Promise<ExpenseTrendPoint[]> {
+    return this.getExpenseTrendsUseCase.execute(
+      userId,
+      dateFrom,
+      dateTo,
+      groupBy,
+      filters,
+      maxLabels,
+    );
   }
 
   async addItem(

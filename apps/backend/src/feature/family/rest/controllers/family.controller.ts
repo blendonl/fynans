@@ -17,6 +17,8 @@ import { GetFamiliesUseCase } from '../../core/application/use-cases/get-familie
 import { GetPendingInvitationsUseCase } from '../../core/application/use-cases/get-pending-invitations.use-case';
 import { GetFamilyWithMembersUseCase } from '../../core/application/use-cases/get-family-with-members.use-case';
 import { RemoveFamilyMemberUseCase } from '../../core/application/use-cases/remove-family-member.use-case';
+import { GetFamilyPendingInvitationsUseCase } from '../../core/application/use-cases/get-family-pending-invitations.use-case';
+import { CancelInvitationUseCase } from '../../core/application/use-cases/cancel-invitation.use-case';
 import { CreateFamilyDto } from '../../core/application/dto/create-family.dto';
 import { InviteMemberDto } from '../../core/application/dto/invite-member.dto';
 import { CreateFamilyRequestDto } from '../dto/create-family-request.dto';
@@ -38,6 +40,8 @@ export class FamilyController {
     private readonly getPendingInvitationsUseCase: GetPendingInvitationsUseCase,
     private readonly getFamilyWithMembersUseCase: GetFamilyWithMembersUseCase,
     private readonly removeFamilyMemberUseCase: RemoveFamilyMemberUseCase,
+    private readonly getFamilyPendingInvitationsUseCase: GetFamilyPendingInvitationsUseCase,
+    private readonly cancelInvitationUseCase: CancelInvitationUseCase,
   ) {}
 
   @Post()
@@ -93,6 +97,16 @@ export class FamilyController {
     return invitations.map((i) => i.toJSON());
   }
 
+  @Get(':id/invitations/pending')
+  async getFamilyPendingInvitations(
+    @Param('id') familyId: string,
+    @CurrentUser() user: User,
+  ) {
+    const invitations =
+      await this.getFamilyPendingInvitationsUseCase.execute(familyId, user.id);
+    return invitations.map((i) => i.toJSON());
+  }
+
   @Post('invitations/:id/accept')
   @HttpCode(HttpStatus.OK)
   async acceptInvitation(
@@ -113,6 +127,15 @@ export class FamilyController {
     @CurrentUser() user: User,
   ) {
     await this.declineInvitationUseCase.execute(invitationId, user.id);
+  }
+
+  @Post('invitations/:id/cancel')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async cancelInvitation(
+    @Param('id') invitationId: string,
+    @CurrentUser() user: User,
+  ) {
+    await this.cancelInvitationUseCase.execute(invitationId, user.id);
   }
 
   @Delete(':id/members/:userId')

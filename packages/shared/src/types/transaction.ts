@@ -19,7 +19,7 @@ export interface Transaction {
   transaction: {
     id: string;
     value: number;
-    createdAt?: string;
+    recordedAt?: string;
     description?: string;
     user: {
       id: string;

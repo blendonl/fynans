@@ -6,6 +6,7 @@ import {
   ExpenseFilters as ExpenseFiltersInterface,
   ExpenseStatistics,
 } from '../../domain/repositories/expense.repository.interface';
+import { ExpenseTrendPoint } from '../../application/dto/expense-trends.dto';
 import { Expense } from '../../domain/entities/expense.entity';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
 import { ExpenseMapper } from '../mappers/expense.mapper';
@@ -21,7 +22,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       data: {
         id: data.id!,
         transactionId: data.transactionId!,
-        storeId: data.storeId!,
+        storeId: data.storeId ?? null,
         categoryId: data.categoryId!,
       },
       include: {
@@ -142,7 +143,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
             },
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { transaction: { recordedAt: 'desc' } },
         skip: pagination?.skip,
         take: pagination?.take,
       }),
@@ -227,6 +228,11 @@ export class PrismaExpenseRepository implements IExpenseRepository {
             value: true,
           },
         },
+        category: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
 
@@ -238,18 +244,23 @@ export class PrismaExpenseRepository implements IExpenseRepository {
     const averageExpense = count > 0 ? totalExpenses / count : 0;
 
     // Group by category
-    const categoryMap = new Map<string, number>();
+    const categoryMap = new Map<string, { name: string; total: number }>();
     allExpenses.forEach((expense) => {
-      const current = categoryMap.get(expense.categoryId) || 0;
-      categoryMap.set(
-        expense.categoryId,
-        current + expense.transaction.value.toNumber(),
-      );
+      const current = categoryMap.get(expense.categoryId);
+      if (current) {
+        current.total += expense.transaction.value.toNumber();
+      } else {
+        categoryMap.set(expense.categoryId, {
+          name: expense.category.name,
+          total: expense.transaction.value.toNumber(),
+        });
+      }
     });
 
     // Group by store
     const storeMap = new Map<string, number>();
     allExpenses.forEach((expense) => {
+      if (!expense.storeId) return;
       const current = storeMap.get(expense.storeId) || 0;
       storeMap.set(
         expense.storeId,
@@ -262,12 +273,77 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       expenseCount: count,
       averageExpense,
       expensesByCategory: Array.from(categoryMap.entries()).map(
-        ([categoryId, total]) => ({ categoryId, total }),
+        ([categoryId, data]) => ({
+          categoryId,
+          categoryName: data.name,
+          total: data.total,
+        }),
       ),
       expensesByStore: Array.from(storeMap.entries()).map(
         ([storeId, total]) => ({ storeId, total }),
       ),
     };
+  }
+
+  async getTrends(
+    userId: string,
+    dateFrom: Date,
+    dateTo: Date,
+    groupBy: string,
+    filters?: ExpenseFiltersInterface,
+  ): Promise<ExpenseTrendPoint[]> {
+    const where = this.buildWhereClause({
+      ...filters,
+      userId,
+      dateFrom,
+      dateTo,
+    });
+
+    const expenses = await this.prisma.expense.findMany({
+      where,
+      include: {
+        transaction: {
+          select: {
+            value: true,
+            recordedAt: true,
+          },
+        },
+      },
+      orderBy: { transaction: { recordedAt: 'asc' } },
+    });
+
+    const grouped = new Map<string, { total: number; count: number }>();
+    expenses.forEach((expense) => {
+      const key = this.getDateKey(expense.transaction.recordedAt, groupBy);
+      const current = grouped.get(key);
+      const value = expense.transaction.value.toNumber();
+      if (current) {
+        current.total += value;
+        current.count += 1;
+      } else {
+        grouped.set(key, { total: value, count: 1 });
+      }
+    });
+
+    return Array.from(grouped.entries())
+      .map(([date, data]) => new ExpenseTrendPoint(date, data.total, data.count))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }
+
+  private getDateKey(date: Date, groupBy: string): string {
+    const d = new Date(date);
+    if (groupBy === 'month') {
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    }
+    if (groupBy === 'week') {
+      // Get Monday of the week
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(d);
+      monday.setDate(diff);
+      return monday.toISOString().split('T')[0];
+    }
+    return d.toISOString().split('T')[0];
   }
 
   private buildWhereClause(
@@ -318,12 +394,15 @@ export class PrismaExpenseRepository implements IExpenseRepository {
     }
 
     if (filters.dateFrom || filters.dateTo) {
-      where.createdAt = {};
+      if (!where.transaction) {
+        where.transaction = {};
+      }
+      where.transaction.recordedAt = {};
       if (filters.dateFrom) {
-        where.createdAt.gte = filters.dateFrom;
+        where.transaction.recordedAt.gte = filters.dateFrom;
       }
       if (filters.dateTo) {
-        where.createdAt.lte = filters.dateTo;
+        where.transaction.recordedAt.lte = filters.dateTo;
       }
     }
 

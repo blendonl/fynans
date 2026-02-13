@@ -4,7 +4,7 @@ import { GlassCard } from "@/components/glass/glass-card";
 import { formatCurrency } from "@fynans/shared";
 
 interface TopExpensesProps {
-  expensesByCategory: { categoryName: string; total: number; count: number }[];
+  expensesByCategory: { categoryId: string; categoryName: string; total: number }[];
 }
 
 export function TopExpenses({ expensesByCategory }: TopExpensesProps) {
@@ -24,7 +24,7 @@ export function TopExpenses({ expensesByCategory }: TopExpensesProps) {
           {topCategories.map((cat, i) => {
             const percent = maxValue > 0 ? (cat.total / maxValue) * 100 : 0;
             return (
-              <div key={cat.categoryName}>
+              <div key={cat.categoryId}>
                 <div className="flex items-center gap-3 mb-1.5">
                   <span className="text-xs font-bold font-mono text-text-disabled w-5 text-right">
                     {String(i + 1).padStart(2, "0")}
@@ -54,7 +54,7 @@ export function TopExpenses({ expensesByCategory }: TopExpensesProps) {
                       />
                     </div>
                     <p className="text-[10px] text-text-disabled mt-1">
-                      {cat.count} transaction{cat.count !== 1 ? "s" : ""}
+                      {Math.round(percent)}% of top
                     </p>
                   </div>
                 </div>

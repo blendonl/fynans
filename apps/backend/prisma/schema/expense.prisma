@@ -1,14 +1,14 @@
 model Expense {
   id            String
   transactionId String @unique @map("transaction_id")
-  storeId       String @map("store_id")
+  storeId       String? @map("store_id")
   categoryId    String @map("category_id")
 
   description String? 
   category    ExpenseCategory @relation(fields: [categoryId], references: [id])
 
   transaction Transaction   @relation(fields: [transactionId], references: [id])
-  store       Store         @relation(fields: [storeId], references: [id])
+  store       Store?        @relation(fields: [storeId], references: [id])
   items       ExpenseItem[]
 
   createdAt DateTime @default(now()) @map("created_at")

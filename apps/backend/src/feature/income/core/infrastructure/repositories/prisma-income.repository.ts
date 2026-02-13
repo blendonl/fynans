@@ -107,7 +107,7 @@ export class PrismaIncomeRepository implements IIncomeRepository {
           },
           category: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { transaction: { recordedAt: 'desc' } },
         skip: pagination?.skip,
         take: pagination?.take,
       }),
@@ -143,7 +143,7 @@ export class PrismaIncomeRepository implements IIncomeRepository {
           },
           category: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { transaction: { recordedAt: 'desc' } },
         skip: pagination?.skip,
         take: pagination?.take,
       }),
@@ -239,12 +239,15 @@ export class PrismaIncomeRepository implements IIncomeRepository {
     }
 
     if (filters.dateFrom || filters.dateTo) {
-      where.createdAt = {};
+      if (!where.transaction) {
+        where.transaction = {};
+      }
+      where.transaction.recordedAt = {};
       if (filters.dateFrom) {
-        where.createdAt.gte = filters.dateFrom;
+        where.transaction.recordedAt.gte = filters.dateFrom;
       }
       if (filters.dateTo) {
-        where.createdAt.lte = filters.dateTo;
+        where.transaction.recordedAt.lte = filters.dateTo;
       }
     }
 

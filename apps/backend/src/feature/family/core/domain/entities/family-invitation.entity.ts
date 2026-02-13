@@ -112,6 +112,10 @@ export class FamilyInvitation {
     return this.isPending() && !this.isExpired();
   }
 
+  canBeCancelled(): boolean {
+    return this.isPending() && !this.isExpired();
+  }
+
   toJSON() {
     return {
       id: this.props.id,

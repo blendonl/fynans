@@ -36,7 +36,7 @@ export class ExpenseMapper {
       id: prismaExpense.id,
       transactionId: prismaExpense.transactionId,
       transaction: TransactionMapper.toDomain(prismaExpense.transaction),
-      store: StoreMapper.toDomain(prismaExpense.store),
+      store: prismaExpense.store ? StoreMapper.toDomain(prismaExpense.store) : null,
       category: ExpenseCategoryMapper.toDomain(prismaExpense.category),
       storeId: prismaExpense.storeId,
       categoryId: prismaExpense.categoryId,

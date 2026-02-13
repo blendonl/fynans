@@ -20,7 +20,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 const GAP_DEGREES = 3;
 
 interface CategoryBreakdownProps {
-  expensesByCategory: { categoryName: string; total: number; count: number }[];
+  expensesByCategory: { categoryId: string; categoryName: string; total: number }[];
 }
 
 export function CategoryBreakdown({ expensesByCategory }: CategoryBreakdownProps) {

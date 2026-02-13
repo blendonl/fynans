@@ -16,7 +16,7 @@ function mapExpenseToTransaction(expense: Record<string, unknown>, family?: Fami
     transaction: {
       id: (tx?.id as string) || "",
       value: (tx?.value as number) || 0,
-      createdAt: tx?.createdAt as string | undefined,
+      recordedAt: tx?.recordedAt as string | undefined,
       description: tx?.description as string | undefined,
       user: tx?.user as { id: string; firstName: string; lastName: string },
     },
@@ -40,7 +40,7 @@ function mapIncomeToTransaction(income: Record<string, unknown>, family?: Family
     transaction: {
       id: (income.transactionId as string) || "",
       value: (tx?.value as number) || 0,
-      createdAt: (tx?.createdAt as string) || (income.createdAt as string),
+      recordedAt: (tx?.recordedAt as string) || (income.createdAt as string),
       description: tx?.description as string | undefined,
       user: tx?.user as { id: string; firstName: string; lastName: string },
     },
@@ -107,8 +107,8 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
       const incomes = (incomesRes.data || []).map((i) => mapIncomeToTransaction(i, family));
 
       const merged = [...expenses, ...incomes].sort((a, b) => {
-        const dateA = a.transaction.createdAt ? new Date(a.transaction.createdAt).getTime() : 0;
-        const dateB = b.transaction.createdAt ? new Date(b.transaction.createdAt).getTime() : 0;
+        const dateA = a.transaction.recordedAt ? new Date(a.transaction.recordedAt).getTime() : 0;
+        const dateB = b.transaction.recordedAt ? new Date(b.transaction.recordedAt).getTime() : 0;
         return dateB - dateA;
       });
 
@@ -149,8 +149,8 @@ export function useTransactions(filters?: TransactionFilters, families: Family[]
       const incomes = (incomesRes.data || []).map((i) => mapIncomeToTransaction(i, family));
 
       return [...expenses, ...incomes].sort((a, b) => {
-        const dateA = a.transaction.createdAt ? new Date(a.transaction.createdAt).getTime() : 0;
-        const dateB = b.transaction.createdAt ? new Date(b.transaction.createdAt).getTime() : 0;
+        const dateA = a.transaction.recordedAt ? new Date(a.transaction.recordedAt).getTime() : 0;
+        const dateB = b.transaction.recordedAt ? new Date(b.transaction.recordedAt).getTime() : 0;
         return dateB - dateA;
       });
     },
@@ -170,8 +170,8 @@ export function groupByMonth(transactions: Transaction[]): MonthGroup[] {
   const groups: Record<string, Transaction[]> = {};
 
   transactions.forEach((transaction) => {
-    if (transaction.transaction.createdAt) {
-      const date = new Date(transaction.transaction.createdAt);
+    if (transaction.transaction.recordedAt) {
+      const date = new Date(transaction.transaction.recordedAt);
       const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
 
       if (!groups[monthKey]) {
@@ -182,7 +182,7 @@ export function groupByMonth(transactions: Transaction[]): MonthGroup[] {
   });
 
   return Object.entries(groups).map(([key, items]) => {
-    const date = new Date(items[0].transaction.createdAt!);
+    const date = new Date(items[0].transaction.recordedAt!);
     const monthLabel = date.toLocaleDateString("en-US", {
       month: "long",
       year: "numeric",

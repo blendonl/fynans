@@ -12,8 +12,8 @@ interface TransactionRowProps {
 }
 
 export function TransactionRow({ transaction, style }: TransactionRowProps) {
-  const date = transaction.transaction.createdAt
-    ? new Date(transaction.transaction.createdAt).toLocaleDateString("en-US", {
+  const date = transaction.transaction.recordedAt
+    ? new Date(transaction.transaction.recordedAt).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
       })

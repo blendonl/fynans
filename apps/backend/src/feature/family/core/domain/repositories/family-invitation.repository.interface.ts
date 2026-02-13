@@ -7,6 +7,7 @@ export interface IFamilyInvitationRepository {
   findByInviteeEmail(email: string): Promise<FamilyInvitation[]>;
   findByInviteeId(userId: string): Promise<FamilyInvitation[]>;
   findPendingByEmailAndFamily(email: string, familyId: string): Promise<FamilyInvitation | null>;
+  findPendingByFamilyId(familyId: string): Promise<FamilyInvitation[]>;
   update(
     id: string,
     data: Partial<FamilyInvitation>,

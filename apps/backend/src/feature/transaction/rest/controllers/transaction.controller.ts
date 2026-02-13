@@ -19,6 +19,8 @@ import { CreateTransactionDto } from '../../core/application/dto/create-transact
 import { UpdateTransactionDto } from '../../core/application/dto/update-transaction.dto';
 import { TransactionFilters } from '../../core/application/dto/transaction-filters.dto';
 import { Pagination } from '../../core/application/dto/pagination.dto';
+import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
+import { User } from '../../../user/core/domain/entities/user.entity';
 
 @Controller('transactions')
 export class TransactionController {
@@ -63,8 +65,25 @@ export class TransactionController {
   }
 
   @Get('statistics')
-  async getStatistics(@Query('userId') userId?: string) {
-    const stats = await this.transactionService.getStatistics(userId);
+  async getStatistics(
+    @Query() query: QueryTransactionDto,
+    @CurrentUser() user: User,
+  ) {
+    const filters = new TransactionFilters({
+      userId: query.userId || user.id,
+      type: query.type,
+      familyId: query.familyId,
+      scope: query.scope,
+      dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
+      dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
+      valueMin: query.valueMin,
+      valueMax: query.valueMax,
+    });
+
+    const stats = await this.transactionService.getStatistics(
+      query.userId || user.id,
+      filters,
+    );
     return {
       totalIncome: stats.totalIncome,
       totalExpense: stats.totalExpense,

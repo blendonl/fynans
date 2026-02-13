@@ -73,7 +73,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
           expense: true,
           income: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { recordedAt: 'desc' },
         skip: pagination?.skip,
         take: pagination?.take,
       }),
@@ -100,7 +100,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
           expense: true,
           income: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { recordedAt: 'desc' },
         skip: pagination?.skip,
         take: pagination?.take,
       }),
@@ -205,12 +205,12 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     }
 
     if (filters.dateFrom || filters.dateTo) {
-      where.createdAt = {};
+      where.recordedAt = {};
       if (filters.dateFrom) {
-        where.createdAt.gte = filters.dateFrom;
+        where.recordedAt.gte = filters.dateFrom;
       }
       if (filters.dateTo) {
-        where.createdAt.lte = filters.dateTo;
+        where.recordedAt.lte = filters.dateTo;
       }
     }
 

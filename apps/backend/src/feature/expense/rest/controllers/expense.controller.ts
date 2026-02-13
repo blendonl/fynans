@@ -22,6 +22,7 @@ import { CreateExpenseItemDto } from '../../../expense-item/core/application/dto
 import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
+import { QueryExpenseTrendsDto } from '../dto/query-expense-trends.dto';
 
 @Controller('expenses')
 export class ExpenseController {
@@ -36,8 +37,8 @@ export class ExpenseController {
     const coreDto = new CreateExpenseDto({
       userId: user.id,
       categoryId: createDto.categoryId,
-      storeName: createDto.storeName || '',
-      storeLocation: createDto.storeLocation || '',
+      storeName: createDto.storeName,
+      storeLocation: createDto.storeLocation,
       familyId: createDto.familyId,
       items: createDto.items.map(
         (item) =>
@@ -116,6 +117,31 @@ export class ExpenseController {
       expensesByCategory: stats.expensesByCategory,
       expensesByStore: stats.expensesByStore,
     };
+  }
+
+  @Get('trends')
+  async getTrends(
+    @Query() query: QueryExpenseTrendsDto,
+    @CurrentUser() user: User,
+  ) {
+    const filters = new ExpenseFilters({
+      userId: query.familyId ? undefined : user.id,
+      familyId: query.familyId,
+      scope: query.scope,
+      categoryId: query.categoryId,
+      storeId: query.storeId,
+      valueMin: query.valueMin,
+      valueMax: query.valueMax,
+    });
+
+    return this.expenseService.getTrends(
+      user.id,
+      new Date(query.dateFrom),
+      new Date(query.dateTo),
+      query.groupBy || 'day',
+      filters,
+      query.maxLabels,
+    );
   }
 
   @Get(':id')

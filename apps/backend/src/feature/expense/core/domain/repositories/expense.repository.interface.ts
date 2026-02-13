@@ -1,6 +1,7 @@
 import { Expense } from '../entities/expense.entity';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
 import { TransactionScope } from '../../../../transaction/core/domain/entities/transaction.entity';
+import { ExpenseTrendPoint } from '../../application/dto/expense-trends.dto';
 
 export interface PaginatedResult<T> {
   data: T[];
@@ -23,7 +24,7 @@ export interface ExpenseStatistics {
   totalExpenses: number;
   expenseCount: number;
   averageExpense: number;
-  expensesByCategory: { categoryId: string; total: number }[];
+  expensesByCategory: { categoryId: string; categoryName: string; total: number }[];
   expensesByStore: { storeId: string; total: number }[];
 }
 
@@ -42,4 +43,11 @@ export interface IExpenseRepository {
     userId?: string,
     filters?: ExpenseFilters,
   ): Promise<ExpenseStatistics>;
+  getTrends(
+    userId: string,
+    dateFrom: Date,
+    dateTo: Date,
+    groupBy: string,
+    filters?: ExpenseFilters,
+  ): Promise<ExpenseTrendPoint[]>;
 }

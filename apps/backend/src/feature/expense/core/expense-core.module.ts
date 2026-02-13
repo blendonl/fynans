@@ -14,6 +14,7 @@ import { ListExpensesUseCase } from './application/use-cases/list-expenses.use-c
 import { UpdateExpenseUseCase } from './application/use-cases/update-expense.use-case';
 import { DeleteExpenseUseCase } from './application/use-cases/delete-expense.use-case';
 import { GetExpenseStatisticsUseCase } from './application/use-cases/get-expense-statistics.use-case';
+import { GetExpenseTrendsUseCase } from './application/use-cases/get-expense-trends.use-case';
 import { AddItemToExpenseUseCase } from './application/use-cases/add-item-to-expense.use-case';
 import { ExpenseService } from './application/services/expense.service';
 
@@ -39,6 +40,7 @@ import { ExpenseService } from './application/services/expense.service';
     UpdateExpenseUseCase,
     DeleteExpenseUseCase,
     GetExpenseStatisticsUseCase,
+    GetExpenseTrendsUseCase,
     AddItemToExpenseUseCase,
     ExpenseService,
   ],

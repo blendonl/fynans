@@ -302,9 +302,9 @@ export type StoreUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type StoreScalarRelationFilter = {
-  is?: Prisma.StoreWhereInput
-  isNot?: Prisma.StoreWhereInput
+export type StoreNullableScalarRelationFilter = {
+  is?: Prisma.StoreWhereInput | null
+  isNot?: Prisma.StoreWhereInput | null
 }
 
 export type StoreCountOrderByAggregateInput = {
@@ -331,16 +331,23 @@ export type StoreMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type StoreScalarRelationFilter = {
+  is?: Prisma.StoreWhereInput
+  isNot?: Prisma.StoreWhereInput
+}
+
 export type StoreCreateNestedOneWithoutExpensesInput = {
   create?: Prisma.XOR<Prisma.StoreCreateWithoutExpensesInput, Prisma.StoreUncheckedCreateWithoutExpensesInput>
   connectOrCreate?: Prisma.StoreCreateOrConnectWithoutExpensesInput
   connect?: Prisma.StoreWhereUniqueInput
 }
 
-export type StoreUpdateOneRequiredWithoutExpensesNestedInput = {
+export type StoreUpdateOneWithoutExpensesNestedInput = {
   create?: Prisma.XOR<Prisma.StoreCreateWithoutExpensesInput, Prisma.StoreUncheckedCreateWithoutExpensesInput>
   connectOrCreate?: Prisma.StoreCreateOrConnectWithoutExpensesInput
   upsert?: Prisma.StoreUpsertWithoutExpensesInput
+  disconnect?: Prisma.StoreWhereInput | boolean
+  delete?: Prisma.StoreWhereInput | boolean
   connect?: Prisma.StoreWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.StoreUpdateToOneWithWhereWithoutExpensesInput, Prisma.StoreUpdateWithoutExpensesInput>, Prisma.StoreUncheckedUpdateWithoutExpensesInput>
 }

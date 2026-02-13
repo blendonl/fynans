@@ -8,10 +8,10 @@ export class ExpenseResponseDto {
   id: string;
   transactionId: string;
   categoryId: string;
-  storeId: string;
+  storeId: string | null;
   transaction: TransactionResponseDto;
   category: ExpenseCategoryResponseDto;
-  store: StoreResponseDto;
+  store: StoreResponseDto | null;
   items: ExpenseItemResponseDto[];
   name: string;
   createdAt: Date;
@@ -27,7 +27,7 @@ export class ExpenseResponseDto {
     dto.updatedAt = expense.updatedAt;
     dto.category = ExpenseCategoryResponseDto.fromEntity(expense.category);
     dto.transaction = TransactionResponseDto.fromEntity(expense.transaction);
-    dto.store = StoreResponseDto.fromEntity(expense.store);
+    dto.store = expense.store ? StoreResponseDto.fromEntity(expense.store) : null;
     dto.items = ExpenseItemResponseDto.fromEntities(expense.items);
     return dto;
   }

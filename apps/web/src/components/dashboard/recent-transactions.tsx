@@ -44,8 +44,8 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-text truncate">{t.category.name}</p>
                   <p className="text-[11px] text-text-disabled">
-                    {t.transaction.createdAt &&
-                      new Date(t.transaction.createdAt).toLocaleDateString("en-US", {
+                    {t.transaction.recordedAt &&
+                      new Date(t.transaction.recordedAt).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
                       })}

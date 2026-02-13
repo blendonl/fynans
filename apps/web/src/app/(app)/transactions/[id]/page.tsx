@@ -32,7 +32,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
         transaction: {
           id: (tx?.id as string) || "",
           value: (tx?.value as number) || 0,
-          createdAt: tx?.createdAt as string | undefined,
+          recordedAt: tx?.recordedAt as string | undefined,
           description: tx?.description as string | undefined,
           user: tx?.user as { id: string; firstName: string; lastName: string },
         },

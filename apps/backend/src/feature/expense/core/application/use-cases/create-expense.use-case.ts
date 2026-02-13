@@ -55,12 +55,7 @@ export class CreateExpenseUseCase {
 
     let store = null;
 
-    if (category.isConnectedToStore) {
-      if (!dto.storeName || !dto.storeLocation) {
-        throw new BadRequestException(
-          'Store information is required for this category',
-        );
-      }
+    if (category.isConnectedToStore && dto.storeName && dto.storeLocation) {
       store = await this.storeService.createOrFind(
         new CreateStoreDto(dto.storeName, dto.storeLocation),
         dto.userId,
@@ -145,24 +140,6 @@ export class CreateExpenseUseCase {
 
     if (!dto.categoryId || dto.categoryId.trim() === '') {
       throw new BadRequestException('Category ID is required');
-    }
-
-    const category = await this.expenseCategoryRepository.findById(
-      dto.categoryId,
-    );
-
-    if (category?.isConnectedToStore) {
-      if (!dto.storeName || dto.storeName.trim() === '') {
-        throw new BadRequestException(
-          'Store name is required for this category',
-        );
-      }
-
-      if (!dto.storeLocation || dto.storeLocation.trim() === '') {
-        throw new BadRequestException(
-          'Store location is required for this category',
-        );
-      }
     }
 
     if (!dto.items || dto.items.length === 0) {
