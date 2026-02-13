@@ -1,6 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import type { Transaction, TransactionFilters, Family } from "@fynans/shared";
+import { PAGE_SIZE, type PaginatedResponse } from "@/lib/pagination";
 
 function mapExpenseToTransaction(expense: Record<string, unknown>, family?: Family): Transaction {
   const tx = expense.transaction as Record<string, unknown> | undefined;
@@ -47,13 +48,95 @@ function mapIncomeToTransaction(income: Record<string, unknown>, family?: Family
   };
 }
 
-export function useTransactions(filters?: TransactionFilters, families: Family[] = []) {
+interface ServerFilters {
+  type?: string;
+  scope?: string;
+  familyId?: string | null;
+  dateFrom?: string;
+  dateTo?: string;
+  minAmount?: string;
+  maxAmount?: string;
+}
+
+interface InfiniteTransactionPage {
+  transactions: Transaction[];
+  expenseTotal: number;
+  incomeTotal: number;
+  hasMore: boolean;
+}
+
+export function useInfiniteTransactions(filters: ServerFilters = {}, families: Family[] = []) {
+  return useInfiniteQuery({
+    queryKey: [
+      "transactions-infinite",
+      filters.type,
+      filters.scope,
+      filters.familyId,
+      filters.dateFrom,
+      filters.dateTo,
+      filters.minAmount,
+      filters.maxAmount,
+    ],
+    queryFn: async ({ pageParam = 1 }): Promise<InfiniteTransactionPage> => {
+      const baseParams: Record<string, string | undefined> = {
+        page: String(pageParam),
+        limit: String(PAGE_SIZE),
+      };
+      if (filters.familyId) baseParams.familyId = filters.familyId;
+      if (filters.scope && filters.scope !== "all") baseParams.scope = filters.scope.toUpperCase();
+      if (filters.dateFrom) baseParams.dateFrom = filters.dateFrom;
+      if (filters.dateTo) baseParams.dateTo = filters.dateTo;
+      if (filters.minAmount) baseParams.valueMin = filters.minAmount;
+      if (filters.maxAmount) baseParams.valueMax = filters.maxAmount;
+
+      const fetchExpenses = filters.type !== "income";
+      const fetchIncomes = filters.type !== "expense";
+
+      const [expensesRes, incomesRes] = await Promise.all([
+        fetchExpenses
+          ? (apiClient.get("/expenses", baseParams) as Promise<PaginatedResponse<Record<string, unknown>>>)
+          : Promise.resolve({ data: [], total: 0, page: pageParam, limit: PAGE_SIZE }),
+        fetchIncomes
+          ? (apiClient.get("/incomes", baseParams) as Promise<PaginatedResponse<Record<string, unknown>>>)
+          : Promise.resolve({ data: [], total: 0, page: pageParam, limit: PAGE_SIZE }),
+      ]);
+
+      const family = filters.familyId ? families.find((f) => f.id === filters.familyId) : undefined;
+
+      const expenses = (expensesRes.data || []).map((e) => mapExpenseToTransaction(e, family));
+      const incomes = (incomesRes.data || []).map((i) => mapIncomeToTransaction(i, family));
+
+      const merged = [...expenses, ...incomes].sort((a, b) => {
+        const dateA = a.transaction.createdAt ? new Date(a.transaction.createdAt).getTime() : 0;
+        const dateB = b.transaction.createdAt ? new Date(b.transaction.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
+
+      const expenseHasMore = fetchExpenses && pageParam * PAGE_SIZE < (expensesRes.total ?? 0);
+      const incomeHasMore = fetchIncomes && pageParam * PAGE_SIZE < (incomesRes.total ?? 0);
+
+      return {
+        transactions: merged,
+        expenseTotal: expensesRes.total ?? 0,
+        incomeTotal: incomesRes.total ?? 0,
+        hasMore: expenseHasMore || incomeHasMore,
+      };
+    },
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+      return lastPage.hasMore ? (lastPageParam as number) + 1 : undefined;
+    },
+    initialPageParam: 1,
+  });
+}
+
+export function useTransactions(filters?: TransactionFilters, families: Family[] = [], limit?: number) {
   return useQuery({
-    queryKey: ["transactions", filters?.scope, filters?.familyId, families.length],
+    queryKey: ["transactions", filters?.scope, filters?.familyId, families.length, limit],
     queryFn: async () => {
       const params: Record<string, string | undefined> = {};
       if (filters?.familyId) params.familyId = filters.familyId;
       if (filters?.scope && filters.scope !== "all") params.scope = filters.scope.toUpperCase();
+      if (limit) params.limit = String(limit);
 
       const [expensesRes, incomesRes] = await Promise.all([
         apiClient.get("/expenses", params) as Promise<{ data: Record<string, unknown>[] }>,
@@ -74,7 +157,16 @@ export function useTransactions(filters?: TransactionFilters, families: Family[]
   });
 }
 
-export function groupByMonth(transactions: Transaction[]) {
+export interface MonthGroup {
+  key: string;
+  monthLabel: string;
+  total: number;
+  income: number;
+  expenses: number;
+  transactions: Transaction[];
+}
+
+export function groupByMonth(transactions: Transaction[]): MonthGroup[] {
   const groups: Record<string, Transaction[]> = {};
 
   transactions.forEach((transaction) => {
@@ -95,8 +187,14 @@ export function groupByMonth(transactions: Transaction[]) {
       month: "long",
       year: "numeric",
     });
-    const total = items.reduce((sum, item) => sum + item.transaction.value, 0);
-    return { key, monthLabel, total, transactions: items };
+    const income = items
+      .filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + t.transaction.value, 0);
+    const expenses = items
+      .filter((t) => t.type === "expense")
+      .reduce((sum, t) => sum + t.transaction.value, 0);
+    const total = income - expenses;
+    return { key, monthLabel, total, income, expenses, transactions: items };
   });
 }
 

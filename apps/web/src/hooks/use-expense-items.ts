@@ -49,8 +49,18 @@ export function useExpenseItems() {
     setCurrentItem({ ...EMPTY_CURRENT_ITEM });
   };
 
-  const handleRemoveItem = (index: number) => {
+  const handleRemoveItem = (index: number): ExpenseItem => {
+    const removed = items[index];
     setItems(items.filter((_, i) => i !== index));
+    return removed;
+  };
+
+  const handleInsertItem = (index: number, item: ExpenseItem) => {
+    setItems((prev) => {
+      const next = [...prev];
+      next.splice(index, 0, item);
+      return next;
+    });
   };
 
   const handleEditItem = (index: number) => {
@@ -65,6 +75,25 @@ export function useExpenseItems() {
     });
     setEditingIndex(index);
     setItemErrors({});
+  };
+
+  const handleUpdateQuantity = (index: number, quantity: number) => {
+    setItems((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], quantity };
+      return next;
+    });
+  };
+
+  const handleQuickAddItem = (name: string, price: number, categoryId: string) => {
+    const newItem: ExpenseItem = {
+      name,
+      price,
+      discount: 0,
+      quantity: 1,
+      categoryId,
+    };
+    setItems((prev) => [...prev, newItem]);
   };
 
   const cancelEdit = () => {
@@ -82,7 +111,10 @@ export function useExpenseItems() {
     setCurrentItem,
     handleAddItem,
     handleRemoveItem,
+    handleInsertItem,
     handleEditItem,
+    handleQuickAddItem,
+    handleUpdateQuantity,
     cancelEdit,
   };
 }

@@ -8,13 +8,16 @@ export function useNotifications() {
   const notificationsQuery = useQuery({
     queryKey: ["notifications"],
     queryFn: async () => {
-      return (await apiClient.get("/notifications")) as Notification[];
+      const response = (await apiClient.get("/notifications")) as {
+        data: Notification[];
+      };
+      return response.data;
     },
   });
 
   const markAsRead = useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.patch(`/notifications/${id}`, { isRead: true });
+      await apiClient.patch(`/notifications/${id}/read`, {});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -23,7 +26,7 @@ export function useNotifications() {
 
   const markAllAsRead = useMutation({
     mutationFn: async () => {
-      await apiClient.patch("/notifications/read-all", {});
+      await apiClient.post("/notifications/mark-all-read", {});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });

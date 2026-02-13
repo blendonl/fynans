@@ -28,8 +28,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (stored) {
       setTokenState(stored);
       apiClient
-        .get("/auth/me")
-        .then((data) => setUser(data as User))
+        .get("/api/auth/get-session")
+        .then((data) => {
+          const session = data as { user: User } | null;
+          if (session?.user) {
+            setUser(session.user);
+          } else {
+            removeToken();
+            setTokenState(null);
+          }
+        })
         .catch(() => {
           removeToken();
           setTokenState(null);
