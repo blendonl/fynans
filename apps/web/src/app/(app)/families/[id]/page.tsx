@@ -28,7 +28,7 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
   const [inviteEmail, setInviteEmail] = useState("");
 
   if (isLoading) {
-    return <div className="max-w-2xl mx-auto h-64 rounded-xl bg-surface-variant animate-pulse" />;
+    return <div className="h-64 rounded-xl bg-surface-variant animate-pulse" />;
   }
 
   if (!family) {
@@ -42,7 +42,7 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="space-y-6">
       <Button variant="ghost" onClick={() => router.back()}>
         <ArrowLeft className="h-4 w-4 mr-2" /> Back
       </Button>

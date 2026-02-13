@@ -1,12 +1,13 @@
 "use client";
 
 import { useAuth } from "@/providers/auth-provider";
+import { useWebSocket } from "@/hooks/use-websocket";
 import { AppSidebar } from "@/components/layout/app-sidebar";
-import { AppHeader } from "@/components/layout/app-header";
 import { MobileNav } from "@/components/layout/mobile-nav";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isLoading } = useAuth();
+  useWebSocket();
 
   if (isLoading) {
     return (
@@ -19,10 +20,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen bg-background">
       <AppSidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <AppHeader />
-        <main className="flex-1 overflow-y-auto p-6 pb-20 lg:pb-6">{children}</main>
-      </div>
+      <main className="flex-1 overflow-y-auto p-4 pb-20 sm:p-6 lg:pb-6">
+        <div className="mx-auto max-w-6xl">{children}</div>
+      </main>
       <MobileNav />
     </div>
   );

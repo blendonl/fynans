@@ -12,7 +12,7 @@ export default function FamiliesPage() {
   const { families, pendingInvitations, isLoading, acceptInvitation, declineInvitation } = useFamilies();
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-text">Families</h1>
         <Link href="/families/create">

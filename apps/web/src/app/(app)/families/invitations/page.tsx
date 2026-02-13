@@ -8,7 +8,7 @@ export default function InvitationsPage() {
   const { pendingInvitations, acceptInvitation, declineInvitation } = useFamilies();
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="space-y-6">
       <h1 className="text-2xl font-bold text-text">Invitations</h1>
 
       {pendingInvitations.length === 0 ? (

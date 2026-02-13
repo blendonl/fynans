@@ -21,7 +21,7 @@ export default function CreateFamilyPage() {
   };
 
   return (
-    <div className="max-w-lg mx-auto">
+    <div>
       <Card>
         <CardHeader>
           <CardTitle>Create Family</CardTitle>
