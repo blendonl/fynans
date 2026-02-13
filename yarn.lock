@@ -2069,6 +2069,7 @@ __metadata:
     class-variance-authority: "npm:^0.7.0"
     clsx: "npm:^2.1.0"
     date-fns: "npm:^4.1.0"
+    geist: "npm:^1.7.0"
     js-cookie: "npm:^3.0.5"
     lucide-react: "npm:^0.460.0"
     next: "npm:15.1.0"
@@ -9405,6 +9406,15 @@ __metadata:
   version: 1.1.2
   resolution: "function-bind@npm:1.1.2"
   checksum: 10c0/d8680ee1e5fcd4c197e4ac33b2b4dce03c71f4d91717292785703db200f5c21f977c568d28061226f9b5900cbcd2c84463646134fd5337e7925e0942bc3f46d5
+  languageName: node
+  linkType: hard
+
+"geist@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "geist@npm:1.7.0"
+  peerDependencies:
+    next: ">=13.2.0"
+  checksum: 10c0/adb3f11d3431ca259a8fbc97acf193ff40259dcf00abf1e9598e284c2d2ca9e982822cb840d668e62be0b65ad9ac164c112bf1fdaac1d0c213882ace96b149a2
   languageName: node
   linkType: hard
 
