@@ -217,13 +217,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   ): Promise<ExpenseStatistics> {
     const where = this.buildWhereClause(filters);
 
-    // Get total expenses and count
-    const [totalResult, count] = await Promise.all([
-      this.prisma.expense.aggregate({
-        where,
-      }),
-      this.prisma.expense.count({ where }),
-    ]);
+    const count = await this.prisma.expense.count({ where });
 
     const allExpenses = await this.prisma.expense.findMany({
       where,
