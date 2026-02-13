@@ -40,6 +40,7 @@ export type UserMinAggregateOutputType = {
   name: string | null
   firstName: string | null
   lastName: string | null
+  image: string | null
   balance: runtime.Decimal | null
   emailVerified: boolean | null
   createdAt: Date | null
@@ -52,6 +53,7 @@ export type UserMaxAggregateOutputType = {
   name: string | null
   firstName: string | null
   lastName: string | null
+  image: string | null
   balance: runtime.Decimal | null
   emailVerified: boolean | null
   createdAt: Date | null
@@ -64,6 +66,7 @@ export type UserCountAggregateOutputType = {
   name: number
   firstName: number
   lastName: number
+  image: number
   balance: number
   emailVerified: number
   createdAt: number
@@ -86,6 +89,7 @@ export type UserMinAggregateInputType = {
   name?: true
   firstName?: true
   lastName?: true
+  image?: true
   balance?: true
   emailVerified?: true
   createdAt?: true
@@ -98,6 +102,7 @@ export type UserMaxAggregateInputType = {
   name?: true
   firstName?: true
   lastName?: true
+  image?: true
   balance?: true
   emailVerified?: true
   createdAt?: true
@@ -110,6 +115,7 @@ export type UserCountAggregateInputType = {
   name?: true
   firstName?: true
   lastName?: true
+  image?: true
   balance?: true
   emailVerified?: true
   createdAt?: true
@@ -209,6 +215,7 @@ export type UserGroupByOutputType = {
   name: string
   firstName: string
   lastName: string
+  image: string | null
   balance: runtime.Decimal
   emailVerified: boolean
   createdAt: Date
@@ -244,6 +251,7 @@ export type UserWhereInput = {
   name?: Prisma.StringFilter<"User"> | string
   firstName?: Prisma.StringFilter<"User"> | string
   lastName?: Prisma.StringFilter<"User"> | string
+  image?: Prisma.StringNullableFilter<"User"> | string | null
   balance?: Prisma.DecimalFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -257,6 +265,12 @@ export type UserWhereInput = {
   notifications?: Prisma.NotificationListRelationFilter
   notificationPreference?: Prisma.XOR<Prisma.NotificationPreferenceNullableScalarRelationFilter, Prisma.NotificationPreferenceWhereInput> | null
   deviceTokens?: Prisma.DeviceTokenListRelationFilter
+  userExpenseCategories?: Prisma.UserExpenseCategoryListRelationFilter
+  userIncomeCategories?: Prisma.UserIncomeCategoryListRelationFilter
+  userStores?: Prisma.UserStoreListRelationFilter
+  userItems?: Prisma.UserItemListRelationFilter
+  userStoreItems?: Prisma.UserStoreItemListRelationFilter
+  userItemCategories?: Prisma.UserItemCategoryListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -265,6 +279,7 @@ export type UserOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  image?: Prisma.SortOrderInput | Prisma.SortOrder
   balance?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -278,6 +293,12 @@ export type UserOrderByWithRelationInput = {
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
   notificationPreference?: Prisma.NotificationPreferenceOrderByWithRelationInput
   deviceTokens?: Prisma.DeviceTokenOrderByRelationAggregateInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryOrderByRelationAggregateInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryOrderByRelationAggregateInput
+  userStores?: Prisma.UserStoreOrderByRelationAggregateInput
+  userItems?: Prisma.UserItemOrderByRelationAggregateInput
+  userStoreItems?: Prisma.UserStoreItemOrderByRelationAggregateInput
+  userItemCategories?: Prisma.UserItemCategoryOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -289,6 +310,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"User"> | string
   firstName?: Prisma.StringFilter<"User"> | string
   lastName?: Prisma.StringFilter<"User"> | string
+  image?: Prisma.StringNullableFilter<"User"> | string | null
   balance?: Prisma.DecimalFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -302,6 +324,12 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   notifications?: Prisma.NotificationListRelationFilter
   notificationPreference?: Prisma.XOR<Prisma.NotificationPreferenceNullableScalarRelationFilter, Prisma.NotificationPreferenceWhereInput> | null
   deviceTokens?: Prisma.DeviceTokenListRelationFilter
+  userExpenseCategories?: Prisma.UserExpenseCategoryListRelationFilter
+  userIncomeCategories?: Prisma.UserIncomeCategoryListRelationFilter
+  userStores?: Prisma.UserStoreListRelationFilter
+  userItems?: Prisma.UserItemListRelationFilter
+  userStoreItems?: Prisma.UserStoreItemListRelationFilter
+  userItemCategories?: Prisma.UserItemCategoryListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -310,6 +338,7 @@ export type UserOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  image?: Prisma.SortOrderInput | Prisma.SortOrder
   balance?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -330,6 +359,7 @@ export type UserScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
   firstName?: Prisma.StringWithAggregatesFilter<"User"> | string
   lastName?: Prisma.StringWithAggregatesFilter<"User"> | string
+  image?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   balance?: Prisma.DecimalWithAggregatesFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -342,6 +372,7 @@ export type UserCreateInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -355,6 +386,12 @@ export type UserCreateInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -363,6 +400,7 @@ export type UserUncheckedCreateInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -376,6 +414,12 @@ export type UserUncheckedCreateInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -384,6 +428,7 @@ export type UserUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -397,6 +442,12 @@ export type UserUpdateInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -405,6 +456,7 @@ export type UserUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -418,6 +470,12 @@ export type UserUncheckedUpdateInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -426,6 +484,7 @@ export type UserCreateManyInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -438,6 +497,7 @@ export type UserUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -450,6 +510,7 @@ export type UserUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -472,6 +533,7 @@ export type UserCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  image?: Prisma.SortOrder
   balance?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -488,6 +550,7 @@ export type UserMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  image?: Prisma.SortOrder
   balance?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -500,6 +563,7 @@ export type UserMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  image?: Prisma.SortOrder
   balance?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -536,6 +600,20 @@ export type UserUpdateOneRequiredWithoutSessionsNestedInput = {
   upsert?: Prisma.UserUpsertWithoutSessionsInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSessionsInput, Prisma.UserUpdateWithoutSessionsInput>, Prisma.UserUncheckedUpdateWithoutSessionsInput>
+}
+
+export type UserCreateNestedOneWithoutUserExpenseCategoriesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserExpenseCategoriesInput, Prisma.UserUncheckedCreateWithoutUserExpenseCategoriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserExpenseCategoriesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutUserExpenseCategoriesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserExpenseCategoriesInput, Prisma.UserUncheckedCreateWithoutUserExpenseCategoriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserExpenseCategoriesInput
+  upsert?: Prisma.UserUpsertWithoutUserExpenseCategoriesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUserExpenseCategoriesInput, Prisma.UserUpdateWithoutUserExpenseCategoriesInput>, Prisma.UserUncheckedUpdateWithoutUserExpenseCategoriesInput>
 }
 
 export type UserCreateNestedOneWithoutFamilyMembershipsInput = {
@@ -582,6 +660,20 @@ export type UserUpdateOneWithoutReceivedInvitationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReceivedInvitationsInput, Prisma.UserUpdateWithoutReceivedInvitationsInput>, Prisma.UserUncheckedUpdateWithoutReceivedInvitationsInput>
 }
 
+export type UserCreateNestedOneWithoutUserIncomeCategoriesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserIncomeCategoriesInput, Prisma.UserUncheckedCreateWithoutUserIncomeCategoriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserIncomeCategoriesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutUserIncomeCategoriesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserIncomeCategoriesInput, Prisma.UserUncheckedCreateWithoutUserIncomeCategoriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserIncomeCategoriesInput
+  upsert?: Prisma.UserUpsertWithoutUserIncomeCategoriesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUserIncomeCategoriesInput, Prisma.UserUpdateWithoutUserIncomeCategoriesInput>, Prisma.UserUncheckedUpdateWithoutUserIncomeCategoriesInput>
+}
+
 export type UserCreateNestedOneWithoutNotificationsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutNotificationsInput, Prisma.UserUncheckedCreateWithoutNotificationsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutNotificationsInput
@@ -624,6 +716,62 @@ export type UserUpdateOneRequiredWithoutDeviceTokensNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDeviceTokensInput, Prisma.UserUpdateWithoutDeviceTokensInput>, Prisma.UserUncheckedUpdateWithoutDeviceTokensInput>
 }
 
+export type UserCreateNestedOneWithoutUserStoresInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserStoresInput, Prisma.UserUncheckedCreateWithoutUserStoresInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserStoresInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutUserStoresNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserStoresInput, Prisma.UserUncheckedCreateWithoutUserStoresInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserStoresInput
+  upsert?: Prisma.UserUpsertWithoutUserStoresInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUserStoresInput, Prisma.UserUpdateWithoutUserStoresInput>, Prisma.UserUncheckedUpdateWithoutUserStoresInput>
+}
+
+export type UserCreateNestedOneWithoutUserItemsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserItemsInput, Prisma.UserUncheckedCreateWithoutUserItemsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserItemsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutUserItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserItemsInput, Prisma.UserUncheckedCreateWithoutUserItemsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserItemsInput
+  upsert?: Prisma.UserUpsertWithoutUserItemsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUserItemsInput, Prisma.UserUpdateWithoutUserItemsInput>, Prisma.UserUncheckedUpdateWithoutUserItemsInput>
+}
+
+export type UserCreateNestedOneWithoutUserStoreItemsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserStoreItemsInput, Prisma.UserUncheckedCreateWithoutUserStoreItemsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserStoreItemsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutUserStoreItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserStoreItemsInput, Prisma.UserUncheckedCreateWithoutUserStoreItemsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserStoreItemsInput
+  upsert?: Prisma.UserUpsertWithoutUserStoreItemsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUserStoreItemsInput, Prisma.UserUpdateWithoutUserStoreItemsInput>, Prisma.UserUncheckedUpdateWithoutUserStoreItemsInput>
+}
+
+export type UserCreateNestedOneWithoutUserItemCategoriesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserItemCategoriesInput, Prisma.UserUncheckedCreateWithoutUserItemCategoriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserItemCategoriesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutUserItemCategoriesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserItemCategoriesInput, Prisma.UserUncheckedCreateWithoutUserItemCategoriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserItemCategoriesInput
+  upsert?: Prisma.UserUpsertWithoutUserItemCategoriesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUserItemCategoriesInput, Prisma.UserUpdateWithoutUserItemCategoriesInput>, Prisma.UserUncheckedUpdateWithoutUserItemCategoriesInput>
+}
+
 export type UserCreateNestedOneWithoutTransactionsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutTransactionsInput, Prisma.UserUncheckedCreateWithoutTransactionsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutTransactionsInput
@@ -644,6 +792,7 @@ export type UserCreateWithoutAccountsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -656,6 +805,12 @@ export type UserCreateWithoutAccountsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -664,6 +819,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -676,6 +832,12 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -700,6 +862,7 @@ export type UserUpdateWithoutAccountsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -712,6 +875,12 @@ export type UserUpdateWithoutAccountsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -720,6 +889,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -732,6 +902,12 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -740,6 +916,7 @@ export type UserCreateWithoutSessionsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -752,6 +929,12 @@ export type UserCreateWithoutSessionsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -760,6 +943,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -772,6 +956,12 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -796,6 +986,7 @@ export type UserUpdateWithoutSessionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -808,6 +999,12 @@ export type UserUpdateWithoutSessionsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -816,6 +1013,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -828,6 +1026,136 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutUserExpenseCategoriesInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutUserExpenseCategoriesInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutUserExpenseCategoriesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserExpenseCategoriesInput, Prisma.UserUncheckedCreateWithoutUserExpenseCategoriesInput>
+}
+
+export type UserUpsertWithoutUserExpenseCategoriesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUserExpenseCategoriesInput, Prisma.UserUncheckedUpdateWithoutUserExpenseCategoriesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserExpenseCategoriesInput, Prisma.UserUncheckedCreateWithoutUserExpenseCategoriesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutUserExpenseCategoriesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUserExpenseCategoriesInput, Prisma.UserUncheckedUpdateWithoutUserExpenseCategoriesInput>
+}
+
+export type UserUpdateWithoutUserExpenseCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutUserExpenseCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFamilyMembershipsInput = {
@@ -836,6 +1164,7 @@ export type UserCreateWithoutFamilyMembershipsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -848,6 +1177,12 @@ export type UserCreateWithoutFamilyMembershipsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFamilyMembershipsInput = {
@@ -856,6 +1191,7 @@ export type UserUncheckedCreateWithoutFamilyMembershipsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -868,6 +1204,12 @@ export type UserUncheckedCreateWithoutFamilyMembershipsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFamilyMembershipsInput = {
@@ -892,6 +1234,7 @@ export type UserUpdateWithoutFamilyMembershipsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -904,6 +1247,12 @@ export type UserUpdateWithoutFamilyMembershipsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFamilyMembershipsInput = {
@@ -912,6 +1261,7 @@ export type UserUncheckedUpdateWithoutFamilyMembershipsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -924,6 +1274,12 @@ export type UserUncheckedUpdateWithoutFamilyMembershipsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSentInvitationsInput = {
@@ -932,6 +1288,7 @@ export type UserCreateWithoutSentInvitationsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -944,6 +1301,12 @@ export type UserCreateWithoutSentInvitationsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSentInvitationsInput = {
@@ -952,6 +1315,7 @@ export type UserUncheckedCreateWithoutSentInvitationsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -964,6 +1328,12 @@ export type UserUncheckedCreateWithoutSentInvitationsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSentInvitationsInput = {
@@ -977,6 +1347,7 @@ export type UserCreateWithoutReceivedInvitationsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -989,6 +1360,12 @@ export type UserCreateWithoutReceivedInvitationsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReceivedInvitationsInput = {
@@ -997,6 +1374,7 @@ export type UserUncheckedCreateWithoutReceivedInvitationsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -1009,6 +1387,12 @@ export type UserUncheckedCreateWithoutReceivedInvitationsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReceivedInvitationsInput = {
@@ -1033,6 +1417,7 @@ export type UserUpdateWithoutSentInvitationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1045,6 +1430,12 @@ export type UserUpdateWithoutSentInvitationsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentInvitationsInput = {
@@ -1053,6 +1444,7 @@ export type UserUncheckedUpdateWithoutSentInvitationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1065,6 +1457,12 @@ export type UserUncheckedUpdateWithoutSentInvitationsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReceivedInvitationsInput = {
@@ -1084,6 +1482,7 @@ export type UserUpdateWithoutReceivedInvitationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1096,6 +1495,12 @@ export type UserUpdateWithoutReceivedInvitationsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReceivedInvitationsInput = {
@@ -1104,6 +1509,7 @@ export type UserUncheckedUpdateWithoutReceivedInvitationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1116,6 +1522,136 @@ export type UserUncheckedUpdateWithoutReceivedInvitationsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutUserIncomeCategoriesInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutUserIncomeCategoriesInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutUserIncomeCategoriesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserIncomeCategoriesInput, Prisma.UserUncheckedCreateWithoutUserIncomeCategoriesInput>
+}
+
+export type UserUpsertWithoutUserIncomeCategoriesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUserIncomeCategoriesInput, Prisma.UserUncheckedUpdateWithoutUserIncomeCategoriesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserIncomeCategoriesInput, Prisma.UserUncheckedCreateWithoutUserIncomeCategoriesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutUserIncomeCategoriesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUserIncomeCategoriesInput, Prisma.UserUncheckedUpdateWithoutUserIncomeCategoriesInput>
+}
+
+export type UserUpdateWithoutUserIncomeCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutUserIncomeCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -1124,6 +1660,7 @@ export type UserCreateWithoutNotificationsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -1136,6 +1673,12 @@ export type UserCreateWithoutNotificationsInput = {
   receivedInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviteeInput
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -1144,6 +1687,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -1156,6 +1700,12 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   receivedInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviteeInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -1180,6 +1730,7 @@ export type UserUpdateWithoutNotificationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1192,6 +1743,12 @@ export type UserUpdateWithoutNotificationsInput = {
   receivedInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviteeNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -1200,6 +1757,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1212,6 +1770,12 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   receivedInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviteeNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationPreferenceInput = {
@@ -1220,6 +1784,7 @@ export type UserCreateWithoutNotificationPreferenceInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -1232,6 +1797,12 @@ export type UserCreateWithoutNotificationPreferenceInput = {
   receivedInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviteeInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationPreferenceInput = {
@@ -1240,6 +1811,7 @@ export type UserUncheckedCreateWithoutNotificationPreferenceInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -1252,6 +1824,12 @@ export type UserUncheckedCreateWithoutNotificationPreferenceInput = {
   receivedInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviteeInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationPreferenceInput = {
@@ -1276,6 +1854,7 @@ export type UserUpdateWithoutNotificationPreferenceInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1288,6 +1867,12 @@ export type UserUpdateWithoutNotificationPreferenceInput = {
   receivedInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviteeNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationPreferenceInput = {
@@ -1296,6 +1881,7 @@ export type UserUncheckedUpdateWithoutNotificationPreferenceInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1308,6 +1894,12 @@ export type UserUncheckedUpdateWithoutNotificationPreferenceInput = {
   receivedInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviteeNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDeviceTokensInput = {
@@ -1316,6 +1908,7 @@ export type UserCreateWithoutDeviceTokensInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -1328,6 +1921,12 @@ export type UserCreateWithoutDeviceTokensInput = {
   receivedInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviteeInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDeviceTokensInput = {
@@ -1336,6 +1935,7 @@ export type UserUncheckedCreateWithoutDeviceTokensInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -1348,6 +1948,12 @@ export type UserUncheckedCreateWithoutDeviceTokensInput = {
   receivedInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviteeInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDeviceTokensInput = {
@@ -1372,6 +1978,7 @@ export type UserUpdateWithoutDeviceTokensInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1384,6 +1991,12 @@ export type UserUpdateWithoutDeviceTokensInput = {
   receivedInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviteeNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDeviceTokensInput = {
@@ -1392,6 +2005,7 @@ export type UserUncheckedUpdateWithoutDeviceTokensInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1404,6 +2018,508 @@ export type UserUncheckedUpdateWithoutDeviceTokensInput = {
   receivedInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviteeNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutUserStoresInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutUserStoresInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutUserStoresInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserStoresInput, Prisma.UserUncheckedCreateWithoutUserStoresInput>
+}
+
+export type UserUpsertWithoutUserStoresInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUserStoresInput, Prisma.UserUncheckedUpdateWithoutUserStoresInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserStoresInput, Prisma.UserUncheckedCreateWithoutUserStoresInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutUserStoresInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUserStoresInput, Prisma.UserUncheckedUpdateWithoutUserStoresInput>
+}
+
+export type UserUpdateWithoutUserStoresInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutUserStoresInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutUserItemsInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutUserItemsInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutUserItemsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserItemsInput, Prisma.UserUncheckedCreateWithoutUserItemsInput>
+}
+
+export type UserUpsertWithoutUserItemsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUserItemsInput, Prisma.UserUncheckedUpdateWithoutUserItemsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserItemsInput, Prisma.UserUncheckedCreateWithoutUserItemsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutUserItemsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUserItemsInput, Prisma.UserUncheckedUpdateWithoutUserItemsInput>
+}
+
+export type UserUpdateWithoutUserItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutUserItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutUserStoreItemsInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutUserStoreItemsInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutUserStoreItemsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserStoreItemsInput, Prisma.UserUncheckedCreateWithoutUserStoreItemsInput>
+}
+
+export type UserUpsertWithoutUserStoreItemsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUserStoreItemsInput, Prisma.UserUncheckedUpdateWithoutUserStoreItemsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserStoreItemsInput, Prisma.UserUncheckedCreateWithoutUserStoreItemsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutUserStoreItemsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUserStoreItemsInput, Prisma.UserUncheckedUpdateWithoutUserStoreItemsInput>
+}
+
+export type UserUpdateWithoutUserStoreItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutUserStoreItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutUserItemCategoriesInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutUserItemCategoriesInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutUserItemCategoriesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserItemCategoriesInput, Prisma.UserUncheckedCreateWithoutUserItemCategoriesInput>
+}
+
+export type UserUpsertWithoutUserItemCategoriesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUserItemCategoriesInput, Prisma.UserUncheckedUpdateWithoutUserItemCategoriesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserItemCategoriesInput, Prisma.UserUncheckedCreateWithoutUserItemCategoriesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutUserItemCategoriesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUserItemCategoriesInput, Prisma.UserUncheckedUpdateWithoutUserItemCategoriesInput>
+}
+
+export type UserUpdateWithoutUserItemCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutUserItemCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTransactionsInput = {
@@ -1412,6 +2528,7 @@ export type UserCreateWithoutTransactionsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -1424,6 +2541,12 @@ export type UserCreateWithoutTransactionsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -1432,6 +2555,7 @@ export type UserUncheckedCreateWithoutTransactionsInput = {
   name?: string
   firstName?: string
   lastName?: string
+  image?: string | null
   balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
@@ -1444,6 +2568,12 @@ export type UserUncheckedCreateWithoutTransactionsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -1468,6 +2598,7 @@ export type UserUpdateWithoutTransactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1480,6 +2611,12 @@ export type UserUpdateWithoutTransactionsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -1488,6 +2625,7 @@ export type UserUncheckedUpdateWithoutTransactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1500,6 +2638,12 @@ export type UserUncheckedUpdateWithoutTransactionsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1516,6 +2660,12 @@ export type UserCountOutputType = {
   receivedInvitations: number
   notifications: number
   deviceTokens: number
+  userExpenseCategories: number
+  userIncomeCategories: number
+  userStores: number
+  userItems: number
+  userStoreItems: number
+  userItemCategories: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1527,6 +2677,12 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   receivedInvitations?: boolean | UserCountOutputTypeCountReceivedInvitationsArgs
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
   deviceTokens?: boolean | UserCountOutputTypeCountDeviceTokensArgs
+  userExpenseCategories?: boolean | UserCountOutputTypeCountUserExpenseCategoriesArgs
+  userIncomeCategories?: boolean | UserCountOutputTypeCountUserIncomeCategoriesArgs
+  userStores?: boolean | UserCountOutputTypeCountUserStoresArgs
+  userItems?: boolean | UserCountOutputTypeCountUserItemsArgs
+  userStoreItems?: boolean | UserCountOutputTypeCountUserStoreItemsArgs
+  userItemCategories?: boolean | UserCountOutputTypeCountUserItemCategoriesArgs
 }
 
 /**
@@ -1595,6 +2751,48 @@ export type UserCountOutputTypeCountDeviceTokensArgs<ExtArgs extends runtime.Typ
   where?: Prisma.DeviceTokenWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountUserExpenseCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserExpenseCategoryWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountUserIncomeCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserIncomeCategoryWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountUserStoresArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserStoreWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountUserItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserItemWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountUserStoreItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserStoreItemWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountUserItemCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserItemCategoryWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1602,6 +2800,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   name?: boolean
   firstName?: boolean
   lastName?: boolean
+  image?: boolean
   balance?: boolean
   emailVerified?: boolean
   createdAt?: boolean
@@ -1615,6 +2814,12 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   notificationPreference?: boolean | Prisma.User$notificationPreferenceArgs<ExtArgs>
   deviceTokens?: boolean | Prisma.User$deviceTokensArgs<ExtArgs>
+  userExpenseCategories?: boolean | Prisma.User$userExpenseCategoriesArgs<ExtArgs>
+  userIncomeCategories?: boolean | Prisma.User$userIncomeCategoriesArgs<ExtArgs>
+  userStores?: boolean | Prisma.User$userStoresArgs<ExtArgs>
+  userItems?: boolean | Prisma.User$userItemsArgs<ExtArgs>
+  userStoreItems?: boolean | Prisma.User$userStoreItemsArgs<ExtArgs>
+  userItemCategories?: boolean | Prisma.User$userItemCategoriesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1624,6 +2829,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   name?: boolean
   firstName?: boolean
   lastName?: boolean
+  image?: boolean
   balance?: boolean
   emailVerified?: boolean
   createdAt?: boolean
@@ -1636,6 +2842,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   name?: boolean
   firstName?: boolean
   lastName?: boolean
+  image?: boolean
   balance?: boolean
   emailVerified?: boolean
   createdAt?: boolean
@@ -1648,13 +2855,14 @@ export type UserSelectScalar = {
   name?: boolean
   firstName?: boolean
   lastName?: boolean
+  image?: boolean
   balance?: boolean
   emailVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "firstName" | "lastName" | "balance" | "emailVerified" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "firstName" | "lastName" | "image" | "balance" | "emailVerified" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   transactions?: boolean | Prisma.User$transactionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
@@ -1665,6 +2873,12 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   notificationPreference?: boolean | Prisma.User$notificationPreferenceArgs<ExtArgs>
   deviceTokens?: boolean | Prisma.User$deviceTokensArgs<ExtArgs>
+  userExpenseCategories?: boolean | Prisma.User$userExpenseCategoriesArgs<ExtArgs>
+  userIncomeCategories?: boolean | Prisma.User$userIncomeCategoriesArgs<ExtArgs>
+  userStores?: boolean | Prisma.User$userStoresArgs<ExtArgs>
+  userItems?: boolean | Prisma.User$userItemsArgs<ExtArgs>
+  userStoreItems?: boolean | Prisma.User$userStoreItemsArgs<ExtArgs>
+  userItemCategories?: boolean | Prisma.User$userItemCategoriesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1682,6 +2896,12 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
     notificationPreference: Prisma.$NotificationPreferencePayload<ExtArgs> | null
     deviceTokens: Prisma.$DeviceTokenPayload<ExtArgs>[]
+    userExpenseCategories: Prisma.$UserExpenseCategoryPayload<ExtArgs>[]
+    userIncomeCategories: Prisma.$UserIncomeCategoryPayload<ExtArgs>[]
+    userStores: Prisma.$UserStorePayload<ExtArgs>[]
+    userItems: Prisma.$UserItemPayload<ExtArgs>[]
+    userStoreItems: Prisma.$UserStoreItemPayload<ExtArgs>[]
+    userItemCategories: Prisma.$UserItemCategoryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1689,6 +2909,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     name: string
     firstName: string
     lastName: string
+    image: string | null
     balance: runtime.Decimal
     emailVerified: boolean
     createdAt: Date
@@ -2096,6 +3317,12 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notificationPreference<T extends Prisma.User$notificationPreferenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationPreferenceArgs<ExtArgs>>): Prisma.Prisma__NotificationPreferenceClient<runtime.Types.Result.GetResult<Prisma.$NotificationPreferencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   deviceTokens<T extends Prisma.User$deviceTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$deviceTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  userExpenseCategories<T extends Prisma.User$userExpenseCategoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userExpenseCategoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserExpenseCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  userIncomeCategories<T extends Prisma.User$userIncomeCategoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userIncomeCategoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserIncomeCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  userStores<T extends Prisma.User$userStoresArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userStoresArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserStorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  userItems<T extends Prisma.User$userItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  userStoreItems<T extends Prisma.User$userStoreItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userStoreItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserStoreItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  userItemCategories<T extends Prisma.User$userItemCategoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userItemCategoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserItemCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2130,6 +3357,7 @@ export interface UserFieldRefs {
   readonly name: Prisma.FieldRef<"User", 'String'>
   readonly firstName: Prisma.FieldRef<"User", 'String'>
   readonly lastName: Prisma.FieldRef<"User", 'String'>
+  readonly image: Prisma.FieldRef<"User", 'String'>
   readonly balance: Prisma.FieldRef<"User", 'Decimal'>
   readonly emailVerified: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
@@ -2730,6 +3958,150 @@ export type User$deviceTokensArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.DeviceTokenScalarFieldEnum | Prisma.DeviceTokenScalarFieldEnum[]
+}
+
+/**
+ * User.userExpenseCategories
+ */
+export type User$userExpenseCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserExpenseCategory
+   */
+  select?: Prisma.UserExpenseCategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserExpenseCategory
+   */
+  omit?: Prisma.UserExpenseCategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserExpenseCategoryInclude<ExtArgs> | null
+  where?: Prisma.UserExpenseCategoryWhereInput
+  orderBy?: Prisma.UserExpenseCategoryOrderByWithRelationInput | Prisma.UserExpenseCategoryOrderByWithRelationInput[]
+  cursor?: Prisma.UserExpenseCategoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserExpenseCategoryScalarFieldEnum | Prisma.UserExpenseCategoryScalarFieldEnum[]
+}
+
+/**
+ * User.userIncomeCategories
+ */
+export type User$userIncomeCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserIncomeCategory
+   */
+  select?: Prisma.UserIncomeCategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserIncomeCategory
+   */
+  omit?: Prisma.UserIncomeCategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncomeCategoryInclude<ExtArgs> | null
+  where?: Prisma.UserIncomeCategoryWhereInput
+  orderBy?: Prisma.UserIncomeCategoryOrderByWithRelationInput | Prisma.UserIncomeCategoryOrderByWithRelationInput[]
+  cursor?: Prisma.UserIncomeCategoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserIncomeCategoryScalarFieldEnum | Prisma.UserIncomeCategoryScalarFieldEnum[]
+}
+
+/**
+ * User.userStores
+ */
+export type User$userStoresArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserStore
+   */
+  select?: Prisma.UserStoreSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserStore
+   */
+  omit?: Prisma.UserStoreOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserStoreInclude<ExtArgs> | null
+  where?: Prisma.UserStoreWhereInput
+  orderBy?: Prisma.UserStoreOrderByWithRelationInput | Prisma.UserStoreOrderByWithRelationInput[]
+  cursor?: Prisma.UserStoreWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserStoreScalarFieldEnum | Prisma.UserStoreScalarFieldEnum[]
+}
+
+/**
+ * User.userItems
+ */
+export type User$userItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserItem
+   */
+  select?: Prisma.UserItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserItem
+   */
+  omit?: Prisma.UserItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserItemInclude<ExtArgs> | null
+  where?: Prisma.UserItemWhereInput
+  orderBy?: Prisma.UserItemOrderByWithRelationInput | Prisma.UserItemOrderByWithRelationInput[]
+  cursor?: Prisma.UserItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserItemScalarFieldEnum | Prisma.UserItemScalarFieldEnum[]
+}
+
+/**
+ * User.userStoreItems
+ */
+export type User$userStoreItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserStoreItem
+   */
+  select?: Prisma.UserStoreItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserStoreItem
+   */
+  omit?: Prisma.UserStoreItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserStoreItemInclude<ExtArgs> | null
+  where?: Prisma.UserStoreItemWhereInput
+  orderBy?: Prisma.UserStoreItemOrderByWithRelationInput | Prisma.UserStoreItemOrderByWithRelationInput[]
+  cursor?: Prisma.UserStoreItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserStoreItemScalarFieldEnum | Prisma.UserStoreItemScalarFieldEnum[]
+}
+
+/**
+ * User.userItemCategories
+ */
+export type User$userItemCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserItemCategory
+   */
+  select?: Prisma.UserItemCategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserItemCategory
+   */
+  omit?: Prisma.UserItemCategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserItemCategoryInclude<ExtArgs> | null
+  where?: Prisma.UserItemCategoryWhereInput
+  orderBy?: Prisma.UserItemCategoryOrderByWithRelationInput | Prisma.UserItemCategoryOrderByWithRelationInput[]
+  cursor?: Prisma.UserItemCategoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserItemCategoryScalarFieldEnum | Prisma.UserItemCategoryScalarFieldEnum[]
 }
 
 /**

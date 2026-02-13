@@ -33,6 +33,14 @@ model User {
   notificationPreference NotificationPreference?
   deviceTokens           DeviceToken[]
 
+  // User-scoped entity relationships
+  userExpenseCategories UserExpenseCategory[]
+  userIncomeCategories  UserIncomeCategory[]
+  userStores            UserStore[]
+  userItems             UserItem[]
+  userStoreItems        UserStoreItem[]
+  userItemCategories    UserItemCategory[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

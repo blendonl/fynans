@@ -236,6 +236,7 @@ export type StoreItemWhereInput = {
   item?: Prisma.XOR<Prisma.ItemScalarRelationFilter, Prisma.ItemWhereInput>
   discounts?: Prisma.StoreItemDiscountListRelationFilter
   expenses?: Prisma.ExpenseItemListRelationFilter
+  users?: Prisma.UserStoreItemListRelationFilter
 }
 
 export type StoreItemOrderByWithRelationInput = {
@@ -250,6 +251,7 @@ export type StoreItemOrderByWithRelationInput = {
   item?: Prisma.ItemOrderByWithRelationInput
   discounts?: Prisma.StoreItemDiscountOrderByRelationAggregateInput
   expenses?: Prisma.ExpenseItemOrderByRelationAggregateInput
+  users?: Prisma.UserStoreItemOrderByRelationAggregateInput
 }
 
 export type StoreItemWhereUniqueInput = Prisma.AtLeast<{
@@ -267,6 +269,7 @@ export type StoreItemWhereUniqueInput = Prisma.AtLeast<{
   item?: Prisma.XOR<Prisma.ItemScalarRelationFilter, Prisma.ItemWhereInput>
   discounts?: Prisma.StoreItemDiscountListRelationFilter
   expenses?: Prisma.ExpenseItemListRelationFilter
+  users?: Prisma.UserStoreItemListRelationFilter
 }, "id">
 
 export type StoreItemOrderByWithAggregationInput = {
@@ -307,6 +310,7 @@ export type StoreItemCreateInput = {
   item: Prisma.ItemCreateNestedOneWithoutStoresInput
   discounts?: Prisma.StoreItemDiscountCreateNestedManyWithoutStoreItemInput
   expenses?: Prisma.ExpenseItemCreateNestedManyWithoutItemInput
+  users?: Prisma.UserStoreItemCreateNestedManyWithoutStoreItemInput
 }
 
 export type StoreItemUncheckedCreateInput = {
@@ -319,6 +323,7 @@ export type StoreItemUncheckedCreateInput = {
   updatedAt?: Date | string
   discounts?: Prisma.StoreItemDiscountUncheckedCreateNestedManyWithoutStoreItemInput
   expenses?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutItemInput
+  users?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutStoreItemInput
 }
 
 export type StoreItemUpdateInput = {
@@ -331,6 +336,7 @@ export type StoreItemUpdateInput = {
   item?: Prisma.ItemUpdateOneRequiredWithoutStoresNestedInput
   discounts?: Prisma.StoreItemDiscountUpdateManyWithoutStoreItemNestedInput
   expenses?: Prisma.ExpenseItemUpdateManyWithoutItemNestedInput
+  users?: Prisma.UserStoreItemUpdateManyWithoutStoreItemNestedInput
 }
 
 export type StoreItemUncheckedUpdateInput = {
@@ -343,6 +349,7 @@ export type StoreItemUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discounts?: Prisma.StoreItemDiscountUncheckedUpdateManyWithoutStoreItemNestedInput
   expenses?: Prisma.ExpenseItemUncheckedUpdateManyWithoutItemNestedInput
+  users?: Prisma.UserStoreItemUncheckedUpdateManyWithoutStoreItemNestedInput
 }
 
 export type StoreItemCreateManyInput = {
@@ -538,6 +545,20 @@ export type StoreItemUpdateOneRequiredWithoutDiscountsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.StoreItemUpdateToOneWithWhereWithoutDiscountsInput, Prisma.StoreItemUpdateWithoutDiscountsInput>, Prisma.StoreItemUncheckedUpdateWithoutDiscountsInput>
 }
 
+export type StoreItemCreateNestedOneWithoutUsersInput = {
+  create?: Prisma.XOR<Prisma.StoreItemCreateWithoutUsersInput, Prisma.StoreItemUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.StoreItemCreateOrConnectWithoutUsersInput
+  connect?: Prisma.StoreItemWhereUniqueInput
+}
+
+export type StoreItemUpdateOneRequiredWithoutUsersNestedInput = {
+  create?: Prisma.XOR<Prisma.StoreItemCreateWithoutUsersInput, Prisma.StoreItemUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.StoreItemCreateOrConnectWithoutUsersInput
+  upsert?: Prisma.StoreItemUpsertWithoutUsersInput
+  connect?: Prisma.StoreItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.StoreItemUpdateToOneWithWhereWithoutUsersInput, Prisma.StoreItemUpdateWithoutUsersInput>, Prisma.StoreItemUncheckedUpdateWithoutUsersInput>
+}
+
 export type StoreItemCreateWithoutExpensesInput = {
   id?: string
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -547,6 +568,7 @@ export type StoreItemCreateWithoutExpensesInput = {
   store: Prisma.StoreCreateNestedOneWithoutItemsInput
   item: Prisma.ItemCreateNestedOneWithoutStoresInput
   discounts?: Prisma.StoreItemDiscountCreateNestedManyWithoutStoreItemInput
+  users?: Prisma.UserStoreItemCreateNestedManyWithoutStoreItemInput
 }
 
 export type StoreItemUncheckedCreateWithoutExpensesInput = {
@@ -558,6 +580,7 @@ export type StoreItemUncheckedCreateWithoutExpensesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   discounts?: Prisma.StoreItemDiscountUncheckedCreateNestedManyWithoutStoreItemInput
+  users?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutStoreItemInput
 }
 
 export type StoreItemCreateOrConnectWithoutExpensesInput = {
@@ -585,6 +608,7 @@ export type StoreItemUpdateWithoutExpensesInput = {
   store?: Prisma.StoreUpdateOneRequiredWithoutItemsNestedInput
   item?: Prisma.ItemUpdateOneRequiredWithoutStoresNestedInput
   discounts?: Prisma.StoreItemDiscountUpdateManyWithoutStoreItemNestedInput
+  users?: Prisma.UserStoreItemUpdateManyWithoutStoreItemNestedInput
 }
 
 export type StoreItemUncheckedUpdateWithoutExpensesInput = {
@@ -596,6 +620,7 @@ export type StoreItemUncheckedUpdateWithoutExpensesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discounts?: Prisma.StoreItemDiscountUncheckedUpdateManyWithoutStoreItemNestedInput
+  users?: Prisma.UserStoreItemUncheckedUpdateManyWithoutStoreItemNestedInput
 }
 
 export type StoreItemCreateWithoutStoreInput = {
@@ -607,6 +632,7 @@ export type StoreItemCreateWithoutStoreInput = {
   item: Prisma.ItemCreateNestedOneWithoutStoresInput
   discounts?: Prisma.StoreItemDiscountCreateNestedManyWithoutStoreItemInput
   expenses?: Prisma.ExpenseItemCreateNestedManyWithoutItemInput
+  users?: Prisma.UserStoreItemCreateNestedManyWithoutStoreItemInput
 }
 
 export type StoreItemUncheckedCreateWithoutStoreInput = {
@@ -618,6 +644,7 @@ export type StoreItemUncheckedCreateWithoutStoreInput = {
   updatedAt?: Date | string
   discounts?: Prisma.StoreItemDiscountUncheckedCreateNestedManyWithoutStoreItemInput
   expenses?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutItemInput
+  users?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutStoreItemInput
 }
 
 export type StoreItemCreateOrConnectWithoutStoreInput = {
@@ -668,6 +695,7 @@ export type StoreItemCreateWithoutItemInput = {
   store: Prisma.StoreCreateNestedOneWithoutItemsInput
   discounts?: Prisma.StoreItemDiscountCreateNestedManyWithoutStoreItemInput
   expenses?: Prisma.ExpenseItemCreateNestedManyWithoutItemInput
+  users?: Prisma.UserStoreItemCreateNestedManyWithoutStoreItemInput
 }
 
 export type StoreItemUncheckedCreateWithoutItemInput = {
@@ -679,6 +707,7 @@ export type StoreItemUncheckedCreateWithoutItemInput = {
   updatedAt?: Date | string
   discounts?: Prisma.StoreItemDiscountUncheckedCreateNestedManyWithoutStoreItemInput
   expenses?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutItemInput
+  users?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutStoreItemInput
 }
 
 export type StoreItemCreateOrConnectWithoutItemInput = {
@@ -716,6 +745,7 @@ export type StoreItemCreateWithoutDiscountsInput = {
   store: Prisma.StoreCreateNestedOneWithoutItemsInput
   item: Prisma.ItemCreateNestedOneWithoutStoresInput
   expenses?: Prisma.ExpenseItemCreateNestedManyWithoutItemInput
+  users?: Prisma.UserStoreItemCreateNestedManyWithoutStoreItemInput
 }
 
 export type StoreItemUncheckedCreateWithoutDiscountsInput = {
@@ -727,6 +757,7 @@ export type StoreItemUncheckedCreateWithoutDiscountsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   expenses?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutItemInput
+  users?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutStoreItemInput
 }
 
 export type StoreItemCreateOrConnectWithoutDiscountsInput = {
@@ -754,6 +785,7 @@ export type StoreItemUpdateWithoutDiscountsInput = {
   store?: Prisma.StoreUpdateOneRequiredWithoutItemsNestedInput
   item?: Prisma.ItemUpdateOneRequiredWithoutStoresNestedInput
   expenses?: Prisma.ExpenseItemUpdateManyWithoutItemNestedInput
+  users?: Prisma.UserStoreItemUpdateManyWithoutStoreItemNestedInput
 }
 
 export type StoreItemUncheckedUpdateWithoutDiscountsInput = {
@@ -764,6 +796,71 @@ export type StoreItemUncheckedUpdateWithoutDiscountsInput = {
   isDiscounted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expenses?: Prisma.ExpenseItemUncheckedUpdateManyWithoutItemNestedInput
+  users?: Prisma.UserStoreItemUncheckedUpdateManyWithoutStoreItemNestedInput
+}
+
+export type StoreItemCreateWithoutUsersInput = {
+  id?: string
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDiscounted: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  store: Prisma.StoreCreateNestedOneWithoutItemsInput
+  item: Prisma.ItemCreateNestedOneWithoutStoresInput
+  discounts?: Prisma.StoreItemDiscountCreateNestedManyWithoutStoreItemInput
+  expenses?: Prisma.ExpenseItemCreateNestedManyWithoutItemInput
+}
+
+export type StoreItemUncheckedCreateWithoutUsersInput = {
+  id?: string
+  itemId: string
+  storeId: string
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDiscounted: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  discounts?: Prisma.StoreItemDiscountUncheckedCreateNestedManyWithoutStoreItemInput
+  expenses?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutItemInput
+}
+
+export type StoreItemCreateOrConnectWithoutUsersInput = {
+  where: Prisma.StoreItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.StoreItemCreateWithoutUsersInput, Prisma.StoreItemUncheckedCreateWithoutUsersInput>
+}
+
+export type StoreItemUpsertWithoutUsersInput = {
+  update: Prisma.XOR<Prisma.StoreItemUpdateWithoutUsersInput, Prisma.StoreItemUncheckedUpdateWithoutUsersInput>
+  create: Prisma.XOR<Prisma.StoreItemCreateWithoutUsersInput, Prisma.StoreItemUncheckedCreateWithoutUsersInput>
+  where?: Prisma.StoreItemWhereInput
+}
+
+export type StoreItemUpdateToOneWithWhereWithoutUsersInput = {
+  where?: Prisma.StoreItemWhereInput
+  data: Prisma.XOR<Prisma.StoreItemUpdateWithoutUsersInput, Prisma.StoreItemUncheckedUpdateWithoutUsersInput>
+}
+
+export type StoreItemUpdateWithoutUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDiscounted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  store?: Prisma.StoreUpdateOneRequiredWithoutItemsNestedInput
+  item?: Prisma.ItemUpdateOneRequiredWithoutStoresNestedInput
+  discounts?: Prisma.StoreItemDiscountUpdateManyWithoutStoreItemNestedInput
+  expenses?: Prisma.ExpenseItemUpdateManyWithoutItemNestedInput
+}
+
+export type StoreItemUncheckedUpdateWithoutUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  itemId?: Prisma.StringFieldUpdateOperationsInput | string
+  storeId?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDiscounted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  discounts?: Prisma.StoreItemDiscountUncheckedUpdateManyWithoutStoreItemNestedInput
   expenses?: Prisma.ExpenseItemUncheckedUpdateManyWithoutItemNestedInput
 }
 
@@ -785,6 +882,7 @@ export type StoreItemUpdateWithoutStoreInput = {
   item?: Prisma.ItemUpdateOneRequiredWithoutStoresNestedInput
   discounts?: Prisma.StoreItemDiscountUpdateManyWithoutStoreItemNestedInput
   expenses?: Prisma.ExpenseItemUpdateManyWithoutItemNestedInput
+  users?: Prisma.UserStoreItemUpdateManyWithoutStoreItemNestedInput
 }
 
 export type StoreItemUncheckedUpdateWithoutStoreInput = {
@@ -796,6 +894,7 @@ export type StoreItemUncheckedUpdateWithoutStoreInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discounts?: Prisma.StoreItemDiscountUncheckedUpdateManyWithoutStoreItemNestedInput
   expenses?: Prisma.ExpenseItemUncheckedUpdateManyWithoutItemNestedInput
+  users?: Prisma.UserStoreItemUncheckedUpdateManyWithoutStoreItemNestedInput
 }
 
 export type StoreItemUncheckedUpdateManyWithoutStoreInput = {
@@ -825,6 +924,7 @@ export type StoreItemUpdateWithoutItemInput = {
   store?: Prisma.StoreUpdateOneRequiredWithoutItemsNestedInput
   discounts?: Prisma.StoreItemDiscountUpdateManyWithoutStoreItemNestedInput
   expenses?: Prisma.ExpenseItemUpdateManyWithoutItemNestedInput
+  users?: Prisma.UserStoreItemUpdateManyWithoutStoreItemNestedInput
 }
 
 export type StoreItemUncheckedUpdateWithoutItemInput = {
@@ -836,6 +936,7 @@ export type StoreItemUncheckedUpdateWithoutItemInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discounts?: Prisma.StoreItemDiscountUncheckedUpdateManyWithoutStoreItemNestedInput
   expenses?: Prisma.ExpenseItemUncheckedUpdateManyWithoutItemNestedInput
+  users?: Prisma.UserStoreItemUncheckedUpdateManyWithoutStoreItemNestedInput
 }
 
 export type StoreItemUncheckedUpdateManyWithoutItemInput = {
@@ -855,11 +956,13 @@ export type StoreItemUncheckedUpdateManyWithoutItemInput = {
 export type StoreItemCountOutputType = {
   discounts: number
   expenses: number
+  users: number
 }
 
 export type StoreItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   discounts?: boolean | StoreItemCountOutputTypeCountDiscountsArgs
   expenses?: boolean | StoreItemCountOutputTypeCountExpensesArgs
+  users?: boolean | StoreItemCountOutputTypeCountUsersArgs
 }
 
 /**
@@ -886,6 +989,13 @@ export type StoreItemCountOutputTypeCountExpensesArgs<ExtArgs extends runtime.Ty
   where?: Prisma.ExpenseItemWhereInput
 }
 
+/**
+ * StoreItemCountOutputType without action
+ */
+export type StoreItemCountOutputTypeCountUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserStoreItemWhereInput
+}
+
 
 export type StoreItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -899,6 +1009,7 @@ export type StoreItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   item?: boolean | Prisma.ItemDefaultArgs<ExtArgs>
   discounts?: boolean | Prisma.StoreItem$discountsArgs<ExtArgs>
   expenses?: boolean | Prisma.StoreItem$expensesArgs<ExtArgs>
+  users?: boolean | Prisma.StoreItem$usersArgs<ExtArgs>
   _count?: boolean | Prisma.StoreItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["storeItem"]>
 
@@ -942,6 +1053,7 @@ export type StoreItemInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   item?: boolean | Prisma.ItemDefaultArgs<ExtArgs>
   discounts?: boolean | Prisma.StoreItem$discountsArgs<ExtArgs>
   expenses?: boolean | Prisma.StoreItem$expensesArgs<ExtArgs>
+  users?: boolean | Prisma.StoreItem$usersArgs<ExtArgs>
   _count?: boolean | Prisma.StoreItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type StoreItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -960,6 +1072,7 @@ export type $StoreItemPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     item: Prisma.$ItemPayload<ExtArgs>
     discounts: Prisma.$StoreItemDiscountPayload<ExtArgs>[]
     expenses: Prisma.$ExpenseItemPayload<ExtArgs>[]
+    users: Prisma.$UserStoreItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1367,6 +1480,7 @@ export interface Prisma__StoreItemClient<T, Null = never, ExtArgs extends runtim
   item<T extends Prisma.ItemDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ItemDefaultArgs<ExtArgs>>): Prisma.Prisma__ItemClient<runtime.Types.Result.GetResult<Prisma.$ItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   discounts<T extends Prisma.StoreItem$discountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StoreItem$discountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StoreItemDiscountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   expenses<T extends Prisma.StoreItem$expensesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StoreItem$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpenseItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  users<T extends Prisma.StoreItem$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StoreItem$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserStoreItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1844,6 +1958,30 @@ export type StoreItem$expensesArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.ExpenseItemScalarFieldEnum | Prisma.ExpenseItemScalarFieldEnum[]
+}
+
+/**
+ * StoreItem.users
+ */
+export type StoreItem$usersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserStoreItem
+   */
+  select?: Prisma.UserStoreItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserStoreItem
+   */
+  omit?: Prisma.UserStoreItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserStoreItemInclude<ExtArgs> | null
+  where?: Prisma.UserStoreItemWhereInput
+  orderBy?: Prisma.UserStoreItemOrderByWithRelationInput | Prisma.UserStoreItemOrderByWithRelationInput[]
+  cursor?: Prisma.UserStoreItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserStoreItemScalarFieldEnum | Prisma.UserStoreItemScalarFieldEnum[]
 }
 
 /**

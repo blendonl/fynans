@@ -29,9 +29,26 @@ model ExpenseCategory {
   parent   ExpenseCategory?  @relation(name: "children", fields: [parentId], references: [id])
   children ExpenseCategory[] @relation(name: "children")
   expenses Expense[]
+  users    UserExpenseCategory[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("expense_category")
+}
+
+model UserExpenseCategory {
+  id         String @id @default(uuid())
+  userId     String @map("user_id")
+  categoryId String @map("category_id")
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category ExpenseCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, categoryId])
+  @@index([userId])
+  @@index([categoryId])
+  @@map("user_expense_category")
 }

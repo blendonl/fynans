@@ -185,6 +185,7 @@ export type IncomeCategoryWhereInput = {
   parent?: Prisma.XOR<Prisma.IncomeCategoryNullableScalarRelationFilter, Prisma.IncomeCategoryWhereInput> | null
   children?: Prisma.IncomeCategoryListRelationFilter
   incomes?: Prisma.IncomeListRelationFilter
+  users?: Prisma.UserIncomeCategoryListRelationFilter
 }
 
 export type IncomeCategoryOrderByWithRelationInput = {
@@ -196,6 +197,7 @@ export type IncomeCategoryOrderByWithRelationInput = {
   parent?: Prisma.IncomeCategoryOrderByWithRelationInput
   children?: Prisma.IncomeCategoryOrderByRelationAggregateInput
   incomes?: Prisma.IncomeOrderByRelationAggregateInput
+  users?: Prisma.UserIncomeCategoryOrderByRelationAggregateInput
 }
 
 export type IncomeCategoryWhereUniqueInput = Prisma.AtLeast<{
@@ -210,6 +212,7 @@ export type IncomeCategoryWhereUniqueInput = Prisma.AtLeast<{
   parent?: Prisma.XOR<Prisma.IncomeCategoryNullableScalarRelationFilter, Prisma.IncomeCategoryWhereInput> | null
   children?: Prisma.IncomeCategoryListRelationFilter
   incomes?: Prisma.IncomeListRelationFilter
+  users?: Prisma.UserIncomeCategoryListRelationFilter
 }, "id" | "name">
 
 export type IncomeCategoryOrderByWithAggregationInput = {
@@ -242,6 +245,7 @@ export type IncomeCategoryCreateInput = {
   parent?: Prisma.IncomeCategoryCreateNestedOneWithoutChildrenInput
   children?: Prisma.IncomeCategoryCreateNestedManyWithoutParentInput
   incomes?: Prisma.IncomeCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserIncomeCategoryCreateNestedManyWithoutCategoryInput
 }
 
 export type IncomeCategoryUncheckedCreateInput = {
@@ -252,6 +256,7 @@ export type IncomeCategoryUncheckedCreateInput = {
   updatedAt?: Date | string
   children?: Prisma.IncomeCategoryUncheckedCreateNestedManyWithoutParentInput
   incomes?: Prisma.IncomeUncheckedCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type IncomeCategoryUpdateInput = {
@@ -262,6 +267,7 @@ export type IncomeCategoryUpdateInput = {
   parent?: Prisma.IncomeCategoryUpdateOneWithoutChildrenNestedInput
   children?: Prisma.IncomeCategoryUpdateManyWithoutParentNestedInput
   incomes?: Prisma.IncomeUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserIncomeCategoryUpdateManyWithoutCategoryNestedInput
 }
 
 export type IncomeCategoryUncheckedUpdateInput = {
@@ -272,6 +278,7 @@ export type IncomeCategoryUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.IncomeCategoryUncheckedUpdateManyWithoutParentNestedInput
   incomes?: Prisma.IncomeUncheckedUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type IncomeCategoryCreateManyInput = {
@@ -413,6 +420,20 @@ export type IncomeCategoryUncheckedUpdateManyWithoutParentNestedInput = {
   deleteMany?: Prisma.IncomeCategoryScalarWhereInput | Prisma.IncomeCategoryScalarWhereInput[]
 }
 
+export type IncomeCategoryCreateNestedOneWithoutUsersInput = {
+  create?: Prisma.XOR<Prisma.IncomeCategoryCreateWithoutUsersInput, Prisma.IncomeCategoryUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.IncomeCategoryCreateOrConnectWithoutUsersInput
+  connect?: Prisma.IncomeCategoryWhereUniqueInput
+}
+
+export type IncomeCategoryUpdateOneRequiredWithoutUsersNestedInput = {
+  create?: Prisma.XOR<Prisma.IncomeCategoryCreateWithoutUsersInput, Prisma.IncomeCategoryUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.IncomeCategoryCreateOrConnectWithoutUsersInput
+  upsert?: Prisma.IncomeCategoryUpsertWithoutUsersInput
+  connect?: Prisma.IncomeCategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.IncomeCategoryUpdateToOneWithWhereWithoutUsersInput, Prisma.IncomeCategoryUpdateWithoutUsersInput>, Prisma.IncomeCategoryUncheckedUpdateWithoutUsersInput>
+}
+
 export type IncomeCategoryCreateWithoutIncomesInput = {
   id?: string
   name: string
@@ -420,6 +441,7 @@ export type IncomeCategoryCreateWithoutIncomesInput = {
   updatedAt?: Date | string
   parent?: Prisma.IncomeCategoryCreateNestedOneWithoutChildrenInput
   children?: Prisma.IncomeCategoryCreateNestedManyWithoutParentInput
+  users?: Prisma.UserIncomeCategoryCreateNestedManyWithoutCategoryInput
 }
 
 export type IncomeCategoryUncheckedCreateWithoutIncomesInput = {
@@ -429,6 +451,7 @@ export type IncomeCategoryUncheckedCreateWithoutIncomesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   children?: Prisma.IncomeCategoryUncheckedCreateNestedManyWithoutParentInput
+  users?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type IncomeCategoryCreateOrConnectWithoutIncomesInput = {
@@ -454,6 +477,7 @@ export type IncomeCategoryUpdateWithoutIncomesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parent?: Prisma.IncomeCategoryUpdateOneWithoutChildrenNestedInput
   children?: Prisma.IncomeCategoryUpdateManyWithoutParentNestedInput
+  users?: Prisma.UserIncomeCategoryUpdateManyWithoutCategoryNestedInput
 }
 
 export type IncomeCategoryUncheckedUpdateWithoutIncomesInput = {
@@ -463,6 +487,7 @@ export type IncomeCategoryUncheckedUpdateWithoutIncomesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.IncomeCategoryUncheckedUpdateManyWithoutParentNestedInput
+  users?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type IncomeCategoryCreateWithoutChildrenInput = {
@@ -472,6 +497,7 @@ export type IncomeCategoryCreateWithoutChildrenInput = {
   updatedAt?: Date | string
   parent?: Prisma.IncomeCategoryCreateNestedOneWithoutChildrenInput
   incomes?: Prisma.IncomeCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserIncomeCategoryCreateNestedManyWithoutCategoryInput
 }
 
 export type IncomeCategoryUncheckedCreateWithoutChildrenInput = {
@@ -481,6 +507,7 @@ export type IncomeCategoryUncheckedCreateWithoutChildrenInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   incomes?: Prisma.IncomeUncheckedCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type IncomeCategoryCreateOrConnectWithoutChildrenInput = {
@@ -495,6 +522,7 @@ export type IncomeCategoryCreateWithoutParentInput = {
   updatedAt?: Date | string
   children?: Prisma.IncomeCategoryCreateNestedManyWithoutParentInput
   incomes?: Prisma.IncomeCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserIncomeCategoryCreateNestedManyWithoutCategoryInput
 }
 
 export type IncomeCategoryUncheckedCreateWithoutParentInput = {
@@ -504,6 +532,7 @@ export type IncomeCategoryUncheckedCreateWithoutParentInput = {
   updatedAt?: Date | string
   children?: Prisma.IncomeCategoryUncheckedCreateNestedManyWithoutParentInput
   incomes?: Prisma.IncomeUncheckedCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type IncomeCategoryCreateOrConnectWithoutParentInput = {
@@ -534,6 +563,7 @@ export type IncomeCategoryUpdateWithoutChildrenInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parent?: Prisma.IncomeCategoryUpdateOneWithoutChildrenNestedInput
   incomes?: Prisma.IncomeUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserIncomeCategoryUpdateManyWithoutCategoryNestedInput
 }
 
 export type IncomeCategoryUncheckedUpdateWithoutChildrenInput = {
@@ -543,6 +573,7 @@ export type IncomeCategoryUncheckedUpdateWithoutChildrenInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   incomes?: Prisma.IncomeUncheckedUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type IncomeCategoryUpsertWithWhereUniqueWithoutParentInput = {
@@ -572,6 +603,62 @@ export type IncomeCategoryScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"IncomeCategory"> | Date | string
 }
 
+export type IncomeCategoryCreateWithoutUsersInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  parent?: Prisma.IncomeCategoryCreateNestedOneWithoutChildrenInput
+  children?: Prisma.IncomeCategoryCreateNestedManyWithoutParentInput
+  incomes?: Prisma.IncomeCreateNestedManyWithoutCategoryInput
+}
+
+export type IncomeCategoryUncheckedCreateWithoutUsersInput = {
+  id?: string
+  parentId?: string | null
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.IncomeCategoryUncheckedCreateNestedManyWithoutParentInput
+  incomes?: Prisma.IncomeUncheckedCreateNestedManyWithoutCategoryInput
+}
+
+export type IncomeCategoryCreateOrConnectWithoutUsersInput = {
+  where: Prisma.IncomeCategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.IncomeCategoryCreateWithoutUsersInput, Prisma.IncomeCategoryUncheckedCreateWithoutUsersInput>
+}
+
+export type IncomeCategoryUpsertWithoutUsersInput = {
+  update: Prisma.XOR<Prisma.IncomeCategoryUpdateWithoutUsersInput, Prisma.IncomeCategoryUncheckedUpdateWithoutUsersInput>
+  create: Prisma.XOR<Prisma.IncomeCategoryCreateWithoutUsersInput, Prisma.IncomeCategoryUncheckedCreateWithoutUsersInput>
+  where?: Prisma.IncomeCategoryWhereInput
+}
+
+export type IncomeCategoryUpdateToOneWithWhereWithoutUsersInput = {
+  where?: Prisma.IncomeCategoryWhereInput
+  data: Prisma.XOR<Prisma.IncomeCategoryUpdateWithoutUsersInput, Prisma.IncomeCategoryUncheckedUpdateWithoutUsersInput>
+}
+
+export type IncomeCategoryUpdateWithoutUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parent?: Prisma.IncomeCategoryUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.IncomeCategoryUpdateManyWithoutParentNestedInput
+  incomes?: Prisma.IncomeUpdateManyWithoutCategoryNestedInput
+}
+
+export type IncomeCategoryUncheckedUpdateWithoutUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.IncomeCategoryUncheckedUpdateManyWithoutParentNestedInput
+  incomes?: Prisma.IncomeUncheckedUpdateManyWithoutCategoryNestedInput
+}
+
 export type IncomeCategoryCreateManyParentInput = {
   id?: string
   name: string
@@ -586,6 +673,7 @@ export type IncomeCategoryUpdateWithoutParentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.IncomeCategoryUpdateManyWithoutParentNestedInput
   incomes?: Prisma.IncomeUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserIncomeCategoryUpdateManyWithoutCategoryNestedInput
 }
 
 export type IncomeCategoryUncheckedUpdateWithoutParentInput = {
@@ -595,6 +683,7 @@ export type IncomeCategoryUncheckedUpdateWithoutParentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.IncomeCategoryUncheckedUpdateManyWithoutParentNestedInput
   incomes?: Prisma.IncomeUncheckedUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type IncomeCategoryUncheckedUpdateManyWithoutParentInput = {
@@ -612,11 +701,13 @@ export type IncomeCategoryUncheckedUpdateManyWithoutParentInput = {
 export type IncomeCategoryCountOutputType = {
   children: number
   incomes: number
+  users: number
 }
 
 export type IncomeCategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   children?: boolean | IncomeCategoryCountOutputTypeCountChildrenArgs
   incomes?: boolean | IncomeCategoryCountOutputTypeCountIncomesArgs
+  users?: boolean | IncomeCategoryCountOutputTypeCountUsersArgs
 }
 
 /**
@@ -643,6 +734,13 @@ export type IncomeCategoryCountOutputTypeCountIncomesArgs<ExtArgs extends runtim
   where?: Prisma.IncomeWhereInput
 }
 
+/**
+ * IncomeCategoryCountOutputType without action
+ */
+export type IncomeCategoryCountOutputTypeCountUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserIncomeCategoryWhereInput
+}
+
 
 export type IncomeCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -653,6 +751,7 @@ export type IncomeCategorySelect<ExtArgs extends runtime.Types.Extensions.Intern
   parent?: boolean | Prisma.IncomeCategory$parentArgs<ExtArgs>
   children?: boolean | Prisma.IncomeCategory$childrenArgs<ExtArgs>
   incomes?: boolean | Prisma.IncomeCategory$incomesArgs<ExtArgs>
+  users?: boolean | Prisma.IncomeCategory$usersArgs<ExtArgs>
   _count?: boolean | Prisma.IncomeCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["incomeCategory"]>
 
@@ -687,6 +786,7 @@ export type IncomeCategoryInclude<ExtArgs extends runtime.Types.Extensions.Inter
   parent?: boolean | Prisma.IncomeCategory$parentArgs<ExtArgs>
   children?: boolean | Prisma.IncomeCategory$childrenArgs<ExtArgs>
   incomes?: boolean | Prisma.IncomeCategory$incomesArgs<ExtArgs>
+  users?: boolean | Prisma.IncomeCategory$usersArgs<ExtArgs>
   _count?: boolean | Prisma.IncomeCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type IncomeCategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -702,6 +802,7 @@ export type $IncomeCategoryPayload<ExtArgs extends runtime.Types.Extensions.Inte
     parent: Prisma.$IncomeCategoryPayload<ExtArgs> | null
     children: Prisma.$IncomeCategoryPayload<ExtArgs>[]
     incomes: Prisma.$IncomePayload<ExtArgs>[]
+    users: Prisma.$UserIncomeCategoryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1106,6 +1207,7 @@ export interface Prisma__IncomeCategoryClient<T, Null = never, ExtArgs extends r
   parent<T extends Prisma.IncomeCategory$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.IncomeCategory$parentArgs<ExtArgs>>): Prisma.Prisma__IncomeCategoryClient<runtime.Types.Result.GetResult<Prisma.$IncomeCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   children<T extends Prisma.IncomeCategory$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.IncomeCategory$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IncomeCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   incomes<T extends Prisma.IncomeCategory$incomesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.IncomeCategory$incomesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IncomePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  users<T extends Prisma.IncomeCategory$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.IncomeCategory$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserIncomeCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1600,6 +1702,30 @@ export type IncomeCategory$incomesArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.IncomeScalarFieldEnum | Prisma.IncomeScalarFieldEnum[]
+}
+
+/**
+ * IncomeCategory.users
+ */
+export type IncomeCategory$usersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserIncomeCategory
+   */
+  select?: Prisma.UserIncomeCategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserIncomeCategory
+   */
+  omit?: Prisma.UserIncomeCategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncomeCategoryInclude<ExtArgs> | null
+  where?: Prisma.UserIncomeCategoryWhereInput
+  orderBy?: Prisma.UserIncomeCategoryOrderByWithRelationInput | Prisma.UserIncomeCategoryOrderByWithRelationInput[]
+  cursor?: Prisma.UserIncomeCategoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserIncomeCategoryScalarFieldEnum | Prisma.UserIncomeCategoryScalarFieldEnum[]
 }
 
 /**

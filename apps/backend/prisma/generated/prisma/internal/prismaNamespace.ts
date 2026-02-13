@@ -390,11 +390,13 @@ export const ModelName = {
   ExpenseItem: 'ExpenseItem',
   Expense: 'Expense',
   ExpenseCategory: 'ExpenseCategory',
+  UserExpenseCategory: 'UserExpenseCategory',
   Family: 'Family',
   FamilyMember: 'FamilyMember',
   FamilyInvitation: 'FamilyInvitation',
   Income: 'Income',
   IncomeCategory: 'IncomeCategory',
+  UserIncomeCategory: 'UserIncomeCategory',
   Notification: 'Notification',
   NotificationPreference: 'NotificationPreference',
   DeviceToken: 'DeviceToken',
@@ -404,6 +406,10 @@ export const ModelName = {
   StoreItem: 'StoreItem',
   StoreItemDiscount: 'StoreItemDiscount',
   ItemCategory: 'ItemCategory',
+  UserStore: 'UserStore',
+  UserItem: 'UserItem',
+  UserStoreItem: 'UserStoreItem',
+  UserItemCategory: 'UserItemCategory',
   Transaction: 'Transaction'
 } as const
 
@@ -420,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "session" | "verification" | "expenseItem" | "expense" | "expenseCategory" | "family" | "familyMember" | "familyInvitation" | "income" | "incomeCategory" | "notification" | "notificationPreference" | "deviceToken" | "user" | "store" | "item" | "storeItem" | "storeItemDiscount" | "itemCategory" | "transaction"
+    modelProps: "account" | "session" | "verification" | "expenseItem" | "expense" | "expenseCategory" | "userExpenseCategory" | "family" | "familyMember" | "familyInvitation" | "income" | "incomeCategory" | "userIncomeCategory" | "notification" | "notificationPreference" | "deviceToken" | "user" | "store" | "item" | "storeItem" | "storeItemDiscount" | "itemCategory" | "userStore" | "userItem" | "userStoreItem" | "userItemCategory" | "transaction"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -868,6 +874,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    UserExpenseCategory: {
+      payload: Prisma.$UserExpenseCategoryPayload<ExtArgs>
+      fields: Prisma.UserExpenseCategoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserExpenseCategoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserExpenseCategoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserExpenseCategoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserExpenseCategoryPayload>
+        }
+        findFirst: {
+          args: Prisma.UserExpenseCategoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserExpenseCategoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserExpenseCategoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserExpenseCategoryPayload>
+        }
+        findMany: {
+          args: Prisma.UserExpenseCategoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserExpenseCategoryPayload>[]
+        }
+        create: {
+          args: Prisma.UserExpenseCategoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserExpenseCategoryPayload>
+        }
+        createMany: {
+          args: Prisma.UserExpenseCategoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserExpenseCategoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserExpenseCategoryPayload>[]
+        }
+        delete: {
+          args: Prisma.UserExpenseCategoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserExpenseCategoryPayload>
+        }
+        update: {
+          args: Prisma.UserExpenseCategoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserExpenseCategoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserExpenseCategoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserExpenseCategoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserExpenseCategoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserExpenseCategoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserExpenseCategoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserExpenseCategoryPayload>
+        }
+        aggregate: {
+          args: Prisma.UserExpenseCategoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserExpenseCategory>
+        }
+        groupBy: {
+          args: Prisma.UserExpenseCategoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserExpenseCategoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserExpenseCategoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserExpenseCategoryCountAggregateOutputType> | number
+        }
+      }
+    }
     Family: {
       payload: Prisma.$FamilyPayload<ExtArgs>
       fields: Prisma.FamilyFieldRefs
@@ -1235,6 +1315,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.IncomeCategoryCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.IncomeCategoryCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserIncomeCategory: {
+      payload: Prisma.$UserIncomeCategoryPayload<ExtArgs>
+      fields: Prisma.UserIncomeCategoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserIncomeCategoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserIncomeCategoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserIncomeCategoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserIncomeCategoryPayload>
+        }
+        findFirst: {
+          args: Prisma.UserIncomeCategoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserIncomeCategoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserIncomeCategoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserIncomeCategoryPayload>
+        }
+        findMany: {
+          args: Prisma.UserIncomeCategoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserIncomeCategoryPayload>[]
+        }
+        create: {
+          args: Prisma.UserIncomeCategoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserIncomeCategoryPayload>
+        }
+        createMany: {
+          args: Prisma.UserIncomeCategoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserIncomeCategoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserIncomeCategoryPayload>[]
+        }
+        delete: {
+          args: Prisma.UserIncomeCategoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserIncomeCategoryPayload>
+        }
+        update: {
+          args: Prisma.UserIncomeCategoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserIncomeCategoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserIncomeCategoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserIncomeCategoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserIncomeCategoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserIncomeCategoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserIncomeCategoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserIncomeCategoryPayload>
+        }
+        aggregate: {
+          args: Prisma.UserIncomeCategoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserIncomeCategory>
+        }
+        groupBy: {
+          args: Prisma.UserIncomeCategoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserIncomeCategoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserIncomeCategoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserIncomeCategoryCountAggregateOutputType> | number
         }
       }
     }
@@ -1904,6 +2058,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    UserStore: {
+      payload: Prisma.$UserStorePayload<ExtArgs>
+      fields: Prisma.UserStoreFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserStoreFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStorePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserStoreFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStorePayload>
+        }
+        findFirst: {
+          args: Prisma.UserStoreFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStorePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserStoreFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStorePayload>
+        }
+        findMany: {
+          args: Prisma.UserStoreFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStorePayload>[]
+        }
+        create: {
+          args: Prisma.UserStoreCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStorePayload>
+        }
+        createMany: {
+          args: Prisma.UserStoreCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserStoreCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStorePayload>[]
+        }
+        delete: {
+          args: Prisma.UserStoreDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStorePayload>
+        }
+        update: {
+          args: Prisma.UserStoreUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStorePayload>
+        }
+        deleteMany: {
+          args: Prisma.UserStoreDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserStoreUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserStoreUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStorePayload>[]
+        }
+        upsert: {
+          args: Prisma.UserStoreUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStorePayload>
+        }
+        aggregate: {
+          args: Prisma.UserStoreAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserStore>
+        }
+        groupBy: {
+          args: Prisma.UserStoreGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserStoreGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserStoreCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserStoreCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserItem: {
+      payload: Prisma.$UserItemPayload<ExtArgs>
+      fields: Prisma.UserItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemPayload>
+        }
+        findFirst: {
+          args: Prisma.UserItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemPayload>
+        }
+        findMany: {
+          args: Prisma.UserItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemPayload>[]
+        }
+        create: {
+          args: Prisma.UserItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemPayload>
+        }
+        createMany: {
+          args: Prisma.UserItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserItemCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemPayload>[]
+        }
+        delete: {
+          args: Prisma.UserItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemPayload>
+        }
+        update: {
+          args: Prisma.UserItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserItemUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemPayload>
+        }
+        aggregate: {
+          args: Prisma.UserItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserItem>
+        }
+        groupBy: {
+          args: Prisma.UserItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserItemCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserStoreItem: {
+      payload: Prisma.$UserStoreItemPayload<ExtArgs>
+      fields: Prisma.UserStoreItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserStoreItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStoreItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserStoreItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStoreItemPayload>
+        }
+        findFirst: {
+          args: Prisma.UserStoreItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStoreItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserStoreItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStoreItemPayload>
+        }
+        findMany: {
+          args: Prisma.UserStoreItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStoreItemPayload>[]
+        }
+        create: {
+          args: Prisma.UserStoreItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStoreItemPayload>
+        }
+        createMany: {
+          args: Prisma.UserStoreItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserStoreItemCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStoreItemPayload>[]
+        }
+        delete: {
+          args: Prisma.UserStoreItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStoreItemPayload>
+        }
+        update: {
+          args: Prisma.UserStoreItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStoreItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserStoreItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserStoreItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserStoreItemUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStoreItemPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserStoreItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserStoreItemPayload>
+        }
+        aggregate: {
+          args: Prisma.UserStoreItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserStoreItem>
+        }
+        groupBy: {
+          args: Prisma.UserStoreItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserStoreItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserStoreItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserStoreItemCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserItemCategory: {
+      payload: Prisma.$UserItemCategoryPayload<ExtArgs>
+      fields: Prisma.UserItemCategoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserItemCategoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemCategoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserItemCategoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemCategoryPayload>
+        }
+        findFirst: {
+          args: Prisma.UserItemCategoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemCategoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserItemCategoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemCategoryPayload>
+        }
+        findMany: {
+          args: Prisma.UserItemCategoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemCategoryPayload>[]
+        }
+        create: {
+          args: Prisma.UserItemCategoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemCategoryPayload>
+        }
+        createMany: {
+          args: Prisma.UserItemCategoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserItemCategoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemCategoryPayload>[]
+        }
+        delete: {
+          args: Prisma.UserItemCategoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemCategoryPayload>
+        }
+        update: {
+          args: Prisma.UserItemCategoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemCategoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserItemCategoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserItemCategoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserItemCategoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemCategoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserItemCategoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserItemCategoryPayload>
+        }
+        aggregate: {
+          args: Prisma.UserItemCategoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserItemCategory>
+        }
+        groupBy: {
+          args: Prisma.UserItemCategoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserItemCategoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserItemCategoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserItemCategoryCountAggregateOutputType> | number
+        }
+      }
+    }
     Transaction: {
       payload: Prisma.$TransactionPayload<ExtArgs>
       fields: Prisma.TransactionFieldRefs
@@ -2025,6 +2475,8 @@ export const AccountScalarFieldEnum = {
   accessToken: 'accessToken',
   refreshToken: 'refreshToken',
   idToken: 'idToken',
+  accessTokenExpiresAt: 'accessTokenExpiresAt',
+  scope: 'scope',
   expiresAt: 'expiresAt',
   password: 'password',
   createdAt: 'createdAt',
@@ -2099,6 +2551,16 @@ export const ExpenseCategoryScalarFieldEnum = {
 export type ExpenseCategoryScalarFieldEnum = (typeof ExpenseCategoryScalarFieldEnum)[keyof typeof ExpenseCategoryScalarFieldEnum]
 
 
+export const UserExpenseCategoryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  categoryId: 'categoryId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserExpenseCategoryScalarFieldEnum = (typeof UserExpenseCategoryScalarFieldEnum)[keyof typeof UserExpenseCategoryScalarFieldEnum]
+
+
 export const FamilyScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -2160,6 +2622,16 @@ export const IncomeCategoryScalarFieldEnum = {
 } as const
 
 export type IncomeCategoryScalarFieldEnum = (typeof IncomeCategoryScalarFieldEnum)[keyof typeof IncomeCategoryScalarFieldEnum]
+
+
+export const UserIncomeCategoryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  categoryId: 'categoryId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserIncomeCategoryScalarFieldEnum = (typeof UserIncomeCategoryScalarFieldEnum)[keyof typeof UserIncomeCategoryScalarFieldEnum]
 
 
 export const NotificationScalarFieldEnum = {
@@ -2225,6 +2697,7 @@ export const UserScalarFieldEnum = {
   name: 'name',
   firstName: 'firstName',
   lastName: 'lastName',
+  image: 'image',
   balance: 'balance',
   emailVerified: 'emailVerified',
   createdAt: 'createdAt',
@@ -2291,6 +2764,46 @@ export const ItemCategoryScalarFieldEnum = {
 } as const
 
 export type ItemCategoryScalarFieldEnum = (typeof ItemCategoryScalarFieldEnum)[keyof typeof ItemCategoryScalarFieldEnum]
+
+
+export const UserStoreScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  storeId: 'storeId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserStoreScalarFieldEnum = (typeof UserStoreScalarFieldEnum)[keyof typeof UserStoreScalarFieldEnum]
+
+
+export const UserItemScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  itemId: 'itemId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserItemScalarFieldEnum = (typeof UserItemScalarFieldEnum)[keyof typeof UserItemScalarFieldEnum]
+
+
+export const UserStoreItemScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  storeItemId: 'storeItemId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserStoreItemScalarFieldEnum = (typeof UserStoreItemScalarFieldEnum)[keyof typeof UserStoreItemScalarFieldEnum]
+
+
+export const UserItemCategoryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  categoryId: 'categoryId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserItemCategoryScalarFieldEnum = (typeof UserItemCategoryScalarFieldEnum)[keyof typeof UserItemCategoryScalarFieldEnum]
 
 
 export const TransactionScalarFieldEnum = {
@@ -2637,11 +3150,13 @@ export type GlobalOmitConfig = {
   expenseItem?: Prisma.ExpenseItemOmit
   expense?: Prisma.ExpenseOmit
   expenseCategory?: Prisma.ExpenseCategoryOmit
+  userExpenseCategory?: Prisma.UserExpenseCategoryOmit
   family?: Prisma.FamilyOmit
   familyMember?: Prisma.FamilyMemberOmit
   familyInvitation?: Prisma.FamilyInvitationOmit
   income?: Prisma.IncomeOmit
   incomeCategory?: Prisma.IncomeCategoryOmit
+  userIncomeCategory?: Prisma.UserIncomeCategoryOmit
   notification?: Prisma.NotificationOmit
   notificationPreference?: Prisma.NotificationPreferenceOmit
   deviceToken?: Prisma.DeviceTokenOmit
@@ -2651,6 +3166,10 @@ export type GlobalOmitConfig = {
   storeItem?: Prisma.StoreItemOmit
   storeItemDiscount?: Prisma.StoreItemDiscountOmit
   itemCategory?: Prisma.ItemCategoryOmit
+  userStore?: Prisma.UserStoreOmit
+  userItem?: Prisma.UserItemOmit
+  userStoreItem?: Prisma.UserStoreItemOmit
+  userItemCategory?: Prisma.UserItemCategoryOmit
   transaction?: Prisma.TransactionOmit
 }
 

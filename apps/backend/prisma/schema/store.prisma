@@ -6,6 +6,7 @@ model Store {
 
   items    StoreItem[]
   expenses Expense[]
+  users    UserStore[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -21,6 +22,7 @@ model Item {
 
   category ItemCategory @relation(fields: [categoryId], references: [id])
   stores   StoreItem[]
+  users    UserItem[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -40,6 +42,7 @@ model StoreItem {
   item      Item                @relation(fields: [itemId], references: [id])
   discounts StoreItemDiscount[]
   expenses  ExpenseItem[]
+  users     UserStoreItem[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -72,9 +75,74 @@ model ItemCategory {
   parent   ItemCategory?  @relation(name: "children", fields: [parentId], references: [id])
   children ItemCategory[] @relation(name: "children")
   items    Item[]
+  users    UserItemCategory[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("item_category")
+}
+
+model UserStore {
+  id      String @id @default(uuid())
+  userId  String @map("user_id")
+  storeId String @map("store_id")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, storeId])
+  @@index([userId])
+  @@index([storeId])
+  @@map("user_store")
+}
+
+model UserItem {
+  id     String @id @default(uuid())
+  userId String @map("user_id")
+  itemId String @map("item_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, itemId])
+  @@index([userId])
+  @@index([itemId])
+  @@map("user_item")
+}
+
+model UserStoreItem {
+  id          String @id @default(uuid())
+  userId      String @map("user_id")
+  storeItemId String @map("store_item_id")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storeItem StoreItem @relation(fields: [storeItemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, storeItemId])
+  @@index([userId])
+  @@index([storeItemId])
+  @@map("user_store_item")
+}
+
+model UserItemCategory {
+  id         String @id @default(uuid())
+  userId     String @map("user_id")
+  categoryId String @map("category_id")
+
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category ItemCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, categoryId])
+  @@index([userId])
+  @@index([categoryId])
+  @@map("user_item_category")
 }

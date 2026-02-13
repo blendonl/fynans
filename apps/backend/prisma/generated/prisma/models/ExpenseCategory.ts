@@ -193,6 +193,7 @@ export type ExpenseCategoryWhereInput = {
   parent?: Prisma.XOR<Prisma.ExpenseCategoryNullableScalarRelationFilter, Prisma.ExpenseCategoryWhereInput> | null
   children?: Prisma.ExpenseCategoryListRelationFilter
   expenses?: Prisma.ExpenseListRelationFilter
+  users?: Prisma.UserExpenseCategoryListRelationFilter
 }
 
 export type ExpenseCategoryOrderByWithRelationInput = {
@@ -205,6 +206,7 @@ export type ExpenseCategoryOrderByWithRelationInput = {
   parent?: Prisma.ExpenseCategoryOrderByWithRelationInput
   children?: Prisma.ExpenseCategoryOrderByRelationAggregateInput
   expenses?: Prisma.ExpenseOrderByRelationAggregateInput
+  users?: Prisma.UserExpenseCategoryOrderByRelationAggregateInput
 }
 
 export type ExpenseCategoryWhereUniqueInput = Prisma.AtLeast<{
@@ -220,6 +222,7 @@ export type ExpenseCategoryWhereUniqueInput = Prisma.AtLeast<{
   parent?: Prisma.XOR<Prisma.ExpenseCategoryNullableScalarRelationFilter, Prisma.ExpenseCategoryWhereInput> | null
   children?: Prisma.ExpenseCategoryListRelationFilter
   expenses?: Prisma.ExpenseListRelationFilter
+  users?: Prisma.UserExpenseCategoryListRelationFilter
 }, "id" | "name">
 
 export type ExpenseCategoryOrderByWithAggregationInput = {
@@ -255,6 +258,7 @@ export type ExpenseCategoryCreateInput = {
   parent?: Prisma.ExpenseCategoryCreateNestedOneWithoutChildrenInput
   children?: Prisma.ExpenseCategoryCreateNestedManyWithoutParentInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserExpenseCategoryCreateNestedManyWithoutCategoryInput
 }
 
 export type ExpenseCategoryUncheckedCreateInput = {
@@ -266,6 +270,7 @@ export type ExpenseCategoryUncheckedCreateInput = {
   updatedAt?: Date | string
   children?: Prisma.ExpenseCategoryUncheckedCreateNestedManyWithoutParentInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type ExpenseCategoryUpdateInput = {
@@ -277,6 +282,7 @@ export type ExpenseCategoryUpdateInput = {
   parent?: Prisma.ExpenseCategoryUpdateOneWithoutChildrenNestedInput
   children?: Prisma.ExpenseCategoryUpdateManyWithoutParentNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserExpenseCategoryUpdateManyWithoutCategoryNestedInput
 }
 
 export type ExpenseCategoryUncheckedUpdateInput = {
@@ -288,6 +294,7 @@ export type ExpenseCategoryUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.ExpenseCategoryUncheckedUpdateManyWithoutParentNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type ExpenseCategoryCreateManyInput = {
@@ -439,6 +446,20 @@ export type ExpenseCategoryUncheckedUpdateManyWithoutParentNestedInput = {
   deleteMany?: Prisma.ExpenseCategoryScalarWhereInput | Prisma.ExpenseCategoryScalarWhereInput[]
 }
 
+export type ExpenseCategoryCreateNestedOneWithoutUsersInput = {
+  create?: Prisma.XOR<Prisma.ExpenseCategoryCreateWithoutUsersInput, Prisma.ExpenseCategoryUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.ExpenseCategoryCreateOrConnectWithoutUsersInput
+  connect?: Prisma.ExpenseCategoryWhereUniqueInput
+}
+
+export type ExpenseCategoryUpdateOneRequiredWithoutUsersNestedInput = {
+  create?: Prisma.XOR<Prisma.ExpenseCategoryCreateWithoutUsersInput, Prisma.ExpenseCategoryUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.ExpenseCategoryCreateOrConnectWithoutUsersInput
+  upsert?: Prisma.ExpenseCategoryUpsertWithoutUsersInput
+  connect?: Prisma.ExpenseCategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ExpenseCategoryUpdateToOneWithWhereWithoutUsersInput, Prisma.ExpenseCategoryUpdateWithoutUsersInput>, Prisma.ExpenseCategoryUncheckedUpdateWithoutUsersInput>
+}
+
 export type ExpenseCategoryCreateWithoutExpensesInput = {
   id?: string
   name: string
@@ -447,6 +468,7 @@ export type ExpenseCategoryCreateWithoutExpensesInput = {
   updatedAt?: Date | string
   parent?: Prisma.ExpenseCategoryCreateNestedOneWithoutChildrenInput
   children?: Prisma.ExpenseCategoryCreateNestedManyWithoutParentInput
+  users?: Prisma.UserExpenseCategoryCreateNestedManyWithoutCategoryInput
 }
 
 export type ExpenseCategoryUncheckedCreateWithoutExpensesInput = {
@@ -457,6 +479,7 @@ export type ExpenseCategoryUncheckedCreateWithoutExpensesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   children?: Prisma.ExpenseCategoryUncheckedCreateNestedManyWithoutParentInput
+  users?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type ExpenseCategoryCreateOrConnectWithoutExpensesInput = {
@@ -483,6 +506,7 @@ export type ExpenseCategoryUpdateWithoutExpensesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parent?: Prisma.ExpenseCategoryUpdateOneWithoutChildrenNestedInput
   children?: Prisma.ExpenseCategoryUpdateManyWithoutParentNestedInput
+  users?: Prisma.UserExpenseCategoryUpdateManyWithoutCategoryNestedInput
 }
 
 export type ExpenseCategoryUncheckedUpdateWithoutExpensesInput = {
@@ -493,6 +517,7 @@ export type ExpenseCategoryUncheckedUpdateWithoutExpensesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.ExpenseCategoryUncheckedUpdateManyWithoutParentNestedInput
+  users?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type ExpenseCategoryCreateWithoutChildrenInput = {
@@ -503,6 +528,7 @@ export type ExpenseCategoryCreateWithoutChildrenInput = {
   updatedAt?: Date | string
   parent?: Prisma.ExpenseCategoryCreateNestedOneWithoutChildrenInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserExpenseCategoryCreateNestedManyWithoutCategoryInput
 }
 
 export type ExpenseCategoryUncheckedCreateWithoutChildrenInput = {
@@ -513,6 +539,7 @@ export type ExpenseCategoryUncheckedCreateWithoutChildrenInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type ExpenseCategoryCreateOrConnectWithoutChildrenInput = {
@@ -528,6 +555,7 @@ export type ExpenseCategoryCreateWithoutParentInput = {
   updatedAt?: Date | string
   children?: Prisma.ExpenseCategoryCreateNestedManyWithoutParentInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserExpenseCategoryCreateNestedManyWithoutCategoryInput
 }
 
 export type ExpenseCategoryUncheckedCreateWithoutParentInput = {
@@ -538,6 +566,7 @@ export type ExpenseCategoryUncheckedCreateWithoutParentInput = {
   updatedAt?: Date | string
   children?: Prisma.ExpenseCategoryUncheckedCreateNestedManyWithoutParentInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type ExpenseCategoryCreateOrConnectWithoutParentInput = {
@@ -569,6 +598,7 @@ export type ExpenseCategoryUpdateWithoutChildrenInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parent?: Prisma.ExpenseCategoryUpdateOneWithoutChildrenNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserExpenseCategoryUpdateManyWithoutCategoryNestedInput
 }
 
 export type ExpenseCategoryUncheckedUpdateWithoutChildrenInput = {
@@ -579,6 +609,7 @@ export type ExpenseCategoryUncheckedUpdateWithoutChildrenInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type ExpenseCategoryUpsertWithWhereUniqueWithoutParentInput = {
@@ -609,6 +640,66 @@ export type ExpenseCategoryScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"ExpenseCategory"> | Date | string
 }
 
+export type ExpenseCategoryCreateWithoutUsersInput = {
+  id?: string
+  name: string
+  isConnectedToStore?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  parent?: Prisma.ExpenseCategoryCreateNestedOneWithoutChildrenInput
+  children?: Prisma.ExpenseCategoryCreateNestedManyWithoutParentInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutCategoryInput
+}
+
+export type ExpenseCategoryUncheckedCreateWithoutUsersInput = {
+  id?: string
+  parentId?: string | null
+  name: string
+  isConnectedToStore?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.ExpenseCategoryUncheckedCreateNestedManyWithoutParentInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCategoryInput
+}
+
+export type ExpenseCategoryCreateOrConnectWithoutUsersInput = {
+  where: Prisma.ExpenseCategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.ExpenseCategoryCreateWithoutUsersInput, Prisma.ExpenseCategoryUncheckedCreateWithoutUsersInput>
+}
+
+export type ExpenseCategoryUpsertWithoutUsersInput = {
+  update: Prisma.XOR<Prisma.ExpenseCategoryUpdateWithoutUsersInput, Prisma.ExpenseCategoryUncheckedUpdateWithoutUsersInput>
+  create: Prisma.XOR<Prisma.ExpenseCategoryCreateWithoutUsersInput, Prisma.ExpenseCategoryUncheckedCreateWithoutUsersInput>
+  where?: Prisma.ExpenseCategoryWhereInput
+}
+
+export type ExpenseCategoryUpdateToOneWithWhereWithoutUsersInput = {
+  where?: Prisma.ExpenseCategoryWhereInput
+  data: Prisma.XOR<Prisma.ExpenseCategoryUpdateWithoutUsersInput, Prisma.ExpenseCategoryUncheckedUpdateWithoutUsersInput>
+}
+
+export type ExpenseCategoryUpdateWithoutUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isConnectedToStore?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parent?: Prisma.ExpenseCategoryUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.ExpenseCategoryUpdateManyWithoutParentNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutCategoryNestedInput
+}
+
+export type ExpenseCategoryUncheckedUpdateWithoutUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isConnectedToStore?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.ExpenseCategoryUncheckedUpdateManyWithoutParentNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutCategoryNestedInput
+}
+
 export type ExpenseCategoryCreateManyParentInput = {
   id?: string
   name: string
@@ -625,6 +716,7 @@ export type ExpenseCategoryUpdateWithoutParentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.ExpenseCategoryUpdateManyWithoutParentNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserExpenseCategoryUpdateManyWithoutCategoryNestedInput
 }
 
 export type ExpenseCategoryUncheckedUpdateWithoutParentInput = {
@@ -635,6 +727,7 @@ export type ExpenseCategoryUncheckedUpdateWithoutParentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.ExpenseCategoryUncheckedUpdateManyWithoutParentNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type ExpenseCategoryUncheckedUpdateManyWithoutParentInput = {
@@ -653,11 +746,13 @@ export type ExpenseCategoryUncheckedUpdateManyWithoutParentInput = {
 export type ExpenseCategoryCountOutputType = {
   children: number
   expenses: number
+  users: number
 }
 
 export type ExpenseCategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   children?: boolean | ExpenseCategoryCountOutputTypeCountChildrenArgs
   expenses?: boolean | ExpenseCategoryCountOutputTypeCountExpensesArgs
+  users?: boolean | ExpenseCategoryCountOutputTypeCountUsersArgs
 }
 
 /**
@@ -684,6 +779,13 @@ export type ExpenseCategoryCountOutputTypeCountExpensesArgs<ExtArgs extends runt
   where?: Prisma.ExpenseWhereInput
 }
 
+/**
+ * ExpenseCategoryCountOutputType without action
+ */
+export type ExpenseCategoryCountOutputTypeCountUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserExpenseCategoryWhereInput
+}
+
 
 export type ExpenseCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -695,6 +797,7 @@ export type ExpenseCategorySelect<ExtArgs extends runtime.Types.Extensions.Inter
   parent?: boolean | Prisma.ExpenseCategory$parentArgs<ExtArgs>
   children?: boolean | Prisma.ExpenseCategory$childrenArgs<ExtArgs>
   expenses?: boolean | Prisma.ExpenseCategory$expensesArgs<ExtArgs>
+  users?: boolean | Prisma.ExpenseCategory$usersArgs<ExtArgs>
   _count?: boolean | Prisma.ExpenseCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["expenseCategory"]>
 
@@ -732,6 +835,7 @@ export type ExpenseCategoryInclude<ExtArgs extends runtime.Types.Extensions.Inte
   parent?: boolean | Prisma.ExpenseCategory$parentArgs<ExtArgs>
   children?: boolean | Prisma.ExpenseCategory$childrenArgs<ExtArgs>
   expenses?: boolean | Prisma.ExpenseCategory$expensesArgs<ExtArgs>
+  users?: boolean | Prisma.ExpenseCategory$usersArgs<ExtArgs>
   _count?: boolean | Prisma.ExpenseCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ExpenseCategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -747,6 +851,7 @@ export type $ExpenseCategoryPayload<ExtArgs extends runtime.Types.Extensions.Int
     parent: Prisma.$ExpenseCategoryPayload<ExtArgs> | null
     children: Prisma.$ExpenseCategoryPayload<ExtArgs>[]
     expenses: Prisma.$ExpensePayload<ExtArgs>[]
+    users: Prisma.$UserExpenseCategoryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1152,6 +1257,7 @@ export interface Prisma__ExpenseCategoryClient<T, Null = never, ExtArgs extends 
   parent<T extends Prisma.ExpenseCategory$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExpenseCategory$parentArgs<ExtArgs>>): Prisma.Prisma__ExpenseCategoryClient<runtime.Types.Result.GetResult<Prisma.$ExpenseCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   children<T extends Prisma.ExpenseCategory$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExpenseCategory$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpenseCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   expenses<T extends Prisma.ExpenseCategory$expensesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExpenseCategory$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  users<T extends Prisma.ExpenseCategory$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExpenseCategory$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserExpenseCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1647,6 +1753,30 @@ export type ExpenseCategory$expensesArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.ExpenseScalarFieldEnum | Prisma.ExpenseScalarFieldEnum[]
+}
+
+/**
+ * ExpenseCategory.users
+ */
+export type ExpenseCategory$usersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserExpenseCategory
+   */
+  select?: Prisma.UserExpenseCategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserExpenseCategory
+   */
+  omit?: Prisma.UserExpenseCategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserExpenseCategoryInclude<ExtArgs> | null
+  where?: Prisma.UserExpenseCategoryWhereInput
+  orderBy?: Prisma.UserExpenseCategoryOrderByWithRelationInput | Prisma.UserExpenseCategoryOrderByWithRelationInput[]
+  cursor?: Prisma.UserExpenseCategoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserExpenseCategoryScalarFieldEnum | Prisma.UserExpenseCategoryScalarFieldEnum[]
 }
 
 /**
