@@ -26,6 +26,9 @@ import { FormProgress } from "@/components/add-expense/form-progress";
 import { AddCategoryDialog } from "@/components/add-expense/add-category-dialog";
 import { AddStoreDialog } from "@/components/add-expense/add-store-dialog";
 import { AddItemCategoryDialog } from "@/components/add-expense/add-item-category-dialog";
+import { ScanReceiptDialog } from "@/components/add-expense/scan-receipt-dialog";
+import type { ProcessedReceiptResponse } from "@/hooks/use-receipt-scan";
+import { Camera } from "lucide-react";
 
 function localNow() {
   return format(new Date(), "yyyy-MM-dd'T'HH:mm");
@@ -129,8 +132,59 @@ function ExpenseForm({ onSuccess, scope, familyId }: { onSuccess: () => void; sc
   const [newStoreName, setNewStoreName] = useState("");
   const [showItemCategoryDialog, setShowItemCategoryDialog] = useState(false);
   const [newItemCategoryName, setNewItemCategoryName] = useState("");
+  const [showScanDialog, setShowScanDialog] = useState(false);
 
   const isGroceryExpense = selectedCategory?.isConnectedToStore === true;
+
+  const handleReceiptResult = (data: ProcessedReceiptResponse) => {
+    if (!data.items || data.items.length === 0) {
+      toast.warning("No items found in receipt");
+      return;
+    }
+
+    if (data.confidence < 50) {
+      toast.warning("Low confidence scan — please review items carefully");
+    }
+
+    setIsItemized(true);
+
+    if (data.store) {
+      const match = stores.find((s) =>
+        data.store!.id
+          ? s.id === data.store!.id
+          : s.name.toLowerCase() === data.store!.name.toLowerCase(),
+      );
+      if (match) setSelectedStore(match);
+    }
+
+    const fallbackCategoryId = selectedCategory?.id || "";
+    expenseItems.setItems(
+      data.items.map((item) => ({
+        name: item.name,
+        price: item.price,
+        discount: 0,
+        quantity: item.quantity,
+        categoryId: fallbackCategoryId,
+        fromReceipt: true,
+      })),
+    );
+
+    if (data.recordedAt) {
+      const parsed = new Date(data.recordedAt);
+      if (!isNaN(parsed.getTime())) {
+        setRecordedAt(format(parsed, "yyyy-MM-dd'T'HH:mm"));
+      }
+    }
+
+    if (!selectedCategory) {
+      toast.info("Select a category to see scanned items");
+    }
+
+    const storeName = data.store?.name;
+    toast.success(
+      `Found ${data.items.length} item${data.items.length !== 1 ? "s" : ""}${storeName ? ` from ${storeName}` : ""}`,
+    );
+  };
 
   const submitMutation = useMutation({
     mutationFn: async () => {
@@ -199,6 +253,15 @@ function ExpenseForm({ onSuccess, scope, familyId }: { onSuccess: () => void; sc
   return (
     <Card className="mt-4">
       <CardContent className="p-6 space-y-6">
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => setShowScanDialog(true)}
+        >
+          <Camera className="mr-2 h-4 w-4" />
+          Scan Receipt
+        </Button>
+
         <CategorySelector
           categories={categories}
           selectedCategory={selectedCategory}
@@ -344,6 +407,12 @@ function ExpenseForm({ onSuccess, scope, familyId }: { onSuccess: () => void; sc
             setShowItemCategoryDialog(false);
           }}
           isLoading={createItemCategory.isPending}
+        />
+
+        <ScanReceiptDialog
+          open={showScanDialog}
+          onOpenChange={setShowScanDialog}
+          onResult={handleReceiptResult}
         />
       </CardContent>
     </Card>
