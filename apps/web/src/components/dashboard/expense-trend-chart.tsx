@@ -96,7 +96,7 @@ export function ExpenseTrendChart({ data }: ExpenseTrendChartProps) {
               content={<CustomTooltip />}
               cursor={<CrosshairCursor />}
               isAnimationActive={false}
-              trigger="item"
+              trigger="hover"
             />
             <Area
               type="monotone"
