@@ -56,3 +56,47 @@ self.addEventListener("fetch", (event) => {
       .catch(() => caches.match(event.request)),
   );
 });
+
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+  let payload;
+  try {
+    payload = event.data.json();
+  } catch {
+    payload = { title: "Fynans", body: event.data.text() };
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title || "Fynans", {
+      body: payload.body || payload.message || "You have a new notification",
+      icon: "/icon-192x192.png",
+      badge: "/icon-192x192.png",
+      data: payload.data || {},
+      tag: payload.data?.notificationId || "fynans-notification",
+      renotify: true,
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const actionUrl = event.notification.data?.actionUrl;
+  const urlToOpen = actionUrl
+    ? new URL("/" + actionUrl, self.location.origin).href
+    : self.location.origin;
+
+  event.waitUntil(
+    clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((windowClients) => {
+        for (const client of windowClients) {
+          if ("focus" in client) {
+            client.focus();
+            client.navigate(urlToOpen);
+            return;
+          }
+        }
+        return clients.openWindow(urlToOpen);
+      }),
+  );
+});

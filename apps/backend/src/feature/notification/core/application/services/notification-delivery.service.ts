@@ -1,6 +1,7 @@
 import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { NotificationGateway } from '../../../websocket/notification.gateway';
 import { ExpoPushNotificationService } from '../../infrastructure/services/expo-push-notification.service';
+import { WebPushNotificationService } from '../../infrastructure/services/web-push-notification.service';
 import { NotificationPreferenceService } from './notification-preference.service';
 import { Notification } from '../../domain/entities/notification.entity';
 import { DeliveryMethod } from '../../domain/value-objects/notification-type.vo';
@@ -11,6 +12,7 @@ export class NotificationDeliveryService {
     @Inject(forwardRef(() => NotificationGateway))
     private readonly notificationGateway: NotificationGateway,
     private readonly pushNotificationService: ExpoPushNotificationService,
+    private readonly webPushNotificationService: WebPushNotificationService,
     private readonly preferenceService: NotificationPreferenceService,
   ) {}
 
@@ -61,19 +63,35 @@ export class NotificationDeliveryService {
   }
 
   private async deliverPush(notification: Notification): Promise<void> {
+    const pushData = {
+      title: notification.title,
+      message: notification.message,
+      data: {
+        notificationId: notification.id,
+        type: notification.type,
+        actionUrl: notification.actionUrl,
+        ...notification.data,
+      },
+    };
+
+    // Expo (mobile)
     try {
-      await this.pushNotificationService.sendToUser(notification.userId, {
-        title: notification.title,
-        message: notification.message,
-        data: {
-          notificationId: notification.id,
-          type: notification.type,
-          actionUrl: notification.actionUrl,
-          ...notification.data,
-        },
-      });
+      await this.pushNotificationService.sendToUser(
+        notification.userId,
+        pushData,
+      );
     } catch (error) {
-      console.error('Error delivering push notification:', error);
+      console.error('Error delivering Expo push:', error);
+    }
+
+    // Web Push
+    try {
+      await this.webPushNotificationService.sendToUser(
+        notification.userId,
+        pushData,
+      );
+    } catch (error) {
+      console.error('Error delivering web push:', error);
     }
   }
 

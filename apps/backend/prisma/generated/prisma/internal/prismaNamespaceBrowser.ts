@@ -67,6 +67,7 @@ export const ModelName = {
   Notification: 'Notification',
   NotificationPreference: 'NotificationPreference',
   DeviceToken: 'DeviceToken',
+  WebPushSubscription: 'WebPushSubscription',
   User: 'User',
   Store: 'Store',
   Item: 'Item',
@@ -318,6 +319,22 @@ export const DeviceTokenScalarFieldEnum = {
 } as const
 
 export type DeviceTokenScalarFieldEnum = (typeof DeviceTokenScalarFieldEnum)[keyof typeof DeviceTokenScalarFieldEnum]
+
+
+export const WebPushSubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  userAgent: 'userAgent',
+  isActive: 'isActive',
+  lastUsed: 'lastUsed',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WebPushSubscriptionScalarFieldEnum = (typeof WebPushSubscriptionScalarFieldEnum)[keyof typeof WebPushSubscriptionScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {

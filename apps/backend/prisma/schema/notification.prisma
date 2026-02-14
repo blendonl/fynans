@@ -124,3 +124,25 @@ model DeviceToken {
   @@index([expoPushToken])
   @@map("device_token")
 }
+
+model WebPushSubscription {
+  id     String @id @default(uuid())
+  userId String @map("user_id")
+
+  endpoint String @unique
+  p256dh   String
+  auth     String
+
+  userAgent String? @map("user_agent")
+  isActive  Boolean  @default(true) @map("is_active")
+  lastUsed  DateTime @default(now()) @map("last_used")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([endpoint])
+  @@map("web_push_subscription")
+}

@@ -400,6 +400,7 @@ export const ModelName = {
   Notification: 'Notification',
   NotificationPreference: 'NotificationPreference',
   DeviceToken: 'DeviceToken',
+  WebPushSubscription: 'WebPushSubscription',
   User: 'User',
   Store: 'Store',
   Item: 'Item',
@@ -426,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "session" | "verification" | "expenseItem" | "expense" | "expenseCategory" | "userExpenseCategory" | "family" | "familyMember" | "familyInvitation" | "income" | "incomeCategory" | "userIncomeCategory" | "notification" | "notificationPreference" | "deviceToken" | "user" | "store" | "item" | "storeItem" | "storeItemDiscount" | "itemCategory" | "userStore" | "userItem" | "userStoreItem" | "userItemCategory" | "transaction"
+    modelProps: "account" | "session" | "verification" | "expenseItem" | "expense" | "expenseCategory" | "userExpenseCategory" | "family" | "familyMember" | "familyInvitation" | "income" | "incomeCategory" | "userIncomeCategory" | "notification" | "notificationPreference" | "deviceToken" | "webPushSubscription" | "user" | "store" | "item" | "storeItem" | "storeItemDiscount" | "itemCategory" | "userStore" | "userItem" | "userStoreItem" | "userItemCategory" | "transaction"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1614,6 +1615,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    WebPushSubscription: {
+      payload: Prisma.$WebPushSubscriptionPayload<ExtArgs>
+      fields: Prisma.WebPushSubscriptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WebPushSubscriptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WebPushSubscriptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>
+        }
+        findFirst: {
+          args: Prisma.WebPushSubscriptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WebPushSubscriptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>
+        }
+        findMany: {
+          args: Prisma.WebPushSubscriptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>[]
+        }
+        create: {
+          args: Prisma.WebPushSubscriptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>
+        }
+        createMany: {
+          args: Prisma.WebPushSubscriptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WebPushSubscriptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>[]
+        }
+        delete: {
+          args: Prisma.WebPushSubscriptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>
+        }
+        update: {
+          args: Prisma.WebPushSubscriptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.WebPushSubscriptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WebPushSubscriptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WebPushSubscriptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.WebPushSubscriptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>
+        }
+        aggregate: {
+          args: Prisma.WebPushSubscriptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWebPushSubscription>
+        }
+        groupBy: {
+          args: Prisma.WebPushSubscriptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WebPushSubscriptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WebPushSubscriptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WebPushSubscriptionCountAggregateOutputType> | number
+        }
+      }
+    }
     User: {
       payload: Prisma.$UserPayload<ExtArgs>
       fields: Prisma.UserFieldRefs
@@ -2691,6 +2766,22 @@ export const DeviceTokenScalarFieldEnum = {
 export type DeviceTokenScalarFieldEnum = (typeof DeviceTokenScalarFieldEnum)[keyof typeof DeviceTokenScalarFieldEnum]
 
 
+export const WebPushSubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  userAgent: 'userAgent',
+  isActive: 'isActive',
+  lastUsed: 'lastUsed',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WebPushSubscriptionScalarFieldEnum = (typeof WebPushSubscriptionScalarFieldEnum)[keyof typeof WebPushSubscriptionScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
@@ -3160,6 +3251,7 @@ export type GlobalOmitConfig = {
   notification?: Prisma.NotificationOmit
   notificationPreference?: Prisma.NotificationPreferenceOmit
   deviceToken?: Prisma.DeviceTokenOmit
+  webPushSubscription?: Prisma.WebPushSubscriptionOmit
   user?: Prisma.UserOmit
   store?: Prisma.StoreOmit
   item?: Prisma.ItemOmit

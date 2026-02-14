@@ -32,6 +32,7 @@ model User {
   notifications          Notification[]
   notificationPreference NotificationPreference?
   deviceTokens           DeviceToken[]
+  webPushSubscriptions   WebPushSubscription[]
 
   // User-scoped entity relationships
   userExpenseCategories UserExpenseCategory[]

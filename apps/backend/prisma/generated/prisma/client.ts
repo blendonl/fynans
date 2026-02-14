@@ -118,6 +118,11 @@ export type NotificationPreference = Prisma.NotificationPreferenceModel
  */
 export type DeviceToken = Prisma.DeviceTokenModel
 /**
+ * Model WebPushSubscription
+ * 
+ */
+export type WebPushSubscription = Prisma.WebPushSubscriptionModel
+/**
  * Model User
  * 
  */
