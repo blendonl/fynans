@@ -13,6 +13,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (data: { firstName: string; lastName: string; email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
+  handleOAuthCallback: (token: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -73,6 +74,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [router]
   );
 
+  const handleOAuthCallback = useCallback(async (oauthToken: string) => {
+    setToken(oauthToken);
+    setTokenState(oauthToken);
+    try {
+      const data = await apiClient.get("/api/auth/get-session");
+      const session = data as { user: User } | null;
+      if (session?.user) {
+        setUser(session.user);
+      }
+    } catch {
+      // Session fetch failed - user will still be redirected and can retry
+    }
+    router.push("/");
+  }, [router]);
+
   const logout = useCallback(async () => {
     try {
       await apiClient.post("/auth/logout", {});
@@ -86,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, handleOAuthCallback }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,22 +1,21 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { setToken } from "@/lib/auth";
+import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/providers/auth-provider";
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 function AuthCallback() {
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const { handleOAuthCallback } = useAuth();
   const [error, setError] = useState(false);
 
   useEffect(() => {
     const tokenFromParams = searchParams.get("token");
     if (tokenFromParams) {
-      setToken(tokenFromParams);
-      router.replace("/");
+      handleOAuthCallback(tokenFromParams);
       return;
     }
 
@@ -26,14 +25,13 @@ function AuthCallback() {
       .then((res) => res.json())
       .then((data) => {
         if (data?.session?.token) {
-          setToken(data.session.token);
-          router.replace("/");
+          handleOAuthCallback(data.session.token);
         } else {
           setError(true);
         }
       })
       .catch(() => setError(true));
-  }, [searchParams, router]);
+  }, [searchParams, handleOAuthCallback]);
 
   if (error) {
     return (
