@@ -2078,6 +2078,7 @@ __metadata:
     react-day-picker: "npm:^9.4.0"
     react-dom: "npm:19.1.0"
     react-hook-form: "npm:^7.53.0"
+    react-is: "npm:^19.0.0"
     recharts: "npm:^3.7.0"
     socket.io-client: "npm:^4.8.3"
     sonner: "npm:^1.7.0"
@@ -13685,6 +13686,13 @@ __metadata:
   version: 18.3.1
   resolution: "react-is@npm:18.3.1"
   checksum: 10c0/f2f1e60010c683479e74c63f96b09fb41603527cd131a9959e2aee1e5a8b0caf270b365e5ca77d4a6b18aae659b60a86150bb3979073528877029b35aecd2072
+  languageName: node
+  linkType: hard
+
+"react-is@npm:^19.0.0":
+  version: 19.2.4
+  resolution: "react-is@npm:19.2.4"
+  checksum: 10c0/477a7cfc900f24194606e315fa353856a3a13487ea8eca841678817cad4daef64339ea0d1e84e58459fc75dbe0d9ba00bb0cc626db3d07e0cf31edc64cb4fa37
   languageName: node
   linkType: hard
 
