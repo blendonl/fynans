@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   ArrowLeftRight,
   PlusCircle,
+  Users,
   Bell,
   User,
 } from "lucide-react";
@@ -16,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/", label: "Home", icon: LayoutDashboard },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
   { href: "/add", label: "Add", icon: PlusCircle },
+  { href: "/families", label: "Family", icon: Users },
   { href: "/notifications", label: "Alerts", icon: Bell },
   { href: "/profile", label: "Profile", icon: User },
 ];
