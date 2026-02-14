@@ -90,7 +90,7 @@ export function CategoryComparisonChart({
               content={<CustomTooltip />}
               cursor={false}
               isAnimationActive={false}
-              trigger="item"
+              trigger="hover"
             />
             <Legend
               wrapperStyle={{ fontSize: 11 }}
