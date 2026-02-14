@@ -24,6 +24,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      paddleocr:
+        condition: service_healthy
     environment:
       PORT: 3001
       DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin}@db:5432/${POSTGRES_DB:-db}
@@ -33,6 +35,7 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
+      PADDLEOCR_SERVICE_URL: http://paddleocr:8000
     ports:
       - "3001:3001"
 
@@ -48,5 +51,25 @@ services:
     ports:
       - "3000:3000"
 
+  paddleocr:
+    build:
+      context: ./apps/backend/docker/paddleocr-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - paddleocr-models:/root/.paddleocr
+    environment:
+      - LANGUAGES=sq,en
+      - USE_GPU=false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    shm_size: 2G
+    restart: unless-stopped
+
 volumes:
   pgdata:
+  paddleocr-models:
