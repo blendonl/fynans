@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useReceiptScan, type ProcessedReceiptResponse } from "@/hooks/use-receipt-scan";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
 interface ScanReceiptDialogProps {
   open: boolean;
@@ -31,7 +31,7 @@ export function ScanReceiptDialog({ open, onOpenChange, onResult }: ScanReceiptD
       return;
     }
     if (file.size > MAX_FILE_SIZE) {
-      toast.error("File size must be under 10MB");
+      toast.error("File size must be under 100MB");
       return;
     }
     scan(file, {

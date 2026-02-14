@@ -23,7 +23,7 @@ export class ReceiptController {
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 10 * 1024 * 1024 },
+      limits: { fileSize: 100 * 1024 * 1024 },
       fileFilter: (req, file, cb) => {
         if (!file.mimetype.match(/image\/(jpeg|jpg|png)/)) {
           return cb(
