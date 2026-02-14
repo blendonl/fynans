@@ -20,7 +20,7 @@ export class UpdateItemUseCase {
       throw new NotFoundException(`Item with ID ${id} not found`);
     }
 
-    await this.validate(dto);
+    await this.validate(id, dto);
 
     const item = await this.itemRepository.update(id, {
       name: dto.name,
@@ -30,9 +30,18 @@ export class UpdateItemUseCase {
     return item;
   }
 
-  private async validate(dto: UpdateItemDto): Promise<void> {
+  private async validate(id: string, dto: UpdateItemDto): Promise<void> {
     if (dto.name !== undefined && dto.name.trim() === '') {
       throw new BadRequestException('Item name cannot be empty');
+    }
+
+    if (dto.name) {
+      const existingItem = await this.itemRepository.findByName(dto.name);
+      if (existingItem && existingItem.id !== id) {
+        throw new BadRequestException(
+          `An item with the name "${dto.name}" already exists`,
+        );
+      }
     }
 
     // Validate category exists if changing

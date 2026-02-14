@@ -39,5 +39,12 @@ export class CreateItemUseCase {
     if (!category) {
       throw new BadRequestException('Category not found');
     }
+
+    const existingItem = await this.itemRepository.findByName(dto.name);
+    if (existingItem) {
+      throw new BadRequestException(
+        `An item with the name "${dto.name}" already exists`,
+      );
+    }
   }
 }

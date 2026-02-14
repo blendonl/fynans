@@ -200,17 +200,17 @@ export type ItemOrderByWithRelationInput = {
 
 export type ItemWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  name?: string
   AND?: Prisma.ItemWhereInput | Prisma.ItemWhereInput[]
   OR?: Prisma.ItemWhereInput[]
   NOT?: Prisma.ItemWhereInput | Prisma.ItemWhereInput[]
   categoryId?: Prisma.StringFilter<"Item"> | string
-  name?: Prisma.StringFilter<"Item"> | string
   createdAt?: Prisma.DateTimeFilter<"Item"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Item"> | Date | string
   category?: Prisma.XOR<Prisma.ItemCategoryScalarRelationFilter, Prisma.ItemCategoryWhereInput>
   stores?: Prisma.StoreItemListRelationFilter
   users?: Prisma.UserItemListRelationFilter
-}, "id">
+}, "id" | "name">
 
 export type ItemOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
