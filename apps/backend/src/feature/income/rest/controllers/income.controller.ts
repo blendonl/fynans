@@ -54,6 +54,7 @@ export class IncomeController {
       dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
       valueMin: query.valueMin,
       valueMax: query.valueMax,
+      search: query.search,
     });
 
     const pagination = new Pagination(query.page, query.limit);

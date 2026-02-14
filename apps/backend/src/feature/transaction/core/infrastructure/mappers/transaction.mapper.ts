@@ -12,6 +12,7 @@ interface PrismaTransactionWithUser extends PrismaTransaction {
     firstName: string;
     lastName: string;
     name: string;
+    image: string | null;
   };
 }
 
@@ -27,6 +28,7 @@ export class TransactionMapper {
         prismaTransaction.user.lastName.length > 0
           ? prismaTransaction.user.lastName
           : prismaTransaction.user.name.split(' ')[0],
+      image: prismaTransaction.user.image,
     };
 
     return new Transaction({

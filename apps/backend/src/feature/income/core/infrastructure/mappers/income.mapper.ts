@@ -11,9 +11,10 @@ interface PrismaIncome extends Prisma.IncomeGetPayload<{
         user: {
           select: {
             id: true;
+            name: true;
             firstName: true;
             lastName: true;
-            name: true;
+            image: true;
           };
         };
       };

@@ -5,6 +5,7 @@ import { useInfiniteTransactions } from "@/hooks/use-transactions";
 import { useFamilies } from "@/hooks/use-families";
 import { useCategories } from "@/hooks/use-categories";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { TransactionFilters, type AdvancedFilters } from "@/components/transactions/transaction-filters";
 import { TransactionList } from "@/components/transactions/transaction-list";
 import { TransactionsSummary } from "@/components/transactions/transactions-summary";
@@ -25,6 +26,8 @@ export default function TransactionsPage() {
   const { families } = useFamilies();
   const { categories } = useCategories();
 
+  const debouncedSearch = useDebouncedValue(searchQuery, 300);
+
   const {
     data,
     isLoading,
@@ -39,6 +42,7 @@ export default function TransactionsPage() {
       dateTo: advancedFilters.dateTo || undefined,
       minAmount: advancedFilters.minAmount || undefined,
       maxAmount: advancedFilters.maxAmount || undefined,
+      search: debouncedSearch.trim() || undefined,
     },
     families
   );
@@ -49,38 +53,32 @@ export default function TransactionsPage() {
   );
 
   const filtered = useMemo(() => {
-    const query = searchQuery.toLowerCase().trim();
-    if (!query && advancedFilters.categories.length === 0) return allTransactions;
+    if (advancedFilters.categories.length === 0) return allTransactions;
 
     return allTransactions.filter((t) => {
-      if (query) {
-        const categoryMatch = t.category.name.toLowerCase().includes(query);
-        const storeMatch = t.store?.name.toLowerCase().includes(query);
-        const descMatch = t.transaction.description?.toLowerCase().includes(query);
-        if (!categoryMatch && !storeMatch && !descMatch) return false;
-      }
-
-      if (
-        advancedFilters.categories.length > 0 &&
-        !advancedFilters.categories.includes(t.category.id)
-      ) {
-        return false;
-      }
-
-      return true;
+      return advancedFilters.categories.includes(t.category.id);
     });
-  }, [allTransactions, searchQuery, advancedFilters.categories]);
+  }, [allTransactions, advancedFilters.categories]);
 
   const stats = useMemo(() => {
-    if (!data?.pages.length) return { totalExpenses: 0, totalIncome: 0, net: 0 };
+    if (!data?.pages.length) return { totalExpenses: 0, totalIncome: 0, net: 0, matchedItemsTotal: 0 };
     const totalExpenses = filtered
       .filter((t) => t.type === "expense")
       .reduce((sum, t) => sum + t.transaction.value, 0);
     const totalIncome = filtered
       .filter((t) => t.type === "income")
       .reduce((sum, t) => sum + t.transaction.value, 0);
-    return { totalExpenses, totalIncome, net: totalIncome - totalExpenses };
+    const matchedItemsTotal = filtered.reduce((sum, t) => {
+      if (!t.matchedItems?.length) return sum;
+      return sum + t.matchedItems.reduce(
+        (itemSum, item) => itemSum + (item.price - (item.discount || 0)) * item.quantity,
+        0,
+      );
+    }, 0);
+    return { totalExpenses, totalIncome, net: totalIncome - totalExpenses, matchedItemsTotal };
   }, [data, filtered]);
+
+  const hasItemSearch = filtered.some((t) => t.matchedItems?.length);
 
   const loadMoreRef = useIntersectionObserver(() => fetchNextPage(), {
     enabled: !!hasNextPage && !isFetchingNextPage,
@@ -100,6 +98,7 @@ export default function TransactionsPage() {
           totalIncome={stats.totalIncome}
           totalExpenses={stats.totalExpenses}
           net={stats.net}
+          matchedItemsTotal={hasItemSearch ? stats.matchedItemsTotal : undefined}
         />
       </div>
 
@@ -123,6 +122,7 @@ export default function TransactionsPage() {
           isLoading={isLoading}
           loadMoreRef={loadMoreRef}
           isFetchingNextPage={isFetchingNextPage}
+          searchQuery={debouncedSearch || undefined}
         />
       </div>
     </div>

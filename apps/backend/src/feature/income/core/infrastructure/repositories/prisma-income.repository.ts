@@ -29,8 +29,10 @@ export class PrismaIncomeRepository implements IIncomeRepository {
             user: {
               select: {
                 id: true,
+                name: true,
                 firstName: true,
                 lastName: true,
+                image: true,
               },
             },
           },
@@ -51,8 +53,10 @@ export class PrismaIncomeRepository implements IIncomeRepository {
             user: {
               select: {
                 id: true,
+                name: true,
                 firstName: true,
                 lastName: true,
+                image: true,
               },
             },
           },
@@ -73,8 +77,10 @@ export class PrismaIncomeRepository implements IIncomeRepository {
             user: {
               select: {
                 id: true,
+                name: true,
                 firstName: true,
                 lastName: true,
+                image: true,
               },
             },
           },
@@ -172,8 +178,10 @@ export class PrismaIncomeRepository implements IIncomeRepository {
             user: {
               select: {
                 id: true,
+                name: true,
                 firstName: true,
                 lastName: true,
+                image: true,
               },
             },
           },
@@ -249,6 +257,17 @@ export class PrismaIncomeRepository implements IIncomeRepository {
       if (filters.dateTo) {
         where.transaction.recordedAt.lte = filters.dateTo;
       }
+    }
+
+    if (filters.search) {
+      const searchOr: Prisma.IncomeWhereInput[] = [
+        { category: { name: { contains: filters.search, mode: 'insensitive' } } },
+      ];
+
+      if (Object.keys(where).length > 0) {
+        return { AND: [where, { OR: searchOr }] };
+      }
+      return { OR: searchOr };
     }
 
     return where;

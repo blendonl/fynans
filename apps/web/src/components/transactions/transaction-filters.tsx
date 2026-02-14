@@ -141,7 +141,7 @@ export function TransactionFilters({
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-disabled" />
         <Input
-          placeholder="Search by category, store, or description..."
+          placeholder="Search by category, store, description, or item name..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-9 bg-surface/50 border-border-light"

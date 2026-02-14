@@ -34,7 +34,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
           value: (tx?.value as number) || 0,
           recordedAt: tx?.recordedAt as string | undefined,
           description: tx?.description as string | undefined,
-          user: tx?.user as { id: string; firstName: string; lastName: string },
+          user: tx?.user as { id: string; firstName: string; lastName: string; image?: string | null },
         },
         items: data.items as Transaction["items"],
         receiptImages: (data.receiptImages as string[]) || [],

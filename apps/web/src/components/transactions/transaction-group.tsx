@@ -10,7 +10,9 @@ interface TransactionGroupProps {
   total: number;
   income: number;
   expenses: number;
+  matchedItemsTotal: number;
   transactions: Transaction[];
+  searchQuery?: string;
 }
 
 export function TransactionGroup({
@@ -18,7 +20,9 @@ export function TransactionGroup({
   total,
   income,
   expenses,
+  matchedItemsTotal,
   transactions,
+  searchQuery,
 }: TransactionGroupProps) {
   return (
     <div className="space-y-3">
@@ -28,6 +32,12 @@ export function TransactionGroup({
           <div>
             <h3 className="text-sm font-semibold text-text">{monthLabel}</h3>
             <div className="flex items-center gap-3 mt-0.5">
+              {matchedItemsTotal > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  <span className="text-[11px] font-mono text-primary">{formatCurrency(matchedItemsTotal)}</span>
+                </div>
+              )}
               <div className="flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-income" />
                 <span className="text-[11px] font-mono text-income">{formatCurrency(income)}</span>
@@ -55,6 +65,7 @@ export function TransactionGroup({
             <TransactionRow
               key={t.id}
               transaction={t}
+              searchQuery={searchQuery}
               style={{ animationDelay: `${i * 40}ms` }}
             />
           ))}

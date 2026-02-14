@@ -2,12 +2,14 @@
 
 import { useAuth } from "@/providers/auth-provider";
 import { useWebSocket } from "@/hooks/use-websocket";
+import { usePushSubscription } from "@/hooks/use-push-subscription";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isLoading } = useAuth();
   useWebSocket();
+  usePushSubscription();
 
   if (isLoading) {
     return (

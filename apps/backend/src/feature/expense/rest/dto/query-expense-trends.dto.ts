@@ -5,6 +5,7 @@ import {
   IsUUID,
   IsNumber,
   IsInt,
+  IsString,
   Min,
   Max,
 } from 'class-validator';
@@ -53,6 +54,10 @@ export class QueryExpenseTrendsDto {
   @IsOptional()
   @Type(() => Number)
   valueMax?: number;
+
+  @IsString()
+  @IsOptional()
+  search?: string;
 
   @IsInt()
   @Min(2)

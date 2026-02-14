@@ -7,9 +7,10 @@ interface TransactionsSummaryProps {
   totalIncome: number;
   totalExpenses: number;
   net: number;
+  matchedItemsTotal?: number;
 }
 
-export function TransactionsSummary({ totalIncome, totalExpenses, net }: TransactionsSummaryProps) {
+export function TransactionsSummary({ totalIncome, totalExpenses, net, matchedItemsTotal }: TransactionsSummaryProps) {
   return (
     <GlassCard variant="strong" className="p-5 sm:p-6">
       <div className="flex items-center justify-between gap-4">
@@ -28,6 +29,14 @@ export function TransactionsSummary({ totalIncome, totalExpenses, net }: Transac
         </div>
 
         <div className="flex items-center gap-3">
+          {matchedItemsTotal !== undefined && matchedItemsTotal > 0 && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/8">
+              <span className="h-2 w-2 rounded-full bg-primary" />
+              <span className="text-xs font-semibold font-mono text-primary">
+                {formatCurrency(matchedItemsTotal)}
+              </span>
+            </div>
+          )}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-income/8">
             <span className="h-2 w-2 rounded-full bg-income" />
             <span className="text-xs font-semibold font-mono text-income">

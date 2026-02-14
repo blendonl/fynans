@@ -11,6 +11,7 @@ interface TransactionListProps {
   isLoading: boolean;
   loadMoreRef?: React.RefObject<HTMLDivElement | null>;
   isFetchingNextPage?: boolean;
+  searchQuery?: string;
 }
 
 function TransactionListSkeleton() {
@@ -48,6 +49,7 @@ export function TransactionList({
   isLoading,
   loadMoreRef,
   isFetchingNextPage,
+  searchQuery,
 }: TransactionListProps) {
   if (isLoading) {
     return <TransactionListSkeleton />;
@@ -86,7 +88,9 @@ export function TransactionList({
           total={group.total}
           income={group.income}
           expenses={group.expenses}
+          matchedItemsTotal={group.matchedItemsTotal}
           transactions={group.transactions}
+          searchQuery={searchQuery}
         />
       ))}
 

@@ -10,6 +10,7 @@ export class IncomeFilters {
   dateTo?: Date;
   valueMin?: number;
   valueMax?: number;
+  search?: string;
 
   constructor(data: {
     userId?: string;
@@ -21,6 +22,7 @@ export class IncomeFilters {
     dateTo?: Date;
     valueMin?: number;
     valueMax?: number;
+    search?: string;
   }) {
     this.userId = data.userId;
     this.categoryId = data.categoryId;
@@ -31,5 +33,6 @@ export class IncomeFilters {
     this.dateTo = data.dateTo;
     this.valueMin = data.valueMin;
     this.valueMax = data.valueMax;
+    this.search = data.search;
   }
 }

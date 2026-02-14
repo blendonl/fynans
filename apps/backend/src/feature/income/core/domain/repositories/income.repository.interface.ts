@@ -17,6 +17,7 @@ export interface IncomeFilters {
   dateTo?: Date;
   valueMin?: number;
   valueMax?: number;
+  search?: string;
 }
 
 export interface IIncomeRepository {

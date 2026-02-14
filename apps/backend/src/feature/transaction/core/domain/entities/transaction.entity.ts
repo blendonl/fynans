@@ -10,6 +10,7 @@ export interface TransactionUser {
   id: string;
   firstName: string;
   lastName: string;
+  image?: string | null;
 }
 
 export interface TransactionProps {

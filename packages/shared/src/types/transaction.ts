@@ -25,9 +25,11 @@ export interface Transaction {
       id: string;
       firstName: string;
       lastName: string;
+      image?: string | null;
     };
   };
   items?: TransactionItem[];
+  matchedItems?: TransactionItem[];
   receiptImages?: string[];
 }
 

@@ -13,6 +13,7 @@ export class ExpenseResponseDto {
   category: ExpenseCategoryResponseDto;
   store: StoreResponseDto | null;
   items: ExpenseItemResponseDto[];
+  matchedItems?: ExpenseItemResponseDto[];
   name: string;
   createdAt: Date;
   updatedAt: Date;

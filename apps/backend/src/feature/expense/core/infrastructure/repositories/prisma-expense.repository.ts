@@ -406,6 +406,19 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       }
     }
 
+    if (filters.search) {
+      const searchOr: Prisma.ExpenseWhereInput[] = [
+        { category: { name: { contains: filters.search, mode: 'insensitive' } } },
+        { store: { name: { contains: filters.search, mode: 'insensitive' } } },
+        { items: { some: { item: { item: { name: { contains: filters.search, mode: 'insensitive' } } } } } },
+      ];
+
+      if (Object.keys(where).length > 0) {
+        return { AND: [where, { OR: searchOr }] };
+      }
+      return { OR: searchOr };
+    }
+
     return where;
   }
 }

@@ -5,6 +5,7 @@ import { PAGE_SIZE, type PaginatedResponse } from "@/lib/pagination";
 
 function mapExpenseToTransaction(expense: Record<string, unknown>, family?: Family): Transaction {
   const tx = expense.transaction as Record<string, unknown> | undefined;
+  const matchedItems = expense.matchedItems as Transaction["items"] | undefined;
   return {
     id: expense.id as string,
     type: "expense",
@@ -18,9 +19,10 @@ function mapExpenseToTransaction(expense: Record<string, unknown>, family?: Fami
       value: (tx?.value as number) || 0,
       recordedAt: tx?.recordedAt as string | undefined,
       description: tx?.description as string | undefined,
-      user: tx?.user as { id: string; firstName: string; lastName: string },
+      user: tx?.user as { id: string; firstName: string; lastName: string; image?: string | null },
     },
     items: expense.items as Transaction["items"],
+    matchedItems: matchedItems?.length ? matchedItems : undefined,
     receiptImages: (expense.receiptImages as string[]) || [],
   };
 }
@@ -42,7 +44,7 @@ function mapIncomeToTransaction(income: Record<string, unknown>, family?: Family
       value: (tx?.value as number) || 0,
       recordedAt: (tx?.recordedAt as string) || (income.createdAt as string),
       description: tx?.description as string | undefined,
-      user: tx?.user as { id: string; firstName: string; lastName: string },
+      user: tx?.user as { id: string; firstName: string; lastName: string; image?: string | null },
     },
     receiptImages: (income.receiptImages as string[]) || [],
   };
@@ -56,6 +58,7 @@ interface ServerFilters {
   dateTo?: string;
   minAmount?: string;
   maxAmount?: string;
+  search?: string;
 }
 
 interface InfiniteTransactionPage {
@@ -76,6 +79,7 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
       filters.dateTo,
       filters.minAmount,
       filters.maxAmount,
+      filters.search,
     ],
     queryFn: async ({ pageParam = 1 }): Promise<InfiniteTransactionPage> => {
       const baseParams: Record<string, string | undefined> = {
@@ -88,6 +92,7 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
       if (filters.dateTo) baseParams.dateTo = filters.dateTo;
       if (filters.minAmount) baseParams.valueMin = filters.minAmount;
       if (filters.maxAmount) baseParams.valueMax = filters.maxAmount;
+      if (filters.search) baseParams.search = filters.search;
 
       const fetchExpenses = filters.type !== "income";
       const fetchIncomes = filters.type !== "expense";
@@ -163,6 +168,7 @@ export interface MonthGroup {
   total: number;
   income: number;
   expenses: number;
+  matchedItemsTotal: number;
   transactions: Transaction[];
 }
 
@@ -193,8 +199,15 @@ export function groupByMonth(transactions: Transaction[]): MonthGroup[] {
     const expenses = items
       .filter((t) => t.type === "expense")
       .reduce((sum, t) => sum + t.transaction.value, 0);
+    const matchedItemsTotal = items.reduce((sum, t) => {
+      if (!t.matchedItems?.length) return sum;
+      return sum + t.matchedItems.reduce(
+        (itemSum, item) => itemSum + (item.price - (item.discount || 0)) * item.quantity,
+        0,
+      );
+    }, 0);
     const total = income - expenses;
-    return { key, monthLabel, total, income, expenses, transactions: items };
+    return { key, monthLabel, total, income, expenses, matchedItemsTotal, transactions: items };
   });
 }
 

@@ -18,6 +18,7 @@ export interface ExpenseFilters {
   dateTo?: Date;
   valueMin?: number;
   valueMax?: number;
+  search?: string;
 }
 
 export interface ExpenseStatistics {

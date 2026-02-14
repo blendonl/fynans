@@ -1,8 +1,11 @@
-import { IsUUID, IsOptional, IsDateString, IsNumber, IsEnum } from 'class-validator';
+import { IsUUID, IsOptional, IsDateString, IsNumber, IsEnum, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { TransactionScope } from '../../../transaction/core/domain/entities/transaction.entity';
 
 export class QueryIncomeDto {
+  @IsString()
+  @IsOptional()
+  search?: string;
   @IsUUID()
   @IsOptional()
   categoryId?: string;

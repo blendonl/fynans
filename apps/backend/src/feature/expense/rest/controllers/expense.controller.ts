@@ -73,6 +73,7 @@ export class ExpenseController {
       dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
       valueMin: query.valueMin,
       valueMax: query.valueMax,
+      search: query.search,
     });
 
     const pagination = new Pagination(query.page, query.limit);
@@ -83,8 +84,19 @@ export class ExpenseController {
       pagination,
     );
 
+    const data = result.data.map((expense) => {
+      const dto = ExpenseResponseDto.fromEntity(expense);
+      if (query.search && dto.items?.length) {
+        const searchLower = query.search.toLowerCase();
+        dto.matchedItems = dto.items.filter(
+          (item) => item.name.toLowerCase().includes(searchLower),
+        );
+      }
+      return dto;
+    });
+
     return {
-      data: ExpenseResponseDto.fromEntities(result.data),
+      data,
       total: result.total,
       page: pagination.page,
       limit: pagination.limit,
@@ -106,6 +118,7 @@ export class ExpenseController {
       dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
       valueMin: query.valueMin,
       valueMax: query.valueMax,
+      search: query.search,
     });
 
     const stats = await this.expenseService.getStatistics(user.id, filters);
@@ -132,6 +145,7 @@ export class ExpenseController {
       storeId: query.storeId,
       valueMin: query.valueMin,
       valueMax: query.valueMax,
+      search: query.search,
     });
 
     return this.expenseService.getTrends(
