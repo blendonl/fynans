@@ -18,7 +18,7 @@ def get_ocr():
     if ocr is None:
         logger.info(f"Initializing PaddleOCR with languages: {config.LANGUAGES}")
         ocr = PaddleOCR(
-            lang="en",
+            lang=config.LANGUAGES[0] if config.LANGUAGES else "en",
             use_angle_cls=True,
             use_gpu=config.USE_GPU,
             det_limit_side_len=1280,
@@ -72,6 +72,10 @@ async def extract_text(file: UploadFile = File(...)):
                 box = line[0]
                 text = line[1][0]
                 confidence = line[1][1]
+
+                if confidence < config.CONFIDENCE_THRESHOLD:
+                    logger.debug(f"Skipping low-confidence detection: '{text}' ({confidence:.2f})")
+                    continue
 
                 top_y = min(point[1] for point in box)
                 left_x = min(point[0] for point in box)

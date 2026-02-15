@@ -1,7 +1,5 @@
 import cv2
 import numpy as np
-from PIL import Image
-import io
 
 
 def preprocess_image(image_bytes: bytes) -> np.ndarray:
@@ -18,16 +16,20 @@ def preprocess_image(image_bytes: bytes) -> np.ndarray:
         new_height = int(height * scale)
         img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
 
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    l_channel, a_channel, b_channel = cv2.split(lab)
 
-    kernel = np.array([[-1,-1,-1],
-                       [-1, 9,-1],
-                       [-1,-1,-1]])
-    sharpened = cv2.filter2D(gray, -1, kernel)
+    kernel = np.array([[-1, -1, -1],
+                       [-1,  9, -1],
+                       [-1, -1, -1]])
+    l_channel = cv2.filter2D(l_channel, -1, kernel)
 
-    denoised = cv2.fastNlMeansDenoising(sharpened, None, h=10, templateWindowSize=7, searchWindowSize=21)
+    l_channel = cv2.fastNlMeansDenoising(l_channel, None, h=10, templateWindowSize=7, searchWindowSize=21)
 
     clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
-    enhanced = clahe.apply(denoised)
+    l_channel = clahe.apply(l_channel)
+
+    enhanced_lab = cv2.merge([l_channel, a_channel, b_channel])
+    enhanced = cv2.cvtColor(enhanced_lab, cv2.COLOR_LAB2BGR)
 
     return enhanced

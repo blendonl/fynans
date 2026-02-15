@@ -45,9 +45,7 @@ export class GenericItemsParser implements IItemsParser {
       }
     }
 
-    return items.length > 0
-      ? items
-      : [{ name: 'No items parsed', price: 0, quantity: 1, unitPrice: 0 }];
+    return items;
   }
 
   private normalizePrice(priceStr: string): number {

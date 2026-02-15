@@ -1,31 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
   IReceiptParser,
   IReceiptParserService,
   ReceiptParsingContext,
   ReceiptParsingResult,
 } from '../../../application/services/receipt-parser.service';
+import { LlmReceiptParser } from './llm-receipt.parser';
 import { AlbanianReceiptParser } from './albanian-receipt.parser';
 import { GenericReceiptParser } from './generic-receipt.parser';
 
 @Injectable()
 export class ReceiptParserFactory implements IReceiptParserService {
   private readonly logger = new Logger(ReceiptParserFactory.name);
-  private parsers: IReceiptParser[] = [];
+  private readonly parsers: IReceiptParser[] = [];
 
   constructor(
-    private readonly configService: ConfigService,
+    private readonly llmParser: LlmReceiptParser,
     private readonly albanianParser: AlbanianReceiptParser,
     private readonly genericParser: GenericReceiptParser,
   ) {
-    this.initializeParsers();
-  }
-
-  private initializeParsers() {
-    this.registerParser(this.albanianParser);
-    this.registerParser(this.genericParser);
-
+    this.parsers = [this.llmParser, this.albanianParser, this.genericParser];
     this.logger.log(
       `Initialized ${this.parsers.length} parsers: ${this.parsers.map((p) => p.name).join(', ')}`,
     );
@@ -36,9 +30,15 @@ export class ReceiptParserFactory implements IReceiptParserService {
     context: ReceiptParsingContext,
   ): Promise<ReceiptParsingResult> {
     for (const parser of this.parsers) {
-      if (parser.canParse(text)) {
+      if (!parser.canParse(text)) continue;
+
+      try {
         this.logger.log(`Using parser: ${parser.name}`);
-        return parser.parse(text, context);
+        return await parser.parse(text, context);
+      } catch (error) {
+        this.logger.warn(
+          `Parser '${parser.name}' failed, trying next: ${error instanceof Error ? error.message : error}`,
+        );
       }
     }
 

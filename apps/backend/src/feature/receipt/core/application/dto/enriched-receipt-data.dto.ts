@@ -9,6 +9,8 @@ export class EnrichedReceiptItemDto {
   name: string;
   price: number;
   quantity: number;
+  categoryId?: string;
+  suggestedItemCategoryId?: string;
 }
 
 export class EnrichedReceiptDataDto {
@@ -17,6 +19,7 @@ export class EnrichedReceiptDataDto {
   recordedAt?: Date;
   extractedText: string;
   confidence: number;
-  preprocessingApplied?: string[];
   parserUsed?: string;
+  suggestedExpenseCategoryId?: string;
+  suggestedExpenseCategoryName?: string;
 }

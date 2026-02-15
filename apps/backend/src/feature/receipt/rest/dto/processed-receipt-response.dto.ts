@@ -11,7 +11,8 @@ class ProcessedItemDto {
   name: string;
   price: number;
   quantity: number;
-  category?: string;
+  categoryId?: string;
+  suggestedItemCategoryId?: string;
 }
 
 export class ProcessedReceiptResponseDto {
@@ -20,18 +21,30 @@ export class ProcessedReceiptResponseDto {
   recordedAt?: string;
   extractedText: string;
   confidence: number;
-  preprocessingApplied?: string[];
   parserUsed?: string;
+  suggestedExpenseCategory?: { id: string; name: string };
 
   static fromData(data: EnrichedReceiptDataDto): ProcessedReceiptResponseDto {
     const dto = new ProcessedReceiptResponseDto();
     dto.store = data.store;
-    dto.items = data.items;
+    dto.items = data.items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      categoryId: item.categoryId,
+      suggestedItemCategoryId: item.suggestedItemCategoryId,
+    }));
     dto.recordedAt = data.recordedAt?.toISOString();
     dto.extractedText = data.extractedText;
     dto.confidence = data.confidence;
-    dto.preprocessingApplied = data.preprocessingApplied;
     dto.parserUsed = data.parserUsed;
+    if (data.suggestedExpenseCategoryId && data.suggestedExpenseCategoryName) {
+      dto.suggestedExpenseCategory = {
+        id: data.suggestedExpenseCategoryId,
+        name: data.suggestedExpenseCategoryName,
+      };
+    }
     return dto;
   }
 }
