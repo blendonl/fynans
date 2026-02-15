@@ -36,20 +36,22 @@ export class NotificationController {
     @Query('type') type?: string,
     @Query('unreadOnly') unreadOnly?: string,
   ) {
-    const notifications = await this.getNotificationsUseCase.execute({
+    const parsedPage = page ? parseInt(page) : 1;
+    const parsedLimit = limit ? parseInt(limit) : 20;
+
+    const { data, total } = await this.getNotificationsUseCase.execute({
       userId: user.id,
-      page: page ? parseInt(page) : 1,
-      limit: limit ? parseInt(limit) : 20,
+      page: parsedPage,
+      limit: parsedLimit,
       type,
       unreadOnly: unreadOnly === 'true',
     });
 
     return {
-      data: notifications.map((n) => NotificationResponseDto.fromEntity(n)),
-      pagination: {
-        page: page ? parseInt(page) : 1,
-        limit: limit ? parseInt(limit) : 20,
-      },
+      data: data.map((n) => NotificationResponseDto.fromEntity(n)),
+      total,
+      page: parsedPage,
+      limit: parsedLimit,
     };
   }
 

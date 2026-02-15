@@ -12,7 +12,7 @@ export class GetNotificationsUseCase {
     private readonly notificationRepository: INotificationRepository,
   ) {}
 
-  async execute(filters: NotificationFilters): Promise<Notification[]> {
+  async execute(filters: NotificationFilters): Promise<{ data: Notification[]; total: number }> {
     return await this.notificationRepository.findByUserId(filters);
   }
 }

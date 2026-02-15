@@ -48,7 +48,7 @@ export class PrismaNotificationRepository implements INotificationRepository {
     return NotificationMapper.toDomain(notification);
   }
 
-  async findByUserId(filters: NotificationFilters): Promise<Notification[]> {
+  async findByUserId(filters: NotificationFilters): Promise<{ data: Notification[]; total: number }> {
     const {
       userId,
       type,
@@ -72,14 +72,17 @@ export class PrismaNotificationRepository implements INotificationRepository {
       where.familyId = familyId;
     }
 
-    const notifications = await this.prisma.notification.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    const [notifications, total] = await Promise.all([
+      this.prisma.notification.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.notification.count({ where }),
+    ]);
 
-    return notifications.map(NotificationMapper.toDomain);
+    return { data: notifications.map(NotificationMapper.toDomain), total };
   }
 
   async getUnreadCount(userId: string): Promise<number> {
