@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { formatCurrency } from "@fynans/shared";
@@ -55,6 +55,7 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
     isFetchingNextPage: isFetchingNextStorePage,
     createStore,
   } = useStores(storeSearch);
+  const queryClient = useQueryClient();
   const expenseItems = useExpenseItems();
 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -95,12 +96,14 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
     // Auto-select expense category from AI suggestion
     let autoSelectedCategory = selectedCategory;
     if (data.suggestedExpenseCategory && !selectedCategory) {
-      const matchedCat = categories.find((c) => c.id === data.suggestedExpenseCategory!.id);
-      if (matchedCat) {
-        autoSelectedCategory = matchedCat;
-        setSelectedCategory(matchedCat);
-        toast.info(`Category auto-selected: ${matchedCat.name}`);
-      }
+      autoSelectedCategory = {
+        id: data.suggestedExpenseCategory.id,
+        name: data.suggestedExpenseCategory.name,
+      };
+      setSelectedCategory(autoSelectedCategory);
+      toast.info(`Category auto-selected: ${data.suggestedExpenseCategory.name}`);
+      queryClient.invalidateQueries({ queryKey: ["expense-categories"] });
+      queryClient.invalidateQueries({ queryKey: ["expense-item-categories"] });
     }
 
     if (data.store) {
@@ -129,10 +132,6 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
       if (!isNaN(parsed.getTime())) {
         setRecordedAt(format(parsed, "yyyy-MM-dd'T'HH:mm"));
       }
-    }
-
-    if (!autoSelectedCategory && !selectedCategory) {
-      toast.info("Select a category to see scanned items");
     }
 
     const storeName = data.store?.name;
