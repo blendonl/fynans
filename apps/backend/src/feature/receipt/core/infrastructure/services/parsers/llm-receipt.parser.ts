@@ -114,23 +114,11 @@ export class LlmReceiptParser implements IReceiptParser {
         .map((i) => `${i.name} (${i.categoryName})`)
         .join(', ');
 
-      const itemCatsList = userContext.itemCategories
-        .map((c) => c.name)
-        .join(', ');
-
-      const expCatsList = userContext.expenseCategories
-        .map((c) => `${c.name}${c.isConnectedToStore ? ' (store)' : ''}`)
-        .join(', ');
-
       contextSection = `
 User's existing items: ${itemsList || 'none'}
-Item categories: ${itemCatsList || 'none'}
-Expense categories: ${expCatsList || 'none'}
 
 When matching items:
 - If an OCR item name is similar to an existing item (e.g. "Mie11" matches "Miell"), set matchedExistingItem to the existing item's exact name
-- For suggestedItemCategory, prefer existing categories listed above
-- For suggestedExpenseCategory, pick the most appropriate expense category from the list above
 `;
     }
 
@@ -166,7 +154,9 @@ Rules:
 - if a field cannot be determined, use null
 - correct obvious OCR errors in item names (e.g. "Mie11" → "Miell", "Qum3sht" → "Qumësht")
 - do NOT include tax lines, subtotals, or promotional text as items
-- matchedExistingItem should be the exact name of a matching existing item, or null if no match`;
+- matchedExistingItem should be the exact name of a matching existing item, or null if no match
+- suggestedItemCategory is REQUIRED for every item. Assign an appropriate category based on what the item is (e.g. "Dairy", "Beverages", "Cleaning", "Bakery", "Meat", "Snacks", "Produce")
+- suggestedExpenseCategory is REQUIRED. Suggest the most appropriate overall expense category for this receipt (e.g. "Groceries", "Electronics", "Clothing", "Household")`;
   }
 
   private buildNormalizePrompt(parsed: LlmParsedReceipt): string {
@@ -177,13 +167,18 @@ ${JSON.stringify(parsed, null, 2)}
 
 Tasks:
 1. Fix any remaining item name typos or OCR artifacts
-2. Remove junk items (tax lines, subtotals, promotional text, discount lines that were incorrectly parsed as items)
+2. Remove entire junk items (tax lines, subtotals, promotional text, discount lines that were incorrectly parsed as items)
 3. Correct obviously wrong prices (e.g. negative prices, prices that are clearly misread)
 4. Ensure quantities are positive integers
 5. Validate that categories make sense for the items
-6. Keep the same JSON structure as the input
 
-Return the cleaned JSON with the same structure.`;
+IMPORTANT rules:
+- You may ONLY remove entire items. Never remove individual fields/attributes from an item.
+- Every item you keep MUST have ALL its original fields preserved (name, price, quantity, suggestedItemCategory, matchedExistingItem)
+- Preserve suggestedExpenseCategory at the top level
+- Preserve storeName, storeLocation, totalAmount, date, time
+
+Return the cleaned JSON with the exact same structure.`;
   }
 
   private extractJson(response: string): Record<string, any> {

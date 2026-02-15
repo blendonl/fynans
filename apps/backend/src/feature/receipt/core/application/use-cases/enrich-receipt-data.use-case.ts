@@ -5,7 +5,6 @@ import { type IStoreItemRepository } from '~feature/store/core/domain/repositori
 import { type IExpenseCategoryRepository } from '~feature/expense-category/core/domain/repositories/expense-category.repository.interface';
 import { EnrichedReceiptDataDto } from '../dto/enriched-receipt-data.dto';
 import { AutoCreateCategoriesUseCase } from './auto-create-categories.use-case';
-import { Pagination } from '~feature/transaction/core/application/dto/pagination.dto';
 
 @Injectable()
 export class EnrichReceiptDataUseCase {
@@ -49,25 +48,32 @@ export class EnrichReceiptDataUseCase {
       }
     }
 
-    // Resolve suggested expense category
+    // Resolve or auto-create suggested expense category
     let suggestedExpenseCategoryId: string | undefined;
     let suggestedExpenseCategoryName: string | undefined;
     if (processedData.suggestedExpenseCategory && userId) {
       try {
-        const expenseCategoriesResult =
-          await this.expenseCategoryRepository.findAll(userId, new Pagination(1, 100));
-        const match = expenseCategoriesResult.data.find(
-          (cat) =>
-            cat.name.toLowerCase() ===
-            processedData.suggestedExpenseCategory!.toLowerCase(),
+        let category = await this.expenseCategoryRepository.findByName(
+          processedData.suggestedExpenseCategory,
         );
-        if (match) {
-          suggestedExpenseCategoryId = match.id;
-          suggestedExpenseCategoryName = match.name;
+
+        if (!category) {
+          category = await this.expenseCategoryRepository.create({
+            name: processedData.suggestedExpenseCategory,
+          } as any);
+          await this.expenseCategoryRepository
+            .linkToUser(category.id, userId)
+            .catch(() => {});
+          this.logger.log(
+            `Auto-created expense category: ${processedData.suggestedExpenseCategory}`,
+          );
         }
+
+        suggestedExpenseCategoryId = category.id;
+        suggestedExpenseCategoryName = category.name;
       } catch (error) {
         this.logger.warn(
-          `Failed to resolve expense category: ${error instanceof Error ? error.message : error}`,
+          `Failed to resolve/create expense category: ${error instanceof Error ? error.message : error}`,
         );
       }
     }
