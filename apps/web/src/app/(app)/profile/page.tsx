@@ -6,6 +6,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
@@ -19,7 +20,11 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-text">Profile</h1>
+      <PageHeader
+        label="Account"
+        title="Profile"
+        description="Manage your account settings and preferences."
+      />
 
       <Card>
         <CardHeader>

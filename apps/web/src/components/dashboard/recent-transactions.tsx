@@ -31,9 +31,10 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
       ) : (
         <div className="divide-y divide-border-light">
           {transactions.map((t) => (
-            <div
+            <Link
               key={t.id}
-              className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
+              href={`/transactions/${t.id}?type=${t.type}`}
+              className="flex items-center justify-between py-3 first:pt-0 last:pb-0 -mx-2 px-2 rounded-lg transition-colors hover:bg-surface-variant/50"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <span
@@ -60,7 +61,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                 {t.type === "income" ? "+" : "\u2212"}
                 {formatCurrency(t.transaction.value)}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       )}

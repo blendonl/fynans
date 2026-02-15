@@ -46,7 +46,7 @@ function DashboardContent() {
         <p className="text-[11px] font-semibold text-text-secondary tracking-[0.2em] uppercase">
           {getGreeting()}
         </p>
-        <h1 className="text-2xl sm:text-3xl font-bold text-text mt-1">
+        <h1 className="text-xl sm:text-2xl font-bold text-text mt-1">
           {user?.firstName}
         </h1>
       </div>

@@ -3,13 +3,18 @@
 import { useFamilies } from "@/hooks/use-families";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function InvitationsPage() {
   const { pendingInvitations, acceptInvitation, declineInvitation } = useFamilies();
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-text">Invitations</h1>
+      <PageHeader
+        label="Family"
+        title="Invitations"
+        description="Review and respond to family invitations."
+      />
 
       {pendingInvitations.length === 0 ? (
         <Card className="p-8 text-center">

@@ -30,7 +30,7 @@ export function useCategories(expenseCategorySearch?: string) {
         : undefined;
     },
     initialPageParam: 1,
-    enabled: !!expenseCategorySearch,
+    enabled: true,
   });
 
   const itemCategoriesQuery = useQuery({

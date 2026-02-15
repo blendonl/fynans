@@ -9,6 +9,7 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { TransactionFilters, type AdvancedFilters } from "@/components/transactions/transaction-filters";
 import { TransactionList } from "@/components/transactions/transaction-list";
 import { TransactionsSummary } from "@/components/transactions/transactions-summary";
+import { PageHeader } from "@/components/ui/page-header";
 
 const EMPTY_ADVANCED: AdvancedFilters = {
   dateFrom: "",
@@ -86,12 +87,12 @@ export default function TransactionsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="dash-animate-in">
-        <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wider">
-          Overview
-        </span>
-        <h1 className="text-2xl font-bold text-text">Transactions</h1>
-      </div>
+      <PageHeader
+        label="Overview"
+        title="Transactions"
+        description="View and manage all your expenses and income."
+        className="dash-animate-in"
+      />
 
       <div className="dash-animate-in dash-delay-1">
         <TransactionsSummary

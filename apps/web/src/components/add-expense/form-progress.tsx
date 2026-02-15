@@ -1,6 +1,5 @@
 "use client";
 
-import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Step {
@@ -15,33 +14,23 @@ interface FormProgressProps {
 
 export function FormProgress({ steps }: FormProgressProps) {
   return (
-    <div className="flex items-center gap-2 mb-6">
+    <div className="flex items-center justify-center gap-2 mb-4">
       {steps.map((step, i) => (
-        <div key={step.label} className="flex items-center gap-2">
+        <div key={step.label} className="flex items-center gap-2" title={step.label}>
           <div
             className={cn(
-              "h-7 w-7 rounded-full flex items-center justify-center text-xs font-medium transition-colors",
+              "h-2 w-2 rounded-full transition-all duration-300",
               step.completed
-                ? "bg-primary text-white"
+                ? "bg-primary scale-100"
                 : step.active
-                  ? "bg-primary/20 text-primary border border-primary"
-                  : "bg-surface-variant text-text-disabled"
+                  ? "bg-primary animate-pulse scale-110"
+                  : "bg-border"
             )}
-          >
-            {step.completed ? <Check className="h-3.5 w-3.5" /> : i + 1}
-          </div>
-          <span
-            className={cn(
-              "text-xs",
-              step.completed || step.active ? "text-text" : "text-text-disabled"
-            )}
-          >
-            {step.label}
-          </span>
+          />
           {i < steps.length - 1 && (
             <div
               className={cn(
-                "h-px w-6",
+                "h-px w-6 transition-colors duration-300",
                 step.completed ? "bg-primary" : "bg-border"
               )}
             />

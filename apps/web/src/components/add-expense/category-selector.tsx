@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import type { Category } from "@fynans/shared";
 import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 interface CategorySelectorProps {
   categories: Category[];
@@ -43,23 +44,32 @@ export function CategorySelector({
   return (
     <div className="space-y-2">
       <Label>Category</Label>
-      <Combobox
-        options={options}
-        value={selectedCategory?.id ?? null}
-        displayValue={selectedCategory?.name}
-        onChange={(id) => {
-          const cat = categories.find((c) => c.id === id);
-          if (cat) onSelect(cat);
-        }}
-        onClear={onClear}
-        onSearchChange={onSearch}
-        onCreateNew={onCreateNew}
-        onLoadMore={onLoadMore}
-        hasMore={hasMore}
-        isLoadingMore={isLoadingMore}
-        placeholder="Type or select a category"
-        isLoading={isLoading}
-      />
+      <div
+        className={cn(
+          "transition-all duration-200",
+          selectedCategory && "border-l-2 border-l-primary pl-3 rounded-l-none"
+        )}
+      >
+        <Combobox
+          options={options}
+          value={selectedCategory?.id ?? null}
+          displayValue={selectedCategory?.name}
+          onChange={(id) => {
+            const cat = categories.find((c) => c.id === id);
+            if (cat) onSelect(cat);
+          }}
+          onClear={onClear}
+          onSearchChange={onSearch}
+          onCreateNew={onCreateNew}
+          onLoadMore={onLoadMore}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          placeholder="Type or select a category"
+          isLoading={isLoading}
+          showAllOnFocus
+          className="min-h-12 rounded-2xl"
+        />
+      </div>
     </div>
   );
 }

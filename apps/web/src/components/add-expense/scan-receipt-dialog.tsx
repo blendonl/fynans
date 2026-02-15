@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useReceiptScan, type ProcessedReceiptResponse } from "@/hooks/use-receipt-scan";
 
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 interface ScanReceiptDialogProps {
   open: boolean;
@@ -23,7 +23,7 @@ interface ScanReceiptDialogProps {
 export function ScanReceiptDialog({ open, onOpenChange, onResult }: ScanReceiptDialogProps) {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
-  const { scan, isPending, reset } = useReceiptScan();
+  const { scan, isPending, progress, step, reset } = useReceiptScan();
 
   const handleFile = (file: File) => {
     if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
@@ -31,7 +31,7 @@ export function ScanReceiptDialog({ open, onOpenChange, onResult }: ScanReceiptD
       return;
     }
     if (file.size > MAX_FILE_SIZE) {
-      toast.error("File size must be under 100MB");
+      toast.error("File size must be under 10MB");
       return;
     }
     scan(file, {
@@ -65,9 +65,21 @@ export function ScanReceiptDialog({ open, onOpenChange, onResult }: ScanReceiptD
         </DialogHeader>
 
         {isPending ? (
-          <div className="flex flex-col items-center gap-3 py-8">
+          <div className="flex flex-col items-center gap-4 py-8">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-sm text-text-secondary">Processing receipt...</p>
+
+            <div className="w-full max-w-xs space-y-2">
+              <div className="h-2 w-full rounded-full bg-surface-variant overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <div className="flex items-center justify-between text-xs text-text-secondary">
+                <span>{step}</span>
+                <span>{progress}%</span>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 py-4">

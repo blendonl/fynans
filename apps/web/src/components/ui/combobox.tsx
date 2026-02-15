@@ -128,7 +128,6 @@ export function Combobox({
           handleSelect(filtered[highlightedIndex].value);
         } else if (highlightedIndex === filtered.length && showCreateNew) {
           onCreateNew!(search.trim());
-          setSearch("");
           setOpen(false);
           setHighlightedIndex(-1);
         }
@@ -215,7 +214,6 @@ export function Combobox({
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   onCreateNew!(search.trim());
-                  setSearch("");
                   setOpen(false);
                   setHighlightedIndex(-1);
                 }}

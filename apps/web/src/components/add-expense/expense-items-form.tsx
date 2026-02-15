@@ -53,6 +53,7 @@ export function ExpenseItemsForm({
   const [itemSearch, setItemSearch] = useState("");
   const [isNewItem, setIsNewItem] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [comboboxResetKey, setComboboxResetKey] = useState(0);
 
   const {
     items: storeItems,
@@ -81,6 +82,7 @@ export function ExpenseItemsForm({
     if (!currentItem.name && !isEditing) {
       setIsNewItem(false);
       setSelectedItemId(null);
+      setComboboxResetKey((k) => k + 1);
     }
   }, [currentItem.name, isEditing]);
 
@@ -125,7 +127,7 @@ export function ExpenseItemsForm({
   return (
     <div className="space-y-3">
       <Label>Items{items.length > 0 && ` (${items.length})`}</Label>
-      <div className={items.length > 0 ? "border border-border rounded-2xl p-4 space-y-3" : "space-y-3"}>
+      <div className={items.length > 0 ? "border border-border rounded-2xl p-3 sm:p-4 space-y-3" : "space-y-3"}>
         {items.map((item, i) => (
           <ExpenseItemRow
             key={i}
@@ -138,61 +140,69 @@ export function ExpenseItemsForm({
         ))}
 
         {items.length > 0 && (
-          <div className="flex justify-between items-center px-3 py-2 rounded-lg bg-surface-variant">
+          <div className="flex justify-between items-center px-4 py-3 rounded-2xl bg-surface-variant">
             <span className="text-sm font-medium text-text-secondary">Total</span>
-            <span className="text-sm font-bold text-text">{formatCurrency(total)}</span>
+            <span className="text-base font-bold text-text tabular-nums">{formatCurrency(total)}</span>
           </div>
         )}
 
         {!isEditing && (
           <div>
             <Combobox
+              key={comboboxResetKey}
               options={itemOptions}
               value={selectedItemId}
               displayValue={currentItem.name || undefined}
               onChange={handleItemSelect}
               onClear={handleItemClear}
-              onSearchChange={setItemSearch}
-              onCreateNew={handleItemCreateNew}
+              onSearchChange={(search) => {
+                setItemSearch(search);
+                if (isNewItem) {
+                  onCurrentItemChange({ ...currentItem, name: search });
+                }
+              }}
+              onCreateNew={isNewItem ? undefined : handleItemCreateNew}
               onLoadMore={() => fetchNextStoreItemsPage()}
               hasMore={hasNextStoreItemsPage}
               isLoadingMore={isFetchingNextStoreItemsPage}
-              placeholder="Add item..."
+              placeholder="+ Add item..."
               isLoading={storeLoading}
               showAllOnFocus
+              className="min-h-12"
             />
             {itemErrors.name && <p className="text-xs text-error mt-1">{itemErrors.name}</p>}
           </div>
         )}
 
         {showFormFields && (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="grid grid-cols-2 gap-3 col-span-2 sm:contents">
-                <div>
+          <div className="space-y-3 field-slide-down">
+            {/* Mobile: stack vertically. Desktop: grid */}
+            <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3">
+              <div>
+                <Input
+                  type="number"
+                  placeholder="Price"
+                  value={currentItem.price}
+                  onChange={(e) => onCurrentItemChange({ ...currentItem, price: e.target.value })}
+                  step="0.01"
+                  min="0"
+                  className="min-h-12"
+                />
+                {itemErrors.price && <p className="text-xs text-error mt-1">{itemErrors.price}</p>}
+              </div>
+              <div className="flex gap-3">
+                <div className="flex-1">
                   <Input
                     type="number"
-                    placeholder="Price"
-                    value={currentItem.price}
-                    onChange={(e) => onCurrentItemChange({ ...currentItem, price: e.target.value })}
-                    step="0.01"
-                    min="0"
-                  />
-                  {itemErrors.price && <p className="text-xs text-error mt-1">{itemErrors.price}</p>}
-                </div>
-                <div>
-                  <Input
-                    type="number"
-                    placeholder="Quantity"
+                    placeholder="Qty"
                     value={currentItem.quantity}
                     onChange={(e) => onCurrentItemChange({ ...currentItem, quantity: e.target.value })}
                     step="0.1"
                     min="0.1"
+                    className="min-h-12"
                   />
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3 col-span-2 sm:contents">
-                <div>
+                <div className="flex-1">
                   <Input
                     type="number"
                     placeholder="Discount"
@@ -200,37 +210,38 @@ export function ExpenseItemsForm({
                     onChange={(e) => onCurrentItemChange({ ...currentItem, discount: e.target.value })}
                     step="0.01"
                     min="0"
+                    className="min-h-12"
                   />
                 </div>
-                {showCategorySelector && (
-                  <div>
-                    <ItemCategorySelector
-                      itemCategories={itemCategories}
-                      selectedCategory={selectedItemCategory}
-                      onSelect={(cat) => onCurrentItemChange({ ...currentItem, categoryId: cat.id })}
-                      onClear={() => onCurrentItemChange({ ...currentItem, categoryId: "" })}
-                      onCreateNew={onCreateNewItemCategory}
-                      isLoading={isLoadingCategories}
-                    />
-                    {itemErrors.categoryId && <p className="text-xs text-error mt-1">{itemErrors.categoryId}</p>}
-                  </div>
-                )}
               </div>
+              {showCategorySelector && (
+                <div className="sm:col-span-2">
+                  <ItemCategorySelector
+                    itemCategories={itemCategories}
+                    selectedCategory={selectedItemCategory}
+                    onSelect={(cat) => onCurrentItemChange({ ...currentItem, categoryId: cat.id })}
+                    onClear={() => onCurrentItemChange({ ...currentItem, categoryId: "" })}
+                    onCreateNew={onCreateNewItemCategory}
+                    isLoading={isLoadingCategories}
+                  />
+                  {itemErrors.categoryId && <p className="text-xs text-error mt-1">{itemErrors.categoryId}</p>}
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={onAddItem} className="flex-1">
+              <Button onClick={onAddItem} className="flex-1 h-11">
                 {isEditing ? <Check className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
                 {isEditing ? "Update" : "Add Item"}
               </Button>
               {isEditing && (
-                <Button variant="outline" onClick={onCancelEdit}>
+                <Button variant="outline" onClick={onCancelEdit} className="h-11">
                   <X className="h-4 w-4 mr-2" />
                   Cancel
                 </Button>
               )}
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
