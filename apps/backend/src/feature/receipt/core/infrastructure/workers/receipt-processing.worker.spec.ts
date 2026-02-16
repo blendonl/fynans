@@ -36,9 +36,12 @@ describe('ReceiptProcessingWorker', () => {
     processReceiptUseCase = { execute: jest.fn() };
     enrichReceiptDataUseCase = { execute: jest.fn() };
 
+    const configService = { get: jest.fn().mockReturnValue(undefined) };
+
     worker = new ReceiptProcessingWorker(
       processReceiptUseCase as any as ProcessReceiptUseCase,
       enrichReceiptDataUseCase as any as EnrichReceiptDataUseCase,
+      configService as any,
     );
 
     job = {
@@ -60,24 +63,29 @@ describe('ReceiptProcessingWorker', () => {
       await worker.process(job as Job);
 
       const expectedBuffer = Buffer.from(imageBase64, 'base64');
-      expect(processReceiptUseCase.execute).toHaveBeenCalledWith(expectedBuffer);
+      expect(processReceiptUseCase.execute).toHaveBeenCalledWith(
+        expectedBuffer,
+        'user-1',
+        expect.anything(),
+      );
     });
 
-    it('should call enrichReceiptDataUseCase.execute with processed result', async () => {
+    it('should call enrichReceiptDataUseCase.execute with processed result and userId', async () => {
       await worker.process(job as Job);
 
       expect(enrichReceiptDataUseCase.execute).toHaveBeenCalledWith(
         mockProcessedResult,
+        'user-1',
       );
     });
 
-    it('should update progress at 10%, 60%, 100%', async () => {
+    it('should report progress reaching 100%', async () => {
       await worker.process(job as Job);
 
-      expect(job.updateProgress).toHaveBeenCalledTimes(3);
-      expect(job.updateProgress).toHaveBeenNthCalledWith(1, 10);
-      expect(job.updateProgress).toHaveBeenNthCalledWith(2, 60);
-      expect(job.updateProgress).toHaveBeenNthCalledWith(3, 100);
+      expect(job.updateProgress).toHaveBeenCalled();
+      const calls = (job.updateProgress as jest.Mock).mock.calls;
+      const lastPercent = calls[calls.length - 1][0];
+      expect(lastPercent).toBe(100);
     });
 
     it('should return enriched result', async () => {

@@ -4,6 +4,7 @@ import { Job } from 'bullmq';
 import { ProcessReceiptUseCase } from '../../application/use-cases/process-receipt.use-case';
 import { EnrichReceiptDataUseCase } from '../../application/use-cases/enrich-receipt-data.use-case';
 import { ProgressTracker } from '../../application/services/progress-tracker';
+import { ConfigService } from '@nestjs/config';
 
 interface ReceiptJobData {
   imageBase64: string;
@@ -13,12 +14,15 @@ interface ReceiptJobData {
 @Processor('receipt-processing')
 export class ReceiptProcessingWorker extends WorkerHost {
   private readonly logger = new Logger(ReceiptProcessingWorker.name);
+  private readonly useVision: boolean;
 
   constructor(
     private readonly processReceiptUseCase: ProcessReceiptUseCase,
     private readonly enrichReceiptDataUseCase: EnrichReceiptDataUseCase,
+    private readonly configService: ConfigService,
   ) {
     super();
+    this.useVision = !!this.configService.get<string>('OLLAMA_VISION_MODEL');
   }
 
   async process(job: Job<ReceiptJobData>): Promise<Record<string, any>> {
@@ -27,17 +31,23 @@ export class ReceiptProcessingWorker extends WorkerHost {
     const imageBuffer = Buffer.from(job.data.imageBase64, 'base64');
     const userId = job.data.userId;
 
-    // Weights reflect actual relative duration of each stage:
-    // OCR ~5s, context ~1s, LLM parse ~40-60s, LLM normalize ~30-40s, enrich ~1s
-    const tracker = new ProgressTracker(
-      [
-        { name: 'ocr', weight: 5 },
-        { name: 'context', weight: 1 },
-        { name: 'llm-parse', weight: 45 },
-        { name: 'llm-normalize', weight: 35 },
-        { name: 'enrich', weight: 4 },
-      ],
-      (percent) => job.updateProgress(percent),
+    const stages = this.useVision
+      ? [
+          { name: 'ocr', weight: 3 },
+          { name: 'context', weight: 2 },
+          { name: 'vision-parse', weight: 82 },
+          { name: 'cross-validate', weight: 3 },
+          { name: 'enrich', weight: 10 },
+        ]
+      : [
+          { name: 'ocr', weight: 5 },
+          { name: 'context', weight: 1 },
+          { name: 'llm-parse', weight: 80 },
+          { name: 'enrich', weight: 4 },
+        ];
+
+    const tracker = new ProgressTracker(stages, (percent) =>
+      job.updateProgress(percent),
     );
 
     const processedResult = await this.processReceiptUseCase.execute(
