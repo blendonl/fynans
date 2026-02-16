@@ -10,6 +10,9 @@ export interface OllamaCompletionOptions {
   temperature?: number;
   maxTokens?: number;
   onToken?: (tokensSoFar: number) => void;
+  format?: 'json';
+  images?: string[];
+  model?: string;
 }
 
 export interface OllamaCompletionResult {

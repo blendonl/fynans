@@ -11,6 +11,7 @@ export class OllamaHttpService implements IOllamaService {
   private readonly logger = new Logger(OllamaHttpService.name);
   private readonly baseUrl: string;
   private readonly model: string;
+  private readonly visionModel: string;
   private readonly maxRetries = 2;
   private readonly timeoutMs: number;
 
@@ -19,14 +20,12 @@ export class OllamaHttpService implements IOllamaService {
       'OLLAMA_SERVICE_URL',
       'http://localhost:11434',
     );
-    this.model = this.configService.get<string>(
-      'OLLAMA_MODEL',
-      'qwen2.5:3b',
+    this.model = this.configService.get<string>('OLLAMA_MODEL', 'qwen2.5:7b');
+    this.visionModel = this.configService.get<string>(
+      'OLLAMA_VISION_MODEL',
+      'qwen2.5vl:7b',
     );
-    this.timeoutMs = this.configService.get<number>(
-      'OLLAMA_TIMEOUT',
-      120_000,
-    );
+    this.timeoutMs = this.configService.get<number>('OLLAMA_TIMEOUT', 180_000);
   }
 
   async generateCompletion(
@@ -34,9 +33,11 @@ export class OllamaHttpService implements IOllamaService {
     options?: OllamaCompletionOptions,
   ): Promise<OllamaCompletionResult> {
     const useStreaming = !!options?.onToken;
+    const useVision = !!options?.images?.length;
 
-    const body = {
-      model: this.model,
+    const defaultModel = useVision ? this.visionModel : this.model;
+    const body: Record<string, any> = {
+      model: options?.model || defaultModel,
       prompt,
       stream: useStreaming,
       options: {
@@ -44,6 +45,14 @@ export class OllamaHttpService implements IOllamaService {
         ...(options?.maxTokens && { num_predict: options.maxTokens }),
       },
     };
+
+    if (options?.format) {
+      body.format = options.format;
+    }
+
+    if (options?.images) {
+      body.images = options.images;
+    }
 
     let lastError: Error | undefined;
 
@@ -58,10 +67,7 @@ export class OllamaHttpService implements IOllamaService {
         }
 
         const controller = new AbortController();
-        const timeout = setTimeout(
-          () => controller.abort(),
-          this.timeoutMs,
-        );
+        const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
 
         try {
           const response = await fetch(`${this.baseUrl}/api/generate`, {
@@ -78,7 +84,7 @@ export class OllamaHttpService implements IOllamaService {
           }
 
           if (useStreaming) {
-            return await this.readStream(response, options!.onToken!);
+            return await this.readStream(response, options.onToken!);
           }
 
           const data = (await response.json()) as {
