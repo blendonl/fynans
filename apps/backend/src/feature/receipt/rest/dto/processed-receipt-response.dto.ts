@@ -35,7 +35,9 @@ export class ProcessedReceiptResponseDto {
       categoryId: item.categoryId,
       suggestedItemCategoryId: item.suggestedItemCategoryId,
     }));
-    dto.recordedAt = data.recordedAt?.toISOString();
+    dto.recordedAt = data.recordedAt
+      ? new Date(data.recordedAt).toISOString()
+      : undefined;
     dto.extractedText = data.extractedText;
     dto.confidence = data.confidence;
     dto.parserUsed = data.parserUsed;

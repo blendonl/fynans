@@ -31,6 +31,8 @@ import { GenericDateParser } from './infrastructure/services/parsers/implementat
 import { GenericTimeParser } from './infrastructure/services/parsers/implementations/generic/generic-time.parser';
 import { GenericItemsParser } from './infrastructure/services/parsers/implementations/generic/generic-items.parser';
 import { GenericTotalParser } from './infrastructure/services/parsers/implementations/generic/generic-total.parser';
+import { VisionReceiptParser } from './infrastructure/services/parsers/vision-receipt.parser';
+import { ReceiptPostProcessor } from './infrastructure/services/receipt-post-processor';
 
 @Module({
   imports: [
@@ -61,6 +63,8 @@ import { GenericTotalParser } from './infrastructure/services/parsers/implementa
       useClass: ReceiptJobQueueService,
     },
     ReceiptProcessingWorker,
+    ReceiptPostProcessor,
+    VisionReceiptParser,
     LlmReceiptParser,
     AlbanianStoreNameParser,
     AlbanianStoreLocationParser,
