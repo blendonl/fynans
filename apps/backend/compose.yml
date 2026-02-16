@@ -55,6 +55,62 @@ services:
     shm_size: 2G
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    profiles: [ollama]
+    volumes:
+      - ollama-models:/root/.ollama
+    ports:
+      - '11434:11434'
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    healthcheck:
+      test: ['CMD', 'ollama', 'list']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  ollama-init:
+    image: ollama/ollama:latest
+    profiles: [ollama]
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint:
+      [
+        '/bin/sh',
+        '-c',
+        'ollama pull ${OLLAMA_VISION_MODEL:-qwen2.5vl:7b} && ollama pull ${OLLAMA_MODEL:-qwen2.5:7b}',
+      ]
+    environment:
+      - OLLAMA_HOST=ollama:11434
+    restart: 'no'
+
 volumes:
   postgres-data:
   paddleocr-models:
+  redis-data:
+  ollama-models:
