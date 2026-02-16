@@ -1,10 +1,12 @@
 import { LlmReceiptParser } from './llm-receipt.parser';
 import { IOllamaService } from '../../../application/interfaces/ollama.interface';
 import { ReceiptParsingContext } from '../../../application/services/receipt-parser.service';
+import { ReceiptPostProcessor } from '../receipt-post-processor';
 
 describe('LlmReceiptParser', () => {
   let parser: LlmReceiptParser;
   let ollamaService: jest.Mocked<IOllamaService>;
+  let postProcessor: ReceiptPostProcessor;
 
   const defaultContext: ReceiptParsingContext = {
     confidence: 0.9,
@@ -28,8 +30,9 @@ describe('LlmReceiptParser', () => {
       healthCheck: jest.fn().mockResolvedValue(true),
       generateCompletion: jest.fn(),
     };
+    postProcessor = new ReceiptPostProcessor();
 
-    parser = new LlmReceiptParser(ollamaService);
+    parser = new LlmReceiptParser(ollamaService, postProcessor);
   });
 
   it('should be defined', () => {
@@ -130,12 +133,12 @@ describe('LlmReceiptParser', () => {
       expect(result.items[0].name).toBe('Valid Item');
     });
 
-    it('should filter out items with price >= 100000', async () => {
+    it('should filter out items with price >= 10000 (EUR ceiling)', async () => {
       const receiptWithExpensiveItem = {
         ...validReceiptJson,
         items: [
           { name: 'Valid Item', price: 5.0, quantity: 1 },
-          { name: 'Too Expensive', price: 100000, quantity: 1 },
+          { name: 'Too Expensive', price: 10000, quantity: 1 },
         ],
         totalAmount: 5.0,
       };
@@ -170,14 +173,12 @@ describe('LlmReceiptParser', () => {
 
       const text = 'This is a long enough receipt text for parsing';
 
-      await expect(parser.parse(text, defaultContext)).rejects.toThrow(
-        'Failed to parse JSON from LLM response',
-      );
+      await expect(parser.parse(text, defaultContext)).rejects.toThrow();
     });
 
     it('should log warning when items total differs from receipt total by more than 10%', async () => {
       const loggerSpy = jest.spyOn(
-        (parser as any).logger,
+        (postProcessor as any).logger,
         'warn',
       );
 
@@ -201,7 +202,7 @@ describe('LlmReceiptParser', () => {
 
     it('should not log warning when items total matches receipt total within 10%', async () => {
       const loggerSpy = jest.spyOn(
-        (parser as any).logger,
+        (postProcessor as any).logger,
         'warn',
       );
 

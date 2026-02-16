@@ -6,6 +6,7 @@ import {
 } from '../../../application/services/receipt-parser.service';
 import { IOllamaService } from '../../../application/interfaces/ollama.interface';
 import { type UserReceiptContext } from '../../../application/use-cases/fetch-user-context.use-case';
+import { ReceiptPostProcessor } from '../receipt-post-processor';
 
 interface LlmParsedItem {
   name: string;
@@ -33,6 +34,7 @@ export class LlmReceiptParser implements IReceiptParser {
   constructor(
     @Inject('OllamaService')
     private readonly ollamaService: IOllamaService,
+    private readonly postProcessor: ReceiptPostProcessor,
   ) {}
 
   canParse(text: string): boolean {
@@ -50,56 +52,47 @@ export class LlmReceiptParser implements IReceiptParser {
 
     const tracker = context.progressTracker;
 
-    // Phase 1: Parse + Match + Categorize
     tracker?.startStage('llm-parse');
     const parsePrompt = this.buildParsePrompt(text, context.userContext);
-    const parseCompletion = await this.ollamaService.generateCompletion(
-      parsePrompt,
-      { onToken: tracker?.tokenCallback('llm-parse', 600) },
-    );
-    let parsed = this.extractJson(parseCompletion.response) as LlmParsedReceipt;
-    this.validate(parsed);
-    this.crossCheckTotal(parsed);
-    tracker?.completeStage('llm-parse');
+    let processed = await this.attemptTextParse(parsePrompt, tracker);
 
-    // Phase 2: Normalize
-    try {
-      tracker?.startStage('llm-normalize');
-      const normalizePrompt = this.buildNormalizePrompt(parsed);
-      const normalizeCompletion = await this.ollamaService.generateCompletion(
-        normalizePrompt,
-        { onToken: tracker?.tokenCallback('llm-normalize', 500) },
-      );
-      const normalized = this.extractJson(
-        normalizeCompletion.response,
-      ) as LlmParsedReceipt;
-      this.validate(normalized);
-      parsed = normalized;
-      tracker?.completeStage('llm-normalize');
-    } catch (error) {
+    // Single retry if no items were extracted
+    if (!processed.items.length) {
       this.logger.warn(
-        `Normalization phase failed, using Phase 1 result: ${error instanceof Error ? error.message : error}`,
+        'LLM parse returned no items, retrying with directive prompt',
       );
-      tracker?.completeStage('llm-normalize');
+      const retryPrompt = `The previous attempt returned no items. Please try again, reading the receipt more carefully. ${parsePrompt}`;
+      const retryResult = await this.attemptTextParse(retryPrompt, undefined);
+      if (retryResult.items.length) {
+        processed = retryResult;
+      }
     }
 
+    tracker?.completeStage('llm-parse');
+
     return {
-      storeName: parsed.storeName || 'Unknown Store',
-      storeLocation: parsed.storeLocation || '',
-      items: (parsed.items || []).map((item) => ({
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity || 1,
-        suggestedItemCategory: item.suggestedItemCategory || undefined,
-        matchedExistingItem: item.matchedExistingItem || undefined,
-      })),
-      totalAmount: parsed.totalAmount,
-      date: parsed.date,
-      time: parsed.time,
-      recordedAt: this.parseDateTime(parsed.date, parsed.time),
-      suggestedExpenseCategory: parsed.suggestedExpenseCategory || undefined,
+      storeName: processed.storeName,
+      storeLocation: processed.storeLocation,
+      items: processed.items,
+      totalAmount: processed.totalAmount,
+      date: processed.date,
+      time: processed.time,
+      recordedAt: this.parseDateTime(processed.date, processed.time),
+      suggestedExpenseCategory: processed.suggestedExpenseCategory,
       parserUsed: this.name,
     };
+  }
+
+  private async attemptTextParse(
+    prompt: string,
+    tracker?: ReceiptParsingContext['progressTracker'],
+  ) {
+    const completion = await this.ollamaService.generateCompletion(prompt, {
+      onToken: tracker?.tokenCallback('llm-parse', 600),
+      format: 'json',
+    });
+    const parsed = this.extractJson(completion.response) as LlmParsedReceipt;
+    return this.postProcessor.process(parsed);
   }
 
   private buildParsePrompt(
@@ -122,115 +115,68 @@ When matching items:
 `;
     }
 
-    return `Extract structured data from this receipt OCR text. Return ONLY valid JSON, no other text.
-${contextSection}
-OCR Text:
-${ocrText}
+    return `Extract structured data from this receipt OCR text. Return ONLY valid JSON.
 
-Return JSON with this exact structure:
+CONTEXT:
+- This is a Kosovo store receipt. Prices are in Euro (EUR).
+- Text is in Albanian. Common characters: ë, ç. Digraphs: sh, zh, gj, nj.
+- Common OCR errors: "1" ↔ "l" ↔ "I", "0" ↔ "O", "3" ↔ "ë", "5" ↔ "S"
+- Common receipt words: TOTALI (total), TVSH (VAT/tax), ARTIKUJT (articles), FATURË (invoice), KLIENT (client), KOPJE (copy).
+${contextSection}
+EXAMPLE OCR TEXT:
+AGNESA MARKET
+Podujevë-Prishtinë
+NR.FIS: 601234567
+MIELL 1KG         1.20
+QUM3SHT 1L        0.85
+2 x BUKE          0.60
+2.375 x 2.89      6.86
+TVSH 18%          1.71
+TOTALI NE EURO   9.51
+
+EXAMPLE OUTPUT:
 {
-  "storeName": "store name",
-  "storeLocation": "store address or empty string",
+  "storeName": "Agnesa Market",
+  "storeLocation": "Podujevë-Prishtinë",
   "items": [
-    {
-      "name": "item name (corrected if OCR error)",
-      "price": 1.50,
-      "quantity": 1,
-      "suggestedItemCategory": "category name or null",
-      "matchedExistingItem": "exact existing item name or null"
-    }
+    {"name": "Miell 1KG", "price": 1.20, "quantity": 1, "suggestedItemCategory": "Bakery", "matchedExistingItem": null},
+    {"name": "Qumësht 1L", "price": 0.85, "quantity": 1, "suggestedItemCategory": "Dairy", "matchedExistingItem": null},
+    {"name": "Bukë", "price": 0.60, "quantity": 2, "suggestedItemCategory": "Bakery", "matchedExistingItem": null},
+    {"name": "Item (weight-based)", "price": 6.86, "quantity": 2.375, "suggestedItemCategory": "Produce", "matchedExistingItem": null}
   ],
-  "totalAmount": 10.50,
-  "date": "DD/MM/YYYY or null",
-  "time": "HH:MM or null",
-  "suggestedExpenseCategory": "expense category name or null"
+  "totalAmount": 9.51,
+  "date": null,
+  "time": null,
+  "suggestedExpenseCategory": "Groceries"
 }
 
+Note: TVSH (tax), TOTALI (total), subtotals, payment lines, KLIENT, ATK, NR SERIAL, KOPJE, FISK, VEPRIMI, MENYRA, PAGESES are NOT items.
+
+---
+
+Now extract from this OCR text:
+${ocrText}
+
+Return JSON with this structure:
+{ "storeName", "storeLocation", "items": [{"name", "price", "quantity", "suggestedItemCategory", "matchedExistingItem"}], "totalAmount", "date" (DD/MM/YYYY or null), "time" (HH:MM or null), "suggestedExpenseCategory" }
+
 Rules:
-- prices must be positive numbers
-- quantity defaults to 1 if not specified
-- date format: DD/MM/YYYY
-- time format: HH:MM (24h)
-- if a field cannot be determined, use null
-- correct obvious OCR errors in item names (e.g. "Mie11" → "Miell", "Qum3sht" → "Qumësht")
-- do NOT include tax lines, subtotals, or promotional text as items
-- matchedExistingItem should be the exact name of a matching existing item, or null if no match
-- suggestedItemCategory is REQUIRED for every item. Assign an appropriate category based on what the item is (e.g. "Dairy", "Beverages", "Cleaning", "Bakery", "Meat", "Snacks", "Produce")
-- suggestedExpenseCategory is REQUIRED. Suggest the most appropriate overall expense category for this receipt (e.g. "Groceries", "Electronics", "Clothing", "Household")`;
-  }
-
-  private buildNormalizePrompt(parsed: LlmParsedReceipt): string {
-    return `Review and normalize this parsed receipt data. Return ONLY valid JSON, no other text.
-
-Input:
-${JSON.stringify(parsed, null, 2)}
-
-Tasks:
-1. Fix any remaining item name typos or OCR artifacts
-2. Remove entire junk items (tax lines, subtotals, promotional text, discount lines that were incorrectly parsed as items)
-3. Correct obviously wrong prices (e.g. negative prices, prices that are clearly misread)
-4. Ensure quantities are positive integers
-5. Validate that categories make sense for the items
-
-IMPORTANT rules:
-- You may ONLY remove entire items. Never remove individual fields/attributes from an item.
-- Every item you keep MUST have ALL its original fields preserved (name, price, quantity, suggestedItemCategory, matchedExistingItem)
-- Preserve suggestedExpenseCategory at the top level
-- Preserve storeName, storeLocation, totalAmount, date, time
-
-Return the cleaned JSON with the exact same structure.`;
+- Prices are in EUR (typically 0.20 to 50.00 for individual items)
+- Quantity defaults to 1
+- For weight-based items (e.g., "2.375 x 2.89"), set quantity to the weight and price to the line total
+- Correct OCR errors (e.g., "Mie11" → "Miell", "Qum3sht" → "Qumësht", "Buk3" → "Bukë")
+- suggestedItemCategory is REQUIRED for every item
+- suggestedExpenseCategory is REQUIRED`;
   }
 
   private extractJson(response: string): Record<string, any> {
-    const jsonMatch = response.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('No JSON found in LLM response');
-    }
-
     try {
-      return JSON.parse(jsonMatch[0]);
+      return JSON.parse(response) as Record<string, any>;
     } catch {
-      throw new Error('Failed to parse JSON from LLM response');
-    }
-  }
-
-  private validate(parsed: Record<string, any>): void {
-    if (parsed.items && Array.isArray(parsed.items)) {
-      parsed.items = parsed.items.filter(
-        (item: { name?: string; price?: number }) => {
-          if (!item.name || item.name.length === 0) return false;
-          if (typeof item.price !== 'number') return false;
-          if (item.price <= 0 || item.price >= 100_000) return false;
-          return true;
-        },
-      );
-    }
-
-    if (
-      parsed.totalAmount !== null &&
-      parsed.totalAmount !== undefined &&
-      (parsed.totalAmount <= 0 || parsed.totalAmount >= 100_000)
-    ) {
-      parsed.totalAmount = undefined;
-    }
-  }
-
-  private crossCheckTotal(parsed: Record<string, any>): void {
-    if (!parsed.totalAmount || !parsed.items?.length) return;
-
-    const itemsSum = parsed.items.reduce(
-      (sum: number, item: { price: number; quantity?: number }) =>
-        sum + item.price * (item.quantity || 1),
-      0,
-    );
-
-    const difference = Math.abs(itemsSum - parsed.totalAmount);
-    const threshold = parsed.totalAmount * 0.1;
-
-    if (difference > threshold) {
-      this.logger.warn(
-        `Items total (${itemsSum.toFixed(2)}) differs from receipt total (${parsed.totalAmount}) by more than 10%`,
-      );
+      // Fallback: try regex extraction for non-structured models
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('No JSON found in LLM response');
+      return JSON.parse(jsonMatch[0]) as Record<string, any>;
     }
   }
 
