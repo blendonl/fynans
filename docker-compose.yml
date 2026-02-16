@@ -36,8 +36,11 @@ services:
 
   ollama:
     image: ollama/ollama:latest
+    profiles: [ollama]
     volumes:
       - ollama-models:/root/.ollama
+    ports:
+      - "11434:11434"
     environment:
       - OLLAMA_HOST=0.0.0.0:11434
     healthcheck:
@@ -49,15 +52,24 @@ services:
     restart: unless-stopped
     deploy:
       resources:
-        limits:
-          memory: 5G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   ollama-init:
     image: ollama/ollama:latest
+    profiles: [ollama]
     depends_on:
       ollama:
         condition: service_healthy
-    entrypoint: ["ollama", "pull", "qwen2.5:3b"]
+    entrypoint:
+      [
+        "/bin/sh",
+        "-c",
+        "ollama pull ${OLLAMA_VISION_MODEL:-qwen2.5vl:7b} && ollama pull ${OLLAMA_MODEL:-qwen2.5:7b}",
+      ]
     environment:
       - OLLAMA_HOST=ollama:11434
     restart: "no"
@@ -67,6 +79,8 @@ services:
       context: .
       dockerfile: apps/backend/Dockerfile
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       db:
         condition: service_healthy
@@ -74,8 +88,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      ollama-init:
-        condition: service_completed_successfully
     environment:
       PORT: 3001
       DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin}@db:5432/${POSTGRES_DB:-db}
@@ -88,8 +100,9 @@ services:
       PADDLEOCR_SERVICE_URL: http://paddleocr:8000
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      OLLAMA_SERVICE_URL: http://ollama:11434
-      OLLAMA_MODEL: qwen2.5:3b
+      OLLAMA_SERVICE_URL: ${OLLAMA_SERVICE_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b}
+      OLLAMA_VISION_MODEL: ${OLLAMA_VISION_MODEL:-qwen2.5vl:7b}
     ports:
       - "3001:3001"
 

@@ -1,4 +1,6 @@
-const CACHE_NAME = "fynans-v1";
+const CACHE_NAME = "fynans-v2";
+
+const OPENCV_FILES = ["/opencv/opencv.js"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -38,6 +40,26 @@ self.addEventListener("fetch", (event) => {
   if (event.request.mode === "navigate") {
     event.respondWith(
       fetch(event.request).catch(() => caches.match(event.request)),
+    );
+    return;
+  }
+
+  // Cache-first for OpenCV files (large, versioned, never change)
+  if (OPENCV_FILES.some((f) => event.request.url.endsWith(f))) {
+    event.respondWith(
+      caches.match(event.request).then(
+        (cached) =>
+          cached ||
+          fetch(event.request).then((response) => {
+            if (response.ok) {
+              const clone = response.clone();
+              caches
+                .open(CACHE_NAME)
+                .then((cache) => cache.put(event.request, clone));
+            }
+            return response;
+          }),
+      ),
     );
     return;
   }
