@@ -1,9 +1,9 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from paddleocr import PaddleOCR
 import logging
 import config
-from preprocessing import preprocess_image
+from preprocessing import preprocess_image, preprocess_for_vlm
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,9 +16,11 @@ ocr = None
 def get_ocr():
     global ocr
     if ocr is None:
-        logger.info(f"Initializing PaddleOCR with languages: {config.LANGUAGES}")
+        # PaddleOCR doesn't support Albanian (sq) directly.
+        # Using "en" (Latin script) works for Albanian/Kosovo receipts.
+        logger.info(f"Initializing PaddleOCR with lang=en (Latin script for Albanian/Kosovo receipts)")
         ocr = PaddleOCR(
-            lang=config.LANGUAGES[0] if config.LANGUAGES else "en",
+            lang="en",
             use_angle_cls=True,
             use_gpu=config.USE_GPU,
             det_limit_side_len=1280,
@@ -135,6 +137,29 @@ async def extract_text(file: UploadFile = File(...)):
     except Exception as e:
         logger.error(f"OCR extraction failed: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to extract text from image")
+
+
+@app.post("/preprocess/vlm")
+async def preprocess_vlm(file: UploadFile = File(...)):
+    """Return a lightly preprocessed JPEG for vision LLM consumption."""
+    try:
+        image_bytes = await file.read()
+
+        if not image_bytes:
+            raise HTTPException(status_code=400, detail="Empty file received")
+
+        logger.info(f"VLM preprocessing image: {file.filename} ({len(image_bytes)} bytes)")
+
+        jpeg_bytes = preprocess_for_vlm(image_bytes)
+
+        return Response(content=jpeg_bytes, media_type="image/jpeg")
+
+    except ValueError as e:
+        logger.error(f"Invalid image: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"VLM preprocessing failed: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to preprocess image")
 
 
 if __name__ == "__main__":
