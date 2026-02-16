@@ -43,8 +43,13 @@ export class ProcessReceiptUseCase {
       userContext,
       confidence: ocrResult.confidence,
       rawText: ocrResult.text,
+      imageBuffer,
       progressTracker,
     });
+
+    // Mark cross-validate stage complete (cross-validation runs inside parser factory)
+    progressTracker?.startStage('cross-validate');
+    progressTracker?.completeStage('cross-validate');
 
     return {
       ...parsingResult,

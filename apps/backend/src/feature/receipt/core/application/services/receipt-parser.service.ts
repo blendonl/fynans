@@ -6,6 +6,7 @@ export interface ReceiptParsingContext {
   userContext?: UserReceiptContext;
   confidence: number;
   rawText: string;
+  imageBuffer?: Buffer;
   progressTracker?: ProgressTracker;
 }
 
@@ -33,6 +34,10 @@ export interface IReceiptParser {
   canParse(text: string): boolean;
   parse(
     text: string,
+    context: ReceiptParsingContext,
+  ): Promise<ReceiptParsingResult>;
+  parseFromImage?(
+    imageBuffer: Buffer,
     context: ReceiptParsingContext,
   ): Promise<ReceiptParsingResult>;
 }
