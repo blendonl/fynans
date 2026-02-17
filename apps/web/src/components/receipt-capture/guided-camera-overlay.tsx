@@ -4,282 +4,229 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { toast } from "sonner";
-import { useCameraStream } from "@/hooks/use-camera-stream";
-import { useOpenCV } from "@/hooks/use-opencv";
-import {
-  analyzeFrame,
-  cropAndTransform,
-  type DetectedCorners,
-  type QualityAssessment,
-} from "@/lib/receipt-image-processing";
 import { ReceiptGuideOverlay } from "./receipt-guide-overlay";
-import { QualityWarningBadges } from "./quality-warning-badges";
 import { CaptureButton } from "./capture-button";
-
-const PROCESSING_WIDTH = 640;
-const FRAME_INTERVAL_MS = 200;
-
-type OverlayState = "loading" | "previewing" | "capturing";
+import { useOpenCVWorker } from "@/hooks/use-opencv-worker";
+import type { DetectedCorners } from "@/lib/receipt-image-processing";
 
 interface GuidedCameraOverlayProps {
   onCapture: (file: File) => void;
   onClose: () => void;
 }
 
+const ANALYSIS_INTERVAL_MS = 400;
+const ANALYSIS_WIDTH = 320;
+
 export function GuidedCameraOverlay({
   onCapture,
   onClose,
 }: GuidedCameraOverlayProps) {
-  const [state, setState] = useState<OverlayState>("loading");
-  const [corners, setCorners] = useState<DetectedCorners | null>(null);
-  const [quality, setQuality] = useState<QualityAssessment | null>(null);
-  const [displaySize, setDisplaySize] = useState({ width: 0, height: 0 });
-  const [processingSize, setProcessingSize] = useState({
-    width: 0,
-    height: 0,
-  });
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [ready, setReady] = useState(false);
+  const [capturing, setCapturing] = useState(false);
+  const [displaySize, setDisplaySize] = useState({ w: 0, h: 0 });
+  const [detectedCorners, setDetectedCorners] = useState<DetectedCorners | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef<number>(0);
-  const lastFrameTime = useRef<number>(0);
+  const { ready: workerReady, analyzeFrame } = useOpenCVWorker();
 
-  const { videoRef, error: cameraError, isLoading: cameraLoading } =
-    useCameraStream(true);
-
-  // Only load OpenCV after camera is previewing to avoid blocking the main
-  // thread with 9.8MB script parse during camera init
-  const cameraReady = state === "previewing";
-  const {
-    cv: cvLib,
-    isLoading: cvLoading,
-    error: cvError,
-  } = useOpenCV(cameraReady);
-
-  // Track if component is mounted
-  const mountedRef = useRef(true);
+  // Track viewport size
   useEffect(() => {
+    const update = () =>
+      setDisplaySize({ w: window.innerWidth, h: window.innerHeight });
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("orientationchange", update);
     return () => {
-      mountedRef.current = false;
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
     };
   }, []);
 
-  // Handle camera errors
+  // Start camera on mount, clean up on unmount
   useEffect(() => {
-    if (cameraError) {
-      toast.error(cameraError);
-      onClose();
-    }
-  }, [cameraError, onClose]);
+    let cancelled = false;
 
-  // Handle OpenCV errors (non-fatal - fall back to raw capture)
-  useEffect(() => {
-    if (cvError) {
-      toast.warning("Advanced features unavailable - capturing without edge detection");
-    }
-  }, [cvError]);
+    const start = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } },
+          audio: false,
+        }).catch(() =>
+          // Fallback without facingMode for desktop / browsers that reject it
+          navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+            audio: false,
+          })
+        );
 
-  // Update state based on loading progress - transition to previewing
-  // when camera is actually playing (not just metadata loaded)
-  useEffect(() => {
-    if (cameraLoading || cameraError) return;
-
-    const video = videoRef.current;
-    if (!video) return;
-
-    // If video is already playing with dimensions, transition immediately
-    if (video.videoWidth > 0 && !video.paused) {
-      setState("previewing");
-      return;
-    }
-
-    // Listen for the playing event (fires when playback actually starts)
-    const onPlaying = () => {
-      if (video.videoWidth > 0) setState("previewing");
-    };
-    // Also listen for loadedmetadata as fallback (in case playing already fired)
-    const onMeta = () => {
-      if (!video.paused && video.videoWidth > 0) setState("previewing");
-    };
-
-    video.addEventListener("playing", onPlaying);
-    video.addEventListener("loadedmetadata", onMeta);
-    return () => {
-      video.removeEventListener("playing", onPlaying);
-      video.removeEventListener("loadedmetadata", onMeta);
-    };
-  }, [cameraLoading, cameraError, videoRef]);
-
-  // Set up processing canvas and display dimensions
-  const updateDimensions = useCallback(() => {
-    const video = videoRef.current;
-    if (!video || video.videoWidth === 0) return;
-
-    // Processing canvas at reduced resolution
-    const aspectRatio = video.videoHeight / video.videoWidth;
-    const procWidth = PROCESSING_WIDTH;
-    const procHeight = Math.round(procWidth * aspectRatio);
-    setProcessingSize({ width: procWidth, height: procHeight });
-
-    if (canvasRef.current) {
-      canvasRef.current.width = procWidth;
-      canvasRef.current.height = procHeight;
-    }
-
-    // Display fills the viewport
-    setDisplaySize({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
-  }, [videoRef]);
-
-  // Initialize dimensions once when video metadata loads
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const onLoaded = () => updateDimensions();
-
-    // If already loaded (e.g., remount), call immediately
-    if (video.videoWidth > 0) updateDimensions();
-
-    video.addEventListener("loadedmetadata", onLoaded);
-    return () => video.removeEventListener("loadedmetadata", onLoaded);
-  }, [videoRef, updateDimensions]);
-
-  // Frame processing loop
-  useEffect(() => {
-    if (state !== "previewing") return;
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    if (!video || !canvas) return;
-
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) return;
-
-    const processFrame = (timestamp: number) => {
-      if (!mountedRef.current || state !== "previewing") return;
-
-      // Throttle to FRAME_INTERVAL_MS
-      if (timestamp - lastFrameTime.current < FRAME_INTERVAL_MS) {
-        rafRef.current = requestAnimationFrame(processFrame);
-        return;
-      }
-      lastFrameTime.current = timestamp;
-
-      // Make sure video has dimensions and canvas is sized
-      if (video.videoWidth === 0 || canvas.width === 0) {
-        rafRef.current = requestAnimationFrame(processFrame);
-        return;
-      }
-
-      // Draw video frame to processing canvas
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // Run OpenCV processing if available
-      if (cvLib) {
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-        try {
-          const result = analyzeFrame(cvLib, imageData);
-          setCorners(result.corners);
-          setQuality(result.quality);
-        } catch {
-          // Silently handle processing errors - don't crash the preview
+        if (cancelled) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
         }
-      }
 
-      rafRef.current = requestAnimationFrame(processFrame);
+        streamRef.current = stream;
+        const video = videoRef.current;
+        if (!video) return;
+
+        video.srcObject = stream;
+
+        // Wait for metadata so videoWidth/Height are set
+        await new Promise<void>((resolve, reject) => {
+          if (video.readyState >= 1) { resolve(); return; }
+          const onMeta = () => { cleanup(); resolve(); };
+          const onErr = () => { cleanup(); reject(new Error("Video failed")); };
+          const timer = setTimeout(() => { cleanup(); reject(new Error("Timeout")); }, 10_000);
+          const cleanup = () => {
+            video.removeEventListener("loadedmetadata", onMeta);
+            video.removeEventListener("error", onErr);
+            clearTimeout(timer);
+          };
+          video.addEventListener("loadedmetadata", onMeta, { once: true });
+          video.addEventListener("error", onErr, { once: true });
+        });
+
+        if (cancelled) { stream.getTracks().forEach((t) => t.stop()); return; }
+
+        await video.play();
+        if (!cancelled) setReady(true);
+      } catch (err) {
+        if (cancelled) return;
+        const msg =
+          err instanceof DOMException && err.name === "NotAllowedError"
+            ? "Camera permission denied."
+            : err instanceof DOMException && err.name === "NotFoundError"
+              ? "No camera found."
+              : "Could not start camera.";
+        toast.error(msg);
+        onCloseRef.current();
+      }
     };
 
-    rafRef.current = requestAnimationFrame(processFrame);
+    start();
 
     return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
+      cancelled = true;
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
       }
     };
-  }, [state, cvLib, videoRef]);
+  }, []);
 
-  // Handle capture
+  // Real-time edge detection via OpenCV worker
+  useEffect(() => {
+    if (!ready || !workerReady) return;
+
+    let cancelled = false;
+    let timerId: ReturnType<typeof setTimeout>;
+    const sampleCanvas = document.createElement("canvas");
+
+    const analyze = async () => {
+      const video = videoRef.current;
+      if (!video || video.readyState < 2 || cancelled) {
+        timerId = setTimeout(analyze, ANALYSIS_INTERVAL_MS);
+        return;
+      }
+
+      try {
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
+        if (vw === 0 || vh === 0) {
+          timerId = setTimeout(analyze, ANALYSIS_INTERVAL_MS);
+          return;
+        }
+
+        const scale = ANALYSIS_WIDTH / vw;
+        const sw = ANALYSIS_WIDTH;
+        const sh = Math.round(vh * scale);
+        sampleCanvas.width = sw;
+        sampleCanvas.height = sh;
+        const ctx = sampleCanvas.getContext("2d")!;
+        ctx.drawImage(video, 0, 0, sw, sh);
+        const imageData = ctx.getImageData(0, 0, sw, sh);
+
+        const analysis = await analyzeFrame(imageData);
+
+        if (!cancelled) {
+          if (analysis.corners) {
+            // Scale corners back to video dimensions
+            const inv = 1 / scale;
+            setDetectedCorners({
+              topLeft: { x: analysis.corners.topLeft.x * inv, y: analysis.corners.topLeft.y * inv },
+              topRight: { x: analysis.corners.topRight.x * inv, y: analysis.corners.topRight.y * inv },
+              bottomRight: { x: analysis.corners.bottomRight.x * inv, y: analysis.corners.bottomRight.y * inv },
+              bottomLeft: { x: analysis.corners.bottomLeft.x * inv, y: analysis.corners.bottomLeft.y * inv },
+            });
+          } else {
+            setDetectedCorners(null);
+          }
+        }
+      } catch {
+        // Silently ignore analysis errors — keep showing previous corners or none
+      }
+
+      if (!cancelled) {
+        timerId = setTimeout(analyze, ANALYSIS_INTERVAL_MS);
+      }
+    };
+
+    // Start the analysis loop
+    timerId = setTimeout(analyze, 200);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timerId);
+    };
+  }, [ready, workerReady, analyzeFrame]);
+
   const handleCapture = useCallback(async () => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || capturing) return;
 
-    setState("capturing");
-
-    // Stop the processing loop
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-    }
-
+    setCapturing(true);
     try {
-      let file: File;
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(video, 0, 0);
 
-      if (cvLib && corners) {
-        // Perspective transform + crop
-        file = await cropAndTransform(
-          cvLib,
-          video,
-          corners,
-          processingSize.width,
-        );
-      } else if (cvLib) {
-        // No edges - capture full frame with no transform
-        file = await cropAndTransform(cvLib, video, null, processingSize.width);
-      } else {
-        // No OpenCV - raw canvas capture
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext("2d")!;
-        ctx.drawImage(video, 0, 0);
-        const blob = await new Promise<Blob>((resolve, reject) =>
-          canvas.toBlob(
-            (b) => (b ? resolve(b) : reject(new Error("Failed to capture"))),
-            "image/jpeg",
-            0.92,
-          ),
-        );
-        file = new File([blob], `receipt-${Date.now()}.jpg`, {
-          type: "image/jpeg",
-        });
-      }
-
+      const blob = await new Promise<Blob>((resolve, reject) =>
+        canvas.toBlob(
+          (b) => (b ? resolve(b) : reject(new Error("Failed to capture"))),
+          "image/jpeg",
+          0.92,
+        ),
+      );
+      const file = new File([blob], `receipt-${Date.now()}.jpg`, {
+        type: "image/jpeg",
+      });
       onCapture(file);
     } catch {
       toast.error("Failed to capture image");
-      setState("previewing");
+      setCapturing(false);
     }
-  }, [cvLib, corners, videoRef, processingSize.width, onCapture]);
+  }, [capturing, onCapture]);
 
-  // Handle close with cleanup
-  const handleClose = useCallback(() => {
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-    }
-    onClose();
-  }, [onClose]);
-
-  // Resize listener
+  // Fix stale Radix pointer-events on mount
   useEffect(() => {
-    const handleResize = () => {
-      setDisplaySize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    if (document.body.style.pointerEvents === "none") {
+      document.body.style.pointerEvents = "";
+    }
   }, []);
 
-  // Only block on camera - OpenCV loads in background after camera starts
-  const isLoading = state === "loading" || cameraLoading;
-  const isCapturing = state === "capturing";
+  const video = videoRef.current;
+  const videoWidth = video?.videoWidth ?? 0;
+  const videoHeight = video?.videoHeight ?? 0;
 
   return createPortal(
     <div className="fixed inset-0 z-50 bg-black">
-      {/* Video feed - no autoPlay to avoid conflicting with programmatic play() */}
       <video
         ref={videoRef}
         playsInline
@@ -287,56 +234,44 @@ export function GuidedCameraOverlay({
         className="absolute inset-0 h-full w-full object-cover"
       />
 
-      {/* Hidden processing canvas */}
-      <canvas ref={canvasRef} className="hidden" />
-
       {/* Loading state */}
-      {isLoading && (
+      {!ready && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/30 border-t-white" />
           <p className="mt-4 text-sm text-white/70">Starting camera...</p>
         </div>
       )}
 
-      {/* Edge detection overlay */}
-      {state === "previewing" && (
+      {/* Guide overlay with real-time edge detection */}
+      {ready && (
         <ReceiptGuideOverlay
-          corners={corners}
-          videoWidth={processingSize.width}
-          videoHeight={processingSize.height}
-          displayWidth={displaySize.width}
-          displayHeight={displaySize.height}
+          corners={detectedCorners}
+          videoWidth={videoWidth}
+          videoHeight={videoHeight}
+          displayWidth={displaySize.w}
+          displayHeight={displaySize.h}
         />
       )}
 
-      {/* Quality warnings */}
-      {state === "previewing" && <QualityWarningBadges quality={quality} />}
-
-      {/* Top bar: close button */}
-      <div className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between p-4">
+      {/* Close button */}
+      <div className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between p-4">
         <button
-          onClick={handleClose}
+          onClick={onClose}
           className="flex h-10 w-10 items-center justify-center rounded-full
             bg-black/40 text-white backdrop-blur-md transition-colors
-            hover:bg-black/60"
+            hover:bg-black/60 active:bg-black/70"
           aria-label="Close camera"
         >
           <X className="h-5 w-5" />
         </button>
-
-        {corners && state === "previewing" && (
-          <span className="rounded-full bg-black/40 px-3 py-1.5 text-xs font-medium text-emerald-400 backdrop-blur-md">
-            Receipt detected
-          </span>
-        )}
       </div>
 
-      {/* Bottom bar: capture button */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-center pb-10 pt-6">
+      {/* Capture button */}
+      <div className="absolute bottom-0 left-0 right-0 z-30 flex items-center justify-center pb-10 pt-6">
         <CaptureButton
           onCapture={handleCapture}
-          disabled={isLoading}
-          isProcessing={isCapturing}
+          disabled={!ready}
+          isProcessing={capturing}
         />
       </div>
     </div>,
