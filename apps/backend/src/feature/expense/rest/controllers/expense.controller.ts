@@ -40,7 +40,9 @@ export class ExpenseController {
       storeName: createDto.storeName,
       storeLocation: createDto.storeLocation,
       familyId: createDto.familyId,
-      items: createDto.items.map(
+      amount: createDto.amount,
+      note: createDto.note,
+      items: createDto.items?.map(
         (item) =>
           new CreateExpenseItemDto({
             expenseId: '',

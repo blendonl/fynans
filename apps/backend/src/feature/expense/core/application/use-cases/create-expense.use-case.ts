@@ -53,16 +53,28 @@ export class CreateExpenseUseCase {
 
     await this.expenseCategoryRepository.linkToUser(dto.categoryId, dto.userId);
 
+    // Synthesize a single item for simple (non-itemized) mode
+    const items = dto.items ?? [
+      new CreateExpenseItemDto({
+        expenseId: '',
+        categoryId: dto.categoryId,
+        itemName: dto.note?.trim() || category.name,
+        itemPrice: dto.amount!,
+      }),
+    ];
+
     let store = null;
 
-    if (category.isConnectedToStore && dto.storeName && dto.storeLocation) {
+    if (dto.storeId) {
+      store = await this.storeService.findById(dto.storeId);
+    } else if (category.isConnectedToStore && dto.storeName && dto.storeLocation) {
       store = await this.storeService.createOrFind(
         new CreateStoreDto(dto.storeName, dto.storeLocation),
         dto.userId,
       );
     }
 
-    const totalValue = dto.items.reduce((sum, item) => {
+    const totalValue = items.reduce((sum, item) => {
       const itemPrice = item.itemPrice;
       const discount = item.discount ?? 0;
       return sum + (itemPrice * (item.quantity ?? 1) - discount);
@@ -88,7 +100,7 @@ export class CreateExpenseUseCase {
 
     if (store) {
       await Promise.all(
-        dto.items.map((item) =>
+        items.map((item) =>
           this.expenseItemService.create(
             new CreateExpenseItemDto({
               expenseId: expense.id,
@@ -142,19 +154,26 @@ export class CreateExpenseUseCase {
       throw new BadRequestException('Category ID is required');
     }
 
-    if (!dto.items || dto.items.length === 0) {
-      throw new BadRequestException('At least one item is required');
+    const hasItems = dto.items && dto.items.length > 0;
+    const hasAmount = dto.amount !== undefined && dto.amount > 0;
+
+    if (!hasItems && !hasAmount) {
+      throw new BadRequestException(
+        'Either items or an amount is required',
+      );
     }
 
-    for (const item of dto.items) {
-      if (item.itemPrice < 0) {
-        throw new BadRequestException('Item price must be non-negative');
-      }
-      if (item.discount !== undefined && item.discount < 0) {
-        throw new BadRequestException('Item discount must be non-negative');
-      }
-      if (item.discount !== undefined && item.discount > item.itemPrice) {
-        throw new BadRequestException('Item discount cannot exceed price');
+    if (dto.items) {
+      for (const item of dto.items) {
+        if (item.itemPrice < 0) {
+          throw new BadRequestException('Item price must be non-negative');
+        }
+        if (item.discount !== undefined && item.discount < 0) {
+          throw new BadRequestException('Item discount must be non-negative');
+        }
+        if (item.discount !== undefined && item.discount > item.itemPrice) {
+          throw new BadRequestException('Item discount cannot exceed price');
+        }
       }
     }
   }

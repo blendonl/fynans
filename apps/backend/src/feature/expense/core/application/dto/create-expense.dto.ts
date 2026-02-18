@@ -5,7 +5,10 @@ export class CreateExpenseDto {
   categoryId: string;
   storeName?: string;
   storeLocation?: string;
-  items: CreateExpenseItemDto[];
+  storeId?: string;
+  items?: CreateExpenseItemDto[];
+  amount?: number;
+  note?: string;
   familyId?: string;
   scope?: 'PERSONAL' | 'FAMILY';
   recordedAt?: Date;
@@ -15,7 +18,10 @@ export class CreateExpenseDto {
     categoryId: string;
     storeName?: string;
     storeLocation?: string;
-    items: CreateExpenseItemDto[];
+    storeId?: string;
+    items?: CreateExpenseItemDto[];
+    amount?: number;
+    note?: string;
     familyId?: string;
     recordedAt?: Date;
   }) {
@@ -23,7 +29,10 @@ export class CreateExpenseDto {
     this.categoryId = data.categoryId;
     this.storeName = data.storeName;
     this.storeLocation = data.storeLocation;
+    this.storeId = data.storeId;
     this.items = data.items;
+    this.amount = data.amount;
+    this.note = data.note;
     this.familyId = data.familyId;
     this.recordedAt = data.recordedAt;
   }

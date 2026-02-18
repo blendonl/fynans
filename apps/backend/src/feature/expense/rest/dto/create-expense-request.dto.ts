@@ -50,8 +50,17 @@ export class CreateExpenseRequestDto {
 
   @ValidateNested({ each: true })
   @Type(() => CreateExpenseItemRequestDto)
-  @ArrayMinSize(1)
-  items!: CreateExpenseItemRequestDto[];
+  @IsOptional()
+  items?: CreateExpenseItemRequestDto[];
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  amount?: number;
+
+  @IsOptional()
+  @IsString()
+  note?: string;
 
   @IsOptional()
   @IsUUID()
