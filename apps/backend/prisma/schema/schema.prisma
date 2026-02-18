@@ -34,6 +34,9 @@ model User {
   deviceTokens           DeviceToken[]
   webPushSubscriptions   WebPushSubscription[]
 
+  // Basket relationships
+  baskets Basket[]
+
   // User-scoped entity relationships
   userExpenseCategories UserExpenseCategory[]
   userIncomeCategories  UserIncomeCategory[]

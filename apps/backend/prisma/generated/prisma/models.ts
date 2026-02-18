@@ -11,6 +11,8 @@
 export type * from './models/Account'
 export type * from './models/Session'
 export type * from './models/Verification'
+export type * from './models/Basket'
+export type * from './models/BasketItem'
 export type * from './models/ExpenseItem'
 export type * from './models/Expense'
 export type * from './models/ExpenseCategory'

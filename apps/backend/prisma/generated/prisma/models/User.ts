@@ -266,6 +266,7 @@ export type UserWhereInput = {
   notificationPreference?: Prisma.XOR<Prisma.NotificationPreferenceNullableScalarRelationFilter, Prisma.NotificationPreferenceWhereInput> | null
   deviceTokens?: Prisma.DeviceTokenListRelationFilter
   webPushSubscriptions?: Prisma.WebPushSubscriptionListRelationFilter
+  baskets?: Prisma.BasketListRelationFilter
   userExpenseCategories?: Prisma.UserExpenseCategoryListRelationFilter
   userIncomeCategories?: Prisma.UserIncomeCategoryListRelationFilter
   userStores?: Prisma.UserStoreListRelationFilter
@@ -295,6 +296,7 @@ export type UserOrderByWithRelationInput = {
   notificationPreference?: Prisma.NotificationPreferenceOrderByWithRelationInput
   deviceTokens?: Prisma.DeviceTokenOrderByRelationAggregateInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionOrderByRelationAggregateInput
+  baskets?: Prisma.BasketOrderByRelationAggregateInput
   userExpenseCategories?: Prisma.UserExpenseCategoryOrderByRelationAggregateInput
   userIncomeCategories?: Prisma.UserIncomeCategoryOrderByRelationAggregateInput
   userStores?: Prisma.UserStoreOrderByRelationAggregateInput
@@ -327,6 +329,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   notificationPreference?: Prisma.XOR<Prisma.NotificationPreferenceNullableScalarRelationFilter, Prisma.NotificationPreferenceWhereInput> | null
   deviceTokens?: Prisma.DeviceTokenListRelationFilter
   webPushSubscriptions?: Prisma.WebPushSubscriptionListRelationFilter
+  baskets?: Prisma.BasketListRelationFilter
   userExpenseCategories?: Prisma.UserExpenseCategoryListRelationFilter
   userIncomeCategories?: Prisma.UserIncomeCategoryListRelationFilter
   userStores?: Prisma.UserStoreListRelationFilter
@@ -390,6 +393,7 @@ export type UserCreateInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -419,6 +423,7 @@ export type UserUncheckedCreateInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -448,6 +453,7 @@ export type UserUpdateInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -477,6 +483,7 @@ export type UserUncheckedUpdateInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
@@ -607,6 +614,20 @@ export type UserUpdateOneRequiredWithoutSessionsNestedInput = {
   upsert?: Prisma.UserUpsertWithoutSessionsInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSessionsInput, Prisma.UserUpdateWithoutSessionsInput>, Prisma.UserUncheckedUpdateWithoutSessionsInput>
+}
+
+export type UserCreateNestedOneWithoutBasketsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBasketsInput, Prisma.UserUncheckedCreateWithoutBasketsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBasketsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutBasketsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBasketsInput, Prisma.UserUncheckedCreateWithoutBasketsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBasketsInput
+  upsert?: Prisma.UserUpsertWithoutBasketsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBasketsInput, Prisma.UserUpdateWithoutBasketsInput>, Prisma.UserUncheckedUpdateWithoutBasketsInput>
 }
 
 export type UserCreateNestedOneWithoutUserExpenseCategoriesInput = {
@@ -827,6 +848,7 @@ export type UserCreateWithoutAccountsInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -855,6 +877,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -899,6 +922,7 @@ export type UserUpdateWithoutAccountsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -927,6 +951,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
@@ -955,6 +980,7 @@ export type UserCreateWithoutSessionsInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -983,6 +1009,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -1027,6 +1054,7 @@ export type UserUpdateWithoutSessionsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -1048,6 +1076,139 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutBasketsInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutBasketsInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutBasketsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutBasketsInput, Prisma.UserUncheckedCreateWithoutBasketsInput>
+}
+
+export type UserUpsertWithoutBasketsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutBasketsInput, Prisma.UserUncheckedUpdateWithoutBasketsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutBasketsInput, Prisma.UserUncheckedCreateWithoutBasketsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutBasketsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutBasketsInput, Prisma.UserUncheckedUpdateWithoutBasketsInput>
+}
+
+export type UserUpdateWithoutBasketsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutBasketsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   familyMemberships?: Prisma.FamilyMemberUncheckedUpdateManyWithoutUserNestedInput
   sentInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviterNestedInput
   receivedInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviteeNestedInput
@@ -1084,6 +1245,7 @@ export type UserCreateWithoutUserExpenseCategoriesInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
@@ -1112,6 +1274,7 @@ export type UserUncheckedCreateWithoutUserExpenseCategoriesInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
@@ -1156,6 +1319,7 @@ export type UserUpdateWithoutUserExpenseCategoriesInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
@@ -1184,6 +1348,7 @@ export type UserUncheckedUpdateWithoutUserExpenseCategoriesInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
@@ -1211,6 +1376,7 @@ export type UserCreateWithoutFamilyMembershipsInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -1239,6 +1405,7 @@ export type UserUncheckedCreateWithoutFamilyMembershipsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -1283,6 +1450,7 @@ export type UserUpdateWithoutFamilyMembershipsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -1311,6 +1479,7 @@ export type UserUncheckedUpdateWithoutFamilyMembershipsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
@@ -1339,6 +1508,7 @@ export type UserCreateWithoutSentInvitationsInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -1367,6 +1537,7 @@ export type UserUncheckedCreateWithoutSentInvitationsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -1400,6 +1571,7 @@ export type UserCreateWithoutReceivedInvitationsInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -1428,6 +1600,7 @@ export type UserUncheckedCreateWithoutReceivedInvitationsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -1472,6 +1645,7 @@ export type UserUpdateWithoutSentInvitationsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -1500,6 +1674,7 @@ export type UserUncheckedUpdateWithoutSentInvitationsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
@@ -1539,6 +1714,7 @@ export type UserUpdateWithoutReceivedInvitationsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -1567,6 +1743,7 @@ export type UserUncheckedUpdateWithoutReceivedInvitationsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
@@ -1596,6 +1773,7 @@ export type UserCreateWithoutUserIncomeCategoriesInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
@@ -1624,6 +1802,7 @@ export type UserUncheckedCreateWithoutUserIncomeCategoriesInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
@@ -1668,6 +1847,7 @@ export type UserUpdateWithoutUserIncomeCategoriesInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
@@ -1696,6 +1876,7 @@ export type UserUncheckedUpdateWithoutUserIncomeCategoriesInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
@@ -1723,6 +1904,7 @@ export type UserCreateWithoutNotificationsInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -1751,6 +1933,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -1795,6 +1978,7 @@ export type UserUpdateWithoutNotificationsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -1823,6 +2007,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
@@ -1851,6 +2036,7 @@ export type UserCreateWithoutNotificationPreferenceInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -1879,6 +2065,7 @@ export type UserUncheckedCreateWithoutNotificationPreferenceInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -1923,6 +2110,7 @@ export type UserUpdateWithoutNotificationPreferenceInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -1951,6 +2139,7 @@ export type UserUncheckedUpdateWithoutNotificationPreferenceInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
@@ -1979,6 +2168,7 @@ export type UserCreateWithoutDeviceTokensInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -2007,6 +2197,7 @@ export type UserUncheckedCreateWithoutDeviceTokensInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -2051,6 +2242,7 @@ export type UserUpdateWithoutDeviceTokensInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -2079,6 +2271,7 @@ export type UserUncheckedUpdateWithoutDeviceTokensInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
@@ -2107,6 +2300,7 @@ export type UserCreateWithoutWebPushSubscriptionsInput = {
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -2135,6 +2329,7 @@ export type UserUncheckedCreateWithoutWebPushSubscriptionsInput = {
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -2179,6 +2374,7 @@ export type UserUpdateWithoutWebPushSubscriptionsInput = {
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -2207,6 +2403,7 @@ export type UserUncheckedUpdateWithoutWebPushSubscriptionsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
@@ -2236,6 +2433,7 @@ export type UserCreateWithoutUserStoresInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
@@ -2264,6 +2462,7 @@ export type UserUncheckedCreateWithoutUserStoresInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
@@ -2308,6 +2507,7 @@ export type UserUpdateWithoutUserStoresInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
@@ -2336,6 +2536,7 @@ export type UserUncheckedUpdateWithoutUserStoresInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
@@ -2364,6 +2565,7 @@ export type UserCreateWithoutUserItemsInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -2392,6 +2594,7 @@ export type UserUncheckedCreateWithoutUserItemsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -2436,6 +2639,7 @@ export type UserUpdateWithoutUserItemsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -2464,6 +2668,7 @@ export type UserUncheckedUpdateWithoutUserItemsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
@@ -2492,6 +2697,7 @@ export type UserCreateWithoutUserStoreItemsInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -2520,6 +2726,7 @@ export type UserUncheckedCreateWithoutUserStoreItemsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -2564,6 +2771,7 @@ export type UserUpdateWithoutUserStoreItemsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -2592,6 +2800,7 @@ export type UserUncheckedUpdateWithoutUserStoreItemsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
@@ -2620,6 +2829,7 @@ export type UserCreateWithoutUserItemCategoriesInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -2648,6 +2858,7 @@ export type UserUncheckedCreateWithoutUserItemCategoriesInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -2692,6 +2903,7 @@ export type UserUpdateWithoutUserItemCategoriesInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -2720,6 +2932,7 @@ export type UserUncheckedUpdateWithoutUserItemCategoriesInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
@@ -2747,6 +2960,7 @@ export type UserCreateWithoutTransactionsInput = {
   notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
@@ -2775,6 +2989,7 @@ export type UserUncheckedCreateWithoutTransactionsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
   deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
@@ -2819,6 +3034,7 @@ export type UserUpdateWithoutTransactionsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
@@ -2847,6 +3063,7 @@ export type UserUncheckedUpdateWithoutTransactionsInput = {
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
@@ -2870,6 +3087,7 @@ export type UserCountOutputType = {
   notifications: number
   deviceTokens: number
   webPushSubscriptions: number
+  baskets: number
   userExpenseCategories: number
   userIncomeCategories: number
   userStores: number
@@ -2888,6 +3106,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
   deviceTokens?: boolean | UserCountOutputTypeCountDeviceTokensArgs
   webPushSubscriptions?: boolean | UserCountOutputTypeCountWebPushSubscriptionsArgs
+  baskets?: boolean | UserCountOutputTypeCountBasketsArgs
   userExpenseCategories?: boolean | UserCountOutputTypeCountUserExpenseCategoriesArgs
   userIncomeCategories?: boolean | UserCountOutputTypeCountUserIncomeCategoriesArgs
   userStores?: boolean | UserCountOutputTypeCountUserStoresArgs
@@ -2972,6 +3191,13 @@ export type UserCountOutputTypeCountWebPushSubscriptionsArgs<ExtArgs extends run
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountBasketsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BasketWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountUserExpenseCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.UserExpenseCategoryWhereInput
 }
@@ -3033,6 +3259,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   notificationPreference?: boolean | Prisma.User$notificationPreferenceArgs<ExtArgs>
   deviceTokens?: boolean | Prisma.User$deviceTokensArgs<ExtArgs>
   webPushSubscriptions?: boolean | Prisma.User$webPushSubscriptionsArgs<ExtArgs>
+  baskets?: boolean | Prisma.User$basketsArgs<ExtArgs>
   userExpenseCategories?: boolean | Prisma.User$userExpenseCategoriesArgs<ExtArgs>
   userIncomeCategories?: boolean | Prisma.User$userIncomeCategoriesArgs<ExtArgs>
   userStores?: boolean | Prisma.User$userStoresArgs<ExtArgs>
@@ -3093,6 +3320,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   notificationPreference?: boolean | Prisma.User$notificationPreferenceArgs<ExtArgs>
   deviceTokens?: boolean | Prisma.User$deviceTokensArgs<ExtArgs>
   webPushSubscriptions?: boolean | Prisma.User$webPushSubscriptionsArgs<ExtArgs>
+  baskets?: boolean | Prisma.User$basketsArgs<ExtArgs>
   userExpenseCategories?: boolean | Prisma.User$userExpenseCategoriesArgs<ExtArgs>
   userIncomeCategories?: boolean | Prisma.User$userIncomeCategoriesArgs<ExtArgs>
   userStores?: boolean | Prisma.User$userStoresArgs<ExtArgs>
@@ -3117,6 +3345,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     notificationPreference: Prisma.$NotificationPreferencePayload<ExtArgs> | null
     deviceTokens: Prisma.$DeviceTokenPayload<ExtArgs>[]
     webPushSubscriptions: Prisma.$WebPushSubscriptionPayload<ExtArgs>[]
+    baskets: Prisma.$BasketPayload<ExtArgs>[]
     userExpenseCategories: Prisma.$UserExpenseCategoryPayload<ExtArgs>[]
     userIncomeCategories: Prisma.$UserIncomeCategoryPayload<ExtArgs>[]
     userStores: Prisma.$UserStorePayload<ExtArgs>[]
@@ -3539,6 +3768,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   notificationPreference<T extends Prisma.User$notificationPreferenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationPreferenceArgs<ExtArgs>>): Prisma.Prisma__NotificationPreferenceClient<runtime.Types.Result.GetResult<Prisma.$NotificationPreferencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   deviceTokens<T extends Prisma.User$deviceTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$deviceTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   webPushSubscriptions<T extends Prisma.User$webPushSubscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$webPushSubscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WebPushSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  baskets<T extends Prisma.User$basketsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$basketsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BasketPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   userExpenseCategories<T extends Prisma.User$userExpenseCategoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userExpenseCategoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserExpenseCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   userIncomeCategories<T extends Prisma.User$userIncomeCategoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userIncomeCategoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserIncomeCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   userStores<T extends Prisma.User$userStoresArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userStoresArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserStorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4204,6 +4434,30 @@ export type User$webPushSubscriptionsArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.WebPushSubscriptionScalarFieldEnum | Prisma.WebPushSubscriptionScalarFieldEnum[]
+}
+
+/**
+ * User.baskets
+ */
+export type User$basketsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Basket
+   */
+  select?: Prisma.BasketSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Basket
+   */
+  omit?: Prisma.BasketOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BasketInclude<ExtArgs> | null
+  where?: Prisma.BasketWhereInput
+  orderBy?: Prisma.BasketOrderByWithRelationInput | Prisma.BasketOrderByWithRelationInput[]
+  cursor?: Prisma.BasketWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BasketScalarFieldEnum | Prisma.BasketScalarFieldEnum[]
 }
 
 /**

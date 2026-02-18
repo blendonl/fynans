@@ -9,6 +9,14 @@
 * 🟢 You can import this file directly.
 */
 
+export const BasketScope = {
+  PERSONAL: 'PERSONAL',
+  FAMILY: 'FAMILY'
+} as const
+
+export type BasketScope = (typeof BasketScope)[keyof typeof BasketScope]
+
+
 export const FamilyMemberRole = {
   OWNER: 'OWNER',
   ADMIN: 'ADMIN',
@@ -39,7 +47,9 @@ export const NotificationType = {
   FAMILY_INCOME_CREATED: 'FAMILY_INCOME_CREATED',
   TRANSACTION_MILESTONE_BUDGET_ALERT: 'TRANSACTION_MILESTONE_BUDGET_ALERT',
   TRANSACTION_MILESTONE_SPENDING_LIMIT: 'TRANSACTION_MILESTONE_SPENDING_LIMIT',
-  RECEIPT_PROCESSING_COMPLETE: 'RECEIPT_PROCESSING_COMPLETE'
+  RECEIPT_PROCESSING_COMPLETE: 'RECEIPT_PROCESSING_COMPLETE',
+  BASKET_ITEM_ADDED: 'BASKET_ITEM_ADDED',
+  BASKET_ITEMS_BOUGHT: 'BASKET_ITEMS_BOUGHT'
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]

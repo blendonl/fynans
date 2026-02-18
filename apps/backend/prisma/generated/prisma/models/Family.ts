@@ -220,6 +220,7 @@ export type FamilyWhereInput = {
   invitations?: Prisma.FamilyInvitationListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  baskets?: Prisma.BasketListRelationFilter
 }
 
 export type FamilyOrderByWithRelationInput = {
@@ -232,6 +233,7 @@ export type FamilyOrderByWithRelationInput = {
   invitations?: Prisma.FamilyInvitationOrderByRelationAggregateInput
   transactions?: Prisma.TransactionOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
+  baskets?: Prisma.BasketOrderByRelationAggregateInput
 }
 
 export type FamilyWhereUniqueInput = Prisma.AtLeast<{
@@ -247,6 +249,7 @@ export type FamilyWhereUniqueInput = Prisma.AtLeast<{
   invitations?: Prisma.FamilyInvitationListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  baskets?: Prisma.BasketListRelationFilter
 }, "id">
 
 export type FamilyOrderByWithAggregationInput = {
@@ -283,6 +286,7 @@ export type FamilyCreateInput = {
   invitations?: Prisma.FamilyInvitationCreateNestedManyWithoutFamilyInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutFamilyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutFamilyInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutFamilyInput
 }
 
 export type FamilyUncheckedCreateInput = {
@@ -295,6 +299,7 @@ export type FamilyUncheckedCreateInput = {
   invitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutFamilyInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutFamilyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutFamilyInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutFamilyInput
 }
 
 export type FamilyUpdateInput = {
@@ -307,6 +312,7 @@ export type FamilyUpdateInput = {
   invitations?: Prisma.FamilyInvitationUpdateManyWithoutFamilyNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutFamilyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutFamilyNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutFamilyNestedInput
 }
 
 export type FamilyUncheckedUpdateInput = {
@@ -319,6 +325,7 @@ export type FamilyUncheckedUpdateInput = {
   invitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutFamilyNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutFamilyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutFamilyNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutFamilyNestedInput
 }
 
 export type FamilyCreateManyInput = {
@@ -343,6 +350,11 @@ export type FamilyUncheckedUpdateManyInput = {
   balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FamilyNullableScalarRelationFilter = {
+  is?: Prisma.FamilyWhereInput | null
+  isNot?: Prisma.FamilyWhereInput | null
 }
 
 export type FamilyCountOrderByAggregateInput = {
@@ -382,9 +394,20 @@ export type FamilyScalarRelationFilter = {
   isNot?: Prisma.FamilyWhereInput
 }
 
-export type FamilyNullableScalarRelationFilter = {
-  is?: Prisma.FamilyWhereInput | null
-  isNot?: Prisma.FamilyWhereInput | null
+export type FamilyCreateNestedOneWithoutBasketsInput = {
+  create?: Prisma.XOR<Prisma.FamilyCreateWithoutBasketsInput, Prisma.FamilyUncheckedCreateWithoutBasketsInput>
+  connectOrCreate?: Prisma.FamilyCreateOrConnectWithoutBasketsInput
+  connect?: Prisma.FamilyWhereUniqueInput
+}
+
+export type FamilyUpdateOneWithoutBasketsNestedInput = {
+  create?: Prisma.XOR<Prisma.FamilyCreateWithoutBasketsInput, Prisma.FamilyUncheckedCreateWithoutBasketsInput>
+  connectOrCreate?: Prisma.FamilyCreateOrConnectWithoutBasketsInput
+  upsert?: Prisma.FamilyUpsertWithoutBasketsInput
+  disconnect?: Prisma.FamilyWhereInput | boolean
+  delete?: Prisma.FamilyWhereInput | boolean
+  connect?: Prisma.FamilyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FamilyUpdateToOneWithWhereWithoutBasketsInput, Prisma.FamilyUpdateWithoutBasketsInput>, Prisma.FamilyUncheckedUpdateWithoutBasketsInput>
 }
 
 export type FamilyCreateNestedOneWithoutMembersInput = {
@@ -447,6 +470,70 @@ export type FamilyUpdateOneWithoutTransactionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FamilyUpdateToOneWithWhereWithoutTransactionsInput, Prisma.FamilyUpdateWithoutTransactionsInput>, Prisma.FamilyUncheckedUpdateWithoutTransactionsInput>
 }
 
+export type FamilyCreateWithoutBasketsInput = {
+  id?: string
+  name: string
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyInput
+  invitations?: Prisma.FamilyInvitationCreateNestedManyWithoutFamilyInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutFamilyInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutFamilyInput
+}
+
+export type FamilyUncheckedCreateWithoutBasketsInput = {
+  id?: string
+  name: string
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutFamilyInput
+  invitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutFamilyInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutFamilyInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutFamilyInput
+}
+
+export type FamilyCreateOrConnectWithoutBasketsInput = {
+  where: Prisma.FamilyWhereUniqueInput
+  create: Prisma.XOR<Prisma.FamilyCreateWithoutBasketsInput, Prisma.FamilyUncheckedCreateWithoutBasketsInput>
+}
+
+export type FamilyUpsertWithoutBasketsInput = {
+  update: Prisma.XOR<Prisma.FamilyUpdateWithoutBasketsInput, Prisma.FamilyUncheckedUpdateWithoutBasketsInput>
+  create: Prisma.XOR<Prisma.FamilyCreateWithoutBasketsInput, Prisma.FamilyUncheckedCreateWithoutBasketsInput>
+  where?: Prisma.FamilyWhereInput
+}
+
+export type FamilyUpdateToOneWithWhereWithoutBasketsInput = {
+  where?: Prisma.FamilyWhereInput
+  data: Prisma.XOR<Prisma.FamilyUpdateWithoutBasketsInput, Prisma.FamilyUncheckedUpdateWithoutBasketsInput>
+}
+
+export type FamilyUpdateWithoutBasketsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.FamilyMemberUpdateManyWithoutFamilyNestedInput
+  invitations?: Prisma.FamilyInvitationUpdateManyWithoutFamilyNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutFamilyNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutFamilyNestedInput
+}
+
+export type FamilyUncheckedUpdateWithoutBasketsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.FamilyMemberUncheckedUpdateManyWithoutFamilyNestedInput
+  invitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutFamilyNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutFamilyNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutFamilyNestedInput
+}
+
 export type FamilyCreateWithoutMembersInput = {
   id?: string
   name: string
@@ -456,6 +543,7 @@ export type FamilyCreateWithoutMembersInput = {
   invitations?: Prisma.FamilyInvitationCreateNestedManyWithoutFamilyInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutFamilyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutFamilyInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutFamilyInput
 }
 
 export type FamilyUncheckedCreateWithoutMembersInput = {
@@ -467,6 +555,7 @@ export type FamilyUncheckedCreateWithoutMembersInput = {
   invitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutFamilyInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutFamilyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutFamilyInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutFamilyInput
 }
 
 export type FamilyCreateOrConnectWithoutMembersInput = {
@@ -494,6 +583,7 @@ export type FamilyUpdateWithoutMembersInput = {
   invitations?: Prisma.FamilyInvitationUpdateManyWithoutFamilyNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutFamilyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutFamilyNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutFamilyNestedInput
 }
 
 export type FamilyUncheckedUpdateWithoutMembersInput = {
@@ -505,6 +595,7 @@ export type FamilyUncheckedUpdateWithoutMembersInput = {
   invitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutFamilyNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutFamilyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutFamilyNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutFamilyNestedInput
 }
 
 export type FamilyCreateWithoutInvitationsInput = {
@@ -516,6 +607,7 @@ export type FamilyCreateWithoutInvitationsInput = {
   members?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutFamilyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutFamilyInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutFamilyInput
 }
 
 export type FamilyUncheckedCreateWithoutInvitationsInput = {
@@ -527,6 +619,7 @@ export type FamilyUncheckedCreateWithoutInvitationsInput = {
   members?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutFamilyInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutFamilyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutFamilyInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutFamilyInput
 }
 
 export type FamilyCreateOrConnectWithoutInvitationsInput = {
@@ -554,6 +647,7 @@ export type FamilyUpdateWithoutInvitationsInput = {
   members?: Prisma.FamilyMemberUpdateManyWithoutFamilyNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutFamilyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutFamilyNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutFamilyNestedInput
 }
 
 export type FamilyUncheckedUpdateWithoutInvitationsInput = {
@@ -565,6 +659,7 @@ export type FamilyUncheckedUpdateWithoutInvitationsInput = {
   members?: Prisma.FamilyMemberUncheckedUpdateManyWithoutFamilyNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutFamilyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutFamilyNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutFamilyNestedInput
 }
 
 export type FamilyCreateWithoutNotificationsInput = {
@@ -576,6 +671,7 @@ export type FamilyCreateWithoutNotificationsInput = {
   members?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyInput
   invitations?: Prisma.FamilyInvitationCreateNestedManyWithoutFamilyInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutFamilyInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutFamilyInput
 }
 
 export type FamilyUncheckedCreateWithoutNotificationsInput = {
@@ -587,6 +683,7 @@ export type FamilyUncheckedCreateWithoutNotificationsInput = {
   members?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutFamilyInput
   invitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutFamilyInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutFamilyInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutFamilyInput
 }
 
 export type FamilyCreateOrConnectWithoutNotificationsInput = {
@@ -614,6 +711,7 @@ export type FamilyUpdateWithoutNotificationsInput = {
   members?: Prisma.FamilyMemberUpdateManyWithoutFamilyNestedInput
   invitations?: Prisma.FamilyInvitationUpdateManyWithoutFamilyNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutFamilyNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutFamilyNestedInput
 }
 
 export type FamilyUncheckedUpdateWithoutNotificationsInput = {
@@ -625,6 +723,7 @@ export type FamilyUncheckedUpdateWithoutNotificationsInput = {
   members?: Prisma.FamilyMemberUncheckedUpdateManyWithoutFamilyNestedInput
   invitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutFamilyNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutFamilyNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutFamilyNestedInput
 }
 
 export type FamilyCreateWithoutTransactionsInput = {
@@ -636,6 +735,7 @@ export type FamilyCreateWithoutTransactionsInput = {
   members?: Prisma.FamilyMemberCreateNestedManyWithoutFamilyInput
   invitations?: Prisma.FamilyInvitationCreateNestedManyWithoutFamilyInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutFamilyInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutFamilyInput
 }
 
 export type FamilyUncheckedCreateWithoutTransactionsInput = {
@@ -647,6 +747,7 @@ export type FamilyUncheckedCreateWithoutTransactionsInput = {
   members?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutFamilyInput
   invitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutFamilyInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutFamilyInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutFamilyInput
 }
 
 export type FamilyCreateOrConnectWithoutTransactionsInput = {
@@ -674,6 +775,7 @@ export type FamilyUpdateWithoutTransactionsInput = {
   members?: Prisma.FamilyMemberUpdateManyWithoutFamilyNestedInput
   invitations?: Prisma.FamilyInvitationUpdateManyWithoutFamilyNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutFamilyNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutFamilyNestedInput
 }
 
 export type FamilyUncheckedUpdateWithoutTransactionsInput = {
@@ -685,6 +787,7 @@ export type FamilyUncheckedUpdateWithoutTransactionsInput = {
   members?: Prisma.FamilyMemberUncheckedUpdateManyWithoutFamilyNestedInput
   invitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutFamilyNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutFamilyNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutFamilyNestedInput
 }
 
 
@@ -697,6 +800,7 @@ export type FamilyCountOutputType = {
   invitations: number
   transactions: number
   notifications: number
+  baskets: number
 }
 
 export type FamilyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -704,6 +808,7 @@ export type FamilyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   invitations?: boolean | FamilyCountOutputTypeCountInvitationsArgs
   transactions?: boolean | FamilyCountOutputTypeCountTransactionsArgs
   notifications?: boolean | FamilyCountOutputTypeCountNotificationsArgs
+  baskets?: boolean | FamilyCountOutputTypeCountBasketsArgs
 }
 
 /**
@@ -744,6 +849,13 @@ export type FamilyCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.
   where?: Prisma.NotificationWhereInput
 }
 
+/**
+ * FamilyCountOutputType without action
+ */
+export type FamilyCountOutputTypeCountBasketsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BasketWhereInput
+}
+
 
 export type FamilySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -755,6 +867,7 @@ export type FamilySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   invitations?: boolean | Prisma.Family$invitationsArgs<ExtArgs>
   transactions?: boolean | Prisma.Family$transactionsArgs<ExtArgs>
   notifications?: boolean | Prisma.Family$notificationsArgs<ExtArgs>
+  baskets?: boolean | Prisma.Family$basketsArgs<ExtArgs>
   _count?: boolean | Prisma.FamilyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["family"]>
 
@@ -788,6 +901,7 @@ export type FamilyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   invitations?: boolean | Prisma.Family$invitationsArgs<ExtArgs>
   transactions?: boolean | Prisma.Family$transactionsArgs<ExtArgs>
   notifications?: boolean | Prisma.Family$notificationsArgs<ExtArgs>
+  baskets?: boolean | Prisma.Family$basketsArgs<ExtArgs>
   _count?: boolean | Prisma.FamilyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FamilyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -800,6 +914,7 @@ export type $FamilyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     invitations: Prisma.$FamilyInvitationPayload<ExtArgs>[]
     transactions: Prisma.$TransactionPayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
+    baskets: Prisma.$BasketPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1205,6 +1320,7 @@ export interface Prisma__FamilyClient<T, Null = never, ExtArgs extends runtime.T
   invitations<T extends Prisma.Family$invitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Family$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FamilyInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   transactions<T extends Prisma.Family$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Family$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.Family$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Family$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  baskets<T extends Prisma.Family$basketsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Family$basketsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BasketPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1720,6 +1836,30 @@ export type Family$notificationsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
+}
+
+/**
+ * Family.baskets
+ */
+export type Family$basketsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Basket
+   */
+  select?: Prisma.BasketSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Basket
+   */
+  omit?: Prisma.BasketOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BasketInclude<ExtArgs> | null
+  where?: Prisma.BasketWhereInput
+  orderBy?: Prisma.BasketOrderByWithRelationInput | Prisma.BasketOrderByWithRelationInput[]
+  cursor?: Prisma.BasketWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BasketScalarFieldEnum | Prisma.BasketScalarFieldEnum[]
 }
 
 /**

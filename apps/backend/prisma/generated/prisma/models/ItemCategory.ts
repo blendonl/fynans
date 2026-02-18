@@ -186,6 +186,7 @@ export type ItemCategoryWhereInput = {
   children?: Prisma.ItemCategoryListRelationFilter
   items?: Prisma.ItemListRelationFilter
   users?: Prisma.UserItemCategoryListRelationFilter
+  basketItems?: Prisma.BasketItemListRelationFilter
 }
 
 export type ItemCategoryOrderByWithRelationInput = {
@@ -198,6 +199,7 @@ export type ItemCategoryOrderByWithRelationInput = {
   children?: Prisma.ItemCategoryOrderByRelationAggregateInput
   items?: Prisma.ItemOrderByRelationAggregateInput
   users?: Prisma.UserItemCategoryOrderByRelationAggregateInput
+  basketItems?: Prisma.BasketItemOrderByRelationAggregateInput
 }
 
 export type ItemCategoryWhereUniqueInput = Prisma.AtLeast<{
@@ -213,6 +215,7 @@ export type ItemCategoryWhereUniqueInput = Prisma.AtLeast<{
   children?: Prisma.ItemCategoryListRelationFilter
   items?: Prisma.ItemListRelationFilter
   users?: Prisma.UserItemCategoryListRelationFilter
+  basketItems?: Prisma.BasketItemListRelationFilter
 }, "id">
 
 export type ItemCategoryOrderByWithAggregationInput = {
@@ -246,6 +249,7 @@ export type ItemCategoryCreateInput = {
   children?: Prisma.ItemCategoryCreateNestedManyWithoutParentInput
   items?: Prisma.ItemCreateNestedManyWithoutCategoryInput
   users?: Prisma.UserItemCategoryCreateNestedManyWithoutCategoryInput
+  basketItems?: Prisma.BasketItemCreateNestedManyWithoutCategoryInput
 }
 
 export type ItemCategoryUncheckedCreateInput = {
@@ -257,6 +261,7 @@ export type ItemCategoryUncheckedCreateInput = {
   children?: Prisma.ItemCategoryUncheckedCreateNestedManyWithoutParentInput
   items?: Prisma.ItemUncheckedCreateNestedManyWithoutCategoryInput
   users?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  basketItems?: Prisma.BasketItemUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type ItemCategoryUpdateInput = {
@@ -268,6 +273,7 @@ export type ItemCategoryUpdateInput = {
   children?: Prisma.ItemCategoryUpdateManyWithoutParentNestedInput
   items?: Prisma.ItemUpdateManyWithoutCategoryNestedInput
   users?: Prisma.UserItemCategoryUpdateManyWithoutCategoryNestedInput
+  basketItems?: Prisma.BasketItemUpdateManyWithoutCategoryNestedInput
 }
 
 export type ItemCategoryUncheckedUpdateInput = {
@@ -279,6 +285,7 @@ export type ItemCategoryUncheckedUpdateInput = {
   children?: Prisma.ItemCategoryUncheckedUpdateManyWithoutParentNestedInput
   items?: Prisma.ItemUncheckedUpdateManyWithoutCategoryNestedInput
   users?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  basketItems?: Prisma.BasketItemUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type ItemCategoryCreateManyInput = {
@@ -304,14 +311,14 @@ export type ItemCategoryUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ItemCategoryScalarRelationFilter = {
-  is?: Prisma.ItemCategoryWhereInput
-  isNot?: Prisma.ItemCategoryWhereInput
-}
-
 export type ItemCategoryNullableScalarRelationFilter = {
   is?: Prisma.ItemCategoryWhereInput | null
   isNot?: Prisma.ItemCategoryWhereInput | null
+}
+
+export type ItemCategoryScalarRelationFilter = {
+  is?: Prisma.ItemCategoryWhereInput
+  isNot?: Prisma.ItemCategoryWhereInput
 }
 
 export type ItemCategoryListRelationFilter = {
@@ -346,6 +353,22 @@ export type ItemCategoryMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ItemCategoryCreateNestedOneWithoutBasketItemsInput = {
+  create?: Prisma.XOR<Prisma.ItemCategoryCreateWithoutBasketItemsInput, Prisma.ItemCategoryUncheckedCreateWithoutBasketItemsInput>
+  connectOrCreate?: Prisma.ItemCategoryCreateOrConnectWithoutBasketItemsInput
+  connect?: Prisma.ItemCategoryWhereUniqueInput
+}
+
+export type ItemCategoryUpdateOneWithoutBasketItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.ItemCategoryCreateWithoutBasketItemsInput, Prisma.ItemCategoryUncheckedCreateWithoutBasketItemsInput>
+  connectOrCreate?: Prisma.ItemCategoryCreateOrConnectWithoutBasketItemsInput
+  upsert?: Prisma.ItemCategoryUpsertWithoutBasketItemsInput
+  disconnect?: Prisma.ItemCategoryWhereInput | boolean
+  delete?: Prisma.ItemCategoryWhereInput | boolean
+  connect?: Prisma.ItemCategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ItemCategoryUpdateToOneWithWhereWithoutBasketItemsInput, Prisma.ItemCategoryUpdateWithoutBasketItemsInput>, Prisma.ItemCategoryUncheckedUpdateWithoutBasketItemsInput>
 }
 
 export type ItemCategoryCreateNestedOneWithoutItemsInput = {
@@ -434,6 +457,66 @@ export type ItemCategoryUpdateOneRequiredWithoutUsersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ItemCategoryUpdateToOneWithWhereWithoutUsersInput, Prisma.ItemCategoryUpdateWithoutUsersInput>, Prisma.ItemCategoryUncheckedUpdateWithoutUsersInput>
 }
 
+export type ItemCategoryCreateWithoutBasketItemsInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  parent?: Prisma.ItemCategoryCreateNestedOneWithoutChildrenInput
+  children?: Prisma.ItemCategoryCreateNestedManyWithoutParentInput
+  items?: Prisma.ItemCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserItemCategoryCreateNestedManyWithoutCategoryInput
+}
+
+export type ItemCategoryUncheckedCreateWithoutBasketItemsInput = {
+  id?: string
+  parentId?: string | null
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.ItemCategoryUncheckedCreateNestedManyWithoutParentInput
+  items?: Prisma.ItemUncheckedCreateNestedManyWithoutCategoryInput
+  users?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutCategoryInput
+}
+
+export type ItemCategoryCreateOrConnectWithoutBasketItemsInput = {
+  where: Prisma.ItemCategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.ItemCategoryCreateWithoutBasketItemsInput, Prisma.ItemCategoryUncheckedCreateWithoutBasketItemsInput>
+}
+
+export type ItemCategoryUpsertWithoutBasketItemsInput = {
+  update: Prisma.XOR<Prisma.ItemCategoryUpdateWithoutBasketItemsInput, Prisma.ItemCategoryUncheckedUpdateWithoutBasketItemsInput>
+  create: Prisma.XOR<Prisma.ItemCategoryCreateWithoutBasketItemsInput, Prisma.ItemCategoryUncheckedCreateWithoutBasketItemsInput>
+  where?: Prisma.ItemCategoryWhereInput
+}
+
+export type ItemCategoryUpdateToOneWithWhereWithoutBasketItemsInput = {
+  where?: Prisma.ItemCategoryWhereInput
+  data: Prisma.XOR<Prisma.ItemCategoryUpdateWithoutBasketItemsInput, Prisma.ItemCategoryUncheckedUpdateWithoutBasketItemsInput>
+}
+
+export type ItemCategoryUpdateWithoutBasketItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parent?: Prisma.ItemCategoryUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.ItemCategoryUpdateManyWithoutParentNestedInput
+  items?: Prisma.ItemUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserItemCategoryUpdateManyWithoutCategoryNestedInput
+}
+
+export type ItemCategoryUncheckedUpdateWithoutBasketItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.ItemCategoryUncheckedUpdateManyWithoutParentNestedInput
+  items?: Prisma.ItemUncheckedUpdateManyWithoutCategoryNestedInput
+  users?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+}
+
 export type ItemCategoryCreateWithoutItemsInput = {
   id?: string
   name: string
@@ -442,6 +525,7 @@ export type ItemCategoryCreateWithoutItemsInput = {
   parent?: Prisma.ItemCategoryCreateNestedOneWithoutChildrenInput
   children?: Prisma.ItemCategoryCreateNestedManyWithoutParentInput
   users?: Prisma.UserItemCategoryCreateNestedManyWithoutCategoryInput
+  basketItems?: Prisma.BasketItemCreateNestedManyWithoutCategoryInput
 }
 
 export type ItemCategoryUncheckedCreateWithoutItemsInput = {
@@ -452,6 +536,7 @@ export type ItemCategoryUncheckedCreateWithoutItemsInput = {
   updatedAt?: Date | string
   children?: Prisma.ItemCategoryUncheckedCreateNestedManyWithoutParentInput
   users?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  basketItems?: Prisma.BasketItemUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type ItemCategoryCreateOrConnectWithoutItemsInput = {
@@ -478,6 +563,7 @@ export type ItemCategoryUpdateWithoutItemsInput = {
   parent?: Prisma.ItemCategoryUpdateOneWithoutChildrenNestedInput
   children?: Prisma.ItemCategoryUpdateManyWithoutParentNestedInput
   users?: Prisma.UserItemCategoryUpdateManyWithoutCategoryNestedInput
+  basketItems?: Prisma.BasketItemUpdateManyWithoutCategoryNestedInput
 }
 
 export type ItemCategoryUncheckedUpdateWithoutItemsInput = {
@@ -488,6 +574,7 @@ export type ItemCategoryUncheckedUpdateWithoutItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.ItemCategoryUncheckedUpdateManyWithoutParentNestedInput
   users?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  basketItems?: Prisma.BasketItemUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type ItemCategoryCreateWithoutChildrenInput = {
@@ -498,6 +585,7 @@ export type ItemCategoryCreateWithoutChildrenInput = {
   parent?: Prisma.ItemCategoryCreateNestedOneWithoutChildrenInput
   items?: Prisma.ItemCreateNestedManyWithoutCategoryInput
   users?: Prisma.UserItemCategoryCreateNestedManyWithoutCategoryInput
+  basketItems?: Prisma.BasketItemCreateNestedManyWithoutCategoryInput
 }
 
 export type ItemCategoryUncheckedCreateWithoutChildrenInput = {
@@ -508,6 +596,7 @@ export type ItemCategoryUncheckedCreateWithoutChildrenInput = {
   updatedAt?: Date | string
   items?: Prisma.ItemUncheckedCreateNestedManyWithoutCategoryInput
   users?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  basketItems?: Prisma.BasketItemUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type ItemCategoryCreateOrConnectWithoutChildrenInput = {
@@ -523,6 +612,7 @@ export type ItemCategoryCreateWithoutParentInput = {
   children?: Prisma.ItemCategoryCreateNestedManyWithoutParentInput
   items?: Prisma.ItemCreateNestedManyWithoutCategoryInput
   users?: Prisma.UserItemCategoryCreateNestedManyWithoutCategoryInput
+  basketItems?: Prisma.BasketItemCreateNestedManyWithoutCategoryInput
 }
 
 export type ItemCategoryUncheckedCreateWithoutParentInput = {
@@ -533,6 +623,7 @@ export type ItemCategoryUncheckedCreateWithoutParentInput = {
   children?: Prisma.ItemCategoryUncheckedCreateNestedManyWithoutParentInput
   items?: Prisma.ItemUncheckedCreateNestedManyWithoutCategoryInput
   users?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  basketItems?: Prisma.BasketItemUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type ItemCategoryCreateOrConnectWithoutParentInput = {
@@ -564,6 +655,7 @@ export type ItemCategoryUpdateWithoutChildrenInput = {
   parent?: Prisma.ItemCategoryUpdateOneWithoutChildrenNestedInput
   items?: Prisma.ItemUpdateManyWithoutCategoryNestedInput
   users?: Prisma.UserItemCategoryUpdateManyWithoutCategoryNestedInput
+  basketItems?: Prisma.BasketItemUpdateManyWithoutCategoryNestedInput
 }
 
 export type ItemCategoryUncheckedUpdateWithoutChildrenInput = {
@@ -574,6 +666,7 @@ export type ItemCategoryUncheckedUpdateWithoutChildrenInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.ItemUncheckedUpdateManyWithoutCategoryNestedInput
   users?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  basketItems?: Prisma.BasketItemUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type ItemCategoryUpsertWithWhereUniqueWithoutParentInput = {
@@ -611,6 +704,7 @@ export type ItemCategoryCreateWithoutUsersInput = {
   parent?: Prisma.ItemCategoryCreateNestedOneWithoutChildrenInput
   children?: Prisma.ItemCategoryCreateNestedManyWithoutParentInput
   items?: Prisma.ItemCreateNestedManyWithoutCategoryInput
+  basketItems?: Prisma.BasketItemCreateNestedManyWithoutCategoryInput
 }
 
 export type ItemCategoryUncheckedCreateWithoutUsersInput = {
@@ -621,6 +715,7 @@ export type ItemCategoryUncheckedCreateWithoutUsersInput = {
   updatedAt?: Date | string
   children?: Prisma.ItemCategoryUncheckedCreateNestedManyWithoutParentInput
   items?: Prisma.ItemUncheckedCreateNestedManyWithoutCategoryInput
+  basketItems?: Prisma.BasketItemUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type ItemCategoryCreateOrConnectWithoutUsersInput = {
@@ -647,6 +742,7 @@ export type ItemCategoryUpdateWithoutUsersInput = {
   parent?: Prisma.ItemCategoryUpdateOneWithoutChildrenNestedInput
   children?: Prisma.ItemCategoryUpdateManyWithoutParentNestedInput
   items?: Prisma.ItemUpdateManyWithoutCategoryNestedInput
+  basketItems?: Prisma.BasketItemUpdateManyWithoutCategoryNestedInput
 }
 
 export type ItemCategoryUncheckedUpdateWithoutUsersInput = {
@@ -657,6 +753,7 @@ export type ItemCategoryUncheckedUpdateWithoutUsersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.ItemCategoryUncheckedUpdateManyWithoutParentNestedInput
   items?: Prisma.ItemUncheckedUpdateManyWithoutCategoryNestedInput
+  basketItems?: Prisma.BasketItemUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type ItemCategoryCreateManyParentInput = {
@@ -674,6 +771,7 @@ export type ItemCategoryUpdateWithoutParentInput = {
   children?: Prisma.ItemCategoryUpdateManyWithoutParentNestedInput
   items?: Prisma.ItemUpdateManyWithoutCategoryNestedInput
   users?: Prisma.UserItemCategoryUpdateManyWithoutCategoryNestedInput
+  basketItems?: Prisma.BasketItemUpdateManyWithoutCategoryNestedInput
 }
 
 export type ItemCategoryUncheckedUpdateWithoutParentInput = {
@@ -684,6 +782,7 @@ export type ItemCategoryUncheckedUpdateWithoutParentInput = {
   children?: Prisma.ItemCategoryUncheckedUpdateManyWithoutParentNestedInput
   items?: Prisma.ItemUncheckedUpdateManyWithoutCategoryNestedInput
   users?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  basketItems?: Prisma.BasketItemUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type ItemCategoryUncheckedUpdateManyWithoutParentInput = {
@@ -702,12 +801,14 @@ export type ItemCategoryCountOutputType = {
   children: number
   items: number
   users: number
+  basketItems: number
 }
 
 export type ItemCategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   children?: boolean | ItemCategoryCountOutputTypeCountChildrenArgs
   items?: boolean | ItemCategoryCountOutputTypeCountItemsArgs
   users?: boolean | ItemCategoryCountOutputTypeCountUsersArgs
+  basketItems?: boolean | ItemCategoryCountOutputTypeCountBasketItemsArgs
 }
 
 /**
@@ -741,6 +842,13 @@ export type ItemCategoryCountOutputTypeCountUsersArgs<ExtArgs extends runtime.Ty
   where?: Prisma.UserItemCategoryWhereInput
 }
 
+/**
+ * ItemCategoryCountOutputType without action
+ */
+export type ItemCategoryCountOutputTypeCountBasketItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BasketItemWhereInput
+}
+
 
 export type ItemCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -752,6 +860,7 @@ export type ItemCategorySelect<ExtArgs extends runtime.Types.Extensions.Internal
   children?: boolean | Prisma.ItemCategory$childrenArgs<ExtArgs>
   items?: boolean | Prisma.ItemCategory$itemsArgs<ExtArgs>
   users?: boolean | Prisma.ItemCategory$usersArgs<ExtArgs>
+  basketItems?: boolean | Prisma.ItemCategory$basketItemsArgs<ExtArgs>
   _count?: boolean | Prisma.ItemCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["itemCategory"]>
 
@@ -787,6 +896,7 @@ export type ItemCategoryInclude<ExtArgs extends runtime.Types.Extensions.Interna
   children?: boolean | Prisma.ItemCategory$childrenArgs<ExtArgs>
   items?: boolean | Prisma.ItemCategory$itemsArgs<ExtArgs>
   users?: boolean | Prisma.ItemCategory$usersArgs<ExtArgs>
+  basketItems?: boolean | Prisma.ItemCategory$basketItemsArgs<ExtArgs>
   _count?: boolean | Prisma.ItemCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ItemCategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -803,6 +913,7 @@ export type $ItemCategoryPayload<ExtArgs extends runtime.Types.Extensions.Intern
     children: Prisma.$ItemCategoryPayload<ExtArgs>[]
     items: Prisma.$ItemPayload<ExtArgs>[]
     users: Prisma.$UserItemCategoryPayload<ExtArgs>[]
+    basketItems: Prisma.$BasketItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1208,6 +1319,7 @@ export interface Prisma__ItemCategoryClient<T, Null = never, ExtArgs extends run
   children<T extends Prisma.ItemCategory$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ItemCategory$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ItemCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   items<T extends Prisma.ItemCategory$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ItemCategory$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   users<T extends Prisma.ItemCategory$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ItemCategory$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserItemCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  basketItems<T extends Prisma.ItemCategory$basketItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ItemCategory$basketItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BasketItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1726,6 +1838,30 @@ export type ItemCategory$usersArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.UserItemCategoryScalarFieldEnum | Prisma.UserItemCategoryScalarFieldEnum[]
+}
+
+/**
+ * ItemCategory.basketItems
+ */
+export type ItemCategory$basketItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BasketItem
+   */
+  select?: Prisma.BasketItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BasketItem
+   */
+  omit?: Prisma.BasketItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BasketItemInclude<ExtArgs> | null
+  where?: Prisma.BasketItemWhereInput
+  orderBy?: Prisma.BasketItemOrderByWithRelationInput | Prisma.BasketItemOrderByWithRelationInput[]
+  cursor?: Prisma.BasketItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BasketItemScalarFieldEnum | Prisma.BasketItemScalarFieldEnum[]
 }
 
 /**

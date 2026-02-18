@@ -1,0 +1,46 @@
+enum BasketScope {
+  PERSONAL
+  FAMILY
+
+  @@map("basket_scope")
+}
+
+model Basket {
+  id       String      @id @default(uuid())
+  userId   String      @map("user_id")
+  familyId String?     @map("family_id")
+  scope    BasketScope @default(PERSONAL)
+
+  items BasketItem[]
+  user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family Family? @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, scope], name: "personal_basket")
+  @@unique([familyId, scope], name: "family_basket")
+  @@index([userId])
+  @@index([familyId])
+  @@map("basket")
+}
+
+model BasketItem {
+  id         String  @id @default(uuid())
+  basketId   String  @map("basket_id")
+  name       String
+  quantity   Decimal @default(1)
+  price      Decimal?
+  categoryId String? @map("category_id")
+  notes      String?
+  addedBy    String  @map("added_by")
+
+  basket   Basket        @relation(fields: [basketId], references: [id], onDelete: Cascade)
+  category ItemCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([basketId])
+  @@map("basket_item")
+}

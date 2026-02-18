@@ -72,10 +72,11 @@ model ItemCategory {
 
   name String
 
-  parent   ItemCategory?  @relation(name: "children", fields: [parentId], references: [id])
-  children ItemCategory[] @relation(name: "children")
-  items    Item[]
-  users    UserItemCategory[]
+  parent      ItemCategory?  @relation(name: "children", fields: [parentId], references: [id])
+  children    ItemCategory[] @relation(name: "children")
+  items       Item[]
+  users       UserItemCategory[]
+  basketItems BasketItem[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
