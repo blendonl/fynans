@@ -5,6 +5,7 @@ export interface Category {
 }
 
 export interface ExpenseItem {
+  id?: string;
   name: string;
   price: number;
   discount: number;
