@@ -30,7 +30,7 @@ export class UpdateStoreItemCategoryUseCase {
     const updated = await this.storeItemCategoryRepository.update(id, {
       name: dto.name,
       parentId: dto.parentId,
-    } as Partial<StoreItemCategory>);
+    });
 
     return updated;
   }

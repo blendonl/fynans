@@ -26,7 +26,7 @@ export class CreateExpenseCategoryUseCase {
       name: dto.name,
       parentId: dto.parentId ?? null,
       isConnectedToStore: dto.isConnectedToStore,
-    } as Partial<ExpenseCategory>);
+    });
 
     await this.expenseCategoryRepository.linkToUser(category.id, userId);
 

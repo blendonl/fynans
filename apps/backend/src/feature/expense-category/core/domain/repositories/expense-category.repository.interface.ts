@@ -6,8 +6,20 @@ export interface PaginatedResult<T> {
   total: number;
 }
 
+export interface CreateExpenseCategoryData {
+  name: string;
+  parentId?: string | null;
+  isConnectedToStore?: boolean;
+}
+
+export interface UpdateExpenseCategoryData {
+  name?: string;
+  parentId?: string | null;
+  isConnectedToStore?: boolean;
+}
+
 export interface IExpenseCategoryRepository {
-  create(data: Partial<ExpenseCategory>): Promise<ExpenseCategory>;
+  create(data: CreateExpenseCategoryData): Promise<ExpenseCategory>;
   findById(id: string): Promise<ExpenseCategory | null>;
   findByName(name: string): Promise<ExpenseCategory | null>;
   findAll(
@@ -24,7 +36,7 @@ export interface IExpenseCategoryRepository {
   linkToUser(categoryId: string, userId: string): Promise<void>;
   update(
     id: string,
-    data: Partial<ExpenseCategory>,
+    data: UpdateExpenseCategoryData,
   ): Promise<ExpenseCategory>;
   delete(id: string): Promise<void>;
 }

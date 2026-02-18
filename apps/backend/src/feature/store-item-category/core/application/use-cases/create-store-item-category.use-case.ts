@@ -25,7 +25,7 @@ export class CreateStoreItemCategoryUseCase {
     const category = await this.storeItemCategoryRepository.create({
       name: dto.name,
       parentId: dto.parentId ?? null,
-    } as Partial<StoreItemCategory>);
+    });
 
     await this.storeItemCategoryRepository.linkToUser(category.id, userId);
 

@@ -6,8 +6,18 @@ export interface PaginatedResult<T> {
   total: number;
 }
 
+export interface CreateStoreItemCategoryData {
+  name: string;
+  parentId?: string | null;
+}
+
+export interface UpdateStoreItemCategoryData {
+  name?: string;
+  parentId?: string | null;
+}
+
 export interface IStoreItemCategoryRepository {
-  create(data: Partial<StoreItemCategory>): Promise<StoreItemCategory>;
+  create(data: CreateStoreItemCategoryData): Promise<StoreItemCategory>;
   findById(id: string): Promise<StoreItemCategory | null>;
   findByName(name: string): Promise<StoreItemCategory | null>;
   findAll(
@@ -23,7 +33,7 @@ export interface IStoreItemCategoryRepository {
   linkToUser(categoryId: string, userId: string): Promise<void>;
   update(
     id: string,
-    data: Partial<StoreItemCategory>,
+    data: UpdateStoreItemCategoryData,
   ): Promise<StoreItemCategory>;
   delete(id: string): Promise<void>;
 }

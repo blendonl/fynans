@@ -3,6 +3,8 @@ import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IStoreItemCategoryRepository,
   PaginatedResult,
+  CreateStoreItemCategoryData,
+  UpdateStoreItemCategoryData,
 } from '../../domain/repositories/store-item-category.repository.interface';
 import { StoreItemCategory } from '../../domain/entities/store-item-category.entity';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
@@ -15,10 +17,10 @@ export class PrismaStoreItemCategoryRepository
 {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: Partial<StoreItemCategory>): Promise<StoreItemCategory> {
+  async create(data: CreateStoreItemCategoryData): Promise<StoreItemCategory> {
     const category = await this.prisma.itemCategory.create({
       data: {
-        name: data.name!,
+        name: data.name,
         parentId: data.parentId ?? null,
       },
     });
@@ -113,9 +115,9 @@ export class PrismaStoreItemCategoryRepository
 
   async update(
     id: string,
-    data: Partial<StoreItemCategory>,
+    data: UpdateStoreItemCategoryData,
   ): Promise<StoreItemCategory> {
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
 
     if (data.name !== undefined) {
       updateData.name = data.name;

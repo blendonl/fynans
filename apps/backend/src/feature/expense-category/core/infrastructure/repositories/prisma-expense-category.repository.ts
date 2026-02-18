@@ -3,6 +3,8 @@ import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IExpenseCategoryRepository,
   PaginatedResult,
+  CreateExpenseCategoryData,
+  UpdateExpenseCategoryData,
 } from '../../domain/repositories/expense-category.repository.interface';
 import { ExpenseCategory } from '../../domain/entities/expense-category.entity';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
@@ -13,10 +15,10 @@ import { getVisibleUserIds } from '../../../../../common/helpers/family-visibili
 export class PrismaExpenseCategoryRepository implements IExpenseCategoryRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: Partial<ExpenseCategory>): Promise<ExpenseCategory> {
+  async create(data: CreateExpenseCategoryData): Promise<ExpenseCategory> {
     const category = await this.prisma.expenseCategory.create({
       data: {
-        name: data.name!,
+        name: data.name,
         parentId: data.parentId ?? null,
         isConnectedToStore: data.isConnectedToStore,
       },
@@ -117,9 +119,9 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
 
   async update(
     id: string,
-    data: Partial<ExpenseCategory>,
+    data: UpdateExpenseCategoryData,
   ): Promise<ExpenseCategory> {
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
 
     if (data.name !== undefined) {
       updateData.name = data.name;
@@ -127,6 +129,10 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
 
     if (data.parentId !== undefined) {
       updateData.parentId = data.parentId;
+    }
+
+    if (data.isConnectedToStore !== undefined) {
+      updateData.isConnectedToStore = data.isConnectedToStore;
     }
 
     const category = await this.prisma.expenseCategory.update({

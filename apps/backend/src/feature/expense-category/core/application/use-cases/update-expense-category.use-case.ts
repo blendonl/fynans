@@ -30,7 +30,7 @@ export class UpdateExpenseCategoryUseCase {
     const updated = await this.expenseCategoryRepository.update(id, {
       name: dto.name,
       parentId: dto.parentId,
-    } as Partial<ExpenseCategory>);
+    });
 
     return updated;
   }
