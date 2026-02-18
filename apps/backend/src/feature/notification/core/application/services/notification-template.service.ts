@@ -90,6 +90,20 @@ export class NotificationTemplateService {
           actionUrl: 'transactions',
         };
 
+      case NotificationType.BASKET_ITEM_ADDED:
+        return {
+          title: 'Item Added to Basket',
+          message: `${data.addedByName} added '${data.itemName}' to the family basket`,
+          actionUrl: 'basket',
+        };
+
+      case NotificationType.BASKET_ITEMS_BOUGHT:
+        return {
+          title: 'Basket Items Bought',
+          message: `${data.buyerName} bought ${data.itemCount} item${data.itemCount !== 1 ? 's' : ''} ($${data.totalAmount}) from the family basket`,
+          actionUrl: 'basket',
+        };
+
       default:
         return {
           title: 'Notification',
