@@ -10,11 +10,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { RECEIPT_MAX_FILE_SIZE, RECEIPT_ALLOWED_MIME_TYPES } from "@fynans/shared";
 import { useReceiptScan, type ProcessedReceiptResponse } from "@/hooks/use-receipt-scan";
 import { GuidedCameraOverlay } from "@/components/receipt-capture/guided-camera-overlay";
 import { ReceiptCropOverlay } from "@/components/receipt-capture/receipt-crop-overlay";
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const hasGetUserMedia =
   typeof navigator !== "undefined" &&
@@ -34,11 +33,11 @@ export function ScanReceiptDialog({ open, onOpenChange, onResult }: ScanReceiptD
   const { scan, isPending, progress, step, reset } = useReceiptScan();
 
   const handleFile = (file: File) => {
-    if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
+    if (!RECEIPT_ALLOWED_MIME_TYPES.includes(file.type)) {
       toast.error("Only JPEG and PNG images are allowed");
       return;
     }
-    if (file.size > MAX_FILE_SIZE) {
+    if (file.size > RECEIPT_MAX_FILE_SIZE) {
       toast.error("File size must be under 10MB");
       return;
     }

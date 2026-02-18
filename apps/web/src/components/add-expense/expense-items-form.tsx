@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, type ReactNode } from "react";
 import { Plus, Check, X } from "lucide-react";
 import { toast } from "sonner";
-import { formatCurrency } from "@fynans/shared";
+import { formatCurrency, calculateExpenseItemsTotal } from "@fynans/shared";
 import type { CurrentItem, Category, ExpenseItem } from "@fynans/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +30,11 @@ interface ExpenseItemsFormProps {
   onQuantityChange: (index: number, quantity: number) => void;
   onCreateNewItemCategory: (name: string) => void;
   isLoadingCategories: boolean;
+  onItemNameChange?: (name: string) => void;
+  itemCategoryAiSuggestion?: { categoryId: string; categoryName: string } | null;
+  isItemCategoryAiLoading?: boolean;
+  onAcceptItemCategoryAi?: () => void;
+  onDismissItemCategoryAi?: () => void;
 }
 
 export function ExpenseItemsForm({
@@ -49,6 +54,11 @@ export function ExpenseItemsForm({
   onQuantityChange,
   onCreateNewItemCategory,
   isLoadingCategories,
+  onItemNameChange,
+  itemCategoryAiSuggestion,
+  isItemCategoryAiLoading,
+  onAcceptItemCategoryAi,
+  onDismissItemCategoryAi,
 }: ExpenseItemsFormProps) {
   const [itemSearch, setItemSearch] = useState("");
   const [isNewItem, setIsNewItem] = useState(false);
@@ -66,7 +76,7 @@ export function ExpenseItemsForm({
   const selectedItemCategory = itemCategories.find((c) => c.id === currentItem.categoryId) || null;
 
   const isEditing = editingIndex !== null;
-  const showFormFields = isEditing || isNewItem;
+  const showAddFormFields = !isEditing && isNewItem;
 
   const itemOptions: ComboboxOption[] = useMemo(
     () =>
@@ -99,6 +109,7 @@ export function ExpenseItemsForm({
     setIsNewItem(true);
     setSelectedItemId(null);
     onCurrentItemChange({ ...currentItem, name, categoryId: "" });
+    onItemNameChange?.(name);
   };
 
   const handleItemClear = () => {
@@ -107,10 +118,7 @@ export function ExpenseItemsForm({
     onCurrentItemChange({ ...currentItem, name: "", categoryId: "" });
   };
 
-  const total = items.reduce(
-    (sum, item) => sum + (item.price - item.discount) * item.quantity,
-    0
-  );
+  const total = calculateExpenseItemsTotal(items);
 
   const handleRemove = (index: number) => {
     const removed = onRemoveItem(index);
@@ -122,22 +130,121 @@ export function ExpenseItemsForm({
     });
   };
 
-  const showCategorySelector = isEditing || isNewItem;
+  const renderFormFields = (mode: "edit" | "add"): ReactNode => {
+    const isEditMode = mode === "edit";
+    const showCategorySelector = isEditMode || isNewItem;
+
+    return (
+      <div className="space-y-3 field-slide-down">
+        {isEditMode && (
+          <div>
+            <Input
+              type="text"
+              placeholder="Item name"
+              value={currentItem.name}
+              onChange={(e) => onCurrentItemChange({ ...currentItem, name: e.target.value })}
+              className="min-h-12"
+              autoFocus
+            />
+            {itemErrors.name && <p className="text-xs text-error mt-1">{itemErrors.name}</p>}
+          </div>
+        )}
+        <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3">
+          <div>
+            <Input
+              type="number"
+              placeholder="Price"
+              value={currentItem.price}
+              onChange={(e) => onCurrentItemChange({ ...currentItem, price: e.target.value })}
+              step="0.01"
+              min="0"
+              className="min-h-12"
+            />
+            {itemErrors.price && <p className="text-xs text-error mt-1">{itemErrors.price}</p>}
+          </div>
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <Input
+                type="number"
+                placeholder="Qty"
+                value={currentItem.quantity}
+                onChange={(e) => onCurrentItemChange({ ...currentItem, quantity: e.target.value })}
+                step="0.1"
+                min="0.1"
+                className="min-h-12"
+              />
+            </div>
+            <div className="flex-1">
+              <Input
+                type="number"
+                placeholder="Discount"
+                value={currentItem.discount}
+                onChange={(e) => onCurrentItemChange({ ...currentItem, discount: e.target.value })}
+                step="0.01"
+                min="0"
+                className="min-h-12"
+              />
+            </div>
+          </div>
+          {showCategorySelector && (
+            <div className="sm:col-span-2">
+              <ItemCategorySelector
+                itemCategories={itemCategories}
+                selectedCategory={selectedItemCategory}
+                onSelect={(cat) => onCurrentItemChange({ ...currentItem, categoryId: cat.id })}
+                onClear={() => onCurrentItemChange({ ...currentItem, categoryId: "" })}
+                onCreateNew={onCreateNewItemCategory}
+                isLoading={isLoadingCategories}
+                aiSuggestion={itemCategoryAiSuggestion}
+                onAcceptSuggestion={onAcceptItemCategoryAi}
+                onDismissSuggestion={onDismissItemCategoryAi}
+                isSuggestionLoading={isItemCategoryAiLoading}
+              />
+              {itemErrors.categoryId && <p className="text-xs text-error mt-1">{itemErrors.categoryId}</p>}
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2">
+          <Button onClick={onAddItem} className="flex-1 h-11">
+            {isEditMode ? <Check className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+            {isEditMode ? "Update" : "Add Item"}
+          </Button>
+          {isEditMode && (
+            <Button variant="outline" onClick={onCancelEdit} className="h-11">
+              <X className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-3">
       <Label>Items{items.length > 0 && ` (${items.length})`}</Label>
       <div className={items.length > 0 ? "border border-border rounded-2xl p-3 sm:p-4 space-y-3" : "space-y-3"}>
-        {items.map((item, i) => (
-          <ExpenseItemRow
-            key={i}
-            item={item}
-            index={i}
-            onEdit={onEditItem}
-            onRemove={handleRemove}
-            onQuantityChange={onQuantityChange}
-          />
-        ))}
+        {items.map((item, i) => {
+          const isItemEditing = editingIndex === i;
+          return (
+            <div key={item.id ?? i}>
+              <ExpenseItemRow
+                item={item}
+                index={i}
+                isEditing={isItemEditing}
+                onEdit={onEditItem}
+                onRemove={handleRemove}
+                onQuantityChange={onQuantityChange}
+              />
+              {isItemEditing && (
+                <div className="px-3 pb-3 pt-2 sm:px-4 sm:pb-4 bg-surface-variant rounded-b-2xl border-t border-border/40">
+                  {renderFormFields("edit")}
+                </div>
+              )}
+            </div>
+          );
+        })}
 
         {items.length > 0 && (
           <div className="flex justify-between items-center px-4 py-3 rounded-2xl bg-surface-variant">
@@ -159,6 +266,7 @@ export function ExpenseItemsForm({
                 setItemSearch(search);
                 if (isNewItem) {
                   onCurrentItemChange({ ...currentItem, name: search });
+                  onItemNameChange?.(search);
                 }
               }}
               onCreateNew={isNewItem ? undefined : handleItemCreateNew}
@@ -174,75 +282,7 @@ export function ExpenseItemsForm({
           </div>
         )}
 
-        {showFormFields && (
-          <div className="space-y-3 field-slide-down">
-            {/* Mobile: stack vertically. Desktop: grid */}
-            <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3">
-              <div>
-                <Input
-                  type="number"
-                  placeholder="Price"
-                  value={currentItem.price}
-                  onChange={(e) => onCurrentItemChange({ ...currentItem, price: e.target.value })}
-                  step="0.01"
-                  min="0"
-                  className="min-h-12"
-                />
-                {itemErrors.price && <p className="text-xs text-error mt-1">{itemErrors.price}</p>}
-              </div>
-              <div className="flex gap-3">
-                <div className="flex-1">
-                  <Input
-                    type="number"
-                    placeholder="Qty"
-                    value={currentItem.quantity}
-                    onChange={(e) => onCurrentItemChange({ ...currentItem, quantity: e.target.value })}
-                    step="0.1"
-                    min="0.1"
-                    className="min-h-12"
-                  />
-                </div>
-                <div className="flex-1">
-                  <Input
-                    type="number"
-                    placeholder="Discount"
-                    value={currentItem.discount}
-                    onChange={(e) => onCurrentItemChange({ ...currentItem, discount: e.target.value })}
-                    step="0.01"
-                    min="0"
-                    className="min-h-12"
-                  />
-                </div>
-              </div>
-              {showCategorySelector && (
-                <div className="sm:col-span-2">
-                  <ItemCategorySelector
-                    itemCategories={itemCategories}
-                    selectedCategory={selectedItemCategory}
-                    onSelect={(cat) => onCurrentItemChange({ ...currentItem, categoryId: cat.id })}
-                    onClear={() => onCurrentItemChange({ ...currentItem, categoryId: "" })}
-                    onCreateNew={onCreateNewItemCategory}
-                    isLoading={isLoadingCategories}
-                  />
-                  {itemErrors.categoryId && <p className="text-xs text-error mt-1">{itemErrors.categoryId}</p>}
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-2">
-              <Button onClick={onAddItem} className="flex-1 h-11">
-                {isEditing ? <Check className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-                {isEditing ? "Update" : "Add Item"}
-              </Button>
-              {isEditing && (
-                <Button variant="outline" onClick={onCancelEdit} className="h-11">
-                  <X className="h-4 w-4 mr-2" />
-                  Cancel
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
+        {showAddFormFields && renderFormFields("add")}
       </div>
     </div>
   );

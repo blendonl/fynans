@@ -5,6 +5,7 @@ import type { Category } from "@fynans/shared";
 import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { AiSuggestionBadge } from "./ai-suggestion-badge";
 
 interface CategorySelectorProps {
   categories: Category[];
@@ -17,6 +18,10 @@ interface CategorySelectorProps {
   onLoadMore?: () => void;
   hasMore?: boolean;
   isLoadingMore?: boolean;
+  aiSuggestion?: { categoryId: string; categoryName: string } | null;
+  onAcceptSuggestion?: () => void;
+  onDismissSuggestion?: () => void;
+  isSuggestionLoading?: boolean;
 }
 
 export function CategorySelector({
@@ -30,6 +35,10 @@ export function CategorySelector({
   onLoadMore,
   hasMore,
   isLoadingMore,
+  aiSuggestion,
+  onAcceptSuggestion,
+  onDismissSuggestion,
+  isSuggestionLoading,
 }: CategorySelectorProps) {
   const options: ComboboxOption[] = useMemo(
     () =>
@@ -70,6 +79,18 @@ export function CategorySelector({
           className="min-h-12 rounded-2xl"
         />
       </div>
+      {(aiSuggestion || isSuggestionLoading) && onAcceptSuggestion && onDismissSuggestion && (
+        <AiSuggestionBadge
+          suggestion={aiSuggestion ?? null}
+          isLoading={!!isSuggestionLoading}
+          categories={categories}
+          onAccept={(cat) => {
+            onSelect(cat as Category);
+            onAcceptSuggestion();
+          }}
+          onDismiss={onDismissSuggestion}
+        />
+      )}
     </div>
   );
 }
