@@ -10,6 +10,7 @@ import { ListStoresUseCase } from './application/use-cases/list-stores.use-case'
 import { CreateOrFindStoreItemUseCase } from './application/use-cases/create-or-find-store-item.use-case';
 import { GetStoreItemByIdUseCase } from './application/use-cases/get-store-item-by-id.use-case';
 import { ListStoreItemsUseCase } from './application/use-cases/list-store-items.use-case';
+import { SearchItemsWithPricesUseCase } from './application/use-cases/search-items-with-prices.use-case';
 import { FindStoreBySimilarityUseCase } from './application/use-cases/find-store-by-similarity.use-case';
 import { StoreService } from './application/services/store.service';
 import { StoreItemService } from './application/services/store-item.service';
@@ -31,6 +32,7 @@ import { StoreItemService } from './application/services/store-item.service';
     CreateOrFindStoreItemUseCase,
     GetStoreItemByIdUseCase,
     ListStoreItemsUseCase,
+    SearchItemsWithPricesUseCase,
     FindStoreBySimilarityUseCase,
     StoreService,
     StoreItemService,
@@ -43,4 +45,4 @@ import { StoreItemService } from './application/services/store-item.service';
     'StoreItemRepository',
   ],
 })
-export class StoreCoreModule { }
+export class StoreCoreModule {}

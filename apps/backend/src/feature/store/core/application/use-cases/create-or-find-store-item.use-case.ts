@@ -20,10 +20,7 @@ export class CreateOrFindStoreItemUseCase {
   async execute(dto: CreateStoreItemDto, userId: string): Promise<StoreItem> {
     this.validate(dto);
 
-    let item = await this.itemRepository.findByNameAndCategory(
-      dto.name,
-      dto.categoryId,
-    );
+    let item = await this.itemRepository.findByName(dto.name);
 
     if (!item) {
       item = await this.itemRepository.create({

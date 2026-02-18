@@ -6,6 +6,15 @@ export interface PaginatedResult<T> {
   total: number;
 }
 
+export interface ItemWithPricesRow {
+  id: string;
+  name: string;
+  categoryId: string;
+  minPrice: number;
+  maxPrice: number;
+  storeCount: number;
+}
+
 export interface IStoreItemRepository {
   create(data: Partial<StoreItem>): Promise<StoreItem>;
   findById(id: string): Promise<StoreItem | null>;
@@ -22,6 +31,11 @@ export interface IStoreItemRepository {
     pagination?: Pagination,
   ): Promise<PaginatedResult<StoreItem>>;
   linkToUser(storeItemId: string, userId: string): Promise<void>;
+  searchWithPrices(
+    userId: string,
+    search?: string,
+    pagination?: Pagination,
+  ): Promise<PaginatedResult<ItemWithPricesRow>>;
   update(id: string, data: Partial<StoreItem>): Promise<StoreItem>;
   delete(id: string): Promise<void>;
 }

@@ -3,6 +3,7 @@ import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IStoreItemRepository,
   PaginatedResult,
+  ItemWithPricesRow,
 } from '../../domain/repositories/store-item.repository.interface';
 import { StoreItem } from '../../domain/entities/store-item.entity';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
@@ -135,6 +136,50 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
       create: { userId, storeItemId },
       update: {},
     });
+  }
+
+  async searchWithPrices(
+    userId: string,
+    search?: string,
+    pagination?: Pagination,
+  ): Promise<PaginatedResult<ItemWithPricesRow>> {
+    const limit = pagination?.take ?? 20;
+    const offset = pagination?.skip ?? 0;
+    const searchParam = search?.trim() || null;
+
+    const rows = await this.prisma.$queryRaw<
+      (ItemWithPricesRow & { total: bigint })[]
+    >`
+      WITH visible_users AS (
+        SELECT ${userId} AS user_id
+        UNION
+        SELECT fm2.user_id
+        FROM family_member fm1
+        JOIN family_member fm2 ON fm2.family_id = fm1.family_id
+        WHERE fm1.user_id = ${userId}
+      )
+      SELECT
+        i.id,
+        i.name,
+        i.category_id AS "categoryId",
+        MIN(si.price)::float AS "minPrice",
+        MAX(si.price)::float AS "maxPrice",
+        COUNT(DISTINCT si.store_id)::int AS "storeCount",
+        COUNT(*) OVER()::bigint AS total
+      FROM store_item si
+      JOIN item i ON i.id = si.item_id
+      JOIN user_store_item usi ON usi.store_item_id = si.id
+      WHERE usi.user_id IN (SELECT user_id FROM visible_users)
+        AND (${searchParam}::text IS NULL OR i.name ILIKE '%' || ${searchParam} || '%')
+      GROUP BY i.id, i.name, i.category_id
+      ORDER BY i.name
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    return {
+      data: rows,
+      total: Number(rows[0]?.total ?? 0),
+    };
   }
 
   async update(id: string, data: Partial<StoreItem>): Promise<StoreItem> {
