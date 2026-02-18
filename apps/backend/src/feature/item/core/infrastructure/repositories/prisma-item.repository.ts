@@ -3,6 +3,7 @@ import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IItemRepository,
   PaginatedResult,
+  ItemWithStoresRow,
 } from '../../domain/repositories/item.repository.interface';
 import { Item } from '../../domain/entities/item.entity';
 import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
@@ -139,6 +140,62 @@ export class PrismaItemRepository implements IItemRepository {
     return {
       data: items.map(ItemMapper.toDomain),
       total,
+      page: pagination?.page ?? 1,
+      limit: pagination?.limit ?? 10,
+    };
+  }
+
+  async searchWithStores(
+    userId: string,
+    search?: string,
+    pagination?: Pagination,
+  ): Promise<PaginatedResult<ItemWithStoresRow>> {
+    const limit = pagination?.take ?? 20;
+    const offset = pagination?.skip ?? 0;
+    const searchParam = search?.trim() || null;
+
+    const rows = await this.prisma.$queryRaw<
+      (ItemWithStoresRow & { total: bigint })[]
+    >`
+      WITH visible_users AS (
+        SELECT ${userId} AS user_id
+        UNION
+        SELECT fm2.user_id
+        FROM family_member fm1
+        JOIN family_member fm2 ON fm2.family_id = fm1.family_id
+        WHERE fm1.user_id = ${userId}
+      ),
+      matched_items AS (
+        SELECT DISTINCT i.id, i.name, i.category_id AS "categoryId",
+          COUNT(*) OVER()::bigint AS total
+        FROM item i
+        JOIN user_item ui ON ui.item_id = i.id
+        WHERE ui.user_id IN (SELECT user_id FROM visible_users)
+          AND (${searchParam}::text IS NULL OR i.name ILIKE '%' || ${searchParam} || '%')
+        ORDER BY i.name
+        LIMIT ${limit} OFFSET ${offset}
+      )
+      SELECT
+        mi.id,
+        mi.name,
+        mi."categoryId",
+        mi.total,
+        COALESCE(
+          json_agg(
+            json_build_object('storeId', s.id, 'storeName', s.name, 'price', si.price::float)
+          ) FILTER (WHERE s.id IS NOT NULL),
+          '[]'::json
+        ) AS stores
+      FROM matched_items mi
+      LEFT JOIN store_item si ON si.item_id = mi.id
+      LEFT JOIN store s ON s.id = si.store_id
+      GROUP BY mi.id, mi.name, mi."categoryId", mi.total
+      ORDER BY mi.name
+    `;
+
+    return {
+      data: rows,
+      total: Number(rows[0]?.total ?? 0),
       page: pagination?.page ?? 1,
       limit: pagination?.limit ?? 10,
     };

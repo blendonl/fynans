@@ -5,6 +5,10 @@ import { ListItemsUseCase } from '../use-cases/list-items.use-case';
 import { FindItemByNameUseCase } from '../use-cases/find-item-by-name.use-case';
 import { UpdateItemUseCase } from '../use-cases/update-item.use-case';
 import { DeleteItemUseCase } from '../use-cases/delete-item.use-case';
+import {
+  SearchItemsWithStoresUseCase,
+  type ItemWithStoresResult,
+} from '../use-cases/search-items-with-stores.use-case';
 import { CreateItemDto } from '../dto/create-item.dto';
 import { UpdateItemDto } from '../dto/update-item.dto';
 import { Item } from '../../domain/entities/item.entity';
@@ -20,6 +24,7 @@ export class ItemService {
     private readonly findItemByNameUseCase: FindItemByNameUseCase,
     private readonly updateItemUseCase: UpdateItemUseCase,
     private readonly deleteItemUseCase: DeleteItemUseCase,
+    private readonly searchItemsWithStoresUseCase: SearchItemsWithStoresUseCase,
   ) {}
 
   async create(dto: CreateItemDto, userId: string): Promise<Item> {
@@ -45,6 +50,14 @@ export class ItemService {
 
   async update(id: string, dto: UpdateItemDto): Promise<Item> {
     return this.updateItemUseCase.execute(id, dto);
+  }
+
+  async searchWithStores(
+    userId: string,
+    search?: string,
+    pagination?: Pagination,
+  ): Promise<PaginatedResult<ItemWithStoresResult>> {
+    return this.searchItemsWithStoresUseCase.execute(userId, search, pagination);
   }
 
   async delete(id: string): Promise<void> {

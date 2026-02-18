@@ -9,6 +9,8 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  ParseIntPipe,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { ItemService } from '../../core/application/services/item.service';
 import { CreateItemRequestDto } from '../dto/create-item-request.dto';
@@ -22,7 +24,9 @@ import { User } from '../../../user/core/domain/entities/user.entity';
 
 @Controller('items')
 export class ItemController {
-  constructor(private readonly itemService: ItemService) {}
+  constructor(
+    private readonly itemService: ItemService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -50,6 +54,23 @@ export class ItemController {
 
     return {
       data: ItemResponseDto.fromEntities(result.data),
+      total: result.total,
+      page: pagination.page,
+      limit: pagination.limit,
+    };
+  }
+
+  @Get('with-stores')
+  async findWithStores(
+    @CurrentUser() user: User,
+    @Query('search') search?: string,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit?: number,
+  ) {
+    const pagination = new Pagination(page, limit);
+    const result = await this.itemService.searchWithStores(user.id, search, pagination);
+    return {
+      data: result.data,
       total: result.total,
       page: pagination.page,
       limit: pagination.limit,

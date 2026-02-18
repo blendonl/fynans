@@ -3,6 +3,19 @@ import { Pagination, PaginatedResult } from '~common/types/pagination';
 
 export { PaginatedResult };
 
+export interface ItemStorePrice {
+  storeId: string;
+  storeName: string;
+  price: number;
+}
+
+export interface ItemWithStoresRow {
+  id: string;
+  name: string;
+  categoryId: string;
+  stores: ItemStorePrice[];
+}
+
 export interface IItemRepository {
   create(data: Partial<Item>): Promise<Item>;
   findById(id: string): Promise<Item | null>;
@@ -22,6 +35,11 @@ export interface IItemRepository {
     pagination?: Pagination,
   ): Promise<PaginatedResult<Item>>;
   linkToUser(itemId: string, userId: string): Promise<void>;
+  searchWithStores(
+    userId: string,
+    search?: string,
+    pagination?: Pagination,
+  ): Promise<PaginatedResult<ItemWithStoresRow>>;
   update(id: string, data: Partial<Item>): Promise<Item>;
   delete(id: string): Promise<void>;
 }
