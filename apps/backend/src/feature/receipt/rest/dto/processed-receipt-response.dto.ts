@@ -13,6 +13,7 @@ class ProcessedItemDto {
   quantity: number;
   categoryId?: string;
   suggestedItemCategoryId?: string;
+  resolvedCategoryId?: string;
 }
 
 export class ProcessedReceiptResponseDto {
@@ -21,6 +22,7 @@ export class ProcessedReceiptResponseDto {
   recordedAt?: string;
   extractedText: string;
   confidence: number;
+  isLowConfidence: boolean;
   parserUsed?: string;
   suggestedExpenseCategory?: { id: string; name: string };
 
@@ -34,12 +36,14 @@ export class ProcessedReceiptResponseDto {
       quantity: item.quantity,
       categoryId: item.categoryId,
       suggestedItemCategoryId: item.suggestedItemCategoryId,
+      resolvedCategoryId: item.resolvedCategoryId,
     }));
     dto.recordedAt = data.recordedAt
       ? new Date(data.recordedAt).toISOString()
       : undefined;
     dto.extractedText = data.extractedText;
     dto.confidence = data.confidence;
+    dto.isLowConfidence = data.isLowConfidence;
     dto.parserUsed = data.parserUsed;
     if (data.suggestedExpenseCategoryId && data.suggestedExpenseCategoryName) {
       dto.suggestedExpenseCategory = {

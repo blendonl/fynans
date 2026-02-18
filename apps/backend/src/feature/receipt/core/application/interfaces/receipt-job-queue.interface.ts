@@ -5,9 +5,9 @@ export type ReceiptJobStatus =
   | 'failed'
   | 'not_found';
 
-export interface ReceiptJobResult {
+export interface ReceiptJobResult<T = unknown> {
   status: ReceiptJobStatus;
-  data?: Record<string, any>;
+  data?: T;
   error?: string;
   progress?: number;
 }
@@ -16,4 +16,9 @@ export interface IReceiptJobQueue {
   addJob(imageBuffer: Buffer, userId?: string): Promise<string>;
   getJobStatus(jobId: string): Promise<ReceiptJobStatus>;
   getJobResult(jobId: string): Promise<ReceiptJobResult>;
+  streamJobProgress(
+    jobId: string,
+    onEvent: (event: ReceiptJobResult) => void,
+    signal?: AbortSignal,
+  ): Promise<void>;
 }

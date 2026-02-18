@@ -20,23 +20,36 @@ export class ProcessReceiptUseCase {
     imageBuffer: Buffer,
     userId?: string,
     progressTracker?: ProgressTracker,
+    options?: { skipOcr?: boolean },
   ): Promise<ProcessedReceiptData> {
-    progressTracker?.startStage('ocr');
-    const ocrResult = await this.ocrService.extractText(imageBuffer);
-    progressTracker?.completeStage('ocr');
-
-    let userContext;
-    if (userId) {
-      progressTracker?.startStage('context');
-      try {
-        userContext = await this.fetchUserContextUseCase.execute(userId);
-      } catch (error) {
-        this.logger.warn(
-          `Failed to fetch user context: ${error instanceof Error ? error.message : error}`,
-        );
-      }
-      progressTracker?.completeStage('context');
-    }
+    // Run OCR and context fetch concurrently
+    const [ocrResult, userContext] = await Promise.all([
+      options?.skipOcr
+        ? { text: '', confidence: 0 }
+        : (async () => {
+            progressTracker?.startStage('ocr');
+            const ocrStart = Date.now();
+            const result = await this.ocrService.extractText(imageBuffer);
+            this.logger.log(`OCR completed in ${Date.now() - ocrStart}ms`);
+            progressTracker?.completeStage('ocr');
+            return result;
+          })(),
+      userId
+        ? (async () => {
+            progressTracker?.startStage('context');
+            try {
+              return await this.fetchUserContextUseCase.execute(userId);
+            } catch (error) {
+              this.logger.warn(
+                `Failed to fetch user context: ${error instanceof Error ? error.message : error}`,
+              );
+              return undefined;
+            } finally {
+              progressTracker?.completeStage('context');
+            }
+          })()
+        : undefined,
+    ]);
 
     const parsingResult = await this.parserService.parse(ocrResult.text, {
       userId,
@@ -46,10 +59,6 @@ export class ProcessReceiptUseCase {
       imageBuffer,
       progressTracker,
     });
-
-    // Mark cross-validate stage complete (cross-validation runs inside parser factory)
-    progressTracker?.startStage('cross-validate');
-    progressTracker?.completeStage('cross-validate');
 
     return {
       ...parsingResult,

@@ -3,6 +3,7 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { ProcessReceiptUseCase } from '../../application/use-cases/process-receipt.use-case';
 import { EnrichReceiptDataUseCase } from '../../application/use-cases/enrich-receipt-data.use-case';
+import { EnrichedReceiptDataDto } from '../../application/dto/enriched-receipt-data.dto';
 import { ProgressTracker } from '../../application/services/progress-tracker';
 import { ConfigService } from '@nestjs/config';
 
@@ -22,10 +23,12 @@ export class ReceiptProcessingWorker extends WorkerHost {
     private readonly configService: ConfigService,
   ) {
     super();
-    this.useVision = !!this.configService.get<string>('OLLAMA_VISION_MODEL');
+    this.useVision =
+      this.configService.get<string>('VISION_PARSER') === 'donut' ||
+      !!this.configService.get<string>('OLLAMA_VISION_MODEL');
   }
 
-  async process(job: Job<ReceiptJobData>): Promise<Record<string, any>> {
+  async process(job: Job<ReceiptJobData>): Promise<EnrichedReceiptDataDto> {
     this.logger.log(`Processing receipt job ${job.id}`);
 
     const imageBuffer = Buffer.from(job.data.imageBase64, 'base64');
@@ -33,10 +36,8 @@ export class ReceiptProcessingWorker extends WorkerHost {
 
     const stages = this.useVision
       ? [
-          { name: 'ocr', weight: 3 },
-          { name: 'context', weight: 2 },
-          { name: 'vision-parse', weight: 82 },
-          { name: 'cross-validate', weight: 3 },
+          { name: 'context', weight: 5 },
+          { name: 'vision-parse', weight: 85 },
           { name: 'enrich', weight: 10 },
         ]
       : [
@@ -54,6 +55,7 @@ export class ReceiptProcessingWorker extends WorkerHost {
       imageBuffer,
       userId,
       tracker,
+      { skipOcr: this.useVision },
     );
 
     tracker.startStage('enrich');
@@ -65,6 +67,6 @@ export class ReceiptProcessingWorker extends WorkerHost {
     tracker.complete();
 
     this.logger.log(`Receipt job ${job.id} completed`);
-    return enrichedResult as unknown as Record<string, any>;
+    return enrichedResult;
   }
 }

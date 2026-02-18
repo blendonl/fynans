@@ -2,7 +2,9 @@ import {
   Controller,
   Post,
   Get,
+  Sse,
   Param,
+  Req,
   UseInterceptors,
   UploadedFile,
   BadRequestException,
@@ -10,9 +12,15 @@ import {
   HttpStatus,
   Inject,
   NotFoundException,
+  MessageEvent,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { IReceiptJobQueue } from '../../core/application/interfaces/receipt-job-queue.interface';
+import { Request } from 'express';
+import { Observable } from 'rxjs';
+import {
+  IReceiptJobQueue,
+  ReceiptJobResult,
+} from '../../core/application/interfaces/receipt-job-queue.interface';
 import { ProcessedReceiptResponseDto } from '../dto/processed-receipt-response.dto';
 import { EnrichedReceiptDataDto } from '../../core/application/dto/enriched-receipt-data.dto';
 import { CurrentUser } from '~feature/auth/rest/decorators/current-user.decorator';
@@ -56,7 +64,8 @@ export class ReceiptController {
 
   @Get('jobs/:jobId')
   async getJobStatus(@Param('jobId') jobId: string) {
-    const result = await this.receiptJobQueue.getJobResult(jobId);
+    const result =
+      await this.receiptJobQueue.getJobResult(jobId) as ReceiptJobResult<EnrichedReceiptDataDto>;
 
     if (result.status === 'not_found') {
       throw new NotFoundException(`Job ${jobId} not found`);
@@ -65,12 +74,57 @@ export class ReceiptController {
     if (result.status === 'completed' && result.data) {
       return {
         ...result,
-        data: ProcessedReceiptResponseDto.fromData(
-          result.data as unknown as EnrichedReceiptDataDto,
-        ),
+        data: ProcessedReceiptResponseDto.fromData(result.data),
       };
     }
 
     return result;
+  }
+
+  @Sse('jobs/:jobId/stream')
+  streamJobProgress(
+    @Param('jobId') jobId: string,
+    @Req() req: Request,
+  ): Observable<MessageEvent> {
+    return new Observable((subscriber) => {
+      const abortController = new AbortController();
+
+      req.on('close', () => abortController.abort());
+
+      this.receiptJobQueue
+        .streamJobProgress(
+          jobId,
+          (event) => {
+            const typedEvent = event as ReceiptJobResult<EnrichedReceiptDataDto>;
+            let data: Record<string, unknown> = {
+              status: typedEvent.status,
+              progress: typedEvent.progress,
+            };
+
+            if (typedEvent.status === 'completed' && typedEvent.data) {
+              data = {
+                ...data,
+                data: ProcessedReceiptResponseDto.fromData(typedEvent.data),
+              };
+            }
+
+            if (typedEvent.error) {
+              data.error = typedEvent.error;
+            }
+
+            subscriber.next({ data });
+
+            if (
+              typedEvent.status === 'completed' ||
+              typedEvent.status === 'failed' ||
+              typedEvent.status === 'not_found'
+            ) {
+              subscriber.complete();
+            }
+          },
+          abortController.signal,
+        )
+        .catch((err) => subscriber.error(err));
+    });
   }
 }

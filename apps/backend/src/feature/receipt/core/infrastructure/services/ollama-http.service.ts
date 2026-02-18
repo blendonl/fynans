@@ -14,6 +14,7 @@ export class OllamaHttpService implements IOllamaService {
   private readonly visionModel: string;
   private readonly maxRetries = 2;
   private readonly timeoutMs: number;
+  private readonly keepAlive: string;
 
   constructor(private readonly configService: ConfigService) {
     this.baseUrl = this.configService.get<string>(
@@ -23,9 +24,10 @@ export class OllamaHttpService implements IOllamaService {
     this.model = this.configService.get<string>('OLLAMA_MODEL', 'qwen2.5:7b');
     this.visionModel = this.configService.get<string>(
       'OLLAMA_VISION_MODEL',
-      'qwen2.5vl:7b',
+      'qwen2.5-vl:3b',
     );
     this.timeoutMs = this.configService.get<number>('OLLAMA_TIMEOUT', 180_000);
+    this.keepAlive = this.configService.get<string>('OLLAMA_KEEP_ALIVE', '30m');
   }
 
   async generateCompletion(
@@ -43,6 +45,7 @@ export class OllamaHttpService implements IOllamaService {
       options: {
         temperature: options?.temperature ?? 0.1,
         ...(options?.maxTokens && { num_predict: options.maxTokens }),
+        ...(useVision && { num_keep: 0 }),
       },
     };
 
@@ -53,6 +56,8 @@ export class OllamaHttpService implements IOllamaService {
     if (options?.images) {
       body.images = options.images;
     }
+
+    body.keep_alive = this.keepAlive;
 
     let lastError: Error | undefined;
 
@@ -90,8 +95,13 @@ export class OllamaHttpService implements IOllamaService {
           const data = (await response.json()) as {
             response: string;
             total_duration?: number;
+            prompt_eval_duration?: number;
+            eval_duration?: number;
+            prompt_eval_count?: number;
             eval_count?: number;
           };
+
+          this.logOllamaMetrics(data);
 
           return {
             response: data.response,
@@ -121,6 +131,7 @@ export class OllamaHttpService implements IOllamaService {
     let fullResponse = '';
     let tokenCount = 0;
     let totalDuration: number | undefined;
+    let finalChunkData: Record<string, any> = {};
     let buffer = '';
 
     while (true) {
@@ -135,22 +146,18 @@ export class OllamaHttpService implements IOllamaService {
       for (const line of lines) {
         if (!line.trim()) continue;
         try {
-          const chunk = JSON.parse(line) as {
-            response?: string;
-            done?: boolean;
-            total_duration?: number;
-            eval_count?: number;
-          };
+          const chunk = JSON.parse(line) as Record<string, any>;
 
           if (chunk.response) {
-            fullResponse += chunk.response;
+            fullResponse += chunk.response as string;
             tokenCount++;
             onToken(tokenCount);
           }
 
           if (chunk.done) {
-            totalDuration = chunk.total_duration;
-            if (chunk.eval_count) tokenCount = chunk.eval_count;
+            finalChunkData = chunk;
+            totalDuration = chunk.total_duration as number | undefined;
+            if (chunk.eval_count) tokenCount = chunk.eval_count as number;
           }
         } catch {
           // skip malformed lines
@@ -161,24 +168,22 @@ export class OllamaHttpService implements IOllamaService {
     // process remaining buffer
     if (buffer.trim()) {
       try {
-        const chunk = JSON.parse(buffer) as {
-          response?: string;
-          done?: boolean;
-          total_duration?: number;
-          eval_count?: number;
-        };
+        const chunk = JSON.parse(buffer) as Record<string, any>;
         if (chunk.response) {
-          fullResponse += chunk.response;
+          fullResponse += chunk.response as string;
           tokenCount++;
         }
         if (chunk.done) {
-          totalDuration = chunk.total_duration;
-          if (chunk.eval_count) tokenCount = chunk.eval_count;
+          finalChunkData = chunk;
+          totalDuration = chunk.total_duration as number | undefined;
+          if (chunk.eval_count) tokenCount = chunk.eval_count as number;
         }
       } catch {
         // ignore
       }
     }
+
+    this.logOllamaMetrics(finalChunkData);
 
     return { response: fullResponse, totalDuration, tokenCount };
   }
@@ -199,6 +204,26 @@ export class OllamaHttpService implements IOllamaService {
     } catch {
       return false;
     }
+  }
+
+  private logOllamaMetrics(data: Record<string, any>): void {
+    const toMs = (ns: number | undefined) =>
+      ns ? (ns / 1e6).toFixed(0) : '?';
+
+    const totalMs = toMs(data.total_duration);
+    const loadMs = toMs(data.load_duration);
+    const promptMs = toMs(data.prompt_eval_duration);
+    const evalMs = toMs(data.eval_duration);
+    const promptTokens = data.prompt_eval_count ?? '?';
+    const evalTokens = data.eval_count ?? '?';
+    const tokensPerSec =
+      data.eval_count && data.eval_duration
+        ? ((data.eval_count / data.eval_duration) * 1e9).toFixed(1)
+        : '?';
+
+    this.logger.log(
+      `Ollama metrics: total=${totalMs}ms, load=${loadMs}ms, prompt_eval=${promptMs}ms (${promptTokens} tokens), eval=${evalMs}ms (${evalTokens} tokens, ${tokensPerSec} tok/s)`,
+    );
   }
 
   private sleep(ms: number): Promise<void> {

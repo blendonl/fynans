@@ -7,6 +7,7 @@ import {
 import { IOllamaService } from '../../../application/interfaces/ollama.interface';
 import { type UserReceiptContext } from '../../../application/use-cases/fetch-user-context.use-case';
 import { ReceiptPostProcessor } from '../receipt-post-processor';
+import { parseDateTime, extractJson } from './receipt-parser.utils';
 
 interface LlmParsedItem {
   name: string;
@@ -53,6 +54,7 @@ export class LlmReceiptParser implements IReceiptParser {
     const tracker = context.progressTracker;
 
     tracker?.startStage('llm-parse');
+    const llmStart = Date.now();
     const parsePrompt = this.buildParsePrompt(text, context.userContext);
     let processed = await this.attemptTextParse(parsePrompt, tracker);
 
@@ -68,6 +70,7 @@ export class LlmReceiptParser implements IReceiptParser {
       }
     }
 
+    this.logger.log(`LLM parsing completed in ${Date.now() - llmStart}ms`);
     tracker?.completeStage('llm-parse');
 
     return {
@@ -77,7 +80,7 @@ export class LlmReceiptParser implements IReceiptParser {
       totalAmount: processed.totalAmount,
       date: processed.date,
       time: processed.time,
-      recordedAt: this.parseDateTime(processed.date, processed.time),
+      recordedAt: parseDateTime(processed.date, processed.time),
       suggestedExpenseCategory: processed.suggestedExpenseCategory,
       parserUsed: this.name,
     };
@@ -89,9 +92,8 @@ export class LlmReceiptParser implements IReceiptParser {
   ) {
     const completion = await this.ollamaService.generateCompletion(prompt, {
       onToken: tracker?.tokenCallback('llm-parse', 600),
-      format: 'json',
     });
-    const parsed = this.extractJson(completion.response) as LlmParsedReceipt;
+    const parsed = extractJson(completion.response) as LlmParsedReceipt;
     return this.postProcessor.process(parsed);
   }
 
@@ -157,8 +159,8 @@ Note: TVSH (tax), TOTALI (total), subtotals, payment lines, KLIENT, ATK, NR SERI
 Now extract from this OCR text:
 ${ocrText}
 
-Return JSON with this structure:
-{ "storeName", "storeLocation", "items": [{"name", "price", "quantity", "suggestedItemCategory", "matchedExistingItem"}], "totalAmount", "date" (DD/MM/YYYY or null), "time" (HH:MM or null), "suggestedExpenseCategory" }
+Return ONLY compact JSON (no newlines, no extra whitespace) with this structure:
+{"storeName","storeLocation","items":[{"name","price","quantity","suggestedItemCategory","matchedExistingItem"}],"totalAmount","date" (DD/MM/YYYY or null),"time" (HH:MM or null),"suggestedExpenseCategory"}
 
 Rules:
 - Prices are in EUR (typically 0.20 to 50.00 for individual items)
@@ -169,37 +171,4 @@ Rules:
 - suggestedExpenseCategory is REQUIRED`;
   }
 
-  private extractJson(response: string): Record<string, any> {
-    try {
-      return JSON.parse(response) as Record<string, any>;
-    } catch {
-      // Fallback: try regex extraction for non-structured models
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('No JSON found in LLM response');
-      return JSON.parse(jsonMatch[0]) as Record<string, any>;
-    }
-  }
-
-  private parseDateTime(
-    date?: string | null,
-    time?: string | null,
-  ): Date | undefined {
-    if (!date) return undefined;
-
-    const dateMatch = date.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-    if (!dateMatch) return undefined;
-
-    const [, day, month, year] = dateMatch;
-    let isoString = `${year}-${month}-${day}`;
-
-    if (time) {
-      const timeMatch = time.match(/(\d{2}):(\d{2})/);
-      if (timeMatch) {
-        isoString += `T${timeMatch[1]}:${timeMatch[2]}:00`;
-      }
-    }
-
-    const parsed = new Date(isoString);
-    return isNaN(parsed.getTime()) ? undefined : parsed;
-  }
 }

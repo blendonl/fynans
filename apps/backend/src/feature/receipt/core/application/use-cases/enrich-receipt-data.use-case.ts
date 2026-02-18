@@ -1,6 +1,9 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
+/** Must match RECEIPT_LOW_CONFIDENCE_THRESHOLD in @fynans/shared */
+const LOW_CONFIDENCE_THRESHOLD = 50;
 import { ProcessedReceiptData } from '../interfaces/processed-receipt-data.interface';
 import { FindStoreBySimilarityUseCase } from '~feature/store/core/application/use-cases/find-store-by-similarity.use-case';
+import { CreateOrFindStoreUseCase } from '~feature/store/core/application/use-cases/create-or-find-store.use-case';
 import { type IStoreItemRepository } from '~feature/store/core/domain/repositories/store-item.repository.interface';
 import { type IExpenseCategoryRepository } from '~feature/expense-category/core/domain/repositories/expense-category.repository.interface';
 import { EnrichedReceiptDataDto } from '../dto/enriched-receipt-data.dto';
@@ -12,6 +15,7 @@ export class EnrichReceiptDataUseCase {
 
   constructor(
     private readonly findStoreBySimilarityUseCase: FindStoreBySimilarityUseCase,
+    private readonly createOrFindStoreUseCase: CreateOrFindStoreUseCase,
     @Inject('StoreItemRepository')
     private readonly storeItemRepository: IStoreItemRepository,
     @Inject('ExpenseCategoryRepository')
@@ -23,9 +27,24 @@ export class EnrichReceiptDataUseCase {
     processedData: ProcessedReceiptData,
     userId?: string,
   ): Promise<EnrichedReceiptDataDto> {
-    const store = await this.findStoreBySimilarityUseCase.execute(
+    // Try similarity match first, then create if not found
+    let store = await this.findStoreBySimilarityUseCase.execute(
       processedData.storeName,
     );
+
+    if (!store && processedData.storeName && userId) {
+      try {
+        store = await this.createOrFindStoreUseCase.execute(
+          { name: processedData.storeName, location: processedData.storeLocation || '' },
+          userId,
+        );
+        this.logger.log(`Auto-created store: ${store.name}`);
+      } catch (error) {
+        this.logger.warn(
+          `Failed to auto-create store: ${error instanceof Error ? error.message : error}`,
+        );
+      }
+    }
 
     // Auto-create item categories from AI suggestions
     let categoryMap = new Map<string, string>();
@@ -60,12 +79,20 @@ export class EnrichReceiptDataUseCase {
         if (!category) {
           category = await this.expenseCategoryRepository.create({
             name: processedData.suggestedExpenseCategory,
-          } as any);
+            isConnectedToStore: true,
+          });
           await this.expenseCategoryRepository
             .linkToUser(category.id, userId)
-            .catch(() => {});
+            .catch((err) => this.logger.debug('Category already linked', err));
           this.logger.log(
             `Auto-created expense category: ${processedData.suggestedExpenseCategory}`,
+          );
+        } else if (!category.isConnectedToStore) {
+          await this.expenseCategoryRepository.update(category.id, {
+            isConnectedToStore: true,
+          });
+          this.logger.log(
+            `Updated expense category to store-connected: ${category.name}`,
           );
         }
 
@@ -88,30 +115,43 @@ export class EnrichReceiptDataUseCase {
                 lookupName,
               );
 
+            const suggestedItemCategoryId = item.suggestedItemCategory
+              ? categoryMap.get(item.suggestedItemCategory)
+              : undefined;
+
             return {
               id: existingItem?.id,
               name: item.name,
               price: item.price,
               quantity: item.quantity,
               categoryId: existingItem?.item?.categoryId,
-              suggestedItemCategoryId:
-                item.suggestedItemCategory
-                  ? categoryMap.get(item.suggestedItemCategory)
-                  : undefined,
+              suggestedItemCategoryId,
+              resolvedCategoryId:
+                suggestedItemCategoryId ||
+                existingItem?.item?.categoryId ||
+                suggestedExpenseCategoryId ||
+                undefined,
             };
           }),
         )
-      : processedData.items.map((item) => ({
-          id: undefined,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          categoryId: undefined,
-          suggestedItemCategoryId:
-            item.suggestedItemCategory
-              ? categoryMap.get(item.suggestedItemCategory)
-              : undefined,
-        }));
+      : processedData.items.map((item) => {
+          const suggestedItemCategoryId = item.suggestedItemCategory
+            ? categoryMap.get(item.suggestedItemCategory)
+            : undefined;
+
+          return {
+            id: undefined,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            categoryId: undefined,
+            suggestedItemCategoryId,
+            resolvedCategoryId:
+              suggestedItemCategoryId ||
+              suggestedExpenseCategoryId ||
+              undefined,
+          };
+        });
 
     return {
       store: {
@@ -123,6 +163,7 @@ export class EnrichReceiptDataUseCase {
       recordedAt: processedData.recordedAt,
       extractedText: processedData.extractedText,
       confidence: processedData.confidence,
+      isLowConfidence: processedData.confidence < LOW_CONFIDENCE_THRESHOLD,
       parserUsed: processedData.parserUsed,
       suggestedExpenseCategoryId,
       suggestedExpenseCategoryName,

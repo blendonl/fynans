@@ -24,7 +24,7 @@ export class AutoCreateCategoriesUseCase {
         if (!category) {
           category = await this.storeItemCategoryRepository.create({
             name,
-          } as any);
+          });
           this.logger.log(`Auto-created item category: ${name}`);
         }
 

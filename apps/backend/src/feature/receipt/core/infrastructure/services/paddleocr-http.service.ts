@@ -8,6 +8,12 @@ import {
 interface PaddleOcrResponse {
   text: string;
   confidence: number;
+  timings?: {
+    preprocess_ms: number;
+    ocr_ms: number;
+    postprocess_ms: number;
+    total_ms: number;
+  };
 }
 
 @Injectable()
@@ -61,7 +67,8 @@ export class PaddleOcrHttpService implements IOcrService {
         const processingTime = Date.now() - startTime;
 
         this.logger.log(
-          `OCR completed in ${processingTime}ms with confidence ${(result.confidence * 100).toFixed(2)}%`,
+          `OCR completed in ${processingTime}ms (server: ${result.timings?.total_ms ?? '?'}ms) ` +
+          `with confidence ${(result.confidence * 100).toFixed(2)}%`,
         );
 
         return {

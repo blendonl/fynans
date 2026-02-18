@@ -28,7 +28,11 @@ describe('ReceiptJobQueueService', () => {
       getJob: jest.fn().mockResolvedValue(mockJob),
     };
 
-    service = new ReceiptJobQueueService(mockQueue as any);
+    const mockConfigService = {
+      get: jest.fn((key: string, defaultValue: any) => defaultValue),
+    };
+
+    service = new ReceiptJobQueueService(mockQueue as any, mockConfigService as any);
   });
 
   it('should be defined', () => {
