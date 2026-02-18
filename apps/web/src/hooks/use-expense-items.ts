@@ -29,6 +29,7 @@ export function useExpenseItems() {
     setItemErrors({});
 
     const newItem: ExpenseItem = {
+      id: crypto.randomUUID(),
       name: currentItem.name,
       price: parseFloat(currentItem.price),
       discount: currentItem.discount ? parseFloat(currentItem.discount) : 0,
@@ -87,6 +88,7 @@ export function useExpenseItems() {
 
   const handleQuickAddItem = (name: string, price: number, categoryId: string) => {
     const newItem: ExpenseItem = {
+      id: crypto.randomUUID(),
       name,
       price,
       discount: 0,
