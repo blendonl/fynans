@@ -1,17 +1,14 @@
 import cv2
 import numpy as np
-import math
 
-
-def preprocess_image(image_bytes: bytes) -> np.ndarray:
-    """Backward-compatible wrapper — uses OCR-optimized preprocessing."""
-    return preprocess_for_ocr(image_bytes)
+import config
 
 
 def preprocess_for_ocr(image_bytes: bytes) -> np.ndarray:
-    """Aggressive preprocessing optimized for traditional OCR (PaddleOCR).
+    """Preprocessing optimized for PaddleOCR with GPU.
 
-    Applies deskew, shadow removal, denoise, sharpen, and CLAHE.
+    Pipeline: Decode -> Resize -> Shadow removal (adaptive) ->
+              Bilateral filter -> CLAHE -> Unsharp mask
     """
     nparr = np.frombuffer(image_bytes, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -20,36 +17,40 @@ def preprocess_for_ocr(image_bytes: bytes) -> np.ndarray:
         raise ValueError("Invalid image format")
 
     height, width = img.shape[:2]
-    if width > 2000 or height > 2000:
-        scale = min(2000 / width, 2000 / height)
+
+    # Reject absurdly large images early
+    if height * width > config.MAX_IMAGE_PIXELS:
+        raise ValueError(f"Image too large: {width}x{height} ({height * width} pixels, max {config.MAX_IMAGE_PIXELS})")
+
+    # Resize to match det_limit_side_len
+    max_dim = config.MAX_IMAGE_DIM
+    if width > max_dim or height > max_dim:
+        scale = min(max_dim / width, max_dim / height)
         new_width = int(width * scale)
         new_height = int(height * scale)
         img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
 
-    # Deskew via Hough line detection
-    img = _deskew(img)
-
-    # Shadow removal via morphological background division
+    # Adaptive shadow removal (single grayscale-based estimation)
     img = _remove_shadows(img)
 
-    # Denoise, sharpen, CLAHE on L channel
+    # Bilateral filter: smooths noise while preserving text edges
+    img = cv2.bilateralFilter(img, d=7, sigmaColor=50, sigmaSpace=50)
+
+    # CLAHE on L channel for contrast normalization
     lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
     l_channel, a_channel, b_channel = cv2.split(lab)
 
-    l_channel = cv2.fastNlMeansDenoising(l_channel, None, h=10, templateWindowSize=7, searchWindowSize=21)
-
-    kernel = np.array([[ 0, -1,  0],
-                       [-1,  5, -1],
-                       [ 0, -1,  0]])
-    l_channel = cv2.filter2D(l_channel, -1, kernel)
-
-    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
     l_channel = clahe.apply(l_channel)
 
     enhanced_lab = cv2.merge([l_channel, a_channel, b_channel])
-    enhanced = cv2.cvtColor(enhanced_lab, cv2.COLOR_LAB2BGR)
+    img = cv2.cvtColor(enhanced_lab, cv2.COLOR_LAB2BGR)
 
-    return enhanced
+    # Mild unsharp mask to sharpen text edges softened by resize + denoising
+    blurred = cv2.GaussianBlur(img, (0, 0), sigmaX=2)
+    img = cv2.addWeighted(img, 1.3, blurred, -0.3, 0)
+
+    return img
 
 
 def preprocess_for_vlm(image_bytes: bytes) -> bytes:
@@ -65,7 +66,11 @@ def preprocess_for_vlm(image_bytes: bytes) -> bytes:
         raise ValueError("Invalid image format")
 
     height, width = img.shape[:2]
-    max_dim = 1536
+
+    if height * width > config.MAX_IMAGE_PIXELS:
+        raise ValueError(f"Image too large: {width}x{height} ({height * width} pixels, max {config.MAX_IMAGE_PIXELS})")
+
+    max_dim = 1536  # VLM-specific: common optimal resolution for vision models
     if width > max_dim or height > max_dim:
         scale = min(max_dim / width, max_dim / height)
         new_width = int(width * scale)
@@ -86,47 +91,27 @@ def preprocess_for_vlm(image_bytes: bytes) -> bytes:
     return jpeg_bytes.tobytes()
 
 
-def _deskew(img: np.ndarray) -> np.ndarray:
-    """Correct skew using Hough line detection."""
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(gray, 50, 150, apertureSize=3)
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=100, minLineLength=100, maxLineGap=10)
-
-    if lines is None:
-        return img
-
-    angles = []
-    for line in lines:
-        x1, y1, x2, y2 = line[0]
-        angle = math.degrees(math.atan2(y2 - y1, x2 - x1))
-        # Only consider near-horizontal lines (receipt text lines)
-        if abs(angle) < 15:
-            angles.append(angle)
-
-    if not angles:
-        return img
-
-    median_angle = np.median(angles)
-    if abs(median_angle) < 0.5:
-        return img  # Already straight enough
-
-    h, w = img.shape[:2]
-    center = (w // 2, h // 2)
-    rotation_matrix = cv2.getRotationMatrix2D(center, median_angle, 1.0)
-    rotated = cv2.warpAffine(img, rotation_matrix, (w, h), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
-    return rotated
-
-
 def _remove_shadows(img: np.ndarray) -> np.ndarray:
-    """Remove uneven lighting/shadows via morphological background division."""
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    """Remove uneven lighting/shadows via grayscale-based morphological estimation.
 
-    # Estimate background using large morphological closing
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (31, 31))
+    Uses a single grayscale morphology pass to estimate the background, then
+    applies the correction to all BGR channels. Faster than per-channel and
+    adaptive to image size.
+    """
+    # Adaptive kernel: ~3% of the smallest dimension, clamped to odd and >= 15
+    min_dim = min(img.shape[0], img.shape[1])
+    ksize = max(15, int(min_dim * 0.03) | 1)  # bitwise OR 1 ensures odd
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (ksize, ksize))
+
+    # Estimate background from grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     background = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, kernel)
 
-    # Divide to normalize lighting
-    normalized = cv2.divide(gray, background, scale=255)
+    # Apply correction to each channel using the grayscale background
+    channels = cv2.split(img)
+    normalized_channels = []
+    for ch in channels:
+        normalized = cv2.divide(ch, background, scale=255)
+        normalized_channels.append(normalized)
 
-    # Convert back to BGR
-    return cv2.cvtColor(normalized, cv2.COLOR_GRAY2BGR)
+    return cv2.merge(normalized_channels)
