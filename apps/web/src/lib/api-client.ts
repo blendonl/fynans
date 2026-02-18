@@ -50,7 +50,7 @@ export const apiClient = {
     return handleResponse(response);
   },
 
-  async post(endpoint: string, body: unknown, options?: { headers?: HeadersInit }) {
+  async post(endpoint: string, body: unknown, options?: { headers?: HeadersInit; signal?: AbortSignal }) {
     const token = getToken();
     const headers: HeadersInit = { ...(options?.headers || {}) };
 
@@ -64,6 +64,7 @@ export const apiClient = {
       method: "POST",
       headers,
       body: isFormData ? (body as FormData) : JSON.stringify(body),
+      signal: options?.signal,
     });
     return handleResponse(response);
   },

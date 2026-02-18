@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { X, Plus, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
@@ -51,22 +51,12 @@ export function Combobox({
   const sentinelRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return options;
-    const lower = search.toLowerCase();
-    return options.filter(
-      (o) =>
-        o.label.toLowerCase().includes(lower) ||
-        o.sublabel?.toLowerCase().includes(lower)
-    );
-  }, [options, search]);
-
-  const hasExactMatch = filtered.some(
+  const hasExactMatch = options.some(
     (o) => o.label.toLowerCase() === search.toLowerCase()
   );
 
   const showCreateNew = onCreateNew && search.trim() && !hasExactMatch;
-  const totalItems = filtered.length + (showCreateNew ? 1 : 0);
+  const totalItems = options.length + (showCreateNew ? 1 : 0);
   const shouldShowDropdown = open && (!!search.trim() || showAllOnFocus) && (isLoading || totalItems > 0);
 
   useEffect(() => {
@@ -124,9 +114,9 @@ export function Combobox({
         setHighlightedIndex((prev) => (prev - 1 + totalItems) % totalItems);
       } else if (e.key === "Enter") {
         e.preventDefault();
-        if (highlightedIndex >= 0 && highlightedIndex < filtered.length) {
-          handleSelect(filtered[highlightedIndex].value);
-        } else if (highlightedIndex === filtered.length && showCreateNew) {
+        if (highlightedIndex >= 0 && highlightedIndex < options.length) {
+          handleSelect(options[highlightedIndex].value);
+        } else if (highlightedIndex === options.length && showCreateNew) {
           onCreateNew!(search.trim());
           setOpen(false);
           setHighlightedIndex(-1);
@@ -136,7 +126,7 @@ export function Combobox({
         setHighlightedIndex(-1);
       }
     },
-    [shouldShowDropdown, totalItems, highlightedIndex, filtered, handleSelect, showCreateNew, onCreateNew, search]
+    [shouldShowDropdown, totalItems, highlightedIndex, options, handleSelect, showCreateNew, onCreateNew, search]
   );
 
   const inputValue = open ? search : value ? (displayValue || "") : search;
@@ -181,7 +171,7 @@ export function Combobox({
           </div>
         ) : (
           <>
-            {filtered.map((option, i) => (
+            {options.map((option, i) => (
               <button
                 key={option.value}
                 type="button"
@@ -206,11 +196,11 @@ export function Combobox({
                 type="button"
                 className={cn(
                   "w-full flex items-center gap-2 px-3 py-2 text-sm text-primary transition-colors",
-                  highlightedIndex === filtered.length
+                  highlightedIndex === options.length
                     ? "bg-dropdown-hover"
                     : "hover:bg-dropdown-hover"
                 )}
-                onMouseEnter={() => setHighlightedIndex(filtered.length)}
+                onMouseEnter={() => setHighlightedIndex(options.length)}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   onCreateNew!(search.trim());
