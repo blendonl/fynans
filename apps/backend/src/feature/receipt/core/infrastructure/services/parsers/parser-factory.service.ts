@@ -1,4 +1,4 @@
-import { Injectable, Logger, Optional } from '@nestjs/common';
+import { Injectable, Logger, Optional, Inject } from '@nestjs/common';
 import {
   IReceiptParser,
   IReceiptParserService,
@@ -8,7 +8,6 @@ import {
 import { LlmReceiptParser } from './llm-receipt.parser';
 import { AlbanianReceiptParser } from './albanian-receipt.parser';
 import { GenericReceiptParser } from './generic-receipt.parser';
-import { VisionReceiptParser } from './vision-receipt.parser';
 
 @Injectable()
 export class ReceiptParserFactory implements IReceiptParserService {
@@ -19,11 +18,13 @@ export class ReceiptParserFactory implements IReceiptParserService {
     private readonly llmParser: LlmReceiptParser,
     private readonly albanianParser: AlbanianReceiptParser,
     private readonly genericParser: GenericReceiptParser,
-    @Optional() private readonly visionParser?: VisionReceiptParser,
+    @Optional()
+    @Inject('VisionParser')
+    private readonly visionParser?: IReceiptParser,
   ) {
     this.parsers = [this.llmParser, this.albanianParser, this.genericParser];
     const parserNames = this.parsers.map((p) => p.name);
-    if (this.visionParser) parserNames.unshift('vision-llm');
+    if (this.visionParser) parserNames.unshift(this.visionParser.name);
     this.logger.log(`Initialized parsers: ${parserNames.join(', ')}`);
   }
 
@@ -32,15 +33,14 @@ export class ReceiptParserFactory implements IReceiptParserService {
     context: ReceiptParsingContext,
   ): Promise<ReceiptParsingResult> {
     // Try vision parser first if image is available
-    if (context.imageBuffer && this.visionParser) {
+    if (context.imageBuffer && this.visionParser?.parseFromImage) {
       try {
-        this.logger.log('Using parser: vision-llm');
+        this.logger.log(`Using parser: ${this.visionParser.name}`);
         const result = await this.visionParser.parseFromImage(
           context.imageBuffer,
           context,
         );
 
-        // Cross-validate VLM results against OCR text
         if (text) {
           this.crossValidateWithOcr(result, text);
         }

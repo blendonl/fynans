@@ -3,7 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { TesseractOcrService } from './infrastructure/services/tesseract-ocr.service';
 import { PaddleOcrHttpService } from './infrastructure/services/paddleocr-http.service';
-import { OllamaHttpService } from './infrastructure/services/ollama-http.service';
+import { OllamaModule } from './ollama.module';
+import { DonutHttpService } from './infrastructure/services/donut-http.service';
 import { ReceiptJobQueueService } from './infrastructure/services/receipt-job-queue.service';
 import { ReceiptProcessingWorker } from './infrastructure/workers/receipt-processing.worker';
 import { ProcessReceiptUseCase } from './application/use-cases/process-receipt.use-case';
@@ -32,11 +33,14 @@ import { GenericTimeParser } from './infrastructure/services/parsers/implementat
 import { GenericItemsParser } from './infrastructure/services/parsers/implementations/generic/generic-items.parser';
 import { GenericTotalParser } from './infrastructure/services/parsers/implementations/generic/generic-total.parser';
 import { VisionReceiptParser } from './infrastructure/services/parsers/vision-receipt.parser';
+import { DonutReceiptParser } from './infrastructure/services/parsers/donut-receipt.parser';
 import { ReceiptPostProcessor } from './infrastructure/services/receipt-post-processor';
+import { IReceiptParser } from './application/services/receipt-parser.service';
 
 @Module({
   imports: [
     ConfigModule,
+    OllamaModule,
     StoreCoreModule,
     ItemCoreModule,
     StoreItemCategoryCoreModule,
@@ -55,16 +59,28 @@ import { ReceiptPostProcessor } from './infrastructure/services/receipt-post-pro
       inject: [ConfigService],
     },
     {
-      provide: 'OllamaService',
-      useClass: OllamaHttpService,
-    },
-    {
       provide: 'ReceiptJobQueue',
       useClass: ReceiptJobQueueService,
     },
     ReceiptProcessingWorker,
     ReceiptPostProcessor,
+    DonutHttpService,
+    DonutReceiptParser,
     VisionReceiptParser,
+    {
+      provide: 'VisionParser',
+      useFactory: (
+        configService: ConfigService,
+        donutParser: DonutReceiptParser,
+        visionParser: VisionReceiptParser,
+      ): IReceiptParser | undefined => {
+        const visionParserType = configService.get<string>('VISION_PARSER');
+        if (visionParserType === 'donut') return donutParser;
+        if (configService.get<string>('OLLAMA_VISION_MODEL')) return visionParser;
+        return undefined;
+      },
+      inject: [ConfigService, DonutReceiptParser, VisionReceiptParser],
+    },
     LlmReceiptParser,
     AlbanianStoreNameParser,
     AlbanianStoreLocationParser,
