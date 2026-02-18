@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   ArrowLeftRight,
   PlusCircle,
+  ShoppingCart,
   Users,
   Bell,
   LogOut,
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
   { href: "/add", label: "Add Transaction", icon: PlusCircle },
+  { href: "/basket", label: "Basket", icon: ShoppingCart },
   { href: "/families", label: "Families", icon: Users },
   { href: "/notifications", label: "Notifications", icon: Bell },
 ];
