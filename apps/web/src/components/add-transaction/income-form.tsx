@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -8,6 +8,8 @@ import { formatCurrency } from "@fynans/shared";
 import type { Category } from "@fynans/shared";
 import { apiClient } from "@/lib/api-client";
 import { useCategories } from "@/hooks/use-categories";
+import { useAiCategorySuggestion } from "@/hooks/use-ai-category-suggestion";
+import { useAutoAcceptSuggestion } from "@/hooks/use-auto-accept-suggestion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CategorySelector } from "@/components/add-expense/category-selector";
@@ -28,6 +30,8 @@ interface IncomeFormProps {
 export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
   const { incomeCategories, isLoading: categoriesLoading, createCategory } = useCategories();
 
+  const ai = useAiCategorySuggestion();
+
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
@@ -35,6 +39,21 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
 
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
+
+  // Trigger AI income category suggestion when note changes
+  const prevNoteRef = useRef<string>("");
+  useEffect(() => {
+    if (note !== prevNoteRef.current) {
+      prevNoteRef.current = note;
+      ai.setIncomeNote(note);
+    }
+  }, [note, ai]);
+
+  const handleAutoAccept = useCallback(
+    (cat: { id: string; name: string }) => setSelectedCategory(cat as Category),
+    [],
+  );
+  useAutoAcceptSuggestion(ai.incomeSuggestion, selectedCategory, incomeCategories, handleAutoAccept);
 
   const submitMutation = useMutation({
     mutationFn: async () => {
@@ -59,8 +78,8 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
   const canSubmit = selectedCategory && amount && parseFloat(amount) > 0;
 
   const validationMessage = () => {
-    if (!selectedCategory) return "Select a category to continue";
     if (!amount || parseFloat(amount) <= 0) return "Enter an amount";
+    if (!selectedCategory) return "Select a category to continue";
     return null;
   };
 
@@ -73,13 +92,21 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
             value={amount}
             onChange={setAmount}
             type="income"
-            autoFocus={!!selectedCategory}
+            autoFocus
           />
         </div>
 
         {/* Right panel — Form fields */}
         <div className="space-y-5 mt-5 lg:mt-0 flex-1 min-w-0">
-          {/* Category */}
+          {/* Note first */}
+          <Input
+            placeholder="Add a note (optional)"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            className="min-h-12"
+          />
+
+          {/* Category after note — AI can suggest based on note */}
           <CategorySelector
             categories={incomeCategories}
             selectedCategory={selectedCategory}
@@ -88,36 +115,28 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
             onSearch={() => {}}
             onCreateNew={(name) => { setNewCategoryName(name); setShowCategoryDialog(true); }}
             isLoading={categoriesLoading}
+            aiSuggestion={ai.incomeSuggestion}
+            onAcceptSuggestion={ai.dismissIncomeSuggestion}
+            onDismissSuggestion={ai.dismissIncomeSuggestion}
+            isSuggestionLoading={ai.isIncomeLoading}
           />
 
-          {/* After category selected */}
-          {selectedCategory && (
-            <div className="space-y-5 field-slide-down">
-              <Input
-                placeholder="Add a note (optional)"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                className="min-h-12"
-              />
+          <DateTimePicker value={recordedAt} onChange={setRecordedAt} />
 
-              <DateTimePicker value={recordedAt} onChange={setRecordedAt} />
-
-              <div className="submit-sticky">
-                <Button
-                  variant="income"
-                  className="w-full h-12 text-base font-semibold"
-                  onClick={() => submitMutation.mutate()}
-                  loading={submitMutation.isPending}
-                  disabled={!canSubmit}
-                >
-                  Create Income
-                </Button>
-                {!canSubmit && (
-                  <p className="text-xs text-text-secondary text-center mt-2">{validationMessage()}</p>
-                )}
-              </div>
-            </div>
-          )}
+          <div className="submit-sticky">
+            <Button
+              variant="income"
+              className="w-full h-12 text-base font-semibold"
+              onClick={() => submitMutation.mutate()}
+              loading={submitMutation.isPending}
+              disabled={!canSubmit}
+            >
+              Create Income
+            </Button>
+            {!canSubmit && (
+              <p className="text-xs text-text-secondary text-center mt-2">{validationMessage()}</p>
+            )}
+          </div>
         </div>
       </div>
 
