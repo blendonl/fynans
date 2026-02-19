@@ -7,6 +7,7 @@ export class ItemMapper {
       id: prismaItem.id,
       categoryId: prismaItem.categoryId,
       name: prismaItem.name,
+      nameEn: prismaItem.nameEn ?? undefined,
       createdAt: prismaItem.createdAt,
       updatedAt: prismaItem.updatedAt,
     });
@@ -17,6 +18,7 @@ export class ItemMapper {
       id: item.id,
       categoryId: item.categoryId,
       name: item.name,
+      nameEn: item.nameEn,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
     };

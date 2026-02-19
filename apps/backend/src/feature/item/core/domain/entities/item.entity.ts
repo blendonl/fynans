@@ -2,6 +2,7 @@ export interface ItemProps {
   id: string;
   categoryId: string;
   name: string;
+  nameEn?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,6 +49,10 @@ export class Item {
     return this.props.name;
   }
 
+  get nameEn(): string | undefined {
+    return this.props.nameEn;
+  }
+
   get createdAt(): Date {
     return this.props.createdAt;
   }
@@ -61,6 +66,7 @@ export class Item {
       id: this.props.id,
       categoryId: this.props.categoryId,
       name: this.props.name,
+      nameEn: this.props.nameEn,
       createdAt: this.props.createdAt,
       updatedAt: this.props.updatedAt,
     };

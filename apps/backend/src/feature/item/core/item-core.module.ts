@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
 import { StoreItemCategoryCoreModule } from '../../store-item-category/core/store-item-category-core.module';
 import { PrismaItemRepository } from './infrastructure/repositories/prisma-item.repository';
+import { PrismaItemSizeRepository } from './infrastructure/repositories/prisma-item-size.repository';
 import { CreateItemUseCase } from './application/use-cases/create-item.use-case';
 import { GetItemByIdUseCase } from './application/use-cases/get-item-by-id.use-case';
 import { ListItemsUseCase } from './application/use-cases/list-items.use-case';
@@ -18,6 +19,10 @@ import { ItemService } from './application/services/item.service';
       provide: 'ItemRepository',
       useClass: PrismaItemRepository,
     },
+    {
+      provide: 'ItemSizeRepository',
+      useClass: PrismaItemSizeRepository,
+    },
     CreateItemUseCase,
     GetItemByIdUseCase,
     ListItemsUseCase,
@@ -27,6 +32,6 @@ import { ItemService } from './application/services/item.service';
     SearchItemsWithStoresUseCase,
     ItemService,
   ],
-  exports: [ItemService, 'ItemRepository'],
+  exports: [ItemService, 'ItemRepository', 'ItemSizeRepository'],
 })
 export class ItemCoreModule {}

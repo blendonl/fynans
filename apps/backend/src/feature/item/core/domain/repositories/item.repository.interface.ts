@@ -20,6 +20,7 @@ export interface IItemRepository {
   create(data: Partial<Item>): Promise<Item>;
   findById(id: string): Promise<Item | null>;
   findByName(name: string): Promise<Item | null>;
+  findBySimilarName(name: string, threshold?: number): Promise<Item | null>;
   findByNameAndCategory(
     name: string,
     categoryId: string,

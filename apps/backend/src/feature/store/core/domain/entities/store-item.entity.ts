@@ -1,13 +1,16 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { Item } from '~feature/item/core';
+import { ItemSize } from '~feature/item/core/domain/entities/item-size.entity';
 
 export interface StoreItemProps {
   id: string;
   storeId: string;
   itemId: string;
+  itemSizeId?: string;
   price: Decimal;
   isDiscounted: boolean;
   item?: Item;
+  itemSize?: ItemSize;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -58,8 +61,16 @@ export class StoreItem {
     return this.props.itemId;
   }
 
+  get itemSizeId(): string | undefined {
+    return this.props.itemSizeId;
+  }
+
   get item(): Item | undefined {
     return this.props.item;
+  }
+
+  get itemSize(): ItemSize | undefined {
+    return this.props.itemSize;
   }
 
   get price(): Decimal {
@@ -97,9 +108,11 @@ export class StoreItem {
       id: this.props.id,
       storeId: this.props.storeId,
       itemId: this.props.itemId,
+      itemSizeId: this.props.itemSizeId,
       price: this.props.price.toNumber(),
       isDiscounted: this.props.isDiscounted,
       item: this.props.item?.toJSON(),
+      itemSize: this.props.itemSize?.toJSON(),
       createdAt: this.props.createdAt,
       updatedAt: this.props.updatedAt,
     };

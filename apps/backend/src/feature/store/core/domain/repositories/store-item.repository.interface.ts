@@ -20,6 +20,7 @@ export interface IStoreItemRepository {
   findById(id: string): Promise<StoreItem | null>;
   findByStoreAndName(storeId: string, name: string): Promise<StoreItem | null>;
   findByStoreAndItemId(storeId: string, itemId: string): Promise<StoreItem | null>;
+  findByStoreItemAndSize(storeId: string, itemId: string, itemSizeId?: string): Promise<StoreItem | null>;
   findByStoreId(
     userId: string,
     storeId: string,

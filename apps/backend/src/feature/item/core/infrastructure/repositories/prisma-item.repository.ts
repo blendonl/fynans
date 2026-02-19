@@ -19,6 +19,7 @@ export class PrismaItemRepository implements IItemRepository {
       data: {
         name: data.name!,
         categoryId: data.categoryId!,
+        nameEn: data.nameEn,
       },
       include: {
         category: true,
@@ -53,6 +54,41 @@ export class PrismaItemRepository implements IItemRepository {
     });
 
     return item ? ItemMapper.toDomain(item) : null;
+  }
+
+  async findBySimilarName(
+    name: string,
+    threshold = 0.3,
+  ): Promise<Item | null> {
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        id: string;
+        category_id: string;
+        name: string;
+        name_en: string | null;
+        created_at: Date;
+        updated_at: Date;
+        sim: number;
+      }>
+    >`
+      SELECT *, similarity(name, ${name}) AS sim
+      FROM item
+      WHERE similarity(name, ${name}) > ${threshold}
+      ORDER BY sim DESC
+      LIMIT 1
+    `;
+
+    if (!rows.length) return null;
+
+    const row = rows[0];
+    return new Item({
+      id: row.id,
+      categoryId: row.category_id,
+      name: row.name,
+      nameEn: row.name_en ?? undefined,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    });
   }
 
   async findByNameAndCategory(
@@ -218,6 +254,10 @@ export class PrismaItemRepository implements IItemRepository {
 
     if (data.categoryId !== undefined) {
       updateData.categoryId = data.categoryId;
+    }
+
+    if (data.nameEn !== undefined) {
+      updateData.nameEn = data.nameEn;
     }
 
     const item = await this.prisma.item.update({

@@ -20,10 +20,11 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
       data: {
         storeId: data.storeId!,
         itemId: data.itemId!,
+        itemSizeId: data.itemSizeId,
         price: new Decimal(data.price?.toString() || '0'),
         isDiscounted: data.isDiscounted ?? false,
       },
-      include: { item: true },
+      include: { item: true, itemSize: true },
     });
 
     return StoreItemMapper.toDomain(item);
@@ -66,7 +67,25 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
         itemId,
       },
       orderBy: { createdAt: 'desc' },
-      include: { item: true },
+      include: { item: true, itemSize: true },
+    });
+
+    return item ? StoreItemMapper.toDomain(item) : null;
+  }
+
+  async findByStoreItemAndSize(
+    storeId: string,
+    itemId: string,
+    itemSizeId?: string,
+  ): Promise<StoreItem | null> {
+    const item = await this.prisma.storeItem.findFirst({
+      where: {
+        storeId,
+        itemId,
+        itemSizeId: itemSizeId ?? null,
+      },
+      orderBy: { createdAt: 'desc' },
+      include: { item: true, itemSize: true },
     });
 
     return item ? StoreItemMapper.toDomain(item) : null;
