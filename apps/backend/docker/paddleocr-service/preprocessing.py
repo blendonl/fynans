@@ -46,6 +46,14 @@ def preprocess_for_ocr(image_bytes: bytes) -> np.ndarray:
     enhanced_lab = cv2.merge([l_channel, a_channel, b_channel])
     img = cv2.cvtColor(enhanced_lab, cv2.COLOR_LAB2BGR)
 
+    # Adaptive binarization for receipt-like documents (dark text on light background)
+    gray_for_thresh = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    binary = cv2.adaptiveThreshold(
+        gray_for_thresh, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv2.THRESH_BINARY, blockSize=21, C=10
+    )
+    img = cv2.cvtColor(binary, cv2.COLOR_GRAY2BGR)
+
     # Mild unsharp mask to sharpen text edges softened by resize + denoising
     blurred = cv2.GaussianBlur(img, (0, 0), sigmaX=2)
     img = cv2.addWeighted(img, 1.3, blurred, -0.3, 0)

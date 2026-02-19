@@ -154,9 +154,16 @@ async def extract_text(file: UploadFile = File(...)):
         logger.warning("No text detected in image")
         return JSONResponse(content={"text": "", "confidence": 0.0, "timings": timings})
 
-    # PaddleOCR 3.x returns result objects — support both dict and attribute access
+    # PaddleOCR 3.x returns result objects — support various formats
     first = result[0]
-    res = first["res"] if isinstance(first, dict) else first.res
+    logger.debug(f"OCR result type={type(first)}, keys/attrs={list(first.keys()) if isinstance(first, dict) else dir(first)}")
+
+    # Extract the result object — try 'res' key, then 'result', then use first directly
+    if isinstance(first, dict):
+        res = first.get("res") or first.get("result") or first
+    else:
+        res = getattr(first, "res", None) or getattr(first, "result", None) or first
+
     if isinstance(res, dict):
         rec_texts = res.get("rec_texts", [])
         rec_scores = res.get("rec_scores", np.array([]))
@@ -205,6 +212,10 @@ async def extract_text(file: UploadFile = File(...)):
             "center_y": center_y,
             "left_x": left_x,
         })
+
+    if logger.isEnabledFor(logging.DEBUG):
+        for box in boxes_with_text:
+            logger.debug(f"  box: conf={box['confidence']:.3f} text=\"{box['text']}\"")
 
     text_lines = _group_into_lines(boxes_with_text, img_height)
     full_text = "\n".join(text_lines)
