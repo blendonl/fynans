@@ -18,11 +18,13 @@ model Item {
   id         String @id @default(uuid())
   categoryId String @map("category_id")
 
-  name String @unique
+  name   String  @unique
+  nameEn String? @map("name_en")
 
   category ItemCategory @relation(fields: [categoryId], references: [id])
   stores   StoreItem[]
   users    UserItem[]
+  sizes    ItemSize[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -31,15 +33,17 @@ model Item {
 }
 
 model StoreItem {
-  id      String @id @default(uuid())
-  itemId  String @map("item_id")
-  storeId String @map("store_id")
+  id         String  @id @default(uuid())
+  itemId     String  @map("item_id")
+  storeId    String  @map("store_id")
+  itemSizeId String? @map("item_size_id")
 
   price        Decimal
   isDiscounted Boolean @map("is_discounted")
 
   store     Store               @relation(fields: [storeId], references: [id])
   item      Item                @relation(fields: [itemId], references: [id])
+  itemSize  ItemSize?           @relation(fields: [itemSizeId], references: [id])
   discounts StoreItemDiscount[]
   expenses  ExpenseItem[]
   users     UserStoreItem[]
@@ -48,6 +52,22 @@ model StoreItem {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("store_item")
+}
+
+model ItemSize {
+  id     String  @id @default(uuid())
+  itemId String  @map("item_id")
+  value  Decimal
+  unit   String
+
+  item       Item        @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  storeItems StoreItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([itemId, value, unit])
+  @@map("item_size")
 }
 
 model StoreItemDiscount {

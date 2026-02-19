@@ -153,6 +153,11 @@ export type Item = Prisma.ItemModel
  */
 export type StoreItem = Prisma.StoreItemModel
 /**
+ * Model ItemSize
+ * 
+ */
+export type ItemSize = Prisma.ItemSizeModel
+/**
  * Model StoreItemDiscount
  * 
  */

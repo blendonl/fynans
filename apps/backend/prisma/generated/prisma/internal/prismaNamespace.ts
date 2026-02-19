@@ -407,6 +407,7 @@ export const ModelName = {
   Store: 'Store',
   Item: 'Item',
   StoreItem: 'StoreItem',
+  ItemSize: 'ItemSize',
   StoreItemDiscount: 'StoreItemDiscount',
   ItemCategory: 'ItemCategory',
   UserStore: 'UserStore',
@@ -429,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "session" | "verification" | "basket" | "basketItem" | "expenseItem" | "expense" | "expenseCategory" | "userExpenseCategory" | "family" | "familyMember" | "familyInvitation" | "income" | "incomeCategory" | "userIncomeCategory" | "notification" | "notificationPreference" | "deviceToken" | "webPushSubscription" | "user" | "store" | "item" | "storeItem" | "storeItemDiscount" | "itemCategory" | "userStore" | "userItem" | "userStoreItem" | "userItemCategory" | "transaction"
+    modelProps: "account" | "session" | "verification" | "basket" | "basketItem" | "expenseItem" | "expense" | "expenseCategory" | "userExpenseCategory" | "family" | "familyMember" | "familyInvitation" | "income" | "incomeCategory" | "userIncomeCategory" | "notification" | "notificationPreference" | "deviceToken" | "webPushSubscription" | "user" | "store" | "item" | "storeItem" | "itemSize" | "storeItemDiscount" | "itemCategory" | "userStore" | "userItem" | "userStoreItem" | "userItemCategory" | "transaction"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2135,6 +2136,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ItemSize: {
+      payload: Prisma.$ItemSizePayload<ExtArgs>
+      fields: Prisma.ItemSizeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ItemSizeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ItemSizePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ItemSizeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ItemSizePayload>
+        }
+        findFirst: {
+          args: Prisma.ItemSizeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ItemSizePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ItemSizeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ItemSizePayload>
+        }
+        findMany: {
+          args: Prisma.ItemSizeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ItemSizePayload>[]
+        }
+        create: {
+          args: Prisma.ItemSizeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ItemSizePayload>
+        }
+        createMany: {
+          args: Prisma.ItemSizeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ItemSizeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ItemSizePayload>[]
+        }
+        delete: {
+          args: Prisma.ItemSizeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ItemSizePayload>
+        }
+        update: {
+          args: Prisma.ItemSizeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ItemSizePayload>
+        }
+        deleteMany: {
+          args: Prisma.ItemSizeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ItemSizeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ItemSizeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ItemSizePayload>[]
+        }
+        upsert: {
+          args: Prisma.ItemSizeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ItemSizePayload>
+        }
+        aggregate: {
+          args: Prisma.ItemSizeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateItemSize>
+        }
+        groupBy: {
+          args: Prisma.ItemSizeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ItemSizeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ItemSizeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ItemSizeCountAggregateOutputType> | number
+        }
+      }
+    }
     StoreItemDiscount: {
       payload: Prisma.$StoreItemDiscountPayload<ExtArgs>
       fields: Prisma.StoreItemDiscountFieldRefs
@@ -2991,6 +3066,7 @@ export const ItemScalarFieldEnum = {
   id: 'id',
   categoryId: 'categoryId',
   name: 'name',
+  nameEn: 'nameEn',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3002,6 +3078,7 @@ export const StoreItemScalarFieldEnum = {
   id: 'id',
   itemId: 'itemId',
   storeId: 'storeId',
+  itemSizeId: 'itemSizeId',
   price: 'price',
   isDiscounted: 'isDiscounted',
   createdAt: 'createdAt',
@@ -3009,6 +3086,18 @@ export const StoreItemScalarFieldEnum = {
 } as const
 
 export type StoreItemScalarFieldEnum = (typeof StoreItemScalarFieldEnum)[keyof typeof StoreItemScalarFieldEnum]
+
+
+export const ItemSizeScalarFieldEnum = {
+  id: 'id',
+  itemId: 'itemId',
+  value: 'value',
+  unit: 'unit',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ItemSizeScalarFieldEnum = (typeof ItemSizeScalarFieldEnum)[keyof typeof ItemSizeScalarFieldEnum]
 
 
 export const StoreItemDiscountScalarFieldEnum = {
@@ -3450,6 +3539,7 @@ export type GlobalOmitConfig = {
   store?: Prisma.StoreOmit
   item?: Prisma.ItemOmit
   storeItem?: Prisma.StoreItemOmit
+  itemSize?: Prisma.ItemSizeOmit
   storeItemDiscount?: Prisma.StoreItemDiscountOmit
   itemCategory?: Prisma.ItemCategoryOmit
   userStore?: Prisma.UserStoreOmit
