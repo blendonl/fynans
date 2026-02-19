@@ -1,3 +1,5 @@
+import { RECEIPT_JPEG_QUALITY } from "@fynans/shared";
+
 export interface DetectedCorners {
   topLeft: { x: number; y: number };
   topRight: { x: number; y: number };
@@ -64,7 +66,7 @@ function canvasToFile(canvas: HTMLCanvasElement): Promise<File> {
         );
       },
       "image/jpeg",
-      0.92,
+      RECEIPT_JPEG_QUALITY,
     );
   });
 }

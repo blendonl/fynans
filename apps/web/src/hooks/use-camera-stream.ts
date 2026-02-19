@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { RECEIPT_CAPTURE_IDEAL_WIDTH, RECEIPT_CAPTURE_IDEAL_HEIGHT } from "@fynans/shared";
 
 interface UseCameraStreamReturn {
   videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -64,8 +65,8 @@ export function useCameraStream(active: boolean): UseCameraStreamReturn {
       const constraints: MediaStreamConstraints = {
         video: {
           facingMode: "environment",
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
+          width: { ideal: RECEIPT_CAPTURE_IDEAL_WIDTH },
+          height: { ideal: RECEIPT_CAPTURE_IDEAL_HEIGHT },
         },
         audio: false,
       };
@@ -101,7 +102,7 @@ export function useCameraStream(active: boolean): UseCameraStreamReturn {
           try {
             const fallbackStream =
               await navigator.mediaDevices.getUserMedia({
-                video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+                video: { width: { ideal: RECEIPT_CAPTURE_IDEAL_WIDTH }, height: { ideal: RECEIPT_CAPTURE_IDEAL_HEIGHT } },
                 audio: false,
               });
             if (cancelled) {

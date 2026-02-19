@@ -8,6 +8,7 @@ import { ReceiptGuideOverlay } from "./receipt-guide-overlay";
 import { CaptureButton } from "./capture-button";
 import { useOpenCVWorker } from "@/hooks/use-opencv-worker";
 import type { DetectedCorners } from "@/lib/receipt-image-processing";
+import { RECEIPT_CAPTURE_IDEAL_WIDTH, RECEIPT_CAPTURE_IDEAL_HEIGHT, RECEIPT_JPEG_QUALITY } from "@fynans/shared";
 
 interface GuidedCameraOverlayProps {
   onCapture: (file: File) => void;
@@ -52,12 +53,12 @@ export function GuidedCameraOverlay({
     const start = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } },
+          video: { facingMode: "environment", width: { ideal: RECEIPT_CAPTURE_IDEAL_WIDTH }, height: { ideal: RECEIPT_CAPTURE_IDEAL_HEIGHT } },
           audio: false,
         }).catch(() =>
           // Fallback without facingMode for desktop / browsers that reject it
           navigator.mediaDevices.getUserMedia({
-            video: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+            video: { width: { ideal: RECEIPT_CAPTURE_IDEAL_WIDTH }, height: { ideal: RECEIPT_CAPTURE_IDEAL_HEIGHT } },
             audio: false,
           })
         );
@@ -201,7 +202,7 @@ export function GuidedCameraOverlay({
         canvas.toBlob(
           (b) => (b ? resolve(b) : reject(new Error("Failed to capture"))),
           "image/jpeg",
-          0.92,
+          RECEIPT_JPEG_QUALITY,
         ),
       );
       const file = new File([blob], `receipt-${Date.now()}.jpg`, {

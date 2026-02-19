@@ -9,6 +9,7 @@ import {
   simpleCropFromCanvas,
   type DetectedCorners,
 } from "@/lib/receipt-image-processing";
+import { RECEIPT_JPEG_QUALITY } from "@fynans/shared";
 
 interface ReceiptCropOverlayProps {
   imageFile: File;
@@ -403,11 +404,11 @@ export function ReceiptCropOverlay({
       )}
 
       {/* Top bar */}
-      <div className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between p-4">
+      <div className="pointer-events-none absolute left-0 right-0 top-0 z-30 flex items-center justify-between p-4">
         <button
           onClick={onClose}
           disabled={isProcessing}
-          className="flex h-10 w-10 items-center justify-center rounded-full
+          className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full
             bg-black/40 text-white backdrop-blur-md transition-colors
             hover:bg-black/60 active:bg-black/70 disabled:opacity-40"
           aria-label="Cancel crop"
@@ -415,12 +416,12 @@ export function ReceiptCropOverlay({
           <X className="h-5 w-5" />
         </button>
 
-        <p className="text-sm text-white/90 font-medium">Adjust corners</p>
+        <p className="pointer-events-none text-sm text-white/90 font-medium">Adjust corners</p>
 
         <button
           onClick={handleResetCorners}
           disabled={isProcessing}
-          className="flex h-10 w-10 items-center justify-center rounded-full
+          className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full
             bg-black/40 text-white backdrop-blur-md transition-colors
             hover:bg-black/60 active:bg-black/70 disabled:opacity-40"
           aria-label="Reset corners"
@@ -430,11 +431,11 @@ export function ReceiptCropOverlay({
       </div>
 
       {/* Confirm button */}
-      <div className="absolute bottom-0 left-0 right-0 z-30 flex items-center justify-center pb-10 pt-6">
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-30 flex items-center justify-center pb-10 pt-6">
         <button
           onClick={handleConfirm}
           disabled={!canConfirm || isProcessing}
-          className="flex h-[72px] w-[72px] items-center justify-center rounded-full
+          className="pointer-events-auto flex h-[72px] w-[72px] items-center justify-center rounded-full
             bg-gradient-to-br from-[var(--gradient-primary-start)] to-[var(--gradient-primary-end)]
             shadow-lg shadow-black/30 transition-all duration-150
             active:scale-95 disabled:opacity-40 disabled:active:scale-100"
@@ -525,7 +526,7 @@ function pixelsToFile(
         );
       },
       "image/jpeg",
-      0.92,
+      RECEIPT_JPEG_QUALITY,
     );
   });
 }
