@@ -169,8 +169,8 @@ export function ExpenseItemsForm({
                 placeholder="Qty"
                 value={currentItem.quantity}
                 onChange={(e) => onCurrentItemChange({ ...currentItem, quantity: e.target.value })}
-                step="0.1"
-                min="0.1"
+                step="any"
+                min="0.001"
                 className="min-h-12"
               />
             </div>

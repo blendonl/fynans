@@ -56,8 +56,8 @@ export function ExpenseItemRow({ item, index, isEditing, onEdit, onRemove, onQua
                 if (!isNaN(val) && val > 0) onQuantityChange(index, val);
               }}
               className="w-12 text-center text-sm font-medium bg-transparent border-none outline-none text-text [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              step="0.1"
-              min="0.1"
+              step="any"
+              min="0.001"
             />
             <Button
               variant="outline"

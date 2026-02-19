@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Camera, Upload, Loader2, ScanLine } from "lucide-react";
+import { Camera, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -38,7 +38,7 @@ export function ScanReceiptDialog({ open, onOpenChange, onResult }: ScanReceiptD
       return;
     }
     if (file.size > RECEIPT_MAX_FILE_SIZE) {
-      toast.error("File size must be under 10MB");
+      toast.error("File size must be under 100MB");
       return;
     }
     scan(file, {
@@ -133,17 +133,6 @@ export function ScanReceiptDialog({ open, onOpenChange, onResult }: ScanReceiptD
           </div>
         ) : (
           <div className="flex flex-col gap-3 py-4">
-            {hasGetUserMedia && (
-              <Button
-                className="flex items-center justify-center gap-3 h-14
-                  bg-gradient-to-r from-[var(--gradient-primary-start)] to-[var(--gradient-primary-end)]
-                  text-white font-medium shadow-sm"
-                onClick={() => setShowGuidedCapture(true)}
-              >
-                <ScanLine className="h-5 w-5" />
-                <span>Guided Capture</span>
-              </Button>
-            )}
             <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
