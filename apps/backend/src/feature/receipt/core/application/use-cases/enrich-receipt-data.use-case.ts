@@ -81,8 +81,9 @@ export class EnrichReceiptDataUseCase {
               this.logger.log(
                 `Fuzzy matched "${item.name}" → "${dbItem.name}" (id=${dbItem.id})`,
               );
-              resolvedName = dbItem.name;
-              if (dbItem.nameEn) resolvedNameEn = dbItem.nameEn;
+              // Keep parser's clean name (size already stripped by post-processor)
+              // Only use DB match for IDs; update nameEn from DB if parser doesn't have one
+              if (!resolvedNameEn && dbItem.nameEn) resolvedNameEn = dbItem.nameEn;
             }
           }
 

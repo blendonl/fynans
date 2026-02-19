@@ -33,6 +33,16 @@ export class CreateExpenseItemRequestDto {
   @Min(0.001)
   @Type(() => Number)
   quantity!: number;
+
+  @IsNumber()
+  @Min(0.001)
+  @IsOptional()
+  @Type(() => Number)
+  sizeValue?: number;
+
+  @IsString()
+  @IsOptional()
+  sizeUnit?: string;
 }
 
 export class CreateExpenseRequestDto {

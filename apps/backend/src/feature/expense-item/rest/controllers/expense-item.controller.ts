@@ -43,6 +43,8 @@ export class ExpenseItemController {
       itemPrice: createDto.itemPrice,
       discount: createDto.discount,
       itemId: createDto.itemId,
+      sizeValue: createDto.sizeValue,
+      sizeUnit: createDto.sizeUnit,
     });
 
     const item = await this.expenseItemService.create(coreDto, storeId, user.id);

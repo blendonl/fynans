@@ -7,6 +7,7 @@ export class StoreItemResponseDto {
   price: number;
   isDiscounted: boolean;
   categoryId: string;
+  size?: { value: number; unit: string };
   createdAt: Date;
   updatedAt: Date;
 
@@ -20,6 +21,12 @@ export class StoreItemResponseDto {
     dto.createdAt = storeItem.createdAt;
     dto.updatedAt = storeItem.updatedAt;
     dto.categoryId = storeItem.item?.categoryId ?? '';
+    if (storeItem.itemSize) {
+      dto.size = {
+        value: storeItem.itemSize.value.toNumber(),
+        unit: storeItem.itemSize.unit,
+      };
+    }
 
     return dto;
   }

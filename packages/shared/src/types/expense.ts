@@ -12,6 +12,7 @@ export interface ExpenseItem {
   quantity: number;
   categoryId: string;
   fromReceipt?: boolean;
+  size?: { value: number; unit: string };
 }
 
 export interface CurrentItem {
@@ -21,4 +22,6 @@ export interface CurrentItem {
   quantity: string;
   categoryId: string;
   fromReceipt?: boolean;
+  sizeValue?: string;
+  sizeUnit?: string;
 }

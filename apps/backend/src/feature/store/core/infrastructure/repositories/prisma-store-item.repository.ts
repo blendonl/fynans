@@ -112,7 +112,7 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
         orderBy: { createdAt: 'desc' },
         skip: pagination?.skip,
         take: pagination?.take,
-        include: { item: true },
+        include: { item: true, itemSize: true },
       }),
       this.prisma.storeItem.count({ where }),
     ]);
@@ -138,7 +138,7 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
         orderBy: { createdAt: 'desc' },
         skip: pagination?.skip,
         take: pagination?.take,
-        include: { item: true },
+        include: { item: true, itemSize: true },
       }),
       this.prisma.storeItem.count({ where }),
     ]);

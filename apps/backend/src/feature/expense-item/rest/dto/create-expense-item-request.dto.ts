@@ -1,4 +1,4 @@
-import { IsUUID, IsNotEmpty, IsString, IsNumber, Min, IsOptional } from 'class-validator';
+import { IsUUID, IsNotEmpty, IsString, IsNumber, Min, IsOptional, IsIn } from 'class-validator';
 
 export class CreateExpenseItemRequestDto {
   @IsUUID()
@@ -30,4 +30,14 @@ export class CreateExpenseItemRequestDto {
   @IsUUID()
   @IsOptional()
   itemId?: string;
+
+  @IsNumber()
+  @Min(0.001)
+  @IsOptional()
+  sizeValue?: number;
+
+  @IsString()
+  @IsIn(['kg', 'g', 'l', 'ml', 'cl'])
+  @IsOptional()
+  sizeUnit?: string;
 }

@@ -1,6 +1,7 @@
 import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { type IStoreItemRepository } from '../../domain/repositories/store-item.repository.interface';
 import { type IItemRepository } from '../../../../item/core/domain/repositories/item.repository.interface';
+import { type IItemSizeRepository } from '../../../../item/core/domain/repositories/item-size.repository.interface';
 import { type IStoreItemCategoryRepository } from '../../../../store-item-category/core/domain/repositories/store-item-category.repository.interface';
 import { CreateStoreItemDto } from '../dto/create-store-item.dto';
 import { StoreItem } from '../../domain/entities/store-item.entity';
@@ -13,6 +14,8 @@ export class CreateOrFindStoreItemUseCase {
     private readonly storeItemRepository: IStoreItemRepository,
     @Inject('ItemRepository')
     private readonly itemRepository: IItemRepository,
+    @Inject('ItemSizeRepository')
+    private readonly itemSizeRepository: IItemSizeRepository,
     @Inject('StoreItemCategoryRepository')
     private readonly storeItemCategoryRepository: IStoreItemCategoryRepository,
   ) {}
@@ -32,9 +35,20 @@ export class CreateOrFindStoreItemUseCase {
     await this.itemRepository.linkToUser(item.id, userId);
     await this.storeItemCategoryRepository.linkToUser(dto.categoryId, userId);
 
-    const existingStoreItem = await this.storeItemRepository.findByStoreAndItemId(
+    let itemSizeId: string | undefined;
+    if (dto.sizeValue && dto.sizeUnit) {
+      const itemSize = await this.itemSizeRepository.create({
+        itemId: item.id,
+        value: dto.sizeValue,
+        unit: dto.sizeUnit,
+      });
+      itemSizeId = itemSize.id;
+    }
+
+    const existingStoreItem = await this.storeItemRepository.findByStoreItemAndSize(
       dto.storeId,
       item.id,
+      itemSizeId,
     );
 
     if (existingStoreItem) {
@@ -48,6 +62,7 @@ export class CreateOrFindStoreItemUseCase {
     const storeItem = await this.storeItemRepository.create({
       storeId: dto.storeId,
       itemId: item.id,
+      itemSizeId,
       price: new Decimal(dto.price),
       isDiscounted: dto.isDiscounted ?? false,
     } as Partial<StoreItem>);

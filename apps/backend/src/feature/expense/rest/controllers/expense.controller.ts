@@ -51,6 +51,8 @@ export class ExpenseController {
             itemPrice: item.itemPrice,
             discount: item.discount,
             quantity: item.quantity,
+            sizeValue: item.sizeValue,
+            sizeUnit: item.sizeUnit,
           }),
       ),
       recordedAt: createDto.recordedAt

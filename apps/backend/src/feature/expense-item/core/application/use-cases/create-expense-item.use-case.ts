@@ -35,6 +35,9 @@ export class CreateExpenseItemUseCase {
           dto.itemName,
           dto.itemPrice,
           dto.categoryId,
+          undefined,
+          dto.sizeValue,
+          dto.sizeUnit,
         ),
         userId,
       );
