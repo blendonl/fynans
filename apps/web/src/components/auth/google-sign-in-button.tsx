@@ -31,10 +31,23 @@ function GoogleIcon() {
 export function GoogleSignInButton() {
   const [loading, setLoading] = useState(false);
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setLoading(true);
-    const callbackURL = `${window.location.origin}/auth/callback`;
-    window.location.href = `${API_URL}/api/auth/sign-in/social?provider=google&callbackURL=${encodeURIComponent(callbackURL)}`;
+    try {
+      const callbackURL = `${window.location.origin}/auth/callback`;
+      const response = await fetch(`${API_URL}/api/auth/sign-in/social`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ provider: "google", callbackURL }),
+      });
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      setLoading(false);
+    }
   };
 
   return (
