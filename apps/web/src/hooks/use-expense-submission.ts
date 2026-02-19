@@ -49,6 +49,7 @@ export function useExpenseSubmission({
           itemPrice: item.price,
           discount: item.discount,
           quantity: item.quantity,
+          ...(item.size ? { sizeValue: item.size.value, sizeUnit: item.size.unit } : {}),
         }));
       } else {
         payload.amount = parseFloat(simpleAmount);

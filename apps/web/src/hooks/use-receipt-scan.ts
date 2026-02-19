@@ -13,6 +13,7 @@ export interface ProcessedReceiptResponse {
     categoryId?: string;
     suggestedItemCategoryId?: string;
     resolvedCategoryId?: string;
+    size?: { value: number; unit: string };
   }[];
   recordedAt?: string;
   extractedText: string;

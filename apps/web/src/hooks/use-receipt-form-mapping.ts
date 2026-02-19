@@ -68,6 +68,7 @@ export function useReceiptFormMapping({
           quantity: item.quantity,
           categoryId: item.resolvedCategoryId || fallbackCategoryId,
           fromReceipt: true,
+          size: item.size,
         })),
       );
 

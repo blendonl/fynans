@@ -28,7 +28,10 @@ export function ExpenseItemRow({ item, index, isEditing, onEdit, onRemove, onQua
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-text truncate">{item.name}</p>
+          <p className="text-sm font-semibold text-text truncate">
+            {item.name}
+            {item.size && <span className="text-text-secondary font-normal"> · {item.size.value} {item.size.unit}</span>}
+          </p>
           <p className="text-xs text-text-secondary mt-0.5">
             {formatCurrency(item.price)}
             {item.discount > 0 && ` - ${formatCurrency(item.discount)} disc.`}

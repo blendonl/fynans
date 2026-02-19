@@ -7,6 +7,8 @@ const EMPTY_CURRENT_ITEM: CurrentItem = {
   discount: "",
   quantity: "1",
   categoryId: "",
+  sizeValue: "",
+  sizeUnit: "",
 };
 
 export function useExpenseItems() {
@@ -28,6 +30,9 @@ export function useExpenseItems() {
     }
     setItemErrors({});
 
+    const sizeValue = currentItem.sizeValue ? parseFloat(currentItem.sizeValue) : undefined;
+    const sizeUnit = currentItem.sizeUnit || undefined;
+
     const newItem: ExpenseItem = {
       id: crypto.randomUUID(),
       name: currentItem.name,
@@ -36,6 +41,7 @@ export function useExpenseItems() {
       quantity: parseFloat(currentItem.quantity) || 1,
       categoryId: currentItem.categoryId,
       fromReceipt: currentItem.fromReceipt,
+      size: sizeValue && sizeUnit ? { value: sizeValue, unit: sizeUnit } : undefined,
     };
 
     if (editingIndex !== null) {
@@ -73,6 +79,8 @@ export function useExpenseItems() {
       quantity: item.quantity.toString(),
       categoryId: item.categoryId,
       fromReceipt: item.fromReceipt,
+      sizeValue: item.size?.value?.toString() ?? "",
+      sizeUnit: item.size?.unit ?? "",
     });
     setEditingIndex(index);
     setItemErrors({});
@@ -86,7 +94,7 @@ export function useExpenseItems() {
     });
   };
 
-  const handleQuickAddItem = (name: string, price: number, categoryId: string) => {
+  const handleQuickAddItem = (name: string, price: number, categoryId: string, size?: { value: number; unit: string }) => {
     const newItem: ExpenseItem = {
       id: crypto.randomUUID(),
       name,
@@ -94,6 +102,7 @@ export function useExpenseItems() {
       discount: 0,
       quantity: 1,
       categoryId,
+      size,
     };
     setItems((prev) => [...prev, newItem]);
   };

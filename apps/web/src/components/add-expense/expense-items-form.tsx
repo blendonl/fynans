@@ -26,7 +26,7 @@ interface ExpenseItemsFormProps {
   onCancelEdit: () => void;
   onRemoveItem: (index: number) => ExpenseItem;
   onInsertItem: (index: number, item: ExpenseItem) => void;
-  onQuickAddItem: (name: string, price: number, categoryId: string) => void;
+  onQuickAddItem: (name: string, price: number, categoryId: string, size?: { value: number; unit: string }) => void;
   onQuantityChange: (index: number, quantity: number) => void;
   onCreateNewItemCategory: (name: string) => void;
   isLoadingCategories: boolean;
@@ -82,7 +82,7 @@ export function ExpenseItemsForm({
     () =>
       storeItems.map((item) => ({
         value: item.id,
-        label: item.name,
+        label: item.size ? `${item.name} · ${item.size.value} ${item.size.unit}` : item.name,
         sublabel: formatCurrency(item.price),
       })),
     [storeItems]
@@ -100,7 +100,7 @@ export function ExpenseItemsForm({
     const item = storeItems.find((i) => i.id === itemId);
     if (!item) return;
 
-    onQuickAddItem(item.name, item.price, item.categoryId);
+    onQuickAddItem(item.name, item.price, item.categoryId, item.size);
     setSelectedItemId(null);
     setItemSearch("");
   };
@@ -184,6 +184,33 @@ export function ExpenseItemsForm({
                 min="0"
                 className="min-h-12"
               />
+            </div>
+          </div>
+          <div className="sm:col-span-2 flex gap-3">
+            <div className="flex-1">
+              <Input
+                type="number"
+                placeholder="Size (e.g. 4)"
+                value={currentItem.sizeValue ?? ""}
+                onChange={(e) => onCurrentItemChange({ ...currentItem, sizeValue: e.target.value })}
+                step="any"
+                min="0.001"
+                className="min-h-12"
+              />
+            </div>
+            <div className="w-24">
+              <select
+                value={currentItem.sizeUnit ?? ""}
+                onChange={(e) => onCurrentItemChange({ ...currentItem, sizeUnit: e.target.value })}
+                className="w-full min-h-12 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">Unit</option>
+                <option value="kg">kg</option>
+                <option value="g">g</option>
+                <option value="l">L</option>
+                <option value="ml">mL</option>
+                <option value="cl">cL</option>
+              </select>
             </div>
           </div>
           {showCategorySelector && (
