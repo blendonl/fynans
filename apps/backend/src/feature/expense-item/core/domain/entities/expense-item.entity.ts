@@ -50,8 +50,8 @@ export class ExpenseItem {
       throw new Error('Discount must be non-negative');
     }
 
-    if (!props.quantity || props.quantity.toNumber() < 1) {
-      throw new Error('Quantity must be at least 1');
+    if (!props.quantity || props.quantity.toNumber() <= 0) {
+      throw new Error('Quantity must be greater than 0');
     }
 
     if (props.discount.toNumber() > props.price.toNumber()) {

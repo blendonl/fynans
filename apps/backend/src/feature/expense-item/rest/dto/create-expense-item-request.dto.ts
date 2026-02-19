@@ -23,7 +23,7 @@ export class CreateExpenseItemRequestDto {
   discount?: number;
 
   @IsNumber()
-  @Min(1)
+  @Min(0.001)
   @IsOptional()
   quantity?: number;
 
