@@ -5,17 +5,16 @@ import {
   ReceiptParsingResult,
 } from '../../../application/services/receipt-parser.service';
 import { IOllamaService } from '../../../application/interfaces/ollama.interface';
-import { type UserReceiptContext } from '../../../application/use-cases/fetch-user-context.use-case';
 import { DonutHttpService } from '../donut-http.service';
 import { ReceiptPostProcessor } from '../receipt-post-processor';
 import { parseDateTime, extractJson } from './receipt-parser.utils';
 
 interface EnrichedItem {
   name: string;
+  nameEn?: string;
   price: number;
   quantity: number;
   suggestedItemCategory?: string;
-  matchedExistingItem?: string;
 }
 
 interface EnrichmentResult {
@@ -82,7 +81,6 @@ export class DonutReceiptParser implements IReceiptParser {
         enriched = await this.enrichWithLlm(
           processed.storeName,
           processed.items,
-          context.userContext,
           tracker,
         );
       } catch (error) {
@@ -114,7 +112,6 @@ export class DonutReceiptParser implements IReceiptParser {
   private async enrichWithLlm(
     storeName: string,
     items: Array<{ name: string; price: number; quantity: number }>,
-    userContext?: UserReceiptContext,
     tracker?: ReceiptParsingContext['progressTracker'],
   ): Promise<EnrichmentResult> {
     const ollamaHealthy = await this.ollamaService!.healthCheck();
@@ -122,7 +119,7 @@ export class DonutReceiptParser implements IReceiptParser {
       throw new Error('Ollama not available for enrichment');
     }
 
-    const prompt = this.buildEnrichmentPrompt(storeName, items, userContext);
+    const prompt = this.buildEnrichmentPrompt(storeName, items);
 
     const completion = await this.ollamaService!.generateCompletion(prompt, {
       onToken: tracker?.tokenCallback('vision-parse', 600),
@@ -137,50 +134,24 @@ export class DonutReceiptParser implements IReceiptParser {
   private buildEnrichmentPrompt(
     storeName: string,
     items: Array<{ name: string; price: number; quantity: number }>,
-    userContext?: UserReceiptContext,
   ): string {
     const itemsList = items
       .map((i) => `- "${i.name}" (${i.price}€ x${i.quantity})`)
       .join('\n');
 
-    let contextSection = '';
-    if (userContext) {
-      const existingItems = userContext.items
-        .slice(0, 50)
-        .map((i) => `${i.name} (${i.categoryName})`)
-        .join(', ');
-
-      const categories = userContext.itemCategories
-        .map((c) => c.name)
-        .join(', ');
-
-      const expenseCategories = userContext.expenseCategories
-        .map((c) => c.name)
-        .join(', ');
-
-      contextSection = `
-Existing items: ${existingItems || 'none'}
-Existing item categories: ${categories || 'none'}
-Existing expense categories: ${expenseCategories || 'none'}
-
-When matching items:
-- If an item name is similar to an existing item (e.g. "mish gjedhi" matches "Mish Gjedhi"), set matchedExistingItem to the existing item's exact name
-- Prefer existing categories when they fit
-`;
-    }
-
     return `You are given receipt items extracted by OCR from a Kosovo store receipt. The text is Albanian.
-Normalize the item names, assign categories, and suggest an expense category.
+Normalize the item names, provide English translations, assign categories, and suggest an expense category.
 
 Store: "${storeName}"
 Items:
 ${itemsList}
-${contextSection}
+
 Rules:
 - Fix Albanian spelling (ë, ç, gj, sh, zh, nj). Example: "mish gjJedhi" → "Mish Gjedhi", "sheger i kafte" → "Sheqer i Kafes"
 - Capitalize item names properly
-- suggestedItemCategory is REQUIRED for every item (e.g. Dairy, Bakery, Meat, Produce, Beverages, Cleaning, Snacks, Condiments)
-- suggestedExpenseCategory is REQUIRED (e.g. Groceries, Household)
+- "nameEn" is REQUIRED: provide an English translation of each item
+- "suggestedItemCategory" is REQUIRED for every item. Choose from: Dairy, Bakery, Meat, Produce, Beverages, Snacks, Household, Personal Care, Frozen, Canned Goods, Condiments, Grains & Pasta, Sweets, Eggs, Deli, Seafood, Baby, Pet, Other
+- "suggestedExpenseCategory" is REQUIRED (e.g. Groceries, Household)
 - Keep the same number of items in the same order
 - Also normalize the store name if needed
 
@@ -188,7 +159,7 @@ Return JSON:
 {
   "storeName": "Normalized Store Name",
   "items": [
-    {"name": "Normalized Name", "price": 1.20, "quantity": 1, "suggestedItemCategory": "Category", "matchedExistingItem": null}
+    {"name": "Normalized Name", "nameEn": "English Name", "price": 1.20, "quantity": 1, "suggestedItemCategory": "Category"}
   ],
   "suggestedExpenseCategory": "Groceries"
 }`;
@@ -197,10 +168,10 @@ Return JSON:
   private mergeEnrichedItems(
     original: Array<{
       name: string;
+      nameEn?: string;
       price: number;
       quantity: number;
       suggestedItemCategory?: string;
-      matchedExistingItem?: string;
     }>,
     enriched: EnrichedItem[],
   ): typeof original {
@@ -212,11 +183,11 @@ Return JSON:
         ...item,
         // Use enriched name if it looks reasonable (not empty, not wildly different length)
         name: enrichedItem.name || item.name,
+        nameEn: enrichedItem.nameEn || item.nameEn,
         // Keep original price/quantity — LLM might hallucinate numbers
         price: item.price,
         quantity: item.quantity,
         suggestedItemCategory: enrichedItem.suggestedItemCategory,
-        matchedExistingItem: enrichedItem.matchedExistingItem || undefined,
       };
     });
   }

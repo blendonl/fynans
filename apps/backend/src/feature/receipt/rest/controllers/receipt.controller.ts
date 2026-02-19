@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  Logger,
   NotFoundException,
   MessageEvent,
 } from '@nestjs/common';
@@ -28,6 +29,8 @@ import { User } from '~feature/user/core/domain/entities/user.entity';
 
 @Controller('receipts')
 export class ReceiptController {
+  private readonly logger = new Logger(ReceiptController.name);
+
   constructor(
     @Inject('ReceiptJobQueue')
     private readonly receiptJobQueue: IReceiptJobQueue,
@@ -37,7 +40,7 @@ export class ReceiptController {
   @HttpCode(HttpStatus.ACCEPTED)
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 10 * 1024 * 1024 },
+      limits: { fileSize: 100 * 1024 * 1024 },
       fileFilter: (req, file, cb) => {
         if (!file.mimetype.match(/image\/(jpeg|jpg|png)/)) {
           return cb(
@@ -101,15 +104,41 @@ export class ReceiptController {
               progress: typedEvent.progress,
             };
 
-            if (typedEvent.status === 'completed' && typedEvent.data) {
+            if (typedEvent.isPartial && typedEvent.data) {
+              const responseDto = ProcessedReceiptResponseDto.fromData(typedEvent.data);
               data = {
                 ...data,
-                data: ProcessedReceiptResponseDto.fromData(typedEvent.data),
+                data: responseDto,
+                isPartial: true,
               };
+              this.logger.log(
+                `SSE [${jobId}] partial: store="${responseDto.store?.name}", ${responseDto.items.length} items, progress=${typedEvent.progress}%`,
+              );
+              this.logger.debug(
+                `SSE [${jobId}] partial items: ${JSON.stringify(responseDto.items.map((i) => ({ name: i.name, nameEn: i.nameEn, size: i.size, price: i.price })))}`,
+              );
+            } else if (typedEvent.status === 'completed' && typedEvent.data) {
+              const responseDto = ProcessedReceiptResponseDto.fromData(typedEvent.data);
+              data = {
+                ...data,
+                data: responseDto,
+              };
+              this.logger.log(
+                `SSE [${jobId}] completed: store="${responseDto.store?.name}", ${responseDto.items.length} items, ` +
+                `expenseCategory="${responseDto.suggestedExpenseCategory?.name ?? 'none'}"`,
+              );
+              this.logger.debug(
+                `SSE [${jobId}] final items: ${JSON.stringify(responseDto.items.map((i) => ({ name: i.name, nameEn: i.nameEn, size: i.size, categoryId: i.resolvedCategoryId })))}`,
+              );
+            } else {
+              this.logger.debug(
+                `SSE [${jobId}] ${typedEvent.status}: progress=${typedEvent.progress}%`,
+              );
             }
 
             if (typedEvent.error) {
               data.error = typedEvent.error;
+              this.logger.error(`SSE [${jobId}] error: ${typedEvent.error}`);
             }
 
             subscriber.next({ data });

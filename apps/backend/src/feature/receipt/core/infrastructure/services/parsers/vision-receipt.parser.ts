@@ -5,7 +5,6 @@ import {
   ReceiptParsingResult,
 } from '../../../application/services/receipt-parser.service';
 import { IOllamaService } from '../../../application/interfaces/ollama.interface';
-import { type UserReceiptContext } from '../../../application/use-cases/fetch-user-context.use-case';
 import { ReceiptPostProcessor } from '../receipt-post-processor';
 import { parseDateTime, extractJson } from './receipt-parser.utils';
 import sharp from 'sharp';
@@ -15,10 +14,10 @@ interface VisionParsedReceipt {
   storeLocation?: string;
   items?: Array<{
     name: string;
+    nameEn?: string;
     price: number;
     quantity?: number;
     suggestedItemCategory?: string;
-    matchedExistingItem?: string;
   }>;
   totalAmount?: number;
   date?: string;
@@ -69,7 +68,7 @@ export class VisionReceiptParser implements IReceiptParser {
     const resizedBuffer = await this.resizeImage(imageBuffer);
     const imageBase64 = resizedBuffer.toString('base64');
 
-    const prompt = this.buildVisionPrompt(context.userContext);
+    const prompt = this.buildVisionPrompt();
     let processed = await this.attemptVisionParse(prompt, imageBase64, tracker);
 
     // Single retry if no items were extracted
@@ -118,7 +117,23 @@ export class VisionReceiptParser implements IReceiptParser {
     const parsed = extractJson(completion.response, {
       repair: true,
     }) as VisionParsedReceipt;
-    return this.postProcessor.process(parsed);
+
+    this.logger.log(
+      `Vision raw response: store="${parsed.storeName}", items=${parsed.items?.length ?? 0}, total=${parsed.totalAmount}`,
+    );
+    if (parsed.items?.length) {
+      this.logger.debug(
+        `Vision parsed items: ${JSON.stringify(parsed.items.map((i) => ({ name: i.name, nameEn: i.nameEn, price: i.price, category: i.suggestedItemCategory })))}`,
+      );
+    }
+
+    const processed = this.postProcessor.process(parsed);
+
+    this.logger.log(
+      `Post-processed: ${processed.items.length} items, sizes extracted: ${processed.items.filter((i) => i.size).length}`,
+    );
+
+    return processed;
   }
 
   private async resizeImage(imageBuffer: Buffer): Promise<Buffer> {
@@ -137,42 +152,23 @@ export class VisionReceiptParser implements IReceiptParser {
       .toBuffer();
   }
 
-  private buildVisionPrompt(userContext?: UserReceiptContext): string {
-    let itemsSection = '';
+  private buildVisionPrompt(): string {
+    return `You extract structured data from Kosovo store receipt images. Return ONLY valid JSON.
 
-    if (userContext?.items.length) {
-      const itemsList = userContext.items
-        .slice(0, 20)
-        .map((i) => `${i.name} (${i.categoryName})`)
-        .join(', ');
+Context: Kosovo receipt, prices in EUR, text in Albanian (ë, ç, sh, zh, gj, nj).
+NOT items: TOTALI, TVSH, tax, subtotal, payment, KLIENT, ATK, NR SERIAL, KOPJE.
 
-      if (itemsList) {
-        itemsSection = `\nMatch to existing items: ${itemsList}\n`;
-      }
-    }
-
-    return `Extract structured data from this receipt image. Receipts are from Kosovo. Prices in EUR. Text is Albanian (ë, ç).
+EVERY item MUST have ALL 5 fields: name, nameEn, price, quantity, suggestedItemCategory.
+The receipt MUST have: date (DD/MM/YYYY), time (HH:MM). Look for them carefully on the receipt.
 
 Rules:
-- Only extract items actually visible on the receipt.
-- Each item has a name and price.
-- Correct garbled text using Albanian context.
-- Skip TOTALI, TVSH, tax, payment, and subtotal lines.
-- "2x ITEM 0.60" means quantity=2, price=0.60.
-- "2.375 x 2.89 6.86" means quantity=2.375, price=6.86 (weight-based).
-${itemsSection}
-Return a JSON object with this structure:
-{
-  "storeName": "store name",
-  "storeLocation": "address or empty string",
-  "items": [
-    {"name": "item name", "price": 1.20, "quantity": 1, "suggestedItemCategory": "Dairy", "matchedExistingItem": null}
-  ],
-  "totalAmount": 15.50,
-  "date": "DD/MM/YYYY",
-  "time": "HH:MM",
-  "suggestedExpenseCategory": "Groceries"
-}`;
-  }
+- "name": Albanian name from receipt (keep size info like 1KG, 500g)
+- "nameEn": English translation (REQUIRED)
+- "suggestedItemCategory": a short grocery category name (REQUIRED), e.g. "Dairy", "Meat", "Cleaning Products"
+- Correct garbled text using Albanian context
+- Quantity defaults to 1. For "2.375 x 2.89 = 6.86": quantity=2.375, price=6.86
+- "2x ITEM 0.60" means quantity=2, price=0.60
 
+Return JSON: {"storeName":"...","storeLocation":"...","items":[{"name":"...","nameEn":"...","price":0.00,"quantity":1,"suggestedItemCategory":"..."}],"totalAmount":0.00,"date":"DD/MM/YYYY","time":"HH:MM","suggestedExpenseCategory":"Groceries"}`;
+  }
 }

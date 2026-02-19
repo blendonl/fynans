@@ -10,6 +10,7 @@ export interface ReceiptJobResult<T = unknown> {
   data?: T;
   error?: string;
   progress?: number;
+  isPartial?: boolean;
 }
 
 export interface IReceiptJobQueue {

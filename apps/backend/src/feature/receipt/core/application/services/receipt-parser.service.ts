@@ -1,9 +1,7 @@
-import { type UserReceiptContext } from '../use-cases/fetch-user-context.use-case';
 import { type ProgressTracker } from './progress-tracker';
 
 export interface ReceiptParsingContext {
   userId?: string;
-  userContext?: UserReceiptContext;
   confidence: number;
   rawText: string;
   imageBuffer?: Buffer;
@@ -15,10 +13,10 @@ export interface ReceiptParsingResult {
   storeLocation: string;
   items: Array<{
     name: string;
+    nameEn?: string;
     price: number;
     quantity: number;
     suggestedItemCategory?: string;
-    matchedExistingItem?: string;
   }>;
   totalAmount?: number;
   date?: string;

@@ -6,7 +6,10 @@ import { Job } from 'bullmq';
 describe('ReceiptProcessingWorker', () => {
   let worker: ReceiptProcessingWorker;
   let processReceiptUseCase: { execute: jest.Mock };
-  let enrichReceiptDataUseCase: { execute: jest.Mock };
+  let enrichReceiptDataUseCase: {
+    resolveStoreAndItems: jest.Mock;
+    resolveCategories: jest.Mock;
+  };
   let job: Partial<Job>;
 
   const imageBase64 = Buffer.from('fake-image').toString('base64');
@@ -14,27 +17,37 @@ describe('ReceiptProcessingWorker', () => {
   const mockProcessedResult = {
     storeName: 'Test Store',
     storeLocation: '123 Main St',
-    items: [{ name: 'Item 1', price: 9.99, quantity: 1 }],
+    items: [{ name: 'Item 1', price: 9.99, quantity: 1, suggestedItemCategory: 'Produce' }],
     recordedAt: new Date('2026-01-15'),
     extractedText: 'raw receipt text',
     confidence: 0.92,
     parserUsed: 'test-parser',
   };
 
-  const mockEnrichedResult = {
+  const mockPartialResult = {
     store: { id: 'store-1', name: 'Test Store', location: '123 Main St' },
     items: [
-      { id: 'item-1', name: 'Item 1', price: 9.99, category: 'cat-1', quantity: 1 },
+      { name: 'Item 1', price: 9.99, quantity: 1, suggestedItemCategory: 'Produce' },
     ],
     recordedAt: new Date('2026-01-15'),
     extractedText: 'raw receipt text',
     confidence: 0.92,
+    isLowConfidence: false,
     parserUsed: 'test-parser',
+  };
+
+  const mockCategoryResult = {
+    itemCategoryMap: new Map([['Produce', 'cat-1']]),
+    suggestedExpenseCategoryId: 'exp-cat-1',
+    suggestedExpenseCategoryName: 'Groceries',
   };
 
   beforeEach(() => {
     processReceiptUseCase = { execute: jest.fn() };
-    enrichReceiptDataUseCase = { execute: jest.fn() };
+    enrichReceiptDataUseCase = {
+      resolveStoreAndItems: jest.fn(),
+      resolveCategories: jest.fn(),
+    };
 
     const configService = { get: jest.fn().mockReturnValue(undefined) };
 
@@ -51,7 +64,8 @@ describe('ReceiptProcessingWorker', () => {
     };
 
     processReceiptUseCase.execute.mockResolvedValue(mockProcessedResult);
-    enrichReceiptDataUseCase.execute.mockResolvedValue(mockEnrichedResult);
+    enrichReceiptDataUseCase.resolveStoreAndItems.mockResolvedValue(mockPartialResult);
+    enrichReceiptDataUseCase.resolveCategories.mockResolvedValue(mockCategoryResult);
   });
 
   it('should be defined', () => {
@@ -67,16 +81,32 @@ describe('ReceiptProcessingWorker', () => {
         expectedBuffer,
         'user-1',
         expect.anything(),
+        { skipOcr: false },
       );
     });
 
-    it('should call enrichReceiptDataUseCase.execute with processed result and userId', async () => {
+    it('should call resolveStoreAndItems and resolveCategories', async () => {
       await worker.process(job as Job);
 
-      expect(enrichReceiptDataUseCase.execute).toHaveBeenCalledWith(
+      expect(enrichReceiptDataUseCase.resolveStoreAndItems).toHaveBeenCalledWith(
         mockProcessedResult,
         'user-1',
       );
+      expect(enrichReceiptDataUseCase.resolveCategories).toHaveBeenCalledWith(
+        mockProcessedResult,
+        'user-1',
+      );
+    });
+
+    it('should emit partial result via job.updateProgress', async () => {
+      await worker.process(job as Job);
+
+      const progressCalls = (job.updateProgress as jest.Mock).mock.calls;
+      const partialCall = progressCalls.find(
+        (call: any[]) => call[0]?.type === 'partial-result',
+      );
+      expect(partialCall).toBeDefined();
+      expect(partialCall[0].data).toEqual(mockPartialResult);
     });
 
     it('should report progress reaching 100%', async () => {
@@ -88,10 +118,13 @@ describe('ReceiptProcessingWorker', () => {
       expect(lastPercent).toBe(100);
     });
 
-    it('should return enriched result', async () => {
+    it('should return enriched result with categories merged', async () => {
       const result = await worker.process(job as Job);
 
-      expect(result).toEqual(mockEnrichedResult);
+      expect(result.store).toEqual(mockPartialResult.store);
+      expect(result.suggestedExpenseCategoryId).toBe('exp-cat-1');
+      expect(result.suggestedExpenseCategoryName).toBe('Groceries');
+      expect(result.items[0].suggestedItemCategoryId).toBe('cat-1');
     });
 
     it('should propagate error from processReceiptUseCase', async () => {

@@ -3,10 +3,11 @@ export interface ProcessedReceiptData {
   storeLocation: string;
   items: Array<{
     name: string;
+    nameEn?: string;
     price: number;
     quantity: number;
     suggestedItemCategory?: string;
-    matchedExistingItem?: string;
+    size?: { value: number; unit: string };
   }>;
   recordedAt?: Date;
   extractedText: string;

@@ -36,15 +36,13 @@ export class ReceiptProcessingWorker extends WorkerHost {
 
     const stages = this.useVision
       ? [
-          { name: 'context', weight: 5 },
-          { name: 'vision-parse', weight: 85 },
+          { name: 'vision-parse', weight: 90 },
           { name: 'enrich', weight: 10 },
         ]
       : [
           { name: 'ocr', weight: 5 },
-          { name: 'context', weight: 1 },
-          { name: 'llm-parse', weight: 80 },
-          { name: 'enrich', weight: 4 },
+          { name: 'llm-parse', weight: 85 },
+          { name: 'enrich', weight: 10 },
         ];
 
     const tracker = new ProgressTracker(stages, (percent) =>
@@ -58,11 +56,45 @@ export class ReceiptProcessingWorker extends WorkerHost {
       { skipOcr: this.useVision },
     );
 
+    // Phase 1: Resolve store and items (fast)
     tracker.startStage('enrich');
-    const enrichedResult = await this.enrichReceiptDataUseCase.execute(
+    const partialResult = await this.enrichReceiptDataUseCase.resolveStoreAndItems(
       processedResult,
       userId,
     );
+
+    // Emit partial result for immediate UI display
+    await job.updateProgress({
+      type: 'partial-result',
+      percent: 90,
+      data: partialResult,
+    } as any);
+
+    // Phase 2: Resolve categories (background)
+    const categoryResult = await this.enrichReceiptDataUseCase.resolveCategories(
+      processedResult,
+      userId,
+    );
+
+    // Merge partial + category results into full enriched DTO
+    const enrichedResult: EnrichedReceiptDataDto = {
+      ...partialResult,
+      items: partialResult.items.map((item) => ({
+        ...item,
+        suggestedItemCategoryId: item.suggestedItemCategory
+          ? categoryResult.itemCategoryMap.get(item.suggestedItemCategory)
+          : undefined,
+        resolvedCategoryId:
+          (item.suggestedItemCategory
+            ? categoryResult.itemCategoryMap.get(item.suggestedItemCategory)
+            : undefined) ||
+          categoryResult.suggestedExpenseCategoryId ||
+          undefined,
+      })),
+      suggestedExpenseCategoryId: categoryResult.suggestedExpenseCategoryId,
+      suggestedExpenseCategoryName: categoryResult.suggestedExpenseCategoryName,
+    };
+
     tracker.completeStage('enrich');
     tracker.complete();
 

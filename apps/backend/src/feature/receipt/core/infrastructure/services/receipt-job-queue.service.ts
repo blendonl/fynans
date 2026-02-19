@@ -128,6 +128,19 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
 
         queueEvents.on('progress', ({ jobId: jId, data }) => {
           if (jId !== jobId) return;
+
+          // Handle structured progress objects (partial results)
+          if (data && typeof data === 'object' && 'type' in data && (data as any).type === 'partial-result') {
+            const structured = data as { type: string; percent: number; data: unknown };
+            onEvent({
+              status: 'active',
+              progress: structured.percent,
+              data: structured.data,
+              isPartial: true,
+            });
+            return;
+          }
+
           const progress = typeof data === 'number' ? data : undefined;
           onEvent({ status: 'active', progress });
         });

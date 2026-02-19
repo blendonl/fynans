@@ -16,7 +16,6 @@ import { StoreCoreModule } from '~feature/store/core/store-core.module';
 import { ItemCoreModule } from '~feature/item/core/item-core.module';
 import { StoreItemCategoryCoreModule } from '~feature/store-item-category/core/store-item-category-core.module';
 import { ExpenseCategoryCoreModule } from '~feature/expense-category/core/expense-category-core.module';
-import { FetchUserContextUseCase } from './application/use-cases/fetch-user-context.use-case';
 import { AutoCreateCategoriesUseCase } from './application/use-cases/auto-create-categories.use-case';
 import { AlbanianReceiptParser } from './infrastructure/services/parsers/albanian-receipt.parser';
 import { AlbanianStoreNameParser } from './infrastructure/services/parsers/implementations/albanian/albanian-store-name.parser';
@@ -100,7 +99,6 @@ import { IReceiptParser } from './application/services/receipt-parser.service';
       provide: 'ReceiptParserService',
       useClass: ReceiptParserFactory,
     },
-    FetchUserContextUseCase,
     AutoCreateCategoriesUseCase,
     ProcessReceiptUseCase,
     EnrichReceiptDataUseCase,

@@ -9,11 +9,14 @@ class ProcessedStoreDto {
 class ProcessedItemDto {
   id?: string;
   name: string;
+  nameEn?: string;
   price: number;
   quantity: number;
   categoryId?: string;
   suggestedItemCategoryId?: string;
+  suggestedItemCategoryName?: string;
   resolvedCategoryId?: string;
+  size?: { value: number; unit: string };
 }
 
 export class ProcessedReceiptResponseDto {
@@ -32,11 +35,14 @@ export class ProcessedReceiptResponseDto {
     dto.items = data.items.map((item) => ({
       id: item.id,
       name: item.name,
+      nameEn: item.nameEn,
       price: item.price,
       quantity: item.quantity,
       categoryId: item.categoryId,
       suggestedItemCategoryId: item.suggestedItemCategoryId,
+      suggestedItemCategoryName: item.suggestedItemCategoryName,
       resolvedCategoryId: item.resolvedCategoryId,
+      size: item.size,
     }));
     dto.recordedAt = data.recordedAt
       ? new Date(data.recordedAt).toISOString()

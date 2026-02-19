@@ -5,16 +5,15 @@ import {
   ReceiptParsingResult,
 } from '../../../application/services/receipt-parser.service';
 import { IOllamaService } from '../../../application/interfaces/ollama.interface';
-import { type UserReceiptContext } from '../../../application/use-cases/fetch-user-context.use-case';
 import { ReceiptPostProcessor } from '../receipt-post-processor';
-import { parseDateTime, extractJson } from './receipt-parser.utils';
+import { parseDateTime } from './receipt-parser.utils';
 
 interface LlmParsedItem {
   name: string;
+  nameEn?: string;
   price: number;
   quantity?: number;
   suggestedItemCategory?: string;
-  matchedExistingItem?: string;
 }
 
 interface LlmParsedReceipt {
@@ -55,7 +54,8 @@ export class LlmReceiptParser implements IReceiptParser {
 
     tracker?.startStage('llm-parse');
     const llmStart = Date.now();
-    const parsePrompt = this.buildParsePrompt(text, context.userContext);
+    this.logger.debug(`OCR text for LLM (${text.length} chars):\n${text.substring(0, 3000)}`);
+    const parsePrompt = this.buildParsePrompt(text);
     let processed = await this.attemptTextParse(parsePrompt, tracker);
 
     // Single retry if no items were extracted
@@ -63,7 +63,7 @@ export class LlmReceiptParser implements IReceiptParser {
       this.logger.warn(
         'LLM parse returned no items, retrying with directive prompt',
       );
-      const retryPrompt = `The previous attempt returned no items. Please try again, reading the receipt more carefully. ${parsePrompt}`;
+      const retryPrompt = `The previous attempt returned no items. Please try again, reading the receipt more carefully.\n\n${parsePrompt}`;
       const retryResult = await this.attemptTextParse(retryPrompt, undefined);
       if (retryResult.items.length) {
         processed = retryResult;
@@ -91,84 +91,135 @@ export class LlmReceiptParser implements IReceiptParser {
     tracker?: ReceiptParsingContext['progressTracker'],
   ) {
     const completion = await this.ollamaService.generateCompletion(prompt, {
-      onToken: tracker?.tokenCallback('llm-parse', 600),
+      onToken: tracker?.tokenCallback('llm-parse', 400),
     });
-    const parsed = extractJson(completion.response) as LlmParsedReceipt;
-    return this.postProcessor.process(parsed);
-  }
+    this.logger.debug(`LLM raw text: ${completion.response.substring(0, 2000)}`);
+    const parsed = this.parsePlainText(completion.response);
 
-  private buildParsePrompt(
-    ocrText: string,
-    userContext?: UserReceiptContext,
-  ): string {
-    let contextSection = '';
-
-    if (userContext) {
-      const itemsList = userContext.items
-        .slice(0, 50)
-        .map((i) => `${i.name} (${i.categoryName})`)
-        .join(', ');
-
-      contextSection = `
-User's existing items: ${itemsList || 'none'}
-
-When matching items:
-- If an OCR item name is similar to an existing item (e.g. "Mie11" matches "Miell"), set matchedExistingItem to the existing item's exact name
-`;
+    const withCategory = parsed.items?.filter((i) => i.suggestedItemCategory).length ?? 0;
+    this.logger.log(
+      `LLM raw response: store="${parsed.storeName}", items=${parsed.items?.length ?? 0}, ` +
+      `withCategory=${withCategory}, total=${parsed.totalAmount}, date="${parsed.date ?? 'none'}", time="${parsed.time ?? 'none'}"`,
+    );
+    if (parsed.items?.length) {
+      this.logger.debug(
+        `LLM parsed items: ${JSON.stringify(parsed.items.map((i) => ({ name: i.name, nameEn: i.nameEn, price: i.price, qty: i.quantity, category: i.suggestedItemCategory })))}`,
+      );
     }
 
-    return `Extract structured data from this receipt OCR text. Return ONLY valid JSON.
+    const processed = this.postProcessor.process(parsed);
 
-CONTEXT:
-- This is a Kosovo store receipt. Prices are in Euro (EUR).
-- Text is in Albanian. Common characters: ë, ç. Digraphs: sh, zh, gj, nj.
-- Common OCR errors: "1" ↔ "l" ↔ "I", "0" ↔ "O", "3" ↔ "ë", "5" ↔ "S"
-- Common receipt words: TOTALI (total), TVSH (VAT/tax), ARTIKUJT (articles), FATURË (invoice), KLIENT (client), KOPJE (copy).
-${contextSection}
-EXAMPLE OCR TEXT:
-AGNESA MARKET
-Podujevë-Prishtinë
-NR.FIS: 601234567
-MIELL 1KG         1.20
-QUM3SHT 1L        0.85
-2 x BUKE          0.60
-2.375 x 2.89      6.86
-TVSH 18%          1.71
-TOTALI NE EURO   9.51
+    this.logger.log(
+      `Post-processed: ${processed.items.length} items, sizes extracted: ${processed.items.filter((i) => i.size).length}`,
+    );
 
-EXAMPLE OUTPUT:
-{
-  "storeName": "Agnesa Market",
-  "storeLocation": "Podujevë-Prishtinë",
-  "items": [
-    {"name": "Miell 1KG", "price": 1.20, "quantity": 1, "suggestedItemCategory": "Bakery", "matchedExistingItem": null},
-    {"name": "Qumësht 1L", "price": 0.85, "quantity": 1, "suggestedItemCategory": "Dairy", "matchedExistingItem": null},
-    {"name": "Bukë", "price": 0.60, "quantity": 2, "suggestedItemCategory": "Bakery", "matchedExistingItem": null},
-    {"name": "Item (weight-based)", "price": 6.86, "quantity": 2.375, "suggestedItemCategory": "Produce", "matchedExistingItem": null}
-  ],
-  "totalAmount": 9.51,
-  "date": null,
-  "time": null,
-  "suggestedExpenseCategory": "Groceries"
-}
-
-Note: TVSH (tax), TOTALI (total), subtotals, payment lines, KLIENT, ATK, NR SERIAL, KOPJE, FISK, VEPRIMI, MENYRA, PAGESES are NOT items.
-
----
-
-Now extract from this OCR text:
-${ocrText}
-
-Return ONLY compact JSON (no newlines, no extra whitespace) with this structure:
-{"storeName","storeLocation","items":[{"name","price","quantity","suggestedItemCategory","matchedExistingItem"}],"totalAmount","date" (DD/MM/YYYY or null),"time" (HH:MM or null),"suggestedExpenseCategory"}
-
-Rules:
-- Prices are in EUR (typically 0.20 to 50.00 for individual items)
-- Quantity defaults to 1
-- For weight-based items (e.g., "2.375 x 2.89"), set quantity to the weight and price to the line total
-- Correct OCR errors (e.g., "Mie11" → "Miell", "Qum3sht" → "Qumësht", "Buk3" → "Bukë")
-- suggestedItemCategory is REQUIRED for every item
-- suggestedExpenseCategory is REQUIRED`;
+    return processed;
   }
 
+  private parsePlainText(text: string): LlmParsedReceipt {
+    const result: LlmParsedReceipt = {};
+    const lines = text.split('\n').map((l) => l.trim());
+
+    let inItems = false;
+    const items: LlmParsedItem[] = [];
+
+    for (const line of lines) {
+      if (!line) continue;
+
+      if (line.startsWith('STORE:')) {
+        result.storeName = line.slice(6).trim();
+      } else if (line.startsWith('LOCATION:')) {
+        result.storeLocation = line.slice(9).trim();
+      } else if (line.startsWith('DATE:')) {
+        result.date = line.slice(5).trim();
+      } else if (line.startsWith('TIME:')) {
+        result.time = line.slice(5).trim();
+      } else if (line.startsWith('TOTAL:')) {
+        result.totalAmount = parseFloat(
+          line.slice(6).trim().replace(',', '.'),
+        );
+      } else if (line.startsWith('EXPENSE_CATEGORY:')) {
+        result.suggestedExpenseCategory = line.slice(17).trim();
+      } else if (/^ITEMS:?$/i.test(line)) {
+        inItems = true;
+      } else if (inItems && line.includes('|')) {
+        const parts = line.split('|').map((p) => p.trim());
+        if (parts.length < 3) continue;
+
+        // Skip header rows like "name | nameEn | price | qty | category"
+        if (/^(name|item)\b/i.test(parts[0])) continue;
+
+        const price = parseFloat((parts[2] || '0').replace(',', '.'));
+        const quantity = parseFloat((parts[3] || '1').replace(',', '.'));
+
+        if (isNaN(price) || price <= 0) continue;
+
+        items.push({
+          name: parts[0] || '',
+          nameEn: parts[1] || undefined,
+          price,
+          quantity: isNaN(quantity) || quantity <= 0 ? 1 : quantity,
+          suggestedItemCategory: parts[4] || undefined,
+        });
+      }
+    }
+
+    result.items = items;
+
+    if (!items.length) {
+      this.logger.warn('Pipe-delimited parsing found no items, raw text may be malformed');
+    }
+
+    return result;
+  }
+
+  private buildParsePrompt(ocrText: string): string {
+    return `Extract items from this Kosovo store receipt OCR text.
+
+HOW TO READ RECEIPT LINES:
+- Lines like "3.115 X 0.59" or "2,375 × 2,89" are QTY HEADERS: qty=first number, unit_price=second number.
+  The NEXT line has the item NAME (e.g., "PEMEPERIME PLU4 1.84E"). Use that name, NOT the numbers.
+- If a line has NO qty header before it, qty=1 and price is on the line itself.
+- Glued prices: "184E"=1.84, "365E"=3.65, "064E"=0.64, "005E"=0.05
+- "PLU" codes (PLU4, PLU21, PLU2) are produce/vegetable identifiers.
+- "PEMEPERIME" = Vegetables/Produce (the word means produce in Albanian).
+- "QESE PLASTIKE" / "Kese sherbimi" = plastic bag fee — valid item.
+
+RULES:
+1. Date = DD/MM/YYYY (European). Separators: / - or .
+2. price = UNIT price (from qty header or from item line if no header). NEVER use the line total.
+3. Fix OCR corruptions: "<"→"K", "1"→"l", "0"→"O", "8"→"&", "S"→"B" where obvious.
+4. Skip: TOTALI, TVSH, tax, payment, KLIENT, ATK, ARTIKUJT, NR SERIAL, KOPJE, FISK, OPERATOR, VEPRIMI, MENYRA, PAGESES, SHITESI, LOGIN, NR REFERIMIT, KUPON, SERIK.
+
+Categories: Dairy, Meat, Bakery, Grains & Flour, Beverages, Fruits, Vegetables, Cleaning Products, Snacks, Condiments, Household, Canned Goods, Sweets, Other
+
+Output format — pipe-delimited, one item per line:
+STORE: name
+LOCATION: city
+DATE: DD/MM/YYYY
+TIME: HH:MM
+TOTAL: amount
+EXPENSE_CATEGORY: category
+ITEMS:
+item name | English name | unit price | qty | category
+
+Example — given OCR lines:
+3.115 X 0.59
+PEMEPERIME PLU4 1.84E
+FLUIDI COLA 2L 0.64E
+2,375 x 2,89
+Bukuk 1kg Meka 6,86E
+
+Output:
+ITEMS:
+Pemeperime PLU4 | Vegetables PLU4 | 0.59 | 3.115 | Vegetables
+Fluidi Cola 2L | Soda Cola 2L | 0.64 | 1 | Beverages
+Bukuk 1kg Meka | Flour 1kg soft | 2.89 | 2.375 | Grains & Flour
+
+---
+OCR TEXT:
+${ocrText}
+
+Extract ALL items:`;
+  }
 }
