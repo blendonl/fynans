@@ -104,6 +104,7 @@ services:
     build:
       context: .
       dockerfile: apps/backend/Dockerfile
+      network: host
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -138,6 +139,7 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      network: host
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
     restart: unless-stopped
