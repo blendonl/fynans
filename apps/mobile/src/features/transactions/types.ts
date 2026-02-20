@@ -16,6 +16,7 @@ export interface Transaction {
     name: string;
     location?: string;
   };
+  paymentMethod?: { id: string; name: string; color?: string } | null;
   transaction: {
     id: string;
     value: number;

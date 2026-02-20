@@ -12,6 +12,7 @@ import FamilyListScreen from "../screens/family/FamilyListScreen";
 import FamilyDetailScreen from "../screens/family/FamilyDetailScreen";
 import CreateFamilyScreen from "../screens/family/CreateFamilyScreen";
 import PendingInvitationsScreen from "../screens/family/PendingInvitationsScreen";
+import PaymentMethodsScreen from "../screens/payment-methods/PaymentMethodsScreen";
 import { MainTabsWithFAB } from "./MainTabsWithFAB";
 import { View, ActivityIndicator } from "react-native";
 
@@ -102,6 +103,15 @@ export default function AppNavigator() {
               options={{
                 headerShown: true,
                 title: "Pending Invitations",
+                ...screenOptions,
+              }}
+            />
+            <Stack.Screen
+              name="PaymentMethods"
+              component={PaymentMethodsScreen}
+              options={{
+                headerShown: true,
+                title: "Payment Methods",
                 ...screenOptions,
               }}
             />

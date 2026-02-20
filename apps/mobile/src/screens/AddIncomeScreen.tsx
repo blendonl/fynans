@@ -12,6 +12,7 @@ import {
   Chip,
   Dropdown,
   DateTimePickerComponent,
+  Select,
 } from "../components/design-system";
 import { PriceInput } from "../components/forms";
 import { useAppTheme } from "../theme";
@@ -20,6 +21,8 @@ import { useImageUpload } from "../hooks/useImageUpload";
 import { ReceiptCamera } from "./transactions/add/components/ReceiptCamera";
 import { ReceiptPreview } from "../components/transactions/ReceiptPreview";
 import { Category } from "../features/expenses/types";
+import { usePaymentMethods } from "../hooks/usePaymentMethods";
+import { formatCurrency } from "../utils/currency";
 
 type TransactionScope = "PERSONAL" | "FAMILY";
 
@@ -51,6 +54,9 @@ export default function AddIncomeScreen({
   const [incomeDescription, setIncomeDescription] = useState("");
   const [recordedAt, setRecordedAt] = useState<Date>(new Date());
 
+  const { paymentMethods, loading: pmLoading } = usePaymentMethods();
+  const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
+
   const imageUpload = useImageUpload();
 
   useEffect(() => {
@@ -62,13 +68,14 @@ export default function AddIncomeScreen({
     hasDataRef.current =
       selectedCategory !== null ||
       incomeAmount !== "" ||
-      incomeDescription !== "";
-  }, [selectedCategory, incomeAmount, incomeDescription, hasDataRef]);
+      incomeDescription !== "" ||
+      paymentMethodId !== null;
+  }, [selectedCategory, incomeAmount, incomeDescription, paymentMethodId, hasDataRef]);
 
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get("/expense-categories");
+      const response = await apiClient.get("/income-categories");
       setCategories(response.data || []);
     } catch (error: any) {
       Alert.alert("Error", "Failed to fetch categories");
@@ -119,7 +126,7 @@ export default function AddIncomeScreen({
 
     try {
       setLoading(true);
-      const response = await apiClient.post("/expense-categories", {
+      const response = await apiClient.post("/income-categories", {
         name: trimmedName,
       });
 
@@ -164,11 +171,11 @@ export default function AddIncomeScreen({
       const payload = {
         type: "INCOME",
         value: parseFloat(incomeAmount),
-        userId: "current-user",
         description: incomeDescription,
         categoryId: selectedCategory.id,
         recordedAt: recordedAt.toISOString(),
         familyId: scope === "FAMILY" ? selectedFamilyId : undefined,
+        paymentMethodId,
         receiptImages: receiptUrls,
       };
 
@@ -277,6 +284,7 @@ export default function AddIncomeScreen({
 
   const canSubmit = () => {
     if (!selectedCategory) return false;
+    if (!paymentMethodId) return false;
     return incomeAmount && parseFloat(incomeAmount) > 0;
   };
 
@@ -287,6 +295,21 @@ export default function AddIncomeScreen({
       keyboardShouldPersistTaps="handled"
     >
       {renderCategorySelection()}
+
+        {selectedCategory && (
+          <View style={styles.section}>
+            <Select
+              label="Payment Method"
+              value={paymentMethodId}
+              items={paymentMethods.map((pm) => ({
+                label: `${pm.name} (${formatCurrency(pm.currentBalance)})`,
+                value: pm.id,
+              }))}
+              onValueChange={setPaymentMethodId}
+              placeholder={pmLoading ? 'Loading...' : 'Select payment method'}
+            />
+          </View>
+        )}
 
         {selectedCategory && renderIncomeForm()}
 

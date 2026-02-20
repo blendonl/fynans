@@ -13,6 +13,7 @@ import {
   Button,
   Input,
   DateTimePickerComponent,
+  Select,
 } from "../../components/design-system";
 import { PriceInput } from "../../components/forms";
 import { useAppTheme } from "../../theme";
@@ -32,6 +33,7 @@ import { AddCategoryModal } from "./components/AddCategoryModal";
 import { ReceiptCamera } from "../transactions/add/components/ReceiptCamera";
 import { ReceiptPreview } from "../../components/transactions/ReceiptPreview";
 import { formatCurrency } from "../../utils/currency";
+import { usePaymentMethods } from "../../hooks/usePaymentMethods";
 
 type TransactionScope = "PERSONAL" | "FAMILY";
 
@@ -63,6 +65,8 @@ export default function AddExpenseScreen({
   const expenseItems = useExpenseItems();
   const imageUpload = useImageUpload();
   const receiptScanning = useReceiptScanning();
+  const { paymentMethods, loading: pmLoading } = usePaymentMethods();
+  const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
 
   const isGroceryExpense =
     categoriesHook.selectedCategory?.isConnectedToStore === true;
@@ -85,7 +89,8 @@ export default function AddExpenseScreen({
       expenseItems.currentItem.name !== "" ||
       expenseItems.currentItem.price !== "" ||
       simpleAmount !== "" ||
-      simpleNote !== "";
+      simpleNote !== "" ||
+      paymentMethodId !== null;
     hasDataRef.current = hasData;
   }, [
     expenseItems.items,
@@ -93,11 +98,13 @@ export default function AddExpenseScreen({
     expenseItems.currentItem,
     simpleAmount,
     simpleNote,
+    paymentMethodId,
     hasDataRef,
   ]);
 
   const canSubmit = () => {
     if (!categoriesHook.selectedCategory) return false;
+    if (!paymentMethodId) return false;
 
     if (!isItemized) {
       return simpleAmount !== "" && parseFloat(simpleAmount) > 0;
@@ -110,6 +117,7 @@ export default function AddExpenseScreen({
 
   const getValidationHint = (): string | null => {
     if (!categoriesHook.selectedCategory) return "Select a category to continue";
+    if (!paymentMethodId) return "Select a payment method to continue";
 
     if (!isItemized) {
       if (!simpleAmount || parseFloat(simpleAmount) <= 0) return "Enter an amount to continue";
@@ -166,6 +174,7 @@ export default function AddExpenseScreen({
           recordedAt: recordedAt.toISOString(),
           scope,
           familyId: scope === "FAMILY" ? selectedFamilyId : null,
+          paymentMethodId,
           items: [
             {
               categoryId: categoriesHook.selectedCategory!.id,
@@ -231,6 +240,7 @@ export default function AddExpenseScreen({
         recordedAt: recordedAt.toISOString(),
         scope,
         familyId: scope === "FAMILY" ? selectedFamilyId : null,
+        paymentMethodId,
         items: expenseItems.items.map((item) => ({
           categoryId: item.categoryId,
           itemName: item.name,
@@ -364,6 +374,21 @@ export default function AddExpenseScreen({
           onClear={categoriesHook.clearCategory}
           onFocus={() => categoriesHook.setShowCategoryDropdown(true)}
         />
+
+        {categoriesHook.selectedCategory && (
+          <View style={styles.section}>
+            <Select
+              label="Payment Method"
+              value={paymentMethodId}
+              items={paymentMethods.map((pm) => ({
+                label: `${pm.name} (${formatCurrency(pm.currentBalance)})`,
+                value: pm.id,
+              }))}
+              onValueChange={setPaymentMethodId}
+              placeholder={pmLoading ? 'Loading...' : 'Select payment method'}
+            />
+          </View>
+        )}
 
         {categoriesHook.selectedCategory && !isItemized && (
           <>

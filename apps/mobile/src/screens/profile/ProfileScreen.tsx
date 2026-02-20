@@ -142,6 +142,12 @@ export default function ProfileScreen({ navigation }: any) {
             </Text>
           </View>
           <SettingItem
+            icon="credit-card-multiple"
+            title="Payment Methods"
+            subtitle="Manage your payment methods & balances"
+            onPress={() => navigation.navigate('PaymentMethods')}
+          />
+          <SettingItem
             icon="currency-usd"
             title="Currency"
             subtitle="Default currency for transactions"
