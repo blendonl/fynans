@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Inject,
-  BadRequestException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { type ITransactionRepository } from '../../domain/repositories/transaction.repository.interface';
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import {
@@ -11,16 +6,19 @@ import {
   TransactionScope,
 } from '../../domain/entities/transaction.entity';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
-import { IFamilyRepository } from '../../../../family/core/domain/repositories/family.repository.interface';
+import { FamilyService } from '../../../../family/core/application/services/family.service';
 import { FamilyBalanceService } from '../../../../family/core/application/services/family-balance.service';
+import {
+  DomainForbiddenException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 
 @Injectable()
 export class CreateTransactionUseCase {
   constructor(
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
-    @Inject('FamilyRepository')
-    private readonly familyRepository: IFamilyRepository,
+    private readonly familyService: FamilyService,
     private readonly familyBalanceService: FamilyBalanceService,
   ) {}
 
@@ -29,12 +27,12 @@ export class CreateTransactionUseCase {
 
     // If familyId is provided, verify user is a member
     if (dto.familyId) {
-      const member = await this.familyRepository.findMember(
+      const member = await this.familyService.findMember(
         dto.familyId,
         dto.userId,
       );
       if (!member) {
-        throw new ForbiddenException('Not a member of this family');
+        throw new DomainForbiddenException('Not a member of this family');
       }
     }
 
@@ -60,15 +58,15 @@ export class CreateTransactionUseCase {
 
   private validateTransactionData(dto: CreateTransactionDto): void {
     if (dto.value <= 0) {
-      throw new BadRequestException('Transaction value must be positive');
+      throw new DomainValidationException('Transaction value must be positive');
     }
 
     if (!dto.userId || dto.userId.trim() === '') {
-      throw new BadRequestException('User ID is required');
+      throw new DomainValidationException('User ID is required');
     }
 
     if (!dto.type) {
-      throw new BadRequestException('Transaction type is required');
+      throw new DomainValidationException('Transaction type is required');
     }
   }
 }

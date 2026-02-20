@@ -5,7 +5,7 @@ import {
   PaginatedResult,
 } from '../../domain/repositories/store-item-discount.repository.interface';
 import { StoreItemDiscount } from '../../domain/entities/store-item-discount.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { StoreItemDiscountMapper } from '../mappers/store-item-discount.mapper';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 

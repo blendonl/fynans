@@ -6,11 +6,7 @@ import { IncomeCategoryService } from '~feature/income-category/core/application
 import { CreateExpenseCategoryDto } from '~feature/expense-category/core/application/dto/create-expense-category.dto';
 import { CreateStoreItemCategoryDto } from '~feature/store-item-category/core/application/dto/create-store-item-category.dto';
 import { CreateIncomeCategoryDto } from '~feature/income-category/core/application/dto/create-income-category.dto';
-
-export interface CategorySuggestion {
-  categoryId: string;
-  categoryName: string;
-}
+import { CategorySuggestion } from '../../domain/interfaces/category-suggestion.interface';
 
 @Injectable()
 export class AiCategoryService {

@@ -8,41 +8,19 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { CreateFamilyUseCase } from '../../core/application/use-cases/create-family.use-case';
-import { InviteMemberUseCase } from '../../core/application/use-cases/invite-member.use-case';
-import { AcceptInvitationUseCase } from '../../core/application/use-cases/accept-invitation.use-case';
-import { DeclineInvitationUseCase } from '../../core/application/use-cases/decline-invitation.use-case';
-import { LeaveFamilyUseCase } from '../../core/application/use-cases/leave-family.use-case';
-import { GetFamiliesUseCase } from '../../core/application/use-cases/get-families.use-case';
-import { GetPendingInvitationsUseCase } from '../../core/application/use-cases/get-pending-invitations.use-case';
-import { GetFamilyWithMembersUseCase } from '../../core/application/use-cases/get-family-with-members.use-case';
-import { RemoveFamilyMemberUseCase } from '../../core/application/use-cases/remove-family-member.use-case';
-import { GetFamilyPendingInvitationsUseCase } from '../../core/application/use-cases/get-family-pending-invitations.use-case';
-import { CancelInvitationUseCase } from '../../core/application/use-cases/cancel-invitation.use-case';
-import { CreateFamilyDto } from '../../core/application/dto/create-family.dto';
-import { InviteMemberDto } from '../../core/application/dto/invite-member.dto';
+import { FamilyService } from '../../core/application/services/family.service';
 import { CreateFamilyRequestDto } from '../dto/create-family-request.dto';
 import { InviteMemberRequestDto } from '../dto/invite-member-request.dto';
 import { FamilyResponseDto } from '../dto/family-response.dto';
 import { FamilyWithMembersResponseDto } from '../dto/family-with-members-response.dto';
+import { FamilyInvitationResponseDto } from '../dto/family-invitation-response.dto';
+import { FamilyMemberResponseDto } from '../dto/family-member-response.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 
 @Controller('families')
 export class FamilyController {
-  constructor(
-    private readonly createFamilyUseCase: CreateFamilyUseCase,
-    private readonly inviteMemberUseCase: InviteMemberUseCase,
-    private readonly acceptInvitationUseCase: AcceptInvitationUseCase,
-    private readonly declineInvitationUseCase: DeclineInvitationUseCase,
-    private readonly leaveFamilyUseCase: LeaveFamilyUseCase,
-    private readonly getFamiliesUseCase: GetFamiliesUseCase,
-    private readonly getPendingInvitationsUseCase: GetPendingInvitationsUseCase,
-    private readonly getFamilyWithMembersUseCase: GetFamilyWithMembersUseCase,
-    private readonly removeFamilyMemberUseCase: RemoveFamilyMemberUseCase,
-    private readonly getFamilyPendingInvitationsUseCase: GetFamilyPendingInvitationsUseCase,
-    private readonly cancelInvitationUseCase: CancelInvitationUseCase,
-  ) {}
+  constructor(private readonly familyService: FamilyService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -50,22 +28,19 @@ export class FamilyController {
     @Body() dto: CreateFamilyRequestDto,
     @CurrentUser() user: User,
   ) {
-    const family = await this.createFamilyUseCase.execute(
-      new CreateFamilyDto(dto.name),
-      user.id,
-    );
+    const family = await this.familyService.create(dto.toCoreDto(), user.id);
     return FamilyResponseDto.fromEntity(family);
   }
 
   @Get()
   async findAll(@CurrentUser() user: User) {
-    const families = await this.getFamiliesUseCase.execute(user.id);
+    const families = await this.familyService.findAll(user.id);
     return FamilyResponseDto.fromEntities(families);
   }
 
   @Get(':id')
   async findOne(@Param('id') familyId: string, @CurrentUser() user: User) {
-    const result = await this.getFamilyWithMembersUseCase.execute(
+    const result = await this.familyService.findOneWithMembers(
       familyId,
       user.id,
     );
@@ -82,19 +57,19 @@ export class FamilyController {
     @Body() dto: InviteMemberRequestDto,
     @CurrentUser() user: User,
   ) {
-    const invitation = await this.inviteMemberUseCase.execute(
-      new InviteMemberDto(familyId, dto.inviteeEmail),
+    const invitation = await this.familyService.inviteMember(
+      dto.toCoreDto(familyId),
       user.id,
     );
-    return invitation.toJSON();
+    return FamilyInvitationResponseDto.fromEntity(invitation);
   }
 
   @Get('invitations/pending')
   async getPendingInvitations(@CurrentUser() user: User) {
-    const invitations = await this.getPendingInvitationsUseCase.execute(
+    const invitations = await this.familyService.getPendingInvitations(
       user.email,
     );
-    return invitations.map((i) => i.toJSON());
+    return FamilyInvitationResponseDto.fromEntities(invitations);
   }
 
   @Get(':id/invitations/pending')
@@ -102,9 +77,11 @@ export class FamilyController {
     @Param('id') familyId: string,
     @CurrentUser() user: User,
   ) {
-    const invitations =
-      await this.getFamilyPendingInvitationsUseCase.execute(familyId, user.id);
-    return invitations.map((i) => i.toJSON());
+    const invitations = await this.familyService.getFamilyPendingInvitations(
+      familyId,
+      user.id,
+    );
+    return FamilyInvitationResponseDto.fromEntities(invitations);
   }
 
   @Post('invitations/:id/accept')
@@ -113,11 +90,11 @@ export class FamilyController {
     @Param('id') invitationId: string,
     @CurrentUser() user: User,
   ) {
-    const member = await this.acceptInvitationUseCase.execute(
+    const member = await this.familyService.acceptInvitation(
       invitationId,
       user.id,
     );
-    return member.toJSON();
+    return FamilyMemberResponseDto.fromEntity(member);
   }
 
   @Post('invitations/:id/decline')
@@ -126,7 +103,7 @@ export class FamilyController {
     @Param('id') invitationId: string,
     @CurrentUser() user: User,
   ) {
-    await this.declineInvitationUseCase.execute(invitationId, user.id);
+    await this.familyService.declineInvitation(invitationId, user.id);
   }
 
   @Post('invitations/:id/cancel')
@@ -135,7 +112,7 @@ export class FamilyController {
     @Param('id') invitationId: string,
     @CurrentUser() user: User,
   ) {
-    await this.cancelInvitationUseCase.execute(invitationId, user.id);
+    await this.familyService.cancelInvitation(invitationId, user.id);
   }
 
   @Delete(':id/members/:userId')
@@ -145,16 +122,12 @@ export class FamilyController {
     @Param('userId') targetUserId: string,
     @CurrentUser() user: User,
   ) {
-    await this.removeFamilyMemberUseCase.execute(
-      familyId,
-      targetUserId,
-      user.id,
-    );
+    await this.familyService.removeMember(familyId, targetUserId, user.id);
   }
 
   @Delete(':id/members/me')
   @HttpCode(HttpStatus.NO_CONTENT)
   async leaveFamily(@Param('id') familyId: string, @CurrentUser() user: User) {
-    await this.leaveFamilyUseCase.execute(familyId, user.id);
+    await this.familyService.leave(familyId, user.id);
   }
 }

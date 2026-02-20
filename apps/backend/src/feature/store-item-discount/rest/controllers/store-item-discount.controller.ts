@@ -16,7 +16,7 @@ import { UpdateStoreItemDiscountRequestDto } from '../dto/update-store-item-disc
 import { StoreItemDiscountResponseDto } from '../dto/store-item-discount-response.dto';
 import { CreateStoreItemDiscountDto } from '../../core/application/dto/create-store-item-discount.dto';
 import { UpdateStoreItemDiscountDto } from '../../core/application/dto/update-store-item-discount.dto';
-import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 
 @Controller('store-items/:storeItemId/discounts')
 export class StoreItemDiscountController {

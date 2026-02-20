@@ -9,7 +9,7 @@ import { CreateExpenseItemDto } from '../dto/create-expense-item.dto';
 import { UpdateExpenseItemDto } from '../dto/update-expense-item.dto';
 import { ExpenseItem } from '../../domain/entities/expense-item.entity';
 import { PaginatedResult } from '../../domain/repositories/expense-item.repository.interface';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 
 @Injectable()
 export class ExpenseItemService {

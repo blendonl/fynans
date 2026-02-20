@@ -5,15 +5,15 @@ import {
 } from '../../domain/repositories/expense.repository.interface';
 import { Expense } from '../../domain/entities/expense.entity';
 import { ExpenseFilters } from '../dto/expense-filters.dto';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
-import { VerifyFamilyMembershipUseCase } from '../../../../family/core/application/use-cases/verify-family-membership.use-case';
+import { Pagination } from '~common/dto/pagination.dto';
+import { FamilyService } from '../../../../family/core/application/services/family.service';
 
 @Injectable()
 export class ListExpensesUseCase {
   constructor(
     @Inject('ExpenseRepository')
     private readonly expenseRepository: IExpenseRepository,
-    private readonly verifyFamilyMembershipUseCase: VerifyFamilyMembershipUseCase,
+    private readonly familyService: FamilyService,
   ) {}
 
   async execute(
@@ -22,7 +22,7 @@ export class ListExpensesUseCase {
     pagination?: Pagination,
   ): Promise<PaginatedResult<Expense>> {
     if (filters?.familyId) {
-      await this.verifyFamilyMembershipUseCase.execute(
+      await this.familyService.verifyMembership(
         filters.familyId,
         userId,
       );

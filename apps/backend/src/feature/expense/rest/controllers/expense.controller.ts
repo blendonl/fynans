@@ -15,12 +15,9 @@ import { CreateExpenseRequestDto } from '../dto/create-expense-request.dto';
 import { UpdateExpenseRequestDto } from '../dto/update-expense-request.dto';
 import { QueryExpenseDto } from '../dto/query-expense.dto';
 import { ExpenseResponseDto } from '../dto/expense-response.dto';
-import { CreateExpenseDto } from '../../core/application/dto/create-expense.dto';
-import { UpdateExpenseDto } from '../../core/application/dto/update-expense.dto';
 import { ExpenseFilters } from '../../core/application/dto/expense-filters.dto';
 import { BaseFilters } from '~common/dto/base-filters.dto';
-import { CreateExpenseItemDto } from '../../../expense-item/core/application/dto/create-expense-item.dto';
-import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 import { QueryExpenseTrendsDto } from '../dto/query-expense-trends.dto';
@@ -35,41 +32,13 @@ export class ExpenseController {
     @Body() createDto: CreateExpenseRequestDto,
     @CurrentUser() user: User,
   ) {
-    const coreDto = new CreateExpenseDto({
-      userId: user.id,
-      categoryId: createDto.categoryId,
-      storeName: createDto.storeName,
-      storeLocation: createDto.storeLocation,
-      familyId: createDto.familyId,
-      amount: createDto.amount,
-      note: createDto.note,
-      items: createDto.items?.map(
-        (item) =>
-          new CreateExpenseItemDto({
-            expenseId: '',
-            categoryId: item.categoryId,
-            itemName: item.itemName,
-            itemPrice: item.itemPrice,
-            discount: item.discount,
-            quantity: item.quantity,
-            sizeValue: item.sizeValue,
-            sizeUnit: item.sizeUnit,
-          }),
-      ),
-      recordedAt: createDto.recordedAt
-        ? new Date(createDto.recordedAt)
-        : undefined,
-    });
-
-    const expense = await this.expenseService.create(coreDto);
-
+    const expense = await this.expenseService.create(createDto.toCoreDto(user.id));
     return ExpenseResponseDto.fromEntity(expense);
   }
 
   @Get()
   async findAll(@Query() query: QueryExpenseDto, @CurrentUser() user: User) {
     const filters = new ExpenseFilters(BaseFilters.fromQuery(query, user.id));
-
     const pagination = new Pagination(query.page, query.limit);
 
     const result = await this.expenseService.findAll(
@@ -103,16 +72,7 @@ export class ExpenseController {
     @CurrentUser() user: User,
   ) {
     const filters = new ExpenseFilters(BaseFilters.fromQuery(query, user.id));
-
-    const stats = await this.expenseService.getStatistics(user.id, filters);
-
-    return {
-      totalExpenses: stats.totalExpenses,
-      expenseCount: stats.expenseCount,
-      averageExpense: stats.averageExpense,
-      expensesByCategory: stats.expensesByCategory,
-      expensesByStore: stats.expensesByStore,
-    };
+    return this.expenseService.getStatistics(user.id, filters);
   }
 
   @Get('trends')
@@ -144,12 +104,7 @@ export class ExpenseController {
     @Body() updateDto: UpdateExpenseRequestDto,
     @CurrentUser() user: User,
   ) {
-    const coreDto = new UpdateExpenseDto({
-      categoryId: updateDto.categoryId,
-      storeId: updateDto.storeId,
-    });
-
-    const expense = await this.expenseService.update(id, user.id, coreDto);
+    const expense = await this.expenseService.update(id, user.id, updateDto.toCoreDto());
     return ExpenseResponseDto.fromEntity(expense);
   }
 

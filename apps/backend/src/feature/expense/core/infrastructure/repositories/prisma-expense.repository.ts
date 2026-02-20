@@ -8,7 +8,7 @@ import {
 } from '../../domain/repositories/expense.repository.interface';
 import { ExpenseTrendPoint } from '../../application/dto/expense-trends.dto';
 import { Expense } from '../../domain/entities/expense.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { ExpenseMapper } from '../mappers/expense.mapper';
 import { Prisma } from 'prisma/generated/prisma/client';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';

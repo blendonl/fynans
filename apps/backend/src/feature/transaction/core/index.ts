@@ -12,9 +12,9 @@ export * from './application/use-cases/get-transaction-statistics.use-case';
 export * from './application/dto/create-transaction.dto';
 export * from './application/dto/update-transaction.dto';
 export * from './application/dto/transaction-filters.dto';
-export * from './application/dto/pagination.dto';
+export * from '~common/dto/pagination.dto';
 export * from './application/dto/transaction-statistics.dto';
 
 export * from './domain/entities/transaction.entity';
 export * from './domain/value-objects/transaction-type.vo';
-export * from './domain/repositories/transaction.repository.interface';
+export { ITransactionRepository } from './domain/repositories/transaction.repository.interface';

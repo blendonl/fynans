@@ -16,7 +16,7 @@ import { UpdateIncomeCategoryRequestDto } from '../dto/update-income-category-re
 import { IncomeCategoryResponseDto } from '../dto/income-category-response.dto';
 import { CreateIncomeCategoryDto } from '../../core/application/dto/create-income-category.dto';
 import { UpdateIncomeCategoryDto } from '../../core/application/dto/update-income-category.dto';
-import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 

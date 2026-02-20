@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import { IDeviceTokenRepository } from '../../domain/repositories/device-token.repository.interface';
 import { DeviceToken } from '../../domain/entities/device-token.entity';
@@ -65,7 +66,7 @@ export class PrismaDeviceTokenRepository implements IDeviceTokenRepository {
     });
 
     if (!token || token.userId !== userId) {
-      throw new NotFoundException('Device token not found');
+      throw new DomainNotFoundException('Device token not found');
     }
 
     await this.prisma.deviceToken.delete({

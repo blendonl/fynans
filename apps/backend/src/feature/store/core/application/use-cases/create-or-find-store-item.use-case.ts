@@ -1,4 +1,5 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { type IStoreItemRepository } from '../../domain/repositories/store-item.repository.interface';
 import { type IItemRepository } from '../../../../item/core/domain/repositories/item.repository.interface';
 import { type IItemSizeRepository } from '../../../../item/core/domain/repositories/item-size.repository.interface';
@@ -74,19 +75,19 @@ export class CreateOrFindStoreItemUseCase {
 
   private validate(dto: CreateStoreItemDto): void {
     if (!dto.storeId || dto.storeId.trim() === '') {
-      throw new BadRequestException('Store ID is required');
+      throw new DomainValidationException('Store ID is required');
     }
 
     if (!dto.name || dto.name.trim() === '') {
-      throw new BadRequestException('Item name is required');
+      throw new DomainValidationException('Item name is required');
     }
 
     if (dto.price < 0) {
-      throw new BadRequestException('Item price must be non-negative');
+      throw new DomainValidationException('Item price must be non-negative');
     }
 
     if (!dto.categoryId || dto.categoryId.trim() === '') {
-      throw new BadRequestException('Category ID is required');
+      throw new DomainValidationException('Category ID is required');
     }
   }
 }

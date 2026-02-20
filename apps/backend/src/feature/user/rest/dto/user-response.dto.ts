@@ -11,16 +11,16 @@ export class UserResponseDto {
   updatedAt!: string;
 
   static fromEntity(user: User): UserResponseDto {
-    return {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      balance: user.balance.toString(),
-      emailVerified: user.emailVerified,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString(),
-    };
+    const dto = new UserResponseDto();
+    dto.id = user.id;
+    dto.email = user.email;
+    dto.firstName = user.firstName;
+    dto.lastName = user.lastName;
+    dto.balance = user.balance.toString();
+    dto.emailVerified = user.emailVerified;
+    dto.createdAt = user.createdAt.toISOString();
+    dto.updatedAt = user.updatedAt.toISOString();
+    return dto;
   }
 }
 
@@ -31,11 +31,11 @@ export class UserSearchResponseDto {
   lastName!: string;
 
   static fromEntity(user: User): UserSearchResponseDto {
-    return {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    };
+    const dto = new UserSearchResponseDto();
+    dto.id = user.id;
+    dto.email = user.email;
+    dto.firstName = user.firstName;
+    dto.lastName = user.lastName;
+    return dto;
   }
 }

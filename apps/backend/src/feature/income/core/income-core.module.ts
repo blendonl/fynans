@@ -1,10 +1,9 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
 import { IncomeCategoryCoreModule } from '../../income-category/core/income-category-core.module';
 import { FamilyCoreModule } from '../../family/core/family-core.module';
 import { TransactionCoreModule } from '../../transaction/core/transaction-core.module';
-import { NotificationCoreModule } from '../../notification/core/notification-core.module';
-import { UserCoreModule } from '../../user/core/user-core.module';
+import { NotifyFamilyMembersModule } from '~common/services/notify-family-members.module';
 import { PrismaIncomeRepository } from './infrastructure/repositories/prisma-income.repository';
 import { CreateIncomeUseCase } from './application/use-cases/create-income.use-case';
 import { GetIncomeByIdUseCase } from './application/use-cases/get-income-by-id.use-case';
@@ -20,8 +19,7 @@ import { IncomeService } from './application/services/income.service';
     IncomeCategoryCoreModule,
     FamilyCoreModule,
     TransactionCoreModule,
-    forwardRef(() => NotificationCoreModule),
-    UserCoreModule,
+    NotifyFamilyMembersModule,
   ],
   providers: [
     {

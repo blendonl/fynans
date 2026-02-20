@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { type IIncomeRepository } from '../../domain/repositories/income.repository.interface';
 
 @Injectable()
@@ -12,7 +13,7 @@ export class DeleteIncomeUseCase {
     const income = await this.incomeRepository.findById(id);
 
     if (!income) {
-      throw new NotFoundException('Income not found');
+      throw new DomainNotFoundException('Income not found');
     }
 
     await this.incomeRepository.delete(id);

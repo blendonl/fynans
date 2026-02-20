@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException, DomainForbiddenException } from '~common/exceptions/domain.exceptions';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
 import { Expense } from '../../domain/entities/expense.entity';
 
@@ -13,12 +14,12 @@ export class GetExpenseByIdUseCase {
     const expense = await this.expenseRepository.findById(id);
 
     if (!expense) {
-      throw new NotFoundException('Expense not found');
+      throw new DomainNotFoundException('Expense not found');
     }
 
     const isOwner = await this.expenseRepository.verifyOwnership(id, userId);
     if (!isOwner) {
-      throw new ForbiddenException('Access denied');
+      throw new DomainForbiddenException('Access denied');
     }
 
     return expense;

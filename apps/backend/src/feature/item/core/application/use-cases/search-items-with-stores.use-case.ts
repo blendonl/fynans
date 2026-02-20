@@ -5,7 +5,7 @@ import {
   ItemWithStoresRow,
   ItemStorePrice,
 } from '../../domain/repositories/item.repository.interface';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 
 export interface ItemWithStoresResult {
   id: string;

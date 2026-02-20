@@ -1,4 +1,5 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { type IItemRepository } from '../../domain/repositories/item.repository.interface';
 import { type IStoreItemCategoryRepository } from '../../../../store-item-category/core/domain/repositories/store-item-category.repository.interface';
 import { CreateItemDto } from '../dto/create-item.dto';
@@ -28,21 +29,21 @@ export class CreateItemUseCase {
 
   private async validate(dto: CreateItemDto): Promise<void> {
     if (!dto.name || dto.name.trim() === '') {
-      throw new BadRequestException('Item name is required');
+      throw new DomainValidationException('Item name is required');
     }
 
     if (!dto.categoryId || dto.categoryId.trim() === '') {
-      throw new BadRequestException('Category ID is required');
+      throw new DomainValidationException('Category ID is required');
     }
 
     const category = await this.categoryRepository.findById(dto.categoryId);
     if (!category) {
-      throw new BadRequestException('Category not found');
+      throw new DomainValidationException('Category not found');
     }
 
     const existingItem = await this.itemRepository.findByName(dto.name);
     if (existingItem) {
-      throw new BadRequestException(
+      throw new DomainValidationException(
         `An item with the name "${dto.name}" already exists`,
       );
     }

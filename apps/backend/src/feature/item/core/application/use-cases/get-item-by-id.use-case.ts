@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { type IItemRepository } from '../../domain/repositories/item.repository.interface';
 import { Item } from '../../domain/entities/item.entity';
 
@@ -13,7 +14,7 @@ export class GetItemByIdUseCase {
     const item = await this.itemRepository.findById(id);
 
     if (!item) {
-      throw new NotFoundException(`Item with ID ${id} not found`);
+      throw new DomainNotFoundException(`Item with ID ${id} not found`);
     }
 
     return item;

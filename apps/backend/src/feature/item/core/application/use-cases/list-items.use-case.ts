@@ -4,7 +4,7 @@ import {
   PaginatedResult,
 } from '../../domain/repositories/item.repository.interface';
 import { Item } from '../../domain/entities/item.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 
 @Injectable()
 export class ListItemsUseCase {

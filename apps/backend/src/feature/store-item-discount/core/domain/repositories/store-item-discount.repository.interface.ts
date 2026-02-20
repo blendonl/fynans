@@ -1,5 +1,5 @@
 import { StoreItemDiscount } from '../entities/store-item-discount.entity';
-import { Pagination, PaginatedResult } from '~common/types/pagination';
+import { Pagination, PaginatedResult } from '~common/dto/pagination.dto';
 
 export interface IStoreItemDiscountRepository {
   create(data: Partial<StoreItemDiscount>): Promise<StoreItemDiscount>;

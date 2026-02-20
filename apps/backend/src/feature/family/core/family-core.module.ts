@@ -16,6 +16,7 @@ import { VerifyFamilyMembershipUseCase } from './application/use-cases/verify-fa
 import { GetFamilyPendingInvitationsUseCase } from './application/use-cases/get-family-pending-invitations.use-case';
 import { CancelInvitationUseCase } from './application/use-cases/cancel-invitation.use-case';
 import { FamilyBalanceService } from './application/services/family-balance.service';
+import { FamilyService } from './application/services/family.service';
 import { UserCoreModule } from '~feature/user/core/user-core.module';
 
 @Module({
@@ -42,22 +43,10 @@ import { UserCoreModule } from '~feature/user/core/user-core.module';
     GetFamilyPendingInvitationsUseCase,
     CancelInvitationUseCase,
     FamilyBalanceService,
+    FamilyService,
   ],
   exports: [
-    'FamilyRepository',
-    'FamilyInvitationRepository',
-    CreateFamilyUseCase,
-    InviteMemberUseCase,
-    AcceptInvitationUseCase,
-    DeclineInvitationUseCase,
-    LeaveFamilyUseCase,
-    GetFamiliesUseCase,
-    GetPendingInvitationsUseCase,
-    GetFamilyWithMembersUseCase,
-    RemoveFamilyMemberUseCase,
-    VerifyFamilyMembershipUseCase,
-    GetFamilyPendingInvitationsUseCase,
-    CancelInvitationUseCase,
+    FamilyService,
     FamilyBalanceService,
   ],
 })

@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { type IStoreRepository } from '../../domain/repositories/store.repository.interface';
 import { Store } from '../../domain/entities/store.entity';
 
@@ -13,7 +14,7 @@ export class GetStoreByIdUseCase {
     const store = await this.storeRepository.findById(id);
 
     if (!store) {
-      throw new NotFoundException('Store not found');
+      throw new DomainNotFoundException('Store not found');
     }
 
     return store;

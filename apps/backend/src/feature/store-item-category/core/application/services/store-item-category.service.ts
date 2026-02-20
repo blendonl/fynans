@@ -9,7 +9,7 @@ import { CreateStoreItemCategoryDto } from '../dto/create-store-item-category.dt
 import { UpdateStoreItemCategoryDto } from '../dto/update-store-item-category.dto';
 import { StoreItemCategory } from '../../domain/entities/store-item-category.entity';
 import { PaginatedResult } from '../../domain/repositories/store-item-category.repository.interface';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 
 @Injectable()
 export class StoreItemCategoryService {

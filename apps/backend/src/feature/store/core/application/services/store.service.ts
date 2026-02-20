@@ -4,7 +4,7 @@ import { GetStoreByIdUseCase } from '../use-cases/get-store-by-id.use-case';
 import { ListStoresUseCase } from '../use-cases/list-stores.use-case';
 import { CreateStoreDto } from '../dto/create-store.dto';
 import { Store } from '../../domain/entities/store.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 
 @Injectable()
 export class StoreService {

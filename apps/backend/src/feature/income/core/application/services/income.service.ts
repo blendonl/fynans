@@ -10,7 +10,8 @@ import { UpdateIncomeDto } from '../dto/update-income.dto';
 import { IncomeFilters } from '../dto/income-filters.dto';
 import { Income } from '../../domain/entities/income.entity';
 import { PaginatedResult } from '../../domain/repositories/income.repository.interface';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
+import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
 
 @Injectable()
 export class IncomeService {
@@ -27,12 +28,30 @@ export class IncomeService {
     return this.createIncomeUseCase.execute(dto);
   }
 
-  async findById(id: string): Promise<Income> {
-    return this.getIncomeByIdUseCase.execute(id);
+  private validateOwnership(income: Income, userId: string): void {
+    if (income.transaction && income.transaction.userId !== userId) {
+      throw new DomainForbiddenException('Access denied');
+    }
   }
 
-  async findByTransactionId(transactionId: string): Promise<Income> {
-    return this.getIncomeByTransactionIdUseCase.execute(transactionId);
+  async findById(id: string, userId?: string): Promise<Income> {
+    const income = await this.getIncomeByIdUseCase.execute(id);
+    if (userId) {
+      this.validateOwnership(income, userId);
+    }
+    return income;
+  }
+
+  async findByTransactionId(
+    transactionId: string,
+    userId?: string,
+  ): Promise<Income> {
+    const income =
+      await this.getIncomeByTransactionIdUseCase.execute(transactionId);
+    if (userId) {
+      this.validateOwnership(income, userId);
+    }
+    return income;
   }
 
   async findAll(
@@ -43,11 +62,21 @@ export class IncomeService {
     return this.listIncomesUseCase.execute(userId, filters, pagination);
   }
 
-  async update(id: string, dto: UpdateIncomeDto): Promise<Income> {
+  async update(
+    id: string,
+    dto: UpdateIncomeDto,
+    userId?: string,
+  ): Promise<Income> {
+    if (userId) {
+      await this.findById(id, userId);
+    }
     return this.updateIncomeUseCase.execute(id, dto);
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, userId?: string): Promise<void> {
+    if (userId) {
+      await this.findById(id, userId);
+    }
     return this.deleteIncomeUseCase.execute(id);
   }
 }

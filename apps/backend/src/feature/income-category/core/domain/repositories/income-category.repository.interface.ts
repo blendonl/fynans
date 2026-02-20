@@ -1,5 +1,5 @@
 import { IncomeCategory } from '../entities/income-category.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 
 export interface PaginatedResult<T> {
   data: T[];

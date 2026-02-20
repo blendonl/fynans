@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException, DomainForbiddenException } from '~common/exceptions/domain.exceptions';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
 
@@ -14,12 +15,12 @@ export class DeleteExpenseUseCase {
     const expense = await this.expenseRepository.findById(id);
 
     if (!expense) {
-      throw new NotFoundException('Expense not found');
+      throw new DomainNotFoundException('Expense not found');
     }
 
     const isOwner = await this.expenseRepository.verifyOwnership(id, userId);
     if (!isOwner) {
-      throw new ForbiddenException('Access denied');
+      throw new DomainForbiddenException('Access denied');
     }
 
     // Use Prisma transaction to delete atomically

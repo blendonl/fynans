@@ -1,4 +1,5 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { type IStoreItemDiscountRepository } from '../../domain/repositories/store-item-discount.repository.interface';
 import { type IStoreItemRepository } from '../../../../store/core/domain/repositories/store-item.repository.interface';
 import { CreateStoreItemDiscountDto } from '../dto/create-store-item-discount.dto';
@@ -41,22 +42,22 @@ export class CreateStoreItemDiscountUseCase {
 
   private async validate(dto: CreateStoreItemDiscountDto): Promise<void> {
     if (!dto.storeItemId || dto.storeItemId.trim() === '') {
-      throw new BadRequestException('Store item ID is required');
+      throw new DomainValidationException('Store item ID is required');
     }
 
     if (dto.discount <= 0) {
-      throw new BadRequestException('Discount must be greater than 0');
+      throw new DomainValidationException('Discount must be greater than 0');
     }
 
     // Validate store item exists
     const storeItem = await this.storeItemRepository.findById(dto.storeItemId);
     if (!storeItem) {
-      throw new BadRequestException('Store item not found');
+      throw new DomainValidationException('Store item not found');
     }
 
     // Validate discount amount is not greater than price
     if (dto.discount > storeItem.price.toNumber()) {
-      throw new BadRequestException(
+      throw new DomainValidationException(
         'Discount amount cannot be greater than item price',
       );
     }

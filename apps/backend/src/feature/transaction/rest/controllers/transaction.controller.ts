@@ -9,17 +9,14 @@ import {
   Query,
   HttpCode,
   HttpStatus,
-  ForbiddenException,
 } from '@nestjs/common';
 import { TransactionService } from '../../core/application/services/transaction.service';
 import { CreateTransactionRequestDto } from '../dto/create-transaction-request.dto';
 import { UpdateTransactionRequestDto } from '../dto/update-transaction-request.dto';
 import { QueryTransactionDto } from '../dto/query-transaction.dto';
 import { TransactionResponseDto } from '../dto/transaction-response.dto';
-import { CreateTransactionDto } from '../../core/application/dto/create-transaction.dto';
-import { UpdateTransactionDto } from '../../core/application/dto/update-transaction.dto';
 import { TransactionFilters } from '../../core/application/dto/transaction-filters.dto';
-import { Pagination } from '../../core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 
@@ -33,15 +30,7 @@ export class TransactionController {
     @Body() createDto: CreateTransactionRequestDto,
     @CurrentUser() user: User,
   ) {
-    const coreDto = new CreateTransactionDto(
-      user.id,
-      createDto.type,
-      createDto.value,
-      createDto.recordedAt ? new Date(createDto.recordedAt) : undefined,
-      createDto.familyId,
-    );
-
-    const transaction = await this.transactionService.create(coreDto);
+    const transaction = await this.transactionService.create(createDto.toCoreDto(user.id));
     return TransactionResponseDto.fromEntity(transaction);
   }
 
@@ -62,7 +51,6 @@ export class TransactionController {
     });
 
     const pagination = new Pagination(query.page, query.limit);
-
     const result = await this.transactionService.findAll(filters, pagination);
 
     return {
@@ -89,24 +77,12 @@ export class TransactionController {
       valueMax: query.valueMax,
     });
 
-    const stats = await this.transactionService.getStatistics(
-      user.id,
-      filters,
-    );
-    return {
-      totalIncome: stats.totalIncome,
-      totalExpense: stats.totalExpense,
-      balance: stats.balance,
-      count: stats.count,
-    };
+    return this.transactionService.getStatistics(user.id, filters);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string, @CurrentUser() user: User) {
-    const transaction = await this.transactionService.findById(id);
-    if (transaction.userId !== user.id) {
-      throw new ForbiddenException('Access denied');
-    }
+    const transaction = await this.transactionService.findById(id, user.id);
     return TransactionResponseDto.fromEntity(transaction);
   }
 
@@ -116,27 +92,13 @@ export class TransactionController {
     @Body() updateDto: UpdateTransactionRequestDto,
     @CurrentUser() user: User,
   ) {
-    const transaction = await this.transactionService.findById(id);
-    if (transaction.userId !== user.id) {
-      throw new ForbiddenException('Access denied');
-    }
-
-    const coreDto = new UpdateTransactionDto({
-      type: updateDto.type,
-      value: updateDto.value,
-    });
-
-    const updated = await this.transactionService.update(id, coreDto);
+    const updated = await this.transactionService.update(id, updateDto.toCoreDto(), user.id);
     return TransactionResponseDto.fromEntity(updated);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string, @CurrentUser() user: User) {
-    const transaction = await this.transactionService.findById(id);
-    if (transaction.userId !== user.id) {
-      throw new ForbiddenException('Access denied');
-    }
-    await this.transactionService.delete(id);
+    await this.transactionService.delete(id, user.id);
   }
 }

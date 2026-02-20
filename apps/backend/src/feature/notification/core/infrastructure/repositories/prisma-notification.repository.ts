@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   INotificationRepository,
@@ -97,7 +98,7 @@ export class PrismaNotificationRepository implements INotificationRepository {
   async markAsRead(id: string, userId: string): Promise<void> {
     const exists = await this.verifyOwnership(id, userId);
     if (!exists) {
-      throw new NotFoundException('Notification not found');
+      throw new DomainNotFoundException('Notification not found');
     }
 
     await this.prisma.notification.update({
@@ -127,7 +128,7 @@ export class PrismaNotificationRepository implements INotificationRepository {
   async delete(id: string, userId: string): Promise<void> {
     const exists = await this.verifyOwnership(id, userId);
     if (!exists) {
-      throw new NotFoundException('Notification not found');
+      throw new DomainNotFoundException('Notification not found');
     }
 
     await this.prisma.notification.delete({

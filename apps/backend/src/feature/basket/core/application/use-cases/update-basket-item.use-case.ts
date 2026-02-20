@@ -1,23 +1,21 @@
-import {
-  Injectable,
-  Inject,
-  BadRequestException,
-  ForbiddenException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IBasketRepository } from '../../domain/repositories/basket.repository.interface';
-import { IFamilyRepository } from '../../../../family/core/domain/repositories/family.repository.interface';
+import { FamilyService } from '../../../../family/core/application/services/family.service';
 import { UpdateBasketItemDto } from '../dto/update-basket-item.dto';
 import { BasketItem } from '../../domain/entities/basket-item.entity';
 import { BasketScope } from '../../domain/entities/basket.entity';
+import {
+  DomainValidationException,
+  DomainForbiddenException,
+  DomainNotFoundException,
+} from '~common/exceptions/domain.exceptions';
 
 @Injectable()
 export class UpdateBasketItemUseCase {
   constructor(
     @Inject('BasketRepository')
     private readonly basketRepository: IBasketRepository,
-    @Inject('FamilyRepository')
-    private readonly familyRepository: IFamilyRepository,
+    private readonly familyService: FamilyService,
   ) {}
 
   async execute(
@@ -26,35 +24,35 @@ export class UpdateBasketItemUseCase {
     userId: string,
   ): Promise<BasketItem> {
     if (dto.quantity !== undefined && dto.quantity <= 0) {
-      throw new BadRequestException('Quantity must be positive');
+      throw new DomainValidationException('Quantity must be positive');
     }
 
     if (dto.price !== undefined && dto.price !== null && dto.price < 0) {
-      throw new BadRequestException('Price must be non-negative');
+      throw new DomainValidationException('Price must be non-negative');
     }
 
     const item = await this.basketRepository.findItemById(itemId);
     if (!item) {
-      throw new NotFoundException('Basket item not found');
+      throw new DomainNotFoundException('Basket item not found');
     }
 
     const basket = await this.basketRepository.findById(item.basketId);
     if (!basket) {
-      throw new NotFoundException('Basket not found');
+      throw new DomainNotFoundException('Basket not found');
     }
 
     // Authorization check
     if (basket.scope === BasketScope.PERSONAL) {
       if (basket.userId !== userId) {
-        throw new ForbiddenException('Not authorized');
+        throw new DomainForbiddenException('Not authorized');
       }
     } else if (basket.scope === BasketScope.FAMILY && basket.familyId) {
-      const member = await this.familyRepository.findMember(
+      const member = await this.familyService.findMember(
         basket.familyId,
         userId,
       );
       if (!member) {
-        throw new ForbiddenException('Not a member of this family');
+        throw new DomainForbiddenException('Not a member of this family');
       }
     }
 

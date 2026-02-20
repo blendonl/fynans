@@ -6,7 +6,7 @@ import {
   ItemWithStoresRow,
 } from '../../domain/repositories/item.repository.interface';
 import { Item } from '../../domain/entities/item.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { ItemMapper } from '../mappers/item.mapper';
 import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
 

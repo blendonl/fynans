@@ -1,5 +1,5 @@
 import { Item } from '../entities/item.entity';
-import { Pagination, PaginatedResult } from '~common/types/pagination';
+import { Pagination, PaginatedResult } from '~common/dto/pagination.dto';
 
 export { PaginatedResult };
 

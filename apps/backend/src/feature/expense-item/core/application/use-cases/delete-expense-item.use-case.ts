@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { type IExpenseItemRepository } from '../../domain/repositories/expense-item.repository.interface';
 
 @Injectable()
@@ -12,7 +13,7 @@ export class DeleteExpenseItemUseCase {
     const item = await this.expenseItemRepository.findById(id);
 
     if (!item) {
-      throw new NotFoundException('Expense item not found');
+      throw new DomainNotFoundException('Expense item not found');
     }
 
     await this.expenseItemRepository.delete(id);

@@ -8,7 +8,7 @@ import {
 } from '../use-cases/search-items-with-prices.use-case';
 import { CreateStoreItemDto } from '../dto/create-store-item.dto';
 import { StoreItem } from '../../domain/entities/store-item.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 
 @Injectable()
 export class StoreItemService {

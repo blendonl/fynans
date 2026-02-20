@@ -1,5 +1,5 @@
 import { Expense } from '../entities/expense.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { TransactionScope } from '../../../../transaction/core/domain/entities/transaction.entity';
 import { ExpenseTrendPoint } from '../../application/dto/expense-trends.dto';
 
