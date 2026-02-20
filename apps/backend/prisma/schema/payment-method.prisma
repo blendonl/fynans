@@ -1,0 +1,25 @@
+enum PaymentMethodType {
+  CASH
+  DEBIT_CARD
+
+  @@map("payment_method_type")
+}
+
+model PaymentMethod {
+  id             String            @id @default(uuid())
+  userId         String            @map("user_id")
+  name           String
+  type           PaymentMethodType @default(CASH)
+  color          String            @default("#6366F1")
+  initialBalance Decimal           @default(0) @map("initial_balance")
+  currentBalance Decimal           @default(0) @map("current_balance")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("payment_method")
+}
