@@ -18,6 +18,7 @@ import { ExpenseResponseDto } from '../dto/expense-response.dto';
 import { CreateExpenseDto } from '../../core/application/dto/create-expense.dto';
 import { UpdateExpenseDto } from '../../core/application/dto/update-expense.dto';
 import { ExpenseFilters } from '../../core/application/dto/expense-filters.dto';
+import { BaseFilters } from '~common/dto/base-filters.dto';
 import { CreateExpenseItemDto } from '../../../expense-item/core/application/dto/create-expense-item.dto';
 import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
@@ -67,18 +68,7 @@ export class ExpenseController {
 
   @Get()
   async findAll(@Query() query: QueryExpenseDto, @CurrentUser() user: User) {
-    const filters = new ExpenseFilters({
-      categoryId: query.categoryId,
-      userId: query.familyId ? undefined : user.id, // Only filter by userId if not filtering by family
-      familyId: query.familyId,
-      scope: query.scope,
-      storeId: query.storeId,
-      dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
-      dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
-      valueMin: query.valueMin,
-      valueMax: query.valueMax,
-      search: query.search,
-    });
+    const filters = new ExpenseFilters(BaseFilters.fromQuery(query, user.id));
 
     const pagination = new Pagination(query.page, query.limit);
 
@@ -112,18 +102,7 @@ export class ExpenseController {
     @Query() query: QueryExpenseDto,
     @CurrentUser() user: User,
   ) {
-    const filters = new ExpenseFilters({
-      userId: query.familyId ? undefined : user.id,
-      familyId: query.familyId,
-      scope: query.scope,
-      categoryId: query.categoryId,
-      storeId: query.storeId,
-      dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
-      dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
-      valueMin: query.valueMin,
-      valueMax: query.valueMax,
-      search: query.search,
-    });
+    const filters = new ExpenseFilters(BaseFilters.fromQuery(query, user.id));
 
     const stats = await this.expenseService.getStatistics(user.id, filters);
 
@@ -141,16 +120,7 @@ export class ExpenseController {
     @Query() query: QueryExpenseTrendsDto,
     @CurrentUser() user: User,
   ) {
-    const filters = new ExpenseFilters({
-      userId: query.familyId ? undefined : user.id,
-      familyId: query.familyId,
-      scope: query.scope,
-      categoryId: query.categoryId,
-      storeId: query.storeId,
-      valueMin: query.valueMin,
-      valueMax: query.valueMax,
-      search: query.search,
-    });
+    const filters = new ExpenseFilters(BaseFilters.fromQuery(query, user.id));
 
     return this.expenseService.getTrends(
       user.id,

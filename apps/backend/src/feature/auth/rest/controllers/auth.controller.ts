@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   Post,
   Body,
   HttpCode,
@@ -55,11 +56,8 @@ export class AuthController {
     }
   }
 
-  @Post('me')
-  @HttpCode(HttpStatus.OK)
+  @Get('me')
   async me(@CurrentUser() user: User) {
-    console.log('Current user:', user);
-
     return {
       id: user.id,
       email: user.email,

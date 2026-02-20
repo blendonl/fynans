@@ -2,10 +2,6 @@ import { IsEnum, IsNotEmpty, IsNumber, IsUUID, Min, IsOptional, IsDateString } f
 import { TransactionType } from '../../core/domain/value-objects/transaction-type.vo';
 
 export class CreateTransactionRequestDto {
-  @IsUUID()
-  @IsNotEmpty()
-  userId!: string;
-
   @IsEnum(TransactionType)
   @IsNotEmpty()
   type!: TransactionType;
@@ -18,4 +14,8 @@ export class CreateTransactionRequestDto {
   @IsOptional()
   @IsDateString()
   recordedAt?: string;
+
+  @IsOptional()
+  @IsUUID()
+  familyId?: string;
 }

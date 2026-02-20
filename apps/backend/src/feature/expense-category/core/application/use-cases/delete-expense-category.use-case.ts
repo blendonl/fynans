@@ -5,12 +5,14 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { type IExpenseCategoryRepository } from '../../domain/repositories/expense-category.repository.interface';
+import { PrismaService } from '~common/prisma/prisma.service';
 
 @Injectable()
 export class DeleteExpenseCategoryUseCase {
   constructor(
     @Inject('ExpenseCategoryRepository')
     private readonly expenseCategoryRepository: IExpenseCategoryRepository,
+    private readonly prisma: PrismaService,
   ) {}
 
   async execute(id: string): Promise<void> {
@@ -34,7 +36,14 @@ export class DeleteExpenseCategoryUseCase {
       );
     }
 
-    // TODO: Check if category is used by any expenses
-    // This will be implemented when Expense feature is ready
+    // Check if category is used by any expenses
+    const expenseCount = await this.prisma.expense.count({
+      where: { categoryId: id },
+    });
+    if (expenseCount > 0) {
+      throw new BadRequestException(
+        'Cannot delete category that is used by existing expenses',
+      );
+    }
   }
 }

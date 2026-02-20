@@ -9,6 +9,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  ForbiddenException,
 } from '@nestjs/common';
 import { TransactionService } from '../../core/application/services/transaction.service';
 import { CreateTransactionRequestDto } from '../dto/create-transaction-request.dto';
@@ -28,11 +29,16 @@ export class TransactionController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createDto: CreateTransactionRequestDto) {
+  async create(
+    @Body() createDto: CreateTransactionRequestDto,
+    @CurrentUser() user: User,
+  ) {
     const coreDto = new CreateTransactionDto(
-      createDto.userId,
+      user.id,
       createDto.type,
       createDto.value,
+      createDto.recordedAt ? new Date(createDto.recordedAt) : undefined,
+      createDto.familyId,
     );
 
     const transaction = await this.transactionService.create(coreDto);
@@ -40,9 +46,12 @@ export class TransactionController {
   }
 
   @Get()
-  async findAll(@Query() query: QueryTransactionDto) {
+  async findAll(
+    @Query() query: QueryTransactionDto,
+    @CurrentUser() user: User,
+  ) {
     const filters = new TransactionFilters({
-      userId: query.userId,
+      userId: query.familyId ? undefined : user.id,
       type: query.type,
       familyId: query.familyId,
       scope: query.scope,
@@ -70,7 +79,7 @@ export class TransactionController {
     @CurrentUser() user: User,
   ) {
     const filters = new TransactionFilters({
-      userId: query.userId || user.id,
+      userId: user.id,
       type: query.type,
       familyId: query.familyId,
       scope: query.scope,
@@ -81,7 +90,7 @@ export class TransactionController {
     });
 
     const stats = await this.transactionService.getStatistics(
-      query.userId || user.id,
+      user.id,
       filters,
     );
     return {
@@ -93,8 +102,11 @@ export class TransactionController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string, @CurrentUser() user: User) {
     const transaction = await this.transactionService.findById(id);
+    if (transaction.userId !== user.id) {
+      throw new ForbiddenException('Access denied');
+    }
     return TransactionResponseDto.fromEntity(transaction);
   }
 
@@ -102,19 +114,29 @@ export class TransactionController {
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateTransactionRequestDto,
+    @CurrentUser() user: User,
   ) {
+    const transaction = await this.transactionService.findById(id);
+    if (transaction.userId !== user.id) {
+      throw new ForbiddenException('Access denied');
+    }
+
     const coreDto = new UpdateTransactionDto({
       type: updateDto.type,
       value: updateDto.value,
     });
 
-    const transaction = await this.transactionService.update(id, coreDto);
-    return TransactionResponseDto.fromEntity(transaction);
+    const updated = await this.transactionService.update(id, coreDto);
+    return TransactionResponseDto.fromEntity(updated);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string, @CurrentUser() user: User) {
+    const transaction = await this.transactionService.findById(id);
+    if (transaction.userId !== user.id) {
+      throw new ForbiddenException('Access denied');
+    }
     await this.transactionService.delete(id);
   }
 }
