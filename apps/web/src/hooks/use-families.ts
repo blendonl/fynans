@@ -2,6 +2,20 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import type { Family, FamilyWithMembers, FamilyInvitation } from "@fynans/shared";
 
+export function usePendingInvitations() {
+  const query = useQuery({
+    queryKey: ["family-invitations-pending"],
+    queryFn: async () => {
+      return (await apiClient.get("/families/invitations/pending")) as FamilyInvitation[];
+    },
+  });
+
+  return {
+    pendingInvitations: query.data || [],
+    isLoading: query.isLoading,
+  };
+}
+
 export function useFamilies() {
   const queryClient = useQueryClient();
 

@@ -7,7 +7,6 @@ import {
   ArrowLeftRight,
   PlusCircle,
   ShoppingCart,
-  Users,
   Bell,
   LogOut,
   User,
@@ -15,6 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
 import { useNotifications } from "@/hooks/use-notifications";
+import { usePendingInvitations } from "@/hooks/use-families";
 import { cn } from "@/lib/utils";
 import { FynansLogo } from "@/components/icons/fynans-logo";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -31,7 +31,6 @@ const NAV_ITEMS = [
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
   { href: "/add", label: "Add Transaction", icon: PlusCircle },
   { href: "/basket", label: "Basket", icon: ShoppingCart },
-  { href: "/families", label: "Families", icon: Users },
   { href: "/notifications", label: "Notifications", icon: Bell },
 ];
 
@@ -39,6 +38,8 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const { unreadCount } = useNotifications();
+  const { pendingInvitations } = usePendingInvitations();
+  const pendingInvitationCount = pendingInvitations.length;
 
   return (
     <aside className="hidden lg:flex w-64 flex-col border-r border-sidebar-border bg-sidebar-background/80 backdrop-blur-xl">
@@ -84,11 +85,18 @@ export function AppSidebar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm hover:bg-sidebar-accent/50 transition-colors">
-              <div className="h-8 w-8 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-sm font-medium text-primary">
-                  {user?.firstName?.[0] ?? "A"}
-                  {user?.lastName?.[0]}
-                </span>
+              <div className="relative h-8 w-8 shrink-0">
+                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-sm font-medium text-primary">
+                    {user?.firstName?.[0] ?? "A"}
+                    {user?.lastName?.[0]}
+                  </span>
+                </div>
+                {pendingInvitationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-error px-1 text-[10px] font-semibold text-white">
+                    {pendingInvitationCount > 99 ? "99+" : pendingInvitationCount}
+                  </span>
+                )}
               </div>
               <div className="flex-1 text-left min-w-0">
                 <p className="text-sm font-medium text-sidebar-foreground truncate">

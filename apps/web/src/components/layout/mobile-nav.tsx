@@ -7,7 +7,6 @@ import {
   ArrowLeftRight,
   PlusCircle,
   ShoppingCart,
-  Users,
   Bell,
 } from "lucide-react";
 import { useNotifications } from "@/hooks/use-notifications";
@@ -18,7 +17,6 @@ const NAV_ITEMS = [
   { href: "/transactions", label: "Transactions", icon: ArrowLeftRight },
   { href: "/add", label: "Add", icon: PlusCircle },
   { href: "/basket", label: "Basket", icon: ShoppingCart },
-  { href: "/families", label: "Family", icon: Users },
   { href: "/notifications", label: "Alerts", icon: Bell },
 ];
 
