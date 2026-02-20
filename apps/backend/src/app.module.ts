@@ -25,6 +25,7 @@ import { StoreItemDiscountCoreModule } from './feature/store-item-discount/core/
 import { StoreItemDiscountRestModule } from './feature/store-item-discount/rest/store-item-discount-rest.module';
 import { NotificationModule } from './feature/notification/notification.module';
 import { BasketRestModule } from './feature/basket/rest/basket-rest.module';
+import { PaymentMethodRestModule } from './feature/payment-method/rest/payment-method-rest.module';
 import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
 
 @Module({
@@ -61,6 +62,7 @@ import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
     StoreItemDiscountRestModule,
     NotificationModule,
     BasketRestModule,
+    PaymentMethodRestModule,
   ],
   controllers: [AppController],
   providers: [

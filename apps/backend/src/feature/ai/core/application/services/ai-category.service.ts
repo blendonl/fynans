@@ -69,13 +69,13 @@ export class AiCategoryService {
 
   private async askCategoryName(context: string): Promise<string | null> {
     try {
-      const prompt = `${context}\n\nRespond with JSON: {"translation": "<English translation if not English, otherwise repeat the name>", "category": "<category name>"}\nThe category must be in English, short (1-3 words), and describe the product type.\nAlways provide a category. Use common grocery/shopping categories like: Dairy, Meat, Bread, Beverages, Snacks, Cleaning, Bags, Fruits, Vegetables, Household, etc.`;
+      const prompt = `${context}\n\nRespond ONLY with valid JSON: {"translation": "<English translation if not English, otherwise repeat the name>", "category": "<category name>"}\nThe category must be in English, short (1-3 words), and describe the product type.\nAlways provide a category. Use common grocery/shopping categories like: Dairy, Meat, Bread, Beverages, Snacks, Cleaning, Bags, Fruits, Vegetables, Household, etc.\nDo not include any text outside the JSON object.`;
       const response = await this.ollamaService.generateCompletion(prompt, {
         format: 'json',
         temperature: 0,
-        maxTokens: 100,
+        maxTokens: 200,
       });
-      const parsed = JSON.parse(response.response) as {
+      const parsed = this.parseJsonResponse(response.response) as {
         translation?: string;
         category?: string | null;
       };
@@ -84,6 +84,51 @@ export class AiCategoryService {
       this.logger.warn(`Category suggestion failed: ${error}`);
       return null;
     }
+  }
+
+  private parseJsonResponse(raw: string): Record<string, unknown> {
+    // Try direct parse first
+    try {
+      return JSON.parse(raw) as Record<string, unknown>;
+    } catch {
+      // continue to extraction attempts
+    }
+
+    // Extract JSON object from surrounding text/markdown fences
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const cleaned = jsonMatch[0]
+        .replace(/,\s*([}\]])/g, '$1') // remove trailing commas
+        .replace(/[\x00-\x1f]/g, ' '); // replace control chars with spaces
+      try {
+        return JSON.parse(cleaned) as Record<string, unknown>;
+      } catch {
+        // Try truncated JSON repair: close open strings and braces
+        const repaired = this.repairTruncatedJson(cleaned);
+        return JSON.parse(repaired) as Record<string, unknown>;
+      }
+    }
+
+    throw new SyntaxError(`No JSON object found in response: ${raw.slice(0, 200)}`);
+  }
+
+  private repairTruncatedJson(json: string): string {
+    let repaired = json;
+
+    // Count unmatched quotes — if odd, the string was truncated mid-value
+    const quoteCount = (repaired.match(/(?<!\\)"/g) || []).length;
+    if (quoteCount % 2 !== 0) {
+      repaired += '"';
+    }
+
+    // Close any unclosed braces/brackets
+    const open = (repaired.match(/\{/g) || []).length;
+    const close = (repaired.match(/\}/g) || []).length;
+    for (let i = 0; i < open - close; i++) {
+      repaired += '}';
+    }
+
+    return repaired;
   }
 
   private async findOrCreateExpenseCategory(
