@@ -45,6 +45,9 @@ model User {
   userStoreItems        UserStoreItem[]
   userItemCategories    UserItemCategory[]
 
+  // Payment methods
+  paymentMethods PaymentMethod[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
