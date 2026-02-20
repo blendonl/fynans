@@ -5,10 +5,14 @@ import config
 
 
 def preprocess_for_ocr(image_bytes: bytes) -> np.ndarray:
-    """Preprocessing optimized for PaddleOCR with GPU.
+    """Preprocessing optimized for PaddleOCR PP-OCRv5 with GPU.
 
     Pipeline: Decode -> Resize -> Shadow removal (adaptive) ->
-              Bilateral filter -> CLAHE -> Unsharp mask
+              Bilateral filter -> CLAHE
+
+    Note: Binarization and unsharp mask were removed — PP-OCRv5's deep learning
+    models perform better on natural/grayscale images. Binarization destroys
+    subtle edge info and causes faint thermal receipt text to vanish.
     """
     nparr = np.frombuffer(image_bytes, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -45,18 +49,6 @@ def preprocess_for_ocr(image_bytes: bytes) -> np.ndarray:
 
     enhanced_lab = cv2.merge([l_channel, a_channel, b_channel])
     img = cv2.cvtColor(enhanced_lab, cv2.COLOR_LAB2BGR)
-
-    # Adaptive binarization for receipt-like documents (dark text on light background)
-    gray_for_thresh = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    binary = cv2.adaptiveThreshold(
-        gray_for_thresh, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-        cv2.THRESH_BINARY, blockSize=21, C=10
-    )
-    img = cv2.cvtColor(binary, cv2.COLOR_GRAY2BGR)
-
-    # Mild unsharp mask to sharpen text edges softened by resize + denoising
-    blurred = cv2.GaussianBlur(img, (0, 0), sigmaX=2)
-    img = cv2.addWeighted(img, 1.3, blurred, -0.3, 0)
 
     return img
 
