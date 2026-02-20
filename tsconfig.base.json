@@ -9,7 +9,7 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": false,
+    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "alwaysStrict": true,
     "allowSyntheticDefaultImports": true

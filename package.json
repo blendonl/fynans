@@ -18,18 +18,22 @@
     "mobile:android": "yarn workspace @fynans/mobile android",
     "shared:build": "yarn workspace @fynans/shared build",
     "web:dev": "yarn workspace @fynans/web dev",
-    "web:build": "yarn workspace @fynans/web build"
+    "web:build": "yarn workspace @fynans/web build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "yarn workspaces foreach -A run typecheck"
   },
   "resolutions": {
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
   "packageManager": "yarn@4.12.0",
-  "dependencies": {
-    "@nestjs/platform-socket.io": "^11.1.11",
-    "@nestjs/websockets": "^11.1.11",
-    "expo-server-sdk": "^4.0.0",
-    "react-native-screens": "^4.19.0",
-    "socket.io": "^4.8.3"
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.1",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.0"
   }
 }
