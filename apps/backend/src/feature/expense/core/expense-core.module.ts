@@ -5,8 +5,7 @@ import { StoreCoreModule } from '../../store/core/store-core.module';
 import { ExpenseCategoryCoreModule } from '../../expense-category/core/expense-category-core.module';
 import { ExpenseItemCoreModule } from '../../expense-item/core/expense-item-core.module';
 import { FamilyCoreModule } from '../../family/core/family-core.module';
-import { NotificationCoreModule } from '../../notification/core/notification-core.module';
-import { UserCoreModule } from '../../user/core/user-core.module';
+import { NotifyFamilyMembersModule } from '~common/services/notify-family-members.module';
 import { PaymentMethodCoreModule } from '../../payment-method/core/payment-method-core.module';
 import { PrismaExpenseRepository } from './infrastructure/repositories/prisma-expense.repository';
 import { CreateExpenseUseCase } from './application/use-cases/create-expense.use-case';
@@ -27,8 +26,7 @@ import { ExpenseService } from './application/services/expense.service';
     ExpenseCategoryCoreModule,
     ExpenseItemCoreModule,
     FamilyCoreModule,
-    forwardRef(() => NotificationCoreModule),
-    UserCoreModule,
+    NotifyFamilyMembersModule,
     PaymentMethodCoreModule,
   ],
   providers: [

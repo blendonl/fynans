@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
 import { TransactionService } from '../../../../transaction/core/application/services/transaction.service';
 import { ExpenseItemService } from '../../../../expense-item/core/application/services/expense-item.service';
@@ -24,7 +25,7 @@ export class AddItemToExpenseUseCase {
     const expense = await this.expenseRepository.findById(expenseId);
 
     if (!expense) {
-      throw new NotFoundException('Expense not found');
+      throw new DomainNotFoundException('Expense not found');
     }
 
     await this.expenseItemService.create(itemDto, storeId, userId);

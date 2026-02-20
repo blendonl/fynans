@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException, DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { type IItemRepository } from '../../domain/repositories/item.repository.interface';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 
@@ -14,7 +15,7 @@ export class DeleteItemUseCase {
     // Check if item exists
     const item = await this.itemRepository.findById(id);
     if (!item) {
-      throw new NotFoundException(`Item with ID ${id} not found`);
+      throw new DomainNotFoundException(`Item with ID ${id} not found`);
     }
 
     // Check if item is referenced by StoreItems
@@ -23,7 +24,7 @@ export class DeleteItemUseCase {
     });
 
     if (storeItemCount > 0) {
-      throw new BadRequestException(
+      throw new DomainValidationException(
         `Cannot delete item. It is referenced by ${storeItemCount} store item(s)`,
       );
     }

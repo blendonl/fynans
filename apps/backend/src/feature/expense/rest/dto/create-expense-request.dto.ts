@@ -10,6 +10,8 @@ import {
   IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { CreateExpenseDto } from '../../core/application/dto/create-expense.dto';
+import { CreateExpenseItemDto } from '../../../expense-item/core/application/dto/create-expense-item.dto';
 
 export class CreateExpenseItemRequestDto {
   @IsUUID()
@@ -87,4 +89,31 @@ export class CreateExpenseRequestDto {
   @IsOptional()
   @IsUUID()
   paymentMethodId?: string;
+
+  toCoreDto(userId: string): CreateExpenseDto {
+    return new CreateExpenseDto({
+      userId,
+      categoryId: this.categoryId,
+      storeName: this.storeName,
+      storeLocation: this.storeLocation,
+      familyId: this.familyId,
+      amount: this.amount,
+      note: this.note,
+      paymentMethodId: this.paymentMethodId,
+      items: this.items?.map(
+        (item) =>
+          new CreateExpenseItemDto({
+            expenseId: '',
+            categoryId: item.categoryId,
+            itemName: item.itemName,
+            itemPrice: item.itemPrice,
+            discount: item.discount,
+            quantity: item.quantity,
+            sizeValue: item.sizeValue,
+            sizeUnit: item.sizeUnit,
+          }),
+      ),
+      recordedAt: this.recordedAt ? new Date(this.recordedAt) : undefined,
+    });
+  }
 }

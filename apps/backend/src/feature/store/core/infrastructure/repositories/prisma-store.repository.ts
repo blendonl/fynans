@@ -5,7 +5,7 @@ import {
   PaginatedResult,
 } from '../../domain/repositories/store.repository.interface';
 import { Store } from '../../domain/entities/store.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { StoreMapper } from '../mappers/store.mapper';
 import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
 

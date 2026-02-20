@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IStoreItemRepository, ItemWithPricesRow } from '../../domain/repositories/store-item.repository.interface';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 
 export { ItemWithPricesRow as ItemWithPricesResult };
 

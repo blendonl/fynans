@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { User } from '../../domain/entities/user.entity';
 
@@ -11,7 +12,7 @@ export class UserService {
 
   async findById(id: string): Promise<User> {
     const user = await this.userRepository.findById(id);
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new DomainNotFoundException('User not found');
     return user;
   }
 

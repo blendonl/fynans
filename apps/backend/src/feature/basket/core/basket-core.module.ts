@@ -1,8 +1,7 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
 import { FamilyCoreModule } from '../../family/core/family-core.module';
-import { NotificationModule } from '../../notification/notification.module';
-import { UserCoreModule } from '../../user/core/user-core.module';
+import { NotifyFamilyMembersModule } from '~common/services/notify-family-members.module';
 import { ExpenseCoreModule } from '../../expense/core/expense-core.module';
 import { PrismaBasketRepository } from './infrastructure/repositories/prisma-basket.repository';
 import { ListBasketsUseCase } from './application/use-cases/list-baskets.use-case';
@@ -16,8 +15,7 @@ import { BasketService } from './application/services/basket.service';
   imports: [
     PrismaModule,
     FamilyCoreModule,
-    forwardRef(() => NotificationModule),
-    UserCoreModule,
+    NotifyFamilyMembersModule,
     ExpenseCoreModule,
   ],
   providers: [

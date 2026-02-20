@@ -10,7 +10,7 @@ import { CreateStoreItemDiscountDto } from '../dto/create-store-item-discount.dt
 import { UpdateStoreItemDiscountDto } from '../dto/update-store-item-discount.dto';
 import { StoreItemDiscount } from '../../domain/entities/store-item-discount.entity';
 import { PaginatedResult } from '../../domain/repositories/store-item-discount.repository.interface';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 
 @Injectable()
 export class StoreItemDiscountService {

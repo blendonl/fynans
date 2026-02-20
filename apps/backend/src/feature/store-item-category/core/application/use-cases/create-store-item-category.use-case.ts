@@ -1,4 +1,5 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { type IStoreItemCategoryRepository } from '../../domain/repositories/store-item-category.repository.interface';
 import { CreateStoreItemCategoryDto } from '../dto/create-store-item-category.dto';
 import { StoreItemCategory } from '../../domain/entities/store-item-category.entity';
@@ -34,14 +35,14 @@ export class CreateStoreItemCategoryUseCase {
 
   private async validate(dto: CreateStoreItemCategoryDto): Promise<void> {
     if (!dto.name || dto.name.trim() === '') {
-      throw new BadRequestException('Category name is required');
+      throw new DomainValidationException('Category name is required');
     }
 
     if (dto.parentId) {
       const parent =
         await this.storeItemCategoryRepository.findById(dto.parentId);
       if (!parent) {
-        throw new BadRequestException('Parent category not found');
+        throw new DomainValidationException('Parent category not found');
       }
     }
   }

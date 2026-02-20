@@ -6,7 +6,7 @@ import {
   IncomeFilters as IncomeFiltersInterface,
 } from '../../domain/repositories/income.repository.interface';
 import { Income } from '../../domain/entities/income.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { IncomeMapper } from '../mappers/income.mapper';
 import { Prisma } from 'prisma/generated/prisma/client';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';

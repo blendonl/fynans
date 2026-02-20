@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import { IWebPushSubscriptionRepository } from '../../domain/repositories/web-push-subscription.repository.interface';
 import { WebPushSubscription } from '../../domain/entities/web-push-subscription.entity';
@@ -69,7 +70,7 @@ export class PrismaWebPushSubscriptionRepository
     });
 
     if (!subscription || subscription.userId !== userId) {
-      throw new NotFoundException('Web push subscription not found');
+      throw new DomainNotFoundException('Web push subscription not found');
     }
 
     await this.prisma.webPushSubscription.delete({

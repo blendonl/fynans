@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { type IExpenseCategoryRepository } from '../../domain/repositories/expense-category.repository.interface';
 import { ExpenseCategory } from '../../domain/entities/expense-category.entity';
 
@@ -13,7 +14,7 @@ export class GetExpenseCategoryByIdUseCase {
     const category = await this.expenseCategoryRepository.findById(id);
 
     if (!category) {
-      throw new NotFoundException('Expense category not found');
+      throw new DomainNotFoundException('Expense category not found');
     }
 
     return category;

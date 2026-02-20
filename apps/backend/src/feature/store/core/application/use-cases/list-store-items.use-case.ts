@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { type IStoreItemRepository } from '../../domain/repositories/store-item.repository.interface';
 import { StoreItem } from '../../domain/entities/store-item.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 
 export interface StoreItemFilters {
   storeId?: string;

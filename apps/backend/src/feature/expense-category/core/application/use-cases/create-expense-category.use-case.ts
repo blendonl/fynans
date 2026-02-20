@@ -1,4 +1,5 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { type IExpenseCategoryRepository } from '../../domain/repositories/expense-category.repository.interface';
 import { CreateExpenseCategoryDto } from '../dto/create-expense-category.dto';
 import { ExpenseCategory } from '../../domain/entities/expense-category.entity';
@@ -41,7 +42,7 @@ export class CreateExpenseCategoryUseCase {
     const parent = await this.expenseCategoryRepository.findById(dto.parentId);
 
     if (!parent) {
-      throw new BadRequestException('Parent category not found');
+      throw new DomainValidationException('Parent category not found');
     }
   }
 }

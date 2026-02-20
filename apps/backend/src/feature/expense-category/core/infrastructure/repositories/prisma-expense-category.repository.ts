@@ -7,7 +7,7 @@ import {
   UpdateExpenseCategoryData,
 } from '../../domain/repositories/expense-category.repository.interface';
 import { ExpenseCategory } from '../../domain/entities/expense-category.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { ExpenseCategoryMapper } from '../mappers/expense-category.mapper';
 import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
 

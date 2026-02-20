@@ -6,7 +6,7 @@ import {
   ItemWithPricesRow,
 } from '../../domain/repositories/store-item.repository.interface';
 import { StoreItem } from '../../domain/entities/store-item.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { StoreItemMapper } from '../mappers/store-item.mapper';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';

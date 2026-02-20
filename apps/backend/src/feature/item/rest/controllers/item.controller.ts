@@ -18,7 +18,7 @@ import { UpdateItemRequestDto } from '../dto/update-item-request.dto';
 import { ItemResponseDto } from '../dto/item-response.dto';
 import { CreateItemDto } from '../../core/application/dto/create-item.dto';
 import { UpdateItemDto } from '../../core/application/dto/update-item.dto';
-import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 

@@ -1,5 +1,6 @@
 import { IsEnum, IsNotEmpty, IsNumber, IsUUID, Min, IsOptional, IsDateString } from 'class-validator';
 import { TransactionType } from '../../core/domain/value-objects/transaction-type.vo';
+import { CreateTransactionDto } from '../../core/application/dto/create-transaction.dto';
 
 export class CreateTransactionRequestDto {
   @IsEnum(TransactionType)
@@ -22,4 +23,15 @@ export class CreateTransactionRequestDto {
   @IsOptional()
   @IsUUID()
   paymentMethodId?: string;
+
+  toCoreDto(userId: string): CreateTransactionDto {
+    return new CreateTransactionDto(
+      userId,
+      this.type,
+      this.value,
+      this.recordedAt ? new Date(this.recordedAt) : undefined,
+      this.familyId,
+      this.paymentMethodId,
+    );
+  }
 }

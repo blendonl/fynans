@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
 import { Transaction } from '../../../../transaction/core/domain/entities/transaction.entity';
 
@@ -21,7 +22,7 @@ export class FamilyBalanceService {
     // Update family total balance
     const family = await this.familyRepository.findById(familyId);
     if (!family) {
-      throw new NotFoundException('Family not found');
+      throw new DomainNotFoundException('Family not found');
     }
 
     await this.familyRepository.updateFamilyBalance(
@@ -32,7 +33,7 @@ export class FamilyBalanceService {
     // Update user's individual balance within family
     const member = await this.familyRepository.findMember(familyId, userId);
     if (!member) {
-      throw new NotFoundException('Not a family member');
+      throw new DomainNotFoundException('Not a family member');
     }
 
     await this.familyRepository.updateMemberBalance(

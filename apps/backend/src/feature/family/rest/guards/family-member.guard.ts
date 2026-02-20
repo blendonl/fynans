@@ -4,15 +4,13 @@ import {
   ExecutionContext,
   ForbiddenException,
   BadRequestException,
-  Inject,
 } from '@nestjs/common';
-import { IFamilyRepository } from '../../core/domain/repositories/family.repository.interface';
+import { FamilyService } from '../../core/application/services/family.service';
 
 @Injectable()
 export class FamilyMemberGuard implements CanActivate {
   constructor(
-    @Inject('FamilyRepository')
-    private readonly familyRepository: IFamilyRepository,
+    private readonly familyService: FamilyService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -24,7 +22,7 @@ export class FamilyMemberGuard implements CanActivate {
       throw new BadRequestException('Family ID required');
     }
 
-    const member = await this.familyRepository.findMember(familyId, user.id);
+    const member = await this.familyService.findMember(familyId, user.id);
     if (!member) {
       throw new ForbiddenException('Not a member of this family');
     }

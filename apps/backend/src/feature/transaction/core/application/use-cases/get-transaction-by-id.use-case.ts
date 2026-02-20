@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { type ITransactionRepository } from '../../domain/repositories/transaction.repository.interface';
 import { Transaction } from '../../domain/entities/transaction.entity';
 
@@ -13,7 +14,7 @@ export class GetTransactionByIdUseCase {
     const transaction = await this.transactionRepository.findById(id);
 
     if (!transaction) {
-      throw new NotFoundException(`Transaction with ID ${id} not found`);
+      throw new DomainNotFoundException(`Transaction with ID ${id} not found`);
     }
 
     return transaction;

@@ -16,7 +16,7 @@ import { UpdateExpenseCategoryRequestDto } from '../dto/update-expense-category-
 import { ExpenseCategoryResponseDto } from '../dto/expense-category-response.dto';
 import { CreateExpenseCategoryDto } from '../../core/application/dto/create-expense-category.dto';
 import { UpdateExpenseCategoryDto } from '../../core/application/dto/update-expense-category.dto';
-import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 

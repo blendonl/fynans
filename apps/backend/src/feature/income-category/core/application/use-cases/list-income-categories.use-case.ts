@@ -4,7 +4,7 @@ import {
   PaginatedResult,
 } from '../../domain/repositories/income-category.repository.interface';
 import { IncomeCategory } from '../../domain/entities/income-category.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 
 @Injectable()
 export class ListIncomeCategoriesUseCase {

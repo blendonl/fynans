@@ -7,7 +7,7 @@ import {
   UpdateStoreItemCategoryData,
 } from '../../domain/repositories/store-item-category.repository.interface';
 import { StoreItemCategory } from '../../domain/entities/store-item-category.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { StoreItemCategoryMapper } from '../mappers/store-item-category.mapper';
 import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
 

@@ -8,13 +8,13 @@ export class ItemResponseDto {
   updatedAt: Date;
 
   static fromEntity(item: Item): ItemResponseDto {
-    return {
-      id: item.id,
-      name: item.name,
-      categoryId: item.categoryId,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    };
+    const dto = new ItemResponseDto();
+    dto.id = item.id;
+    dto.name = item.name;
+    dto.categoryId = item.categoryId;
+    dto.createdAt = item.createdAt;
+    dto.updatedAt = item.updatedAt;
+    return dto;
   }
 
   static fromEntities(items: Item[]): ItemResponseDto[] {

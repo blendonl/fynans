@@ -2,7 +2,7 @@ import { Controller, Get, Param, Query } from '@nestjs/common';
 import { StoreItemService } from '../../core/application/services/store-item.service';
 import { QueryStoreItemDto } from '../dto/query-store-item.dto';
 import { StoreItemResponseDto } from '../dto/store-item-response.dto';
-import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 

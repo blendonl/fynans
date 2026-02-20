@@ -9,7 +9,7 @@ import { CreateIncomeCategoryDto } from '../dto/create-income-category.dto';
 import { UpdateIncomeCategoryDto } from '../dto/update-income-category.dto';
 import { IncomeCategory } from '../../domain/entities/income-category.entity';
 import { PaginatedResult } from '../../domain/repositories/income-category.repository.interface';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 
 @Injectable()
 export class IncomeCategoryService {

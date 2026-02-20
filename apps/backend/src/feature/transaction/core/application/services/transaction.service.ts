@@ -8,10 +8,11 @@ import { GetTransactionStatisticsUseCase } from '../use-cases/get-transaction-st
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { UpdateTransactionDto } from '../dto/update-transaction.dto';
 import { TransactionFilters } from '../dto/transaction-filters.dto';
-import { Pagination } from '../dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { PaginatedResult } from '../../domain/repositories/transaction.repository.interface';
 import { TransactionStatistics } from '../dto/transaction-statistics.dto';
+import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
 
 @Injectable()
 export class TransactionService {
@@ -28,8 +29,12 @@ export class TransactionService {
     return this.createTransactionUseCase.execute(dto);
   }
 
-  async findById(id: string): Promise<Transaction> {
-    return this.getTransactionByIdUseCase.execute(id);
+  async findById(id: string, userId?: string): Promise<Transaction> {
+    const transaction = await this.getTransactionByIdUseCase.execute(id);
+    if (userId && transaction.userId !== userId) {
+      throw new DomainForbiddenException('Access denied');
+    }
+    return transaction;
   }
 
   async findAll(
@@ -39,11 +44,21 @@ export class TransactionService {
     return this.listTransactionsUseCase.execute(filters, pagination);
   }
 
-  async update(id: string, dto: UpdateTransactionDto): Promise<Transaction> {
+  async update(
+    id: string,
+    dto: UpdateTransactionDto,
+    userId?: string,
+  ): Promise<Transaction> {
+    if (userId) {
+      await this.findById(id, userId);
+    }
     return this.updateTransactionUseCase.execute(id, dto);
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, userId?: string): Promise<void> {
+    if (userId) {
+      await this.findById(id, userId);
+    }
     return this.deleteTransactionUseCase.execute(id);
   }
 

@@ -16,7 +16,7 @@ import { UpdateStoreItemCategoryRequestDto } from '../dto/update-store-item-cate
 import { StoreItemCategoryResponseDto } from '../dto/store-item-category-response.dto';
 import { CreateStoreItemCategoryDto } from '../../core/application/dto/create-store-item-category.dto';
 import { UpdateStoreItemCategoryDto } from '../../core/application/dto/update-store-item-category.dto';
-import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 

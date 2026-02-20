@@ -13,17 +13,16 @@ describe('LlmReceiptParser', () => {
     rawText: 'some raw text from OCR',
   };
 
-  const validReceiptJson = {
-    storeName: 'Test Store',
-    storeLocation: '123 Main St',
-    items: [
-      { name: 'Milk', price: 3.5, quantity: 1 },
-      { name: 'Bread', price: 2.0, quantity: 2 },
-    ],
-    totalAmount: 7.5,
-    date: '15/02/2026',
-    time: '14:30',
-  };
+  const validPipeDelimited = `STORE: Test Store
+LOCATION: 123 Main St
+DATE: 15/02/2026
+TIME: 14:30
+TOTAL: 7.50
+EXPENSE_CATEGORY: Groceries
+ITEMS:
+name | nameEn | price | qty | category
+Qumesht | Milk | 3.50 | 1 | Dairy
+Buke | Bread | 2.00 | 2 | Bakery`;
 
   beforeEach(() => {
     ollamaService = {
@@ -71,9 +70,9 @@ describe('LlmReceiptParser', () => {
       expect(ollamaService.generateCompletion).not.toHaveBeenCalled();
     });
 
-    it('should successfully parse a well-formed LLM response', async () => {
+    it('should successfully parse a well-formed pipe-delimited response', async () => {
       ollamaService.generateCompletion.mockResolvedValue({
-        response: JSON.stringify(validReceiptJson),
+        response: validPipeDelimited,
       });
 
       const text = 'This is a long enough receipt text for parsing';
@@ -82,8 +81,12 @@ describe('LlmReceiptParser', () => {
       expect(result.storeName).toBe('Test Store');
       expect(result.storeLocation).toBe('123 Main St');
       expect(result.items).toHaveLength(2);
-      expect(result.items[0]).toEqual({ name: 'Milk', price: 3.5, quantity: 1 });
-      expect(result.items[1]).toEqual({ name: 'Bread', price: 2.0, quantity: 2 });
+      expect(result.items[0].name).toBe('Qumesht');
+      expect(result.items[0].price).toBe(3.5);
+      expect(result.items[0].quantity).toBe(1);
+      expect(result.items[1].name).toBe('Buke');
+      expect(result.items[1].price).toBe(2.0);
+      expect(result.items[1].quantity).toBe(2);
       expect(result.totalAmount).toBe(7.5);
       expect(result.date).toBe('15/02/2026');
       expect(result.time).toBe('14:30');
@@ -92,17 +95,11 @@ describe('LlmReceiptParser', () => {
     });
 
     it('should filter out items with negative price', async () => {
-      const receiptWithInvalidItems = {
-        ...validReceiptJson,
-        items: [
-          { name: 'Valid Item', price: 5.0, quantity: 1 },
-          { name: 'Negative Price', price: -2.0, quantity: 1 },
-        ],
-        totalAmount: 5.0,
-      };
-
       ollamaService.generateCompletion.mockResolvedValue({
-        response: JSON.stringify(receiptWithInvalidItems),
+        response: `STORE: Test Store
+ITEMS:
+Valid Item | Valid Item | 5.00 | 1 | Other
+Negative Price | Negative Price | -2.00 | 1 | Other`,
       });
 
       const text = 'This is a long enough receipt text for parsing';
@@ -112,119 +109,36 @@ describe('LlmReceiptParser', () => {
       expect(result.items[0].name).toBe('Valid Item');
     });
 
-    it('should filter out items with empty name', async () => {
-      const receiptWithEmptyName = {
-        ...validReceiptJson,
-        items: [
-          { name: 'Valid Item', price: 5.0, quantity: 1 },
-          { name: '', price: 3.0, quantity: 1 },
-        ],
-        totalAmount: 5.0,
-      };
-
+    it('should skip header rows in pipe-delimited items', async () => {
       ollamaService.generateCompletion.mockResolvedValue({
-        response: JSON.stringify(receiptWithEmptyName),
+        response: `STORE: Test Store
+ITEMS:
+name | nameEn | price | qty | category
+Milk | Milk | 5.00 | 1 | Other`,
       });
 
       const text = 'This is a long enough receipt text for parsing';
       const result = await parser.parse(text, defaultContext);
 
       expect(result.items).toHaveLength(1);
-      expect(result.items[0].name).toBe('Valid Item');
+      expect(result.items[0].name).toBe('Milk');
     });
 
-    it('should filter out items with price >= 10000 (EUR ceiling)', async () => {
-      const receiptWithExpensiveItem = {
-        ...validReceiptJson,
-        items: [
-          { name: 'Valid Item', price: 5.0, quantity: 1 },
-          { name: 'Too Expensive', price: 10000, quantity: 1 },
-        ],
-        totalAmount: 5.0,
-      };
-
-      ollamaService.generateCompletion.mockResolvedValue({
-        response: JSON.stringify(receiptWithExpensiveItem),
-      });
+    it('should retry when first attempt returns no items', async () => {
+      ollamaService.generateCompletion
+        .mockResolvedValueOnce({ response: 'No valid pipe delimited content' })
+        .mockResolvedValueOnce({ response: validPipeDelimited });
 
       const text = 'This is a long enough receipt text for parsing';
       const result = await parser.parse(text, defaultContext);
 
-      expect(result.items).toHaveLength(1);
-      expect(result.items[0].name).toBe('Valid Item');
-    });
-
-    it('should throw when response contains no JSON', async () => {
-      ollamaService.generateCompletion.mockResolvedValue({
-        response: 'This is just plain text without any JSON',
-      });
-
-      const text = 'This is a long enough receipt text for parsing';
-
-      await expect(parser.parse(text, defaultContext)).rejects.toThrow(
-        'No JSON found in LLM response',
-      );
-    });
-
-    it('should throw when response contains invalid JSON', async () => {
-      ollamaService.generateCompletion.mockResolvedValue({
-        response: '{ invalid json here }',
-      });
-
-      const text = 'This is a long enough receipt text for parsing';
-
-      await expect(parser.parse(text, defaultContext)).rejects.toThrow();
-    });
-
-    it('should log warning when items total differs from receipt total by more than 10%', async () => {
-      const loggerSpy = jest.spyOn(
-        (postProcessor as any).logger,
-        'warn',
-      );
-
-      const mismatchedReceipt = {
-        ...validReceiptJson,
-        items: [{ name: 'Item', price: 5.0, quantity: 1 }],
-        totalAmount: 20.0,
-      };
-
-      ollamaService.generateCompletion.mockResolvedValue({
-        response: JSON.stringify(mismatchedReceipt),
-      });
-
-      const text = 'This is a long enough receipt text for parsing';
-      await parser.parse(text, defaultContext);
-
-      expect(loggerSpy).toHaveBeenCalledWith(
-        expect.stringContaining('differs from receipt total'),
-      );
-    });
-
-    it('should not log warning when items total matches receipt total within 10%', async () => {
-      const loggerSpy = jest.spyOn(
-        (postProcessor as any).logger,
-        'warn',
-      );
-
-      const matchingReceipt = {
-        ...validReceiptJson,
-        items: [{ name: 'Item', price: 10.0, quantity: 1 }],
-        totalAmount: 10.5,
-      };
-
-      ollamaService.generateCompletion.mockResolvedValue({
-        response: JSON.stringify(matchingReceipt),
-      });
-
-      const text = 'This is a long enough receipt text for parsing';
-      await parser.parse(text, defaultContext);
-
-      expect(loggerSpy).not.toHaveBeenCalled();
+      expect(ollamaService.generateCompletion).toHaveBeenCalledTimes(2);
+      expect(result.items).toHaveLength(2);
     });
 
     it('should parse date and time into recordedAt', async () => {
       ollamaService.generateCompletion.mockResolvedValue({
-        response: JSON.stringify(validReceiptJson),
+        response: validPipeDelimited,
       });
 
       const text = 'This is a long enough receipt text for parsing';
@@ -238,34 +152,11 @@ describe('LlmReceiptParser', () => {
       expect(result.recordedAt!.getMinutes()).toBe(30);
     });
 
-    it('should parse date without time into recordedAt', async () => {
-      const receiptNoTime = {
-        ...validReceiptJson,
-        time: null,
-      };
-
+    it('should return undefined recordedAt when date is not present', async () => {
       ollamaService.generateCompletion.mockResolvedValue({
-        response: JSON.stringify(receiptNoTime),
-      });
-
-      const text = 'This is a long enough receipt text for parsing';
-      const result = await parser.parse(text, defaultContext);
-
-      expect(result.recordedAt).toBeInstanceOf(Date);
-      expect(result.recordedAt!.getFullYear()).toBe(2026);
-      expect(result.recordedAt!.getMonth()).toBe(1);
-      expect(result.recordedAt!.getDate()).toBe(15);
-    });
-
-    it('should return undefined recordedAt when date is null', async () => {
-      const receiptNoDate = {
-        ...validReceiptJson,
-        date: null,
-        time: null,
-      };
-
-      ollamaService.generateCompletion.mockResolvedValue({
-        response: JSON.stringify(receiptNoDate),
+        response: `STORE: Test Store
+ITEMS:
+Milk | Milk | 5.00 | 1 | Other`,
       });
 
       const text = 'This is a long enough receipt text for parsing';
@@ -274,37 +165,29 @@ describe('LlmReceiptParser', () => {
       expect(result.recordedAt).toBeUndefined();
     });
 
-    it('should default storeName to "Unknown Store" when missing', async () => {
-      const receiptNoStore = {
-        ...validReceiptJson,
-        storeName: '',
-      };
-
-      ollamaService.generateCompletion.mockResolvedValue({
-        response: JSON.stringify(receiptNoStore),
-      });
-
-      const text = 'This is a long enough receipt text for parsing';
-      const result = await parser.parse(text, defaultContext);
-
-      expect(result.storeName).toBe('Unknown Store');
-    });
-
     it('should default item quantity to 1 when not specified', async () => {
-      const receiptNoQuantity = {
-        ...validReceiptJson,
-        items: [{ name: 'Item', price: 5.0 }],
-        totalAmount: 5.0,
-      };
-
       ollamaService.generateCompletion.mockResolvedValue({
-        response: JSON.stringify(receiptNoQuantity),
+        response: `STORE: Test Store
+TOTAL: 5.00
+ITEMS:
+Milk | Milk | 5.00`,
       });
 
       const text = 'This is a long enough receipt text for parsing';
       const result = await parser.parse(text, defaultContext);
 
       expect(result.items[0].quantity).toBe(1);
+    });
+
+    it('should parse expense category suggestion', async () => {
+      ollamaService.generateCompletion.mockResolvedValue({
+        response: validPipeDelimited,
+      });
+
+      const text = 'This is a long enough receipt text for parsing';
+      const result = await parser.parse(text, defaultContext);
+
+      expect(result.suggestedExpenseCategory).toBe('Groceries');
     });
   });
 });

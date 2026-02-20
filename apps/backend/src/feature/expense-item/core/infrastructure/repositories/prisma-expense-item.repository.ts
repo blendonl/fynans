@@ -5,7 +5,7 @@ import {
   PaginatedResult,
 } from '../../domain/repositories/expense-item.repository.interface';
 import { ExpenseItem } from '../../domain/entities/expense-item.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { ExpenseItemMapper } from '../mappers/expense-item.mapper';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 

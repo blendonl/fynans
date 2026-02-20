@@ -1,5 +1,5 @@
 import { Income } from '../entities/income.entity';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { Pagination } from '~common/dto/pagination.dto';
 import { TransactionScope } from '../../../../transaction/core/domain/entities/transaction.entity';
 
 export interface PaginatedResult<T> {

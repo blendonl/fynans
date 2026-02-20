@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { type IExpenseItemRepository } from '../../domain/repositories/expense-item.repository.interface';
 import { type IStoreItemCategoryRepository } from '../../../../store-item-category/core/domain/repositories/store-item-category.repository.interface';
 import { StoreItemService } from '../../../../store/core/application/services/store-item.service';
@@ -64,7 +65,7 @@ export class CreateExpenseItemUseCase {
     );
 
     if (!category) {
-      throw new NotFoundException('Store item category not found');
+      throw new DomainNotFoundException('Store item category not found');
     }
   }
 }

@@ -1,4 +1,5 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { type IIncomeCategoryRepository } from '../../domain/repositories/income-category.repository.interface';
 import { CreateIncomeCategoryDto } from '../dto/create-income-category.dto';
 import { IncomeCategory } from '../../domain/entities/income-category.entity';
@@ -34,14 +35,14 @@ export class CreateIncomeCategoryUseCase {
 
   private async validate(dto: CreateIncomeCategoryDto): Promise<void> {
     if (!dto.name || dto.name.trim() === '') {
-      throw new BadRequestException('Category name is required');
+      throw new DomainValidationException('Category name is required');
     }
 
     if (dto.parentId) {
       const parent =
         await this.incomeCategoryRepository.findById(dto.parentId);
       if (!parent) {
-        throw new BadRequestException('Parent category not found');
+        throw new DomainValidationException('Parent category not found');
       }
     }
   }

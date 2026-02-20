@@ -1,4 +1,5 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
 import { CreateFamilyDto } from '../dto/create-family.dto';
 import { Family } from '../../domain/entities/family.entity';
@@ -14,7 +15,7 @@ export class CreateFamilyUseCase {
 
   async execute(dto: CreateFamilyDto, ownerId: string): Promise<Family> {
     if (!dto.name?.trim()) {
-      throw new BadRequestException('Family name is required');
+      throw new DomainValidationException('Family name is required');
     }
 
     // Create family

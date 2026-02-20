@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { CreateExpenseCategoryUseCase } from '../use-cases/create-expense-category.use-case';
 import { GetExpenseCategoryByIdUseCase } from '../use-cases/get-expense-category-by-id.use-case';
 import { ListExpenseCategoriesUseCase } from '../use-cases/list-expense-categories.use-case';
@@ -8,12 +8,14 @@ import { DeleteExpenseCategoryUseCase } from '../use-cases/delete-expense-catego
 import { CreateExpenseCategoryDto } from '../dto/create-expense-category.dto';
 import { UpdateExpenseCategoryDto } from '../dto/update-expense-category.dto';
 import { ExpenseCategory } from '../../domain/entities/expense-category.entity';
-import { PaginatedResult } from '../../domain/repositories/expense-category.repository.interface';
-import { Pagination } from '../../../../transaction/core/application/dto/pagination.dto';
+import { IExpenseCategoryRepository, PaginatedResult } from '../../domain/repositories/expense-category.repository.interface';
+import { Pagination } from '~common/dto/pagination.dto';
 
 @Injectable()
 export class ExpenseCategoryService {
   constructor(
+    @Inject('ExpenseCategoryRepository')
+    private readonly expenseCategoryRepository: IExpenseCategoryRepository,
     private readonly createExpenseCategoryUseCase: CreateExpenseCategoryUseCase,
     private readonly getExpenseCategoryByIdUseCase: GetExpenseCategoryByIdUseCase,
     private readonly listExpenseCategoriesUseCase: ListExpenseCategoriesUseCase,
@@ -55,5 +57,9 @@ export class ExpenseCategoryService {
 
   async delete(id: string): Promise<void> {
     return this.deleteExpenseCategoryUseCase.execute(id);
+  }
+
+  async linkToUser(categoryId: string, userId: string): Promise<void> {
+    return this.expenseCategoryRepository.linkToUser(categoryId, userId);
   }
 }
