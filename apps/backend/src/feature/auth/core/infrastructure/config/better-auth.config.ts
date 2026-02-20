@@ -68,6 +68,11 @@ export function createBetterAuthInstance(prisma: PrismaClient) {
         enabled: true,
         domain: process.env.COOKIE_DOMAIN || undefined,
       },
+      useSecureCookies: true,
+      defaultCookieAttributes: {
+        sameSite: 'none',
+        secure: true,
+      },
     },
   });
 }
