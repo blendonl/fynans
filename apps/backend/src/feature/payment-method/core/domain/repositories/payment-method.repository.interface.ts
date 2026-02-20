@@ -1,6 +1,6 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { PaymentMethod } from '../entities/payment-method.entity';
-import { PaymentMethodType } from '../value-objects/payment-method-type.vo';
+import { PaymentMethodType } from '../value-objects/payment-method-type.enum';
 
 export interface CreatePaymentMethodData {
   id: string;

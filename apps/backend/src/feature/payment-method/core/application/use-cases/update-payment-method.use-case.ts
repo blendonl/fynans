@@ -7,7 +7,7 @@ import {
 import { type IPaymentMethodRepository } from '../../domain/repositories/payment-method.repository.interface';
 import { UpdatePaymentMethodDto } from '../dto/update-payment-method.dto';
 import { PaymentMethod } from '../../domain/entities/payment-method.entity';
-import { PaymentMethodType } from '../../domain/value-objects/payment-method-type.vo';
+import { PaymentMethodType } from '../../domain/value-objects/payment-method-type.enum';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
 @Injectable()

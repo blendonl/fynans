@@ -6,7 +6,7 @@ import {
   IsEnum,
   Matches,
 } from 'class-validator';
-import { PaymentMethodType } from '../../core/domain/value-objects/payment-method-type.vo';
+import { PaymentMethodType } from '../../core/domain/value-objects/payment-method-type.enum';
 
 export class CreatePaymentMethodRequestDto {
   @IsString()

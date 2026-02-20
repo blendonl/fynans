@@ -1,5 +1,5 @@
 import { IsString, IsOptional, IsNumber, IsEnum } from 'class-validator';
-import { PaymentMethodType } from '../../domain/value-objects/payment-method-type.vo';
+import { PaymentMethodType } from '../../domain/value-objects/payment-method-type.enum';
 
 export class CreatePaymentMethodDto {
   @IsString()

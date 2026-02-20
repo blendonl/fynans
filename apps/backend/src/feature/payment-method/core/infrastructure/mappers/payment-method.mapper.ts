@@ -1,6 +1,6 @@
 import { PaymentMethod as PrismaPaymentMethod } from 'prisma/generated/prisma/client';
 import { PaymentMethod } from '../../domain/entities/payment-method.entity';
-import { PaymentMethodType } from '../../domain/value-objects/payment-method-type.vo';
+import { PaymentMethodType } from '../../domain/value-objects/payment-method-type.enum';
 
 export class PaymentMethodMapper {
   static toDomain(prismaPaymentMethod: PrismaPaymentMethod): PaymentMethod {

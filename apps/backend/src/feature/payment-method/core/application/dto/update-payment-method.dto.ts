@@ -1,4 +1,4 @@
-import { PaymentMethodType } from '../../domain/value-objects/payment-method-type.vo';
+import { PaymentMethodType } from '../../domain/value-objects/payment-method-type.enum';
 
 export class UpdatePaymentMethodDto {
   name?: string;
