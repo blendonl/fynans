@@ -83,4 +83,8 @@ export class CreateExpenseRequestDto {
   @IsOptional()
   @IsDateString()
   recordedAt?: string;
+
+  @IsOptional()
+  @IsUUID()
+  paymentMethodId?: string;
 }

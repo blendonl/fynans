@@ -18,4 +18,8 @@ export class CreateTransactionRequestDto {
   @IsOptional()
   @IsUUID()
   familyId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  paymentMethodId?: string;
 }

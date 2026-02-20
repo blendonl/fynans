@@ -20,6 +20,7 @@ export interface TransactionProps {
   scope: TransactionScope;
   type: TransactionType;
   value: Decimal;
+  paymentMethodId?: string;
   recordedAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -88,6 +89,10 @@ export class Transaction {
     return this.props.updatedAt;
   }
 
+  get paymentMethodId(): string | undefined {
+    return this.props.paymentMethodId;
+  }
+
   get user(): TransactionUser {
     return this.props.user;
   }
@@ -116,6 +121,7 @@ export class Transaction {
       scope: this.scope,
       type: this.type,
       value: this.value.toNumber(),
+      paymentMethodId: this.paymentMethodId,
       recordedAt: this.recordedAt,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

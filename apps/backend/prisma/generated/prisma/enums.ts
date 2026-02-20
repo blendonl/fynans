@@ -74,6 +74,14 @@ export const NotificationPriority = {
 export type NotificationPriority = (typeof NotificationPriority)[keyof typeof NotificationPriority]
 
 
+export const PaymentMethodType = {
+  CASH: 'CASH',
+  DEBIT_CARD: 'DEBIT_CARD'
+} as const
+
+export type PaymentMethodType = (typeof PaymentMethodType)[keyof typeof PaymentMethodType]
+
+
 export const TransactionType = {
   EXPENSE: 'EXPENSE',
   INCOME: 'INCOME'

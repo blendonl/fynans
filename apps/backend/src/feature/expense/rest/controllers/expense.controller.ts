@@ -43,6 +43,7 @@ export class ExpenseController {
       familyId: createDto.familyId,
       amount: createDto.amount,
       note: createDto.note,
+      paymentMethodId: createDto.paymentMethodId,
       items: createDto.items?.map(
         (item) =>
           new CreateExpenseItemDto({

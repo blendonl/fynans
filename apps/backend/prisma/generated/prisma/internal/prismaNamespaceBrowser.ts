@@ -70,6 +70,7 @@ export const ModelName = {
   NotificationPreference: 'NotificationPreference',
   DeviceToken: 'DeviceToken',
   WebPushSubscription: 'WebPushSubscription',
+  PaymentMethod: 'PaymentMethod',
   User: 'User',
   Store: 'Store',
   Item: 'Item',
@@ -368,6 +369,21 @@ export const WebPushSubscriptionScalarFieldEnum = {
 export type WebPushSubscriptionScalarFieldEnum = (typeof WebPushSubscriptionScalarFieldEnum)[keyof typeof WebPushSubscriptionScalarFieldEnum]
 
 
+export const PaymentMethodScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  type: 'type',
+  color: 'color',
+  initialBalance: 'initialBalance',
+  currentBalance: 'currentBalance',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PaymentMethodScalarFieldEnum = (typeof PaymentMethodScalarFieldEnum)[keyof typeof PaymentMethodScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
@@ -505,6 +521,7 @@ export const TransactionScalarFieldEnum = {
   type: 'type',
   value: 'value',
   recordedAt: 'recordedAt',
+  paymentMethodId: 'paymentMethodId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -45,6 +45,7 @@ export class CreateTransactionUseCase {
       familyId: dto.familyId,
       scope: dto.familyId ? TransactionScope.FAMILY : TransactionScope.PERSONAL,
       recordedAt: dto.recordedAt || new Date(),
+      paymentMethodId: dto.paymentMethodId,
     } as Partial<Transaction>);
 
     if (dto.familyId) {

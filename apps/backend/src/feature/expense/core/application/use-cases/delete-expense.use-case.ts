@@ -1,6 +1,7 @@
 import { Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
+import { PaymentMethodService } from '../../../../payment-method/core/application/services/payment-method.service';
 
 @Injectable()
 export class DeleteExpenseUseCase {
@@ -8,6 +9,7 @@ export class DeleteExpenseUseCase {
     @Inject('ExpenseRepository')
     private readonly expenseRepository: IExpenseRepository,
     private readonly prisma: PrismaService,
+    private readonly paymentMethodService: PaymentMethodService,
   ) {}
 
   async execute(id: string, userId: string): Promise<void> {
@@ -21,6 +23,13 @@ export class DeleteExpenseUseCase {
     if (!isOwner) {
       throw new ForbiddenException('Access denied');
     }
+
+    // Read paymentMethodId before deletion
+    const transaction = await this.prisma.transaction.findUnique({
+      where: { id: expense.transactionId },
+      select: { paymentMethodId: true },
+    });
+    const paymentMethodId = transaction?.paymentMethodId;
 
     // Use Prisma transaction to delete atomically
     await this.prisma.$transaction(async (tx) => {
@@ -39,5 +48,9 @@ export class DeleteExpenseUseCase {
         where: { id: expense.transactionId },
       });
     });
+
+    if (paymentMethodId) {
+      await this.paymentMethodService.recalculateBalance(paymentMethodId);
+    }
   }
 }

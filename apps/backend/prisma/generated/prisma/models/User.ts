@@ -273,6 +273,7 @@ export type UserWhereInput = {
   userItems?: Prisma.UserItemListRelationFilter
   userStoreItems?: Prisma.UserStoreItemListRelationFilter
   userItemCategories?: Prisma.UserItemCategoryListRelationFilter
+  paymentMethods?: Prisma.PaymentMethodListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -303,6 +304,7 @@ export type UserOrderByWithRelationInput = {
   userItems?: Prisma.UserItemOrderByRelationAggregateInput
   userStoreItems?: Prisma.UserStoreItemOrderByRelationAggregateInput
   userItemCategories?: Prisma.UserItemCategoryOrderByRelationAggregateInput
+  paymentMethods?: Prisma.PaymentMethodOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -336,6 +338,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   userItems?: Prisma.UserItemListRelationFilter
   userStoreItems?: Prisma.UserStoreItemListRelationFilter
   userItemCategories?: Prisma.UserItemCategoryListRelationFilter
+  paymentMethods?: Prisma.PaymentMethodListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -400,6 +403,7 @@ export type UserCreateInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -430,6 +434,7 @@ export type UserUncheckedCreateInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -460,6 +465,7 @@ export type UserUpdateInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -490,6 +496,7 @@ export type UserUncheckedUpdateInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -758,6 +765,20 @@ export type UserUpdateOneRequiredWithoutWebPushSubscriptionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWebPushSubscriptionsInput, Prisma.UserUpdateWithoutWebPushSubscriptionsInput>, Prisma.UserUncheckedUpdateWithoutWebPushSubscriptionsInput>
 }
 
+export type UserCreateNestedOneWithoutPaymentMethodsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPaymentMethodsInput, Prisma.UserUncheckedCreateWithoutPaymentMethodsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPaymentMethodsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPaymentMethodsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPaymentMethodsInput, Prisma.UserUncheckedCreateWithoutPaymentMethodsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPaymentMethodsInput
+  upsert?: Prisma.UserUpsertWithoutPaymentMethodsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPaymentMethodsInput, Prisma.UserUpdateWithoutPaymentMethodsInput>, Prisma.UserUncheckedUpdateWithoutPaymentMethodsInput>
+}
+
 export type UserCreateNestedOneWithoutUserStoresInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutUserStoresInput, Prisma.UserUncheckedCreateWithoutUserStoresInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserStoresInput
@@ -855,6 +876,7 @@ export type UserCreateWithoutAccountsInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -884,6 +906,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -929,6 +952,7 @@ export type UserUpdateWithoutAccountsInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -958,6 +982,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -987,6 +1012,7 @@ export type UserCreateWithoutSessionsInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -1016,6 +1042,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -1061,6 +1088,7 @@ export type UserUpdateWithoutSessionsInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -1090,6 +1118,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBasketsInput = {
@@ -1119,6 +1148,7 @@ export type UserCreateWithoutBasketsInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBasketsInput = {
@@ -1148,6 +1178,7 @@ export type UserUncheckedCreateWithoutBasketsInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBasketsInput = {
@@ -1193,6 +1224,7 @@ export type UserUpdateWithoutBasketsInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBasketsInput = {
@@ -1222,6 +1254,7 @@ export type UserUncheckedUpdateWithoutBasketsInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutUserExpenseCategoriesInput = {
@@ -1251,6 +1284,7 @@ export type UserCreateWithoutUserExpenseCategoriesInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUserExpenseCategoriesInput = {
@@ -1280,6 +1314,7 @@ export type UserUncheckedCreateWithoutUserExpenseCategoriesInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUserExpenseCategoriesInput = {
@@ -1325,6 +1360,7 @@ export type UserUpdateWithoutUserExpenseCategoriesInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUserExpenseCategoriesInput = {
@@ -1354,6 +1390,7 @@ export type UserUncheckedUpdateWithoutUserExpenseCategoriesInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFamilyMembershipsInput = {
@@ -1383,6 +1420,7 @@ export type UserCreateWithoutFamilyMembershipsInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFamilyMembershipsInput = {
@@ -1412,6 +1450,7 @@ export type UserUncheckedCreateWithoutFamilyMembershipsInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFamilyMembershipsInput = {
@@ -1457,6 +1496,7 @@ export type UserUpdateWithoutFamilyMembershipsInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFamilyMembershipsInput = {
@@ -1486,6 +1526,7 @@ export type UserUncheckedUpdateWithoutFamilyMembershipsInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSentInvitationsInput = {
@@ -1515,6 +1556,7 @@ export type UserCreateWithoutSentInvitationsInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSentInvitationsInput = {
@@ -1544,6 +1586,7 @@ export type UserUncheckedCreateWithoutSentInvitationsInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSentInvitationsInput = {
@@ -1578,6 +1621,7 @@ export type UserCreateWithoutReceivedInvitationsInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReceivedInvitationsInput = {
@@ -1607,6 +1651,7 @@ export type UserUncheckedCreateWithoutReceivedInvitationsInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReceivedInvitationsInput = {
@@ -1652,6 +1697,7 @@ export type UserUpdateWithoutSentInvitationsInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentInvitationsInput = {
@@ -1681,6 +1727,7 @@ export type UserUncheckedUpdateWithoutSentInvitationsInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReceivedInvitationsInput = {
@@ -1721,6 +1768,7 @@ export type UserUpdateWithoutReceivedInvitationsInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReceivedInvitationsInput = {
@@ -1750,6 +1798,7 @@ export type UserUncheckedUpdateWithoutReceivedInvitationsInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutUserIncomeCategoriesInput = {
@@ -1779,6 +1828,7 @@ export type UserCreateWithoutUserIncomeCategoriesInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUserIncomeCategoriesInput = {
@@ -1808,6 +1858,7 @@ export type UserUncheckedCreateWithoutUserIncomeCategoriesInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUserIncomeCategoriesInput = {
@@ -1853,6 +1904,7 @@ export type UserUpdateWithoutUserIncomeCategoriesInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUserIncomeCategoriesInput = {
@@ -1882,6 +1934,7 @@ export type UserUncheckedUpdateWithoutUserIncomeCategoriesInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -1911,6 +1964,7 @@ export type UserCreateWithoutNotificationsInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -1940,6 +1994,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -1985,6 +2040,7 @@ export type UserUpdateWithoutNotificationsInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -2014,6 +2070,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationPreferenceInput = {
@@ -2043,6 +2100,7 @@ export type UserCreateWithoutNotificationPreferenceInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationPreferenceInput = {
@@ -2072,6 +2130,7 @@ export type UserUncheckedCreateWithoutNotificationPreferenceInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationPreferenceInput = {
@@ -2117,6 +2176,7 @@ export type UserUpdateWithoutNotificationPreferenceInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationPreferenceInput = {
@@ -2146,6 +2206,7 @@ export type UserUncheckedUpdateWithoutNotificationPreferenceInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDeviceTokensInput = {
@@ -2175,6 +2236,7 @@ export type UserCreateWithoutDeviceTokensInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDeviceTokensInput = {
@@ -2204,6 +2266,7 @@ export type UserUncheckedCreateWithoutDeviceTokensInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDeviceTokensInput = {
@@ -2249,6 +2312,7 @@ export type UserUpdateWithoutDeviceTokensInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDeviceTokensInput = {
@@ -2278,6 +2342,7 @@ export type UserUncheckedUpdateWithoutDeviceTokensInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWebPushSubscriptionsInput = {
@@ -2307,6 +2372,7 @@ export type UserCreateWithoutWebPushSubscriptionsInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWebPushSubscriptionsInput = {
@@ -2336,6 +2402,7 @@ export type UserUncheckedCreateWithoutWebPushSubscriptionsInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWebPushSubscriptionsInput = {
@@ -2381,6 +2448,7 @@ export type UserUpdateWithoutWebPushSubscriptionsInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWebPushSubscriptionsInput = {
@@ -2403,6 +2471,143 @@ export type UserUncheckedUpdateWithoutWebPushSubscriptionsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
   deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPaymentMethodsInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenCreateNestedManyWithoutUserInput
+  webPushSubscriptions?: Prisma.WebPushSubscriptionCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutPaymentMethodsInput = {
+  id?: string
+  email: string
+  name?: string
+  firstName?: string
+  lastName?: string
+  image?: string | null
+  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedCreateNestedManyWithoutUserInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviterInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedCreateNestedManyWithoutInviteeInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedCreateNestedOneWithoutUserInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedCreateNestedManyWithoutUserInput
+  webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  baskets?: Prisma.BasketUncheckedCreateNestedManyWithoutUserInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedCreateNestedManyWithoutUserInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedCreateNestedManyWithoutUserInput
+  userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
+  userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
+  userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutPaymentMethodsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPaymentMethodsInput, Prisma.UserUncheckedCreateWithoutPaymentMethodsInput>
+}
+
+export type UserUpsertWithoutPaymentMethodsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPaymentMethodsInput, Prisma.UserUncheckedUpdateWithoutPaymentMethodsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPaymentMethodsInput, Prisma.UserUncheckedCreateWithoutPaymentMethodsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPaymentMethodsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPaymentMethodsInput, Prisma.UserUncheckedUpdateWithoutPaymentMethodsInput>
+}
+
+export type UserUpdateWithoutPaymentMethodsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUpdateManyWithoutUserNestedInput
+  webPushSubscriptions?: Prisma.WebPushSubscriptionUpdateManyWithoutUserNestedInput
+  baskets?: Prisma.BasketUpdateManyWithoutUserNestedInput
+  userExpenseCategories?: Prisma.UserExpenseCategoryUpdateManyWithoutUserNestedInput
+  userIncomeCategories?: Prisma.UserIncomeCategoryUpdateManyWithoutUserNestedInput
+  userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
+  userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
+  userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPaymentMethodsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  familyMemberships?: Prisma.FamilyMemberUncheckedUpdateManyWithoutUserNestedInput
+  sentInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviterNestedInput
+  receivedInvitations?: Prisma.FamilyInvitationUncheckedUpdateManyWithoutInviteeNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  notificationPreference?: Prisma.NotificationPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  deviceTokens?: Prisma.DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  webPushSubscriptions?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   baskets?: Prisma.BasketUncheckedUpdateManyWithoutUserNestedInput
   userExpenseCategories?: Prisma.UserExpenseCategoryUncheckedUpdateManyWithoutUserNestedInput
   userIncomeCategories?: Prisma.UserIncomeCategoryUncheckedUpdateManyWithoutUserNestedInput
@@ -2439,6 +2644,7 @@ export type UserCreateWithoutUserStoresInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUserStoresInput = {
@@ -2468,6 +2674,7 @@ export type UserUncheckedCreateWithoutUserStoresInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUserStoresInput = {
@@ -2513,6 +2720,7 @@ export type UserUpdateWithoutUserStoresInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUserStoresInput = {
@@ -2542,6 +2750,7 @@ export type UserUncheckedUpdateWithoutUserStoresInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutUserItemsInput = {
@@ -2571,6 +2780,7 @@ export type UserCreateWithoutUserItemsInput = {
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUserItemsInput = {
@@ -2600,6 +2810,7 @@ export type UserUncheckedCreateWithoutUserItemsInput = {
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUserItemsInput = {
@@ -2645,6 +2856,7 @@ export type UserUpdateWithoutUserItemsInput = {
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUserItemsInput = {
@@ -2674,6 +2886,7 @@ export type UserUncheckedUpdateWithoutUserItemsInput = {
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutUserStoreItemsInput = {
@@ -2703,6 +2916,7 @@ export type UserCreateWithoutUserStoreItemsInput = {
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUserStoreItemsInput = {
@@ -2732,6 +2946,7 @@ export type UserUncheckedCreateWithoutUserStoreItemsInput = {
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUserStoreItemsInput = {
@@ -2777,6 +2992,7 @@ export type UserUpdateWithoutUserStoreItemsInput = {
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUserStoreItemsInput = {
@@ -2806,6 +3022,7 @@ export type UserUncheckedUpdateWithoutUserStoreItemsInput = {
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutUserItemCategoriesInput = {
@@ -2835,6 +3052,7 @@ export type UserCreateWithoutUserItemCategoriesInput = {
   userStores?: Prisma.UserStoreCreateNestedManyWithoutUserInput
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUserItemCategoriesInput = {
@@ -2864,6 +3082,7 @@ export type UserUncheckedCreateWithoutUserItemCategoriesInput = {
   userStores?: Prisma.UserStoreUncheckedCreateNestedManyWithoutUserInput
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUserItemCategoriesInput = {
@@ -2909,6 +3128,7 @@ export type UserUpdateWithoutUserItemCategoriesInput = {
   userStores?: Prisma.UserStoreUpdateManyWithoutUserNestedInput
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUserItemCategoriesInput = {
@@ -2938,6 +3158,7 @@ export type UserUncheckedUpdateWithoutUserItemCategoriesInput = {
   userStores?: Prisma.UserStoreUncheckedUpdateManyWithoutUserNestedInput
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTransactionsInput = {
@@ -2967,6 +3188,7 @@ export type UserCreateWithoutTransactionsInput = {
   userItems?: Prisma.UserItemCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -2996,6 +3218,7 @@ export type UserUncheckedCreateWithoutTransactionsInput = {
   userItems?: Prisma.UserItemUncheckedCreateNestedManyWithoutUserInput
   userStoreItems?: Prisma.UserStoreItemUncheckedCreateNestedManyWithoutUserInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedCreateNestedManyWithoutUserInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -3041,6 +3264,7 @@ export type UserUpdateWithoutTransactionsInput = {
   userItems?: Prisma.UserItemUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -3070,6 +3294,7 @@ export type UserUncheckedUpdateWithoutTransactionsInput = {
   userItems?: Prisma.UserItemUncheckedUpdateManyWithoutUserNestedInput
   userStoreItems?: Prisma.UserStoreItemUncheckedUpdateManyWithoutUserNestedInput
   userItemCategories?: Prisma.UserItemCategoryUncheckedUpdateManyWithoutUserNestedInput
+  paymentMethods?: Prisma.PaymentMethodUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -3094,6 +3319,7 @@ export type UserCountOutputType = {
   userItems: number
   userStoreItems: number
   userItemCategories: number
+  paymentMethods: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3113,6 +3339,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   userItems?: boolean | UserCountOutputTypeCountUserItemsArgs
   userStoreItems?: boolean | UserCountOutputTypeCountUserStoreItemsArgs
   userItemCategories?: boolean | UserCountOutputTypeCountUserItemCategoriesArgs
+  paymentMethods?: boolean | UserCountOutputTypeCountPaymentMethodsArgs
 }
 
 /**
@@ -3237,6 +3464,13 @@ export type UserCountOutputTypeCountUserItemCategoriesArgs<ExtArgs extends runti
   where?: Prisma.UserItemCategoryWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPaymentMethodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PaymentMethodWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3266,6 +3500,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   userItems?: boolean | Prisma.User$userItemsArgs<ExtArgs>
   userStoreItems?: boolean | Prisma.User$userStoreItemsArgs<ExtArgs>
   userItemCategories?: boolean | Prisma.User$userItemCategoriesArgs<ExtArgs>
+  paymentMethods?: boolean | Prisma.User$paymentMethodsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -3327,6 +3562,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   userItems?: boolean | Prisma.User$userItemsArgs<ExtArgs>
   userStoreItems?: boolean | Prisma.User$userStoreItemsArgs<ExtArgs>
   userItemCategories?: boolean | Prisma.User$userItemCategoriesArgs<ExtArgs>
+  paymentMethods?: boolean | Prisma.User$paymentMethodsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -3352,6 +3588,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     userItems: Prisma.$UserItemPayload<ExtArgs>[]
     userStoreItems: Prisma.$UserStoreItemPayload<ExtArgs>[]
     userItemCategories: Prisma.$UserItemCategoryPayload<ExtArgs>[]
+    paymentMethods: Prisma.$PaymentMethodPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3775,6 +4012,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   userItems<T extends Prisma.User$userItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   userStoreItems<T extends Prisma.User$userStoreItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userStoreItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserStoreItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   userItemCategories<T extends Prisma.User$userItemCategoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userItemCategoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserItemCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  paymentMethods<T extends Prisma.User$paymentMethodsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$paymentMethodsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentMethodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4602,6 +4840,30 @@ export type User$userItemCategoriesArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.UserItemCategoryScalarFieldEnum | Prisma.UserItemCategoryScalarFieldEnum[]
+}
+
+/**
+ * User.paymentMethods
+ */
+export type User$paymentMethodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PaymentMethod
+   */
+  select?: Prisma.PaymentMethodSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PaymentMethod
+   */
+  omit?: Prisma.PaymentMethodOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentMethodInclude<ExtArgs> | null
+  where?: Prisma.PaymentMethodWhereInput
+  orderBy?: Prisma.PaymentMethodOrderByWithRelationInput | Prisma.PaymentMethodOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentMethodWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentMethodScalarFieldEnum | Prisma.PaymentMethodScalarFieldEnum[]
 }
 
 /**

@@ -31,6 +31,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
           : TransactionScope.PERSONAL,
         recordedAt: data.recordedAt || new Date(),
         value: new Decimal(data.value?.toString() || '0'),
+        paymentMethodId: data.paymentMethodId ?? null,
       },
       include: {
         user: true,

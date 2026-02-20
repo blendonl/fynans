@@ -113,6 +113,11 @@ export type DeviceToken = Prisma.DeviceTokenModel
  */
 export type WebPushSubscription = Prisma.WebPushSubscriptionModel
 /**
+ * Model PaymentMethod
+ * 
+ */
+export type PaymentMethod = Prisma.PaymentMethodModel
+/**
  * Model User
  * 
  */

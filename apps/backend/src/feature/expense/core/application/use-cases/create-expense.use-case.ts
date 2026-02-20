@@ -23,6 +23,7 @@ import {
   DeliveryMethod,
   NotificationPriority,
 } from '../../../../notification/core/domain/value-objects/notification-type.vo';
+import { PaymentMethodService } from '../../../../payment-method/core/application/services/payment-method.service';
 import { v4 as uuid } from 'uuid';
 
 @Injectable()
@@ -39,6 +40,7 @@ export class CreateExpenseUseCase {
     private readonly expenseItemService: ExpenseItemService,
     private readonly createNotificationUseCase: CreateNotificationUseCase,
     private readonly userService: UserService,
+    private readonly paymentMethodService: PaymentMethodService,
   ) {}
 
   async execute(dto: CreateExpenseDto): Promise<Expense> {
@@ -87,6 +89,7 @@ export class CreateExpenseUseCase {
         totalValue,
         dto.recordedAt,
         dto.familyId,
+        dto.paymentMethodId,
       ),
     );
 
@@ -140,6 +143,10 @@ export class CreateExpenseUseCase {
           familyId: dto.familyId,
         });
       }
+    }
+
+    if (dto.paymentMethodId) {
+      await this.paymentMethodService.recalculateBalance(dto.paymentMethodId);
     }
 
     return this.expenseRepository.findById(expense.id) as Promise<Expense>;

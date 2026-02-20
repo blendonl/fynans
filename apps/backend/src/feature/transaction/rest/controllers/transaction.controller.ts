@@ -22,10 +22,14 @@ import { TransactionFilters } from '../../core/application/dto/transaction-filte
 import { Pagination } from '../../core/application/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
+import { PaymentMethodService } from '../../../payment-method/core/application/services/payment-method.service';
 
 @Controller('transactions')
 export class TransactionController {
-  constructor(private readonly transactionService: TransactionService) {}
+  constructor(
+    private readonly transactionService: TransactionService,
+    private readonly paymentMethodService: PaymentMethodService,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -39,9 +43,15 @@ export class TransactionController {
       createDto.value,
       createDto.recordedAt ? new Date(createDto.recordedAt) : undefined,
       createDto.familyId,
+      createDto.paymentMethodId,
     );
 
     const transaction = await this.transactionService.create(coreDto);
+
+    if (createDto.paymentMethodId) {
+      await this.paymentMethodService.recalculateBalance(createDto.paymentMethodId);
+    }
+
     return TransactionResponseDto.fromEntity(transaction);
   }
 
@@ -127,6 +137,11 @@ export class TransactionController {
     });
 
     const updated = await this.transactionService.update(id, coreDto);
+
+    if (transaction.paymentMethodId) {
+      await this.paymentMethodService.recalculateBalance(transaction.paymentMethodId);
+    }
+
     return TransactionResponseDto.fromEntity(updated);
   }
 
@@ -137,6 +152,12 @@ export class TransactionController {
     if (transaction.userId !== user.id) {
       throw new ForbiddenException('Access denied');
     }
+
+    const paymentMethodId = transaction.paymentMethodId;
     await this.transactionService.delete(id);
+
+    if (paymentMethodId) {
+      await this.paymentMethodService.recalculateBalance(paymentMethodId);
+    }
   }
 }

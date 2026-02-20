@@ -12,6 +12,7 @@ export class CreateExpenseDto {
   familyId?: string;
   scope?: 'PERSONAL' | 'FAMILY';
   recordedAt?: Date;
+  paymentMethodId?: string;
 
   constructor(data: {
     userId: string;
@@ -24,6 +25,7 @@ export class CreateExpenseDto {
     note?: string;
     familyId?: string;
     recordedAt?: Date;
+    paymentMethodId?: string;
   }) {
     this.userId = data.userId;
     this.categoryId = data.categoryId;
@@ -35,5 +37,6 @@ export class CreateExpenseDto {
     this.note = data.note;
     this.familyId = data.familyId;
     this.recordedAt = data.recordedAt;
+    this.paymentMethodId = data.paymentMethodId;
   }
 }

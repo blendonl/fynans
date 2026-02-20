@@ -25,6 +25,10 @@ model Transaction {
 
   recordedAt DateTime @default(now()) @map("recorded_at")
 
+  // Payment method
+  paymentMethodId String?        @map("payment_method_id")
+  paymentMethod   PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+
   expense       Expense?
   income        Income?
   user          User           @relation(fields: [userId], references: [id])
@@ -36,6 +40,7 @@ model Transaction {
 
   @@index([userId])
   @@index([familyId])
+  @@index([paymentMethodId])
   @@index([scope])
   @@map("transaction")
 }
