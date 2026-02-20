@@ -8,6 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { AuthService } from '../../core/application/services/auth.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { AuthenticatedRequest } from '../../../../common/types/authenticated-request';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -36,7 +37,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       const user = await this.authService.validateSession(token);
-      (request as any).user = user;
+      (request as AuthenticatedRequest).user = user;
     } catch {
       throw new UnauthorizedException('Invalid or expired session');
     }

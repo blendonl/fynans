@@ -9,11 +9,15 @@ import { ValidationPipe } from '@nestjs/common';
 import { toNodeHandler } from 'better-auth/node';
 import { AppModule } from './app.module';
 import { BetterAuthProvider } from './feature/auth/core/infrastructure/providers/better-auth.provider';
+import { validateEnv } from './common/config/env.validation';
 
 async function bootstrap() {
+  const env = validateEnv();
+
   const app = await NestFactory.create(AppModule);
+
   app.enableCors({
-    origin: process.env.CORS_ORIGIN?.split(',') || true,
+    origin: env.CORS_ORIGIN.split(',').map((o) => o.trim()),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -36,6 +40,6 @@ async function bootstrap() {
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.all('/api/auth/*splat', betterAuthHandler);
 
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  await app.listen(env.PORT, '0.0.0.0');
 }
 bootstrap();
