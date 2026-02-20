@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Sparkles, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { calculateExpenseItemsTotal } from "@fynans/shared";
 import type { Category, Store, ExpenseItem } from "@fynans/shared";
 import { useCategories } from "@/hooks/use-categories";
@@ -13,17 +13,20 @@ import { useAiCategorySuggestion } from "@/hooks/use-ai-category-suggestion";
 import { useAutoAcceptSuggestion } from "@/hooks/use-auto-accept-suggestion";
 import { useReceiptFormMapping } from "@/hooks/use-receipt-form-mapping";
 import { useExpenseSubmission } from "@/hooks/use-expense-submission";
+import { usePaymentMethods } from "@/hooks/use-payment-methods";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StoreSelector } from "@/components/add-expense/store-selector";
+import { CategorySelector } from "@/components/add-expense/category-selector";
 import { ExpenseItemsForm } from "@/components/add-expense/expense-items-form";
 import { FormProgress } from "@/components/add-expense/form-progress";
 import { AddStoreDialog } from "@/components/add-expense/add-store-dialog";
+import { AddCategoryDialog } from "@/components/add-expense/add-category-dialog";
 import { AddItemCategoryDialog } from "@/components/add-expense/add-item-category-dialog";
 import { AmountHero } from "./amount-hero";
 import { DateTimePicker } from "./date-time-picker";
 import { ReceiptScanArea } from "./receipt-scan-area";
-import { cn } from "@/lib/utils";
+import { PaymentMethodSelector } from "./payment-method-selector";
 
 function localNow() {
   return format(new Date(), "yyyy-MM-dd'T'HH:mm");
@@ -40,6 +43,7 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
     categories,
     itemCategories,
     isLoading: categoriesLoading,
+    createCategory,
     createItemCategory,
   } = useCategories("");
   const [storeSearch, setStoreSearch] = useState("");
@@ -53,19 +57,24 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
   } = useStores(storeSearch);
   const queryClient = useQueryClient();
   const expenseItems = useExpenseItems();
+  const { paymentMethods, isLoading: paymentMethodsLoading } = usePaymentMethods();
 
   const ai = useAiCategorySuggestion();
 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
+  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<string | null>(null);
   const [isItemized, setIsItemized] = useState(false);
   const [simpleAmount, setSimpleAmount] = useState("");
   const [simpleNote, setSimpleNote] = useState("");
   const [recordedAt, setRecordedAt] = useState(localNow);
   const [hasScannedReceipt, setHasScannedReceipt] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
 
   const [showStoreDialog, setShowStoreDialog] = useState(false);
   const [newStoreName, setNewStoreName] = useState("");
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
   const [showItemCategoryDialog, setShowItemCategoryDialog] = useState(false);
   const [newItemCategoryName, setNewItemCategoryName] = useState("");
 
@@ -156,6 +165,7 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
     recordedAt,
     scope,
     familyId,
+    paymentMethodId: selectedPaymentMethodId,
     onSuccess,
   });
 
@@ -290,36 +300,30 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
             </div>
           )}
 
-          {/* Review section: Auto-category indicator + DateTime + Submit */}
+          {/* Review section: Category + Payment Method + DateTime + Submit */}
           <div className="space-y-5 border-t border-border pt-5">
-            {/* Auto-category indicator */}
-            {selectedCategory && (
-              <div
-                className={cn(
-                  "flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm field-slide-down",
-                  "bg-surface-variant border border-border-light",
-                )}
-              >
-                <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
-                <span className="text-text-secondary">Category:</span>
-                <span className="font-semibold text-text">{selectedCategory.name}</span>
-                {(activeSuggestion || isSuggestionLoading) && (
-                  <span className="ml-auto text-xs text-text-disabled">auto</span>
-                )}
-              </div>
-            )}
-            {!selectedCategory && isSuggestionLoading && (
-              <div
-                className={cn(
-                  "flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm field-slide-down",
-                  "bg-primary/5 border border-primary/15",
-                )}
-              >
-                <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 animate-pulse" />
-                <span className="text-text-secondary">Detecting category...</span>
-                <div className="ml-auto h-3 w-16 rounded bg-primary/15 animate-pulse" />
-              </div>
-            )}
+            {/* Editable category selector */}
+            <CategorySelector
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onSelect={setSelectedCategory}
+              onClear={() => setSelectedCategory(null)}
+              onSearch={setCategorySearch}
+              onCreateNew={(name) => { setNewCategoryName(name); setShowCategoryDialog(true); }}
+              isLoading={categoriesLoading}
+              aiSuggestion={activeSuggestion}
+              onAcceptSuggestion={isItemized ? ai.dismissExpenseSuggestion : ai.dismissSimpleExpenseSuggestion}
+              onDismissSuggestion={isItemized ? ai.dismissExpenseSuggestion : ai.dismissSimpleExpenseSuggestion}
+              isSuggestionLoading={isSuggestionLoading}
+            />
+
+            {/* Payment method */}
+            <PaymentMethodSelector
+              paymentMethods={paymentMethods}
+              selectedId={selectedPaymentMethodId}
+              onSelect={setSelectedPaymentMethodId}
+              isLoading={paymentMethodsLoading}
+            />
 
             <DateTimePicker value={recordedAt} onChange={setRecordedAt} />
 
@@ -352,6 +356,18 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
           setShowStoreDialog(false);
         }}
         isLoading={createStore.isPending}
+      />
+
+      <AddCategoryDialog
+        open={showCategoryDialog}
+        onOpenChange={setShowCategoryDialog}
+        initialName={newCategoryName}
+        onSubmit={async (name, isConnectedToStore) => {
+          const cat = await createCategory.mutateAsync({ name, isConnectedToStore });
+          setSelectedCategory(cat);
+          setShowCategoryDialog(false);
+        }}
+        isLoading={createCategory.isPending}
       />
 
       <AddItemCategoryDialog

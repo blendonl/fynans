@@ -5,6 +5,7 @@ import { Moon, Sun, Monitor, LogOut, Users, ChevronRight } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/providers/auth-provider";
 import { useFamilies } from "@/hooks/use-families";
+import { PaymentMethodsSection } from "@/components/profile/payment-methods-section";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -96,6 +97,8 @@ export default function ProfilePage() {
           </Link>
         </CardContent>
       </Card>
+
+      <PaymentMethodsSection />
 
       <Button variant="destructive" className="w-full" onClick={logout}>
         <LogOut className="h-4 w-4 mr-2" /> Logout

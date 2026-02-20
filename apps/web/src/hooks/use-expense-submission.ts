@@ -15,6 +15,7 @@ interface UseExpenseSubmissionOptions {
   recordedAt: string;
   scope: "PERSONAL" | "FAMILY";
   familyId: string;
+  paymentMethodId: string | null;
   onSuccess: () => void;
 }
 
@@ -29,6 +30,7 @@ export function useExpenseSubmission({
   recordedAt,
   scope,
   familyId,
+  paymentMethodId,
   onSuccess,
 }: UseExpenseSubmissionOptions) {
   const submitMutation = useMutation({
@@ -40,6 +42,7 @@ export function useExpenseSubmission({
         recordedAt: new Date(recordedAt).toISOString(),
         scope,
         familyId: scope === "FAMILY" ? familyId : null,
+        paymentMethodId: paymentMethodId || undefined,
       };
 
       if (isItemized) {

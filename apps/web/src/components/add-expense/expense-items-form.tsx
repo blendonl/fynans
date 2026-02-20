@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, type ReactNode } from "react";
+import { useState, useMemo, useEffect, useRef, type ReactNode } from "react";
 import { Plus, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { formatCurrency, calculateExpenseItemsTotal } from "@fynans/shared";
@@ -10,8 +10,40 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
 import { useStoreItems } from "@/hooks/use-store-items";
+import { cn } from "@/lib/utils";
 import { ItemCategorySelector } from "./item-category-selector";
 import { ExpenseItemRow } from "./expense-item-row";
+
+const UNITS = [
+  { value: "", label: "Unit" },
+  { value: "kg", label: "kg" },
+  { value: "g", label: "g" },
+  { value: "l", label: "L" },
+  { value: "ml", label: "mL" },
+  { value: "cl", label: "cL" },
+] as const;
+
+function UnitSelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="flex gap-1 flex-wrap">
+      {UNITS.filter((u) => u.value !== "").map((unit) => (
+        <button
+          key={unit.value}
+          type="button"
+          onClick={() => onChange(value === unit.value ? "" : unit.value)}
+          className={cn(
+            "px-2.5 py-2 text-xs font-medium rounded-xl transition-all cursor-pointer min-h-12 flex items-center justify-center",
+            value === unit.value
+              ? "bg-primary/10 text-primary ring-1 ring-primary/20"
+              : "bg-surface-variant text-text-secondary hover:text-text hover:bg-surface-variant/80 border border-border"
+          )}
+        >
+          {unit.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 interface ExpenseItemsFormProps {
   items: ExpenseItem[];
@@ -74,6 +106,24 @@ export function ExpenseItemsForm({
   } = useStoreItems(storeId, itemSearch);
 
   const selectedItemCategory = itemCategories.find((c) => c.id === currentItem.categoryId) || null;
+
+  // Auto-fill item category from AI suggestion
+  const lastAutoFilledRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (
+      itemCategoryAiSuggestion &&
+      !currentItem.categoryId &&
+      isNewItem &&
+      lastAutoFilledRef.current !== itemCategoryAiSuggestion.categoryId
+    ) {
+      const cat = itemCategories.find((c) => c.id === itemCategoryAiSuggestion.categoryId);
+      if (cat) {
+        onCurrentItemChange({ ...currentItem, categoryId: cat.id });
+        lastAutoFilledRef.current = itemCategoryAiSuggestion.categoryId;
+        onAcceptItemCategoryAi?.();
+      }
+    }
+  }, [itemCategoryAiSuggestion, currentItem, isNewItem, itemCategories, onCurrentItemChange, onAcceptItemCategoryAi]);
 
   const isEditing = editingIndex !== null;
   const showAddFormFields = !isEditing && isNewItem;
@@ -198,19 +248,11 @@ export function ExpenseItemsForm({
                 className="min-h-12"
               />
             </div>
-            <div className="w-24">
-              <select
+            <div className="w-28">
+              <UnitSelector
                 value={currentItem.sizeUnit ?? ""}
-                onChange={(e) => onCurrentItemChange({ ...currentItem, sizeUnit: e.target.value })}
-                className="w-full min-h-12 rounded-md border border-input bg-background px-3 text-sm"
-              >
-                <option value="">Unit</option>
-                <option value="kg">kg</option>
-                <option value="g">g</option>
-                <option value="l">L</option>
-                <option value="ml">mL</option>
-                <option value="cl">cL</option>
-              </select>
+                onChange={(unit) => onCurrentItemChange({ ...currentItem, sizeUnit: unit })}
+              />
             </div>
           </div>
           {showCategorySelector && (

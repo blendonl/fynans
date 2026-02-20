@@ -10,12 +10,14 @@ import { apiClient } from "@/lib/api-client";
 import { useCategories } from "@/hooks/use-categories";
 import { useAiCategorySuggestion } from "@/hooks/use-ai-category-suggestion";
 import { useAutoAcceptSuggestion } from "@/hooks/use-auto-accept-suggestion";
+import { usePaymentMethods } from "@/hooks/use-payment-methods";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CategorySelector } from "@/components/add-expense/category-selector";
 import { AddCategoryDialog } from "@/components/add-expense/add-category-dialog";
 import { AmountHero } from "./amount-hero";
 import { DateTimePicker } from "./date-time-picker";
+import { PaymentMethodSelector } from "./payment-method-selector";
 
 function localNow() {
   return format(new Date(), "yyyy-MM-dd'T'HH:mm");
@@ -29,10 +31,12 @@ interface IncomeFormProps {
 
 export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
   const { incomeCategories, isLoading: categoriesLoading, createCategory } = useCategories();
+  const { paymentMethods, isLoading: paymentMethodsLoading } = usePaymentMethods();
 
   const ai = useAiCategorySuggestion();
 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<string | null>(null);
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [recordedAt, setRecordedAt] = useState(localNow);
@@ -64,6 +68,7 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
         categoryId: selectedCategory!.id,
         recordedAt: new Date(recordedAt).toISOString(),
         familyId: scope === "FAMILY" ? familyId : undefined,
+        paymentMethodId: selectedPaymentMethodId || undefined,
       });
     },
     onSuccess: () => {
@@ -119,6 +124,14 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
             onAcceptSuggestion={ai.dismissIncomeSuggestion}
             onDismissSuggestion={ai.dismissIncomeSuggestion}
             isSuggestionLoading={ai.isIncomeLoading}
+          />
+
+          {/* Payment method */}
+          <PaymentMethodSelector
+            paymentMethods={paymentMethods}
+            selectedId={selectedPaymentMethodId}
+            onSelect={setSelectedPaymentMethodId}
+            isLoading={paymentMethodsLoading}
           />
 
           <DateTimePicker value={recordedAt} onChange={setRecordedAt} />
