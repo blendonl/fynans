@@ -18,6 +18,20 @@ export type {
 export type { Notification } from './types/notification';
 export type { Basket, BasketItem, BasketScope, ItemWithPrices } from './types/basket';
 
+export type {
+  PaginatedResponse,
+  TransactionResponse,
+  TransactionStatisticsResponse,
+  ExpenseCategoryResponse,
+  IncomeCategoryResponse,
+  StoreResponse,
+  ExpenseItemResponse,
+  ExpenseResponse,
+  ExpenseStatisticsResponse,
+  ExpenseTrendResponse,
+  IncomeResponse,
+} from './types/api-responses';
+
 export { loginSchema } from './schemas/login.schema';
 export type { LoginFormData } from './schemas/login.schema';
 export { signupSchema } from './schemas/signup.schema';

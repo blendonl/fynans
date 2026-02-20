@@ -1,52 +1,69 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import type { Transaction, TransactionFilters, Family } from "@fynans/shared";
-import { PAGE_SIZE, type PaginatedResponse } from "@/lib/pagination";
+import type {
+  Transaction,
+  TransactionFilters,
+  Family,
+  ExpenseResponse,
+  IncomeResponse,
+  PaginatedResponse,
+} from "@fynans/shared";
+import { PAGE_SIZE } from "@/lib/pagination";
 
-function mapExpenseToTransaction(expense: Record<string, unknown>, family?: Family): Transaction {
-  const tx = expense.transaction as Record<string, unknown> | undefined;
-  const matchedItems = expense.matchedItems as Transaction["items"] | undefined;
+function mapExpenseToTransaction(expense: ExpenseResponse, family?: Family): Transaction {
+  const tx = expense.transaction;
   return {
-    id: expense.id as string,
+    id: expense.id,
     type: "expense",
-    category: expense.category as { id: string; name: string },
-    store: expense.store as { id: string; name: string; location?: string } | undefined,
+    category: { id: expense.category.id, name: expense.category.name },
+    store: expense.store ? { id: expense.store.id, name: expense.store.name, location: expense.store.location } : undefined,
     scope: (tx?.scope as "PERSONAL" | "FAMILY") || "PERSONAL",
-    familyId: tx?.familyId as string | undefined,
+    familyId: tx?.familyId,
     family: family ? { id: family.id, name: family.name } : undefined,
     transaction: {
-      id: (tx?.id as string) || "",
-      value: (tx?.value as number) || 0,
-      recordedAt: tx?.recordedAt as string | undefined,
-      description: tx?.description as string | undefined,
-      user: tx?.user as { id: string; firstName: string; lastName: string; image?: string | null },
+      id: tx?.id || "",
+      value: tx?.value || 0,
+      recordedAt: tx?.recordedAt,
+      description: tx?.description,
+      user: tx?.user || { id: "", firstName: "", lastName: "" },
     },
-    items: expense.items as Transaction["items"],
-    matchedItems: matchedItems?.length ? matchedItems : undefined,
-    receiptImages: (expense.receiptImages as string[]) || [],
+    items: expense.items?.map((item) => ({
+      name: item.name,
+      price: item.price,
+      discount: item.discount,
+      quantity: item.quantity,
+    })),
+    matchedItems: expense.matchedItems?.length
+      ? expense.matchedItems.map((item) => ({
+          name: item.name,
+          price: item.price,
+          discount: item.discount,
+          quantity: item.quantity,
+        }))
+      : undefined,
+    receiptImages: expense.receiptImages || [],
   };
 }
 
-function mapIncomeToTransaction(income: Record<string, unknown>, family?: Family): Transaction {
-  const tx = income.transaction as Record<string, unknown> | undefined;
+function mapIncomeToTransaction(income: IncomeResponse, family?: Family): Transaction {
+  const tx = income.transaction;
   return {
-    id: income.id as string,
+    id: income.id,
     type: "income",
-    category: (income.category as { id: string; name: string }) || {
-      id: income.categoryId as string,
-      name: "Income",
-    },
+    category: income.category
+      ? { id: income.category.id, name: income.category.name }
+      : { id: income.categoryId, name: "Income" },
     scope: (tx?.scope as "PERSONAL" | "FAMILY") || "PERSONAL",
-    familyId: tx?.familyId as string | undefined,
+    familyId: tx?.familyId,
     family: family ? { id: family.id, name: family.name } : undefined,
     transaction: {
-      id: (income.transactionId as string) || "",
-      value: (tx?.value as number) || 0,
-      recordedAt: (tx?.recordedAt as string) || (income.createdAt as string),
-      description: tx?.description as string | undefined,
-      user: tx?.user as { id: string; firstName: string; lastName: string; image?: string | null },
+      id: income.transactionId || "",
+      value: tx?.value || 0,
+      recordedAt: tx?.recordedAt || income.createdAt,
+      description: tx?.description,
+      user: tx?.user || { id: "", firstName: "", lastName: "" },
     },
-    receiptImages: (income.receiptImages as string[]) || [],
+    receiptImages: [],
   };
 }
 
@@ -99,11 +116,11 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
 
       const [expensesRes, incomesRes] = await Promise.all([
         fetchExpenses
-          ? (apiClient.get("/expenses", baseParams) as Promise<PaginatedResponse<Record<string, unknown>>>)
-          : Promise.resolve({ data: [], total: 0, page: pageParam, limit: PAGE_SIZE }),
+          ? (apiClient.get("/expenses", baseParams) as Promise<PaginatedResponse<ExpenseResponse>>)
+          : Promise.resolve({ data: [] as ExpenseResponse[], total: 0, page: pageParam, limit: PAGE_SIZE }),
         fetchIncomes
-          ? (apiClient.get("/incomes", baseParams) as Promise<PaginatedResponse<Record<string, unknown>>>)
-          : Promise.resolve({ data: [], total: 0, page: pageParam, limit: PAGE_SIZE }),
+          ? (apiClient.get("/incomes", baseParams) as Promise<PaginatedResponse<IncomeResponse>>)
+          : Promise.resolve({ data: [] as IncomeResponse[], total: 0, page: pageParam, limit: PAGE_SIZE }),
       ]);
 
       const family = filters.familyId ? families.find((f) => f.id === filters.familyId) : undefined;
@@ -144,8 +161,8 @@ export function useTransactions(filters?: TransactionFilters, families: Family[]
       if (limit) params.limit = String(limit);
 
       const [expensesRes, incomesRes] = await Promise.all([
-        apiClient.get("/expenses", params) as Promise<{ data: Record<string, unknown>[] }>,
-        apiClient.get("/incomes", params) as Promise<{ data: Record<string, unknown>[] }>,
+        apiClient.get("/expenses", params) as Promise<PaginatedResponse<ExpenseResponse>>,
+        apiClient.get("/incomes", params) as Promise<PaginatedResponse<IncomeResponse>>,
       ]);
 
       const family = filters?.familyId ? families.find((f) => f.id === filters.familyId) : undefined;

@@ -180,8 +180,7 @@ export function BasketCheckoutDialog({
       });
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open]); // Only re-run when dialog opens/closes
 
   const {
     categories,

@@ -2,13 +2,26 @@
   "name": "@fynans/shared",
   "version": "0.0.1",
   "private": true,
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./*": "./src/*.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
   },
   "dependencies": {
     "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
   }
 }

@@ -1,30 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import type { Transaction } from "@fynans/shared";
+import type {
+  Transaction,
+  ExpenseResponse,
+  IncomeResponse,
+  TransactionStatisticsResponse,
+  ExpenseStatisticsResponse,
+  ExpenseTrendResponse,
+  PaginatedResponse,
+} from "@fynans/shared";
 import { DASHBOARD_RECENT_LIMIT } from "@/lib/pagination";
 import { formatDateForAPI, getChartGranularity } from "@/lib/date-utils";
 
-interface TransactionStatistics {
-  totalIncome: number;
-  totalExpense: number;
-  balance: number;
-  count: number;
-}
-
-interface ExpenseStatistics {
-  totalExpenses: number;
-  expenseCount: number;
-  averageExpense: number;
-  expensesByCategory: { categoryId: string; categoryName: string; total: number }[];
-  expensesByStore: { storeName: string; total: number; count: number }[];
-}
-
-export interface ExpenseTrendPoint {
-  date: string;
-  total: number;
-  count: number;
-  showLabel?: boolean;
-}
+export type { ExpenseTrendResponse as ExpenseTrendPoint } from "@fynans/shared";
 
 export interface ComparisonData {
   expenses: { delta: number; percentage: number };
@@ -32,52 +20,56 @@ export interface ComparisonData {
   net: { delta: number; percentage: number };
 }
 
-function mapExpenseToTransaction(expense: Record<string, unknown>): Transaction {
-  const tx = expense.transaction as Record<string, unknown> | undefined;
+function mapExpenseToTransaction(expense: ExpenseResponse): Transaction {
+  const tx = expense.transaction;
   return {
-    id: expense.id as string,
+    id: expense.id,
     type: "expense",
-    category: expense.category as { id: string; name: string },
-    store: expense.store as { id: string; name: string; location?: string } | undefined,
+    category: { id: expense.category.id, name: expense.category.name },
+    store: expense.store ? { id: expense.store.id, name: expense.store.name, location: expense.store.location } : undefined,
     scope: (tx?.scope as "PERSONAL" | "FAMILY") || "PERSONAL",
-    familyId: tx?.familyId as string | undefined,
+    familyId: tx?.familyId,
     transaction: {
-      id: (tx?.id as string) || "",
-      value: (tx?.value as number) || 0,
-      recordedAt: tx?.recordedAt as string | undefined,
-      description: tx?.description as string | undefined,
-      user: tx?.user as { id: string; firstName: string; lastName: string },
+      id: tx?.id || "",
+      value: tx?.value || 0,
+      recordedAt: tx?.recordedAt,
+      description: tx?.description,
+      user: tx?.user || { id: "", firstName: "", lastName: "" },
     },
-    items: expense.items as Transaction["items"],
-    receiptImages: (expense.receiptImages as string[]) || [],
+    items: expense.items?.map((item) => ({
+      name: item.name,
+      price: item.price,
+      discount: item.discount,
+      quantity: item.quantity,
+    })),
+    receiptImages: expense.receiptImages || [],
   };
 }
 
-function mapIncomeToTransaction(income: Record<string, unknown>): Transaction {
-  const tx = income.transaction as Record<string, unknown> | undefined;
+function mapIncomeToTransaction(income: IncomeResponse): Transaction {
+  const tx = income.transaction;
   return {
-    id: income.id as string,
+    id: income.id,
     type: "income",
-    category: (income.category as { id: string; name: string }) || {
-      id: income.categoryId as string,
-      name: "Income",
-    },
+    category: income.category
+      ? { id: income.category.id, name: income.category.name }
+      : { id: income.categoryId, name: "Income" },
     scope: (tx?.scope as "PERSONAL" | "FAMILY") || "PERSONAL",
-    familyId: tx?.familyId as string | undefined,
+    familyId: tx?.familyId,
     transaction: {
-      id: (income.transactionId as string) || "",
-      value: (tx?.value as number) || 0,
-      recordedAt: (tx?.recordedAt as string) || (income.createdAt as string),
-      description: tx?.description as string | undefined,
-      user: tx?.user as { id: string; firstName: string; lastName: string },
+      id: income.transactionId || "",
+      value: tx?.value || 0,
+      recordedAt: tx?.recordedAt || income.createdAt,
+      description: tx?.description,
+      user: tx?.user || { id: "", firstName: "", lastName: "" },
     },
-    receiptImages: (income.receiptImages as string[]) || [],
+    receiptImages: [],
   };
 }
 
 function calcComparison(
-  current: TransactionStatistics | undefined,
-  previous: TransactionStatistics | undefined,
+  current: TransactionStatisticsResponse | undefined,
+  previous: TransactionStatisticsResponse | undefined,
 ): ComparisonData | null {
   if (!current || !previous) return null;
 
@@ -118,7 +110,7 @@ export function useDashboardData({
   const statsQuery = useQuery({
     queryKey: ["dashboard-transaction-stats", dateFromStr, dateToStr],
     queryFn: () =>
-      apiClient.get("/transactions/statistics", dateParams) as Promise<TransactionStatistics>,
+      apiClient.get("/transactions/statistics", dateParams) as Promise<TransactionStatisticsResponse>,
   });
 
   const prevStatsQuery = useQuery({
@@ -127,13 +119,13 @@ export function useDashboardData({
       apiClient.get("/transactions/statistics", {
         dateFrom: prevFromStr,
         dateTo: prevToStr,
-      }) as Promise<TransactionStatistics>,
+      }) as Promise<TransactionStatisticsResponse>,
   });
 
   const expenseStatsQuery = useQuery({
     queryKey: ["dashboard-expense-stats", dateFromStr, dateToStr],
     queryFn: () =>
-      apiClient.get("/expenses/statistics", dateParams) as Promise<ExpenseStatistics>,
+      apiClient.get("/expenses/statistics", dateParams) as Promise<ExpenseStatisticsResponse>,
   });
 
   const prevExpenseStatsQuery = useQuery({
@@ -142,7 +134,7 @@ export function useDashboardData({
       apiClient.get("/expenses/statistics", {
         dateFrom: prevFromStr,
         dateTo: prevToStr,
-      }) as Promise<ExpenseStatistics>,
+      }) as Promise<ExpenseStatisticsResponse>,
   });
 
   const trendsQuery = useQuery({
@@ -151,7 +143,7 @@ export function useDashboardData({
       apiClient.get("/expenses/trends", {
         ...dateParams,
         groupBy: granularity,
-      }) as Promise<ExpenseTrendPoint[]>,
+      }) as Promise<ExpenseTrendResponse[]>,
   });
 
   const recentQuery = useQuery({
@@ -159,12 +151,8 @@ export function useDashboardData({
     queryFn: async () => {
       const limit = String(DASHBOARD_RECENT_LIMIT);
       const [expensesRes, incomesRes] = await Promise.all([
-        apiClient.get("/expenses", { limit, ...dateParams }) as Promise<{
-          data: Record<string, unknown>[];
-        }>,
-        apiClient.get("/incomes", { limit, ...dateParams }) as Promise<{
-          data: Record<string, unknown>[];
-        }>,
+        apiClient.get("/expenses", { limit, ...dateParams }) as Promise<PaginatedResponse<ExpenseResponse>>,
+        apiClient.get("/incomes", { limit, ...dateParams }) as Promise<PaginatedResponse<IncomeResponse>>,
       ]);
 
       const expenses = (expensesRes.data || []).map(mapExpenseToTransaction);

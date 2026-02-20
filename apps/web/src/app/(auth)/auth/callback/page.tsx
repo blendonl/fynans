@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/providers/auth-provider";
 import Link from "next/link";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
 function AuthCallback() {
   const searchParams = useSearchParams();
