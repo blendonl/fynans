@@ -11,6 +11,8 @@ import { StoreItemMapper } from '../mappers/store-item.mapper';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
 
+const STORE_ITEM_INCLUDE = { item: { include: { sizes: true } } } as const;
+
 @Injectable()
 export class PrismaStoreItemRepository implements IStoreItemRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -20,11 +22,10 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
       data: {
         storeId: data.storeId!,
         itemId: data.itemId!,
-        itemSizeId: data.itemSizeId,
         price: new Decimal(data.price?.toString() || '0'),
         isDiscounted: data.isDiscounted ?? false,
       },
-      include: { item: true, itemSize: true },
+      include: STORE_ITEM_INCLUDE,
     });
 
     return StoreItemMapper.toDomain(item);
@@ -33,7 +34,7 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
   async findById(id: string): Promise<StoreItem | null> {
     const item = await this.prisma.storeItem.findUnique({
       where: { id },
-      include: { item: true },
+      include: STORE_ITEM_INCLUDE,
     });
 
     return item ? StoreItemMapper.toDomain(item) : null;
@@ -51,7 +52,7 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
         },
       },
       orderBy: { createdAt: 'desc' },
-      include: { item: true },
+      include: STORE_ITEM_INCLUDE,
     });
 
     return item ? StoreItemMapper.toDomain(item) : null;
@@ -67,25 +68,7 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
         itemId,
       },
       orderBy: { createdAt: 'desc' },
-      include: { item: true, itemSize: true },
-    });
-
-    return item ? StoreItemMapper.toDomain(item) : null;
-  }
-
-  async findByStoreItemAndSize(
-    storeId: string,
-    itemId: string,
-    itemSizeId?: string,
-  ): Promise<StoreItem | null> {
-    const item = await this.prisma.storeItem.findFirst({
-      where: {
-        storeId,
-        itemId,
-        itemSizeId: itemSizeId ?? null,
-      },
-      orderBy: { createdAt: 'desc' },
-      include: { item: true, itemSize: true },
+      include: STORE_ITEM_INCLUDE,
     });
 
     return item ? StoreItemMapper.toDomain(item) : null;
@@ -112,7 +95,7 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
         orderBy: { createdAt: 'desc' },
         skip: pagination?.skip,
         take: pagination?.take,
-        include: { item: true, itemSize: true },
+        include: STORE_ITEM_INCLUDE,
       }),
       this.prisma.storeItem.count({ where }),
     ]);
@@ -138,7 +121,7 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
         orderBy: { createdAt: 'desc' },
         skip: pagination?.skip,
         take: pagination?.take,
-        include: { item: true, itemSize: true },
+        include: STORE_ITEM_INCLUDE,
       }),
       this.prisma.storeItem.count({ where }),
     ]);
@@ -215,7 +198,7 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
     const item = await this.prisma.storeItem.update({
       where: { id },
       data: updateData,
-      include: { item: true },
+      include: STORE_ITEM_INCLUDE,
     });
 
     return StoreItemMapper.toDomain(item);
