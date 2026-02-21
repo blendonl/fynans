@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { apiClient } from "../api/client";
+import { expenseControllerFindAll } from '../api/generated/endpoints/expense/expense';
 import { GlassScreenLayout } from "../components/layout/GlassScreenLayout";
 import { Card } from "../components/design-system/Card";
 import { Button } from "../components/design-system/Button";
@@ -24,7 +24,7 @@ export default function ExpensesScreen() {
   const fetchExpenses = async () => {
     try {
       setLoading(true);
-      const data = await apiClient.get("/expenses");
+      const { data } = await expenseControllerFindAll();
 
       setExpenses(data.data || []);
       setError(null);

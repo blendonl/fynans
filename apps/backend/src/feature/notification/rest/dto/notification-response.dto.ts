@@ -1,23 +1,59 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Notification } from '../../core/domain/entities/notification.entity';
 
 export class NotificationResponseDto {
+  @ApiProperty()
   id!: string;
+
+  @ApiProperty()
   userId!: string;
+
+  @ApiProperty()
   type!: string;
+
+  @ApiProperty()
   priority!: string;
+
+  @ApiProperty()
   title!: string;
+
+  @ApiProperty()
   message!: string;
+
+  @ApiPropertyOptional({ type: 'object', additionalProperties: true })
   data?: Record<string, any>;
+
+  @ApiProperty({ type: [String] })
   deliveryMethods!: string[];
+
+  @ApiProperty()
   isRead!: boolean;
+
+  @ApiPropertyOptional()
   readAt?: Date;
+
+  @ApiProperty()
   isInteracted!: boolean;
+
+  @ApiPropertyOptional()
   interactedAt?: Date;
+
+  @ApiPropertyOptional()
   actionUrl?: string;
+
+  @ApiPropertyOptional()
   familyId?: string;
+
+  @ApiPropertyOptional()
   transactionId?: string;
+
+  @ApiPropertyOptional()
   invitationId?: string;
+
+  @ApiProperty()
   createdAt!: Date;
+
+  @ApiProperty()
   updatedAt!: Date;
 
   static fromEntity(notification: Notification): NotificationResponseDto {

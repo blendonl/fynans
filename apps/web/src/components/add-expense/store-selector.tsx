@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Store } from "@fynans/shared";
+import type { Store } from "@/types";
 import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
 import { Label } from "@/components/ui/label";
 

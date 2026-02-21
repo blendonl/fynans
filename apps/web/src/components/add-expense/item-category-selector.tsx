@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Category } from "@fynans/shared";
+import type { Category } from "@/types";
 import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
 import { AiSuggestionBadge } from "./ai-suggestion-badge";
 

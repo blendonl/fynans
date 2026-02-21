@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Family } from '../../core/domain/entities/family.entity';
 import {
   FamilyMember,
@@ -6,18 +7,38 @@ import {
 import { User } from '../../../user/core/domain/entities/user.entity';
 import { FamilyResponseDto } from './family-response.dto';
 
-export class FamilyMemberUserDto {
+export class FamilyMemberUserInfoDto {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
+  email: string;
+
+  @ApiProperty({ nullable: true })
+  firstName: string | null;
+
+  @ApiProperty({ nullable: true })
+  lastName: string | null;
+}
+
+export class FamilyMemberUserDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
   userId: string;
+
+  @ApiProperty({ enum: FamilyMemberRole })
   role: FamilyMemberRole;
+
+  @ApiProperty()
   balance: number;
+
+  @ApiProperty()
   joinedAt: Date;
-  user: {
-    id: string;
-    email: string;
-    firstName: string | null;
-    lastName: string | null;
-  };
+
+  @ApiProperty({ type: () => FamilyMemberUserInfoDto })
+  user: FamilyMemberUserInfoDto;
 
   static fromMemberAndUser(
     member: FamilyMember,
@@ -40,6 +61,7 @@ export class FamilyMemberUserDto {
 }
 
 export class FamilyWithMembersResponseDto extends FamilyResponseDto {
+  @ApiProperty({ type: () => [FamilyMemberUserDto] })
   members: FamilyMemberUserDto[];
 
   static fromFamilyAndMembers(

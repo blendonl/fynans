@@ -9,7 +9,7 @@ import {
   simpleCropFromCanvas,
   type DetectedCorners,
 } from "@/lib/receipt-image-processing";
-import { RECEIPT_JPEG_QUALITY } from "@fynans/shared";
+import { RECEIPT_JPEG_QUALITY } from "@/constants/receipt";
 
 interface ReceiptCropOverlayProps {
   imageFile: File;

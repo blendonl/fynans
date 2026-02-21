@@ -11,6 +11,13 @@ import {
   HttpStatus,
   ForbiddenException,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiProperty,
+} from '@nestjs/swagger';
 import { IncomeService } from '../../core/application/services/income.service';
 import { CreateIncomeRequestDto } from '../dto/create-income-request.dto';
 import { UpdateIncomeRequestDto } from '../dto/update-income-request.dto';
@@ -24,12 +31,30 @@ import { Pagination } from '../../../transaction/core/application/dto/pagination
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 
+export class PaginatedIncomeResponseDto {
+  @ApiProperty({ type: () => [IncomeResponseDto] })
+  data: IncomeResponseDto[];
+
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  limit: number;
+}
+
+@ApiTags('Income')
+@ApiBearerAuth('bearer')
 @Controller('incomes')
 export class IncomeController {
   constructor(private readonly incomeService: IncomeService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new income' })
+  @ApiResponse({ status: 201, type: IncomeResponseDto })
   async create(
     @Body() createDto: CreateIncomeRequestDto,
     @CurrentUser() user: User,
@@ -45,6 +70,8 @@ export class IncomeController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'List all incomes with pagination and filters' })
+  @ApiResponse({ status: 200, type: PaginatedIncomeResponseDto })
   async findAll(@Query() query: QueryIncomeDto, @CurrentUser() user: User) {
     const filters = new IncomeFilters(BaseFilters.fromQuery(query, user.id));
 
@@ -65,6 +92,8 @@ export class IncomeController {
   }
 
   @Get('transaction/:transactionId')
+  @ApiOperation({ summary: 'Get an income by transaction ID' })
+  @ApiResponse({ status: 200, type: IncomeResponseDto })
   async findByTransactionId(
     @Param('transactionId') transactionId: string,
     @CurrentUser() user: User,
@@ -77,6 +106,8 @@ export class IncomeController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get an income by ID' })
+  @ApiResponse({ status: 200, type: IncomeResponseDto })
   async findOne(@Param('id') id: string, @CurrentUser() user: User) {
     const income = await this.incomeService.findById(id);
     if (income.transaction && income.transaction.userId !== user.id) {
@@ -86,6 +117,8 @@ export class IncomeController {
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update an income' })
+  @ApiResponse({ status: 200, type: IncomeResponseDto })
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateIncomeRequestDto,
@@ -106,6 +139,8 @@ export class IncomeController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete an income' })
+  @ApiResponse({ status: 204 })
   async remove(@Param('id') id: string, @CurrentUser() user: User) {
     const income = await this.incomeService.findById(id);
     if (income.transaction && income.transaction.userId !== user.id) {

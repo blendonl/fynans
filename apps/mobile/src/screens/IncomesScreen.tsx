@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { apiClient } from '../api/client';
+import { incomeControllerFindAll } from '../api/generated/endpoints/income/income';
 import { GlassScreenLayout } from '../components/layout/GlassScreenLayout';
 import { Card } from '../components/design-system/Card';
 import { Button } from '../components/design-system/Button';
@@ -18,8 +18,8 @@ export default function IncomesScreen() {
     const fetchIncomes = async () => {
         try {
             setLoading(true);
-            const data = await apiClient.get('/incomes');
-            setIncomes(data || []);
+            const { data } = await incomeControllerFindAll();
+            setIncomes(data.data || []);
             setError(null);
         } catch (err: any) {
             setError(err.message || 'Failed to fetch incomes');

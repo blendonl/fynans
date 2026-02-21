@@ -12,16 +12,23 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ItemService } from '../../core/application/services/item.service';
 import { CreateItemRequestDto } from '../dto/create-item-request.dto';
 import { UpdateItemRequestDto } from '../dto/update-item-request.dto';
-import { ItemResponseDto } from '../dto/item-response.dto';
+import {
+  ItemResponseDto,
+  PaginatedItemResponseDto,
+  PaginatedItemWithStoresResponseDto,
+} from '../dto/item-response.dto';
 import { CreateItemDto } from '../../core/application/dto/create-item.dto';
 import { UpdateItemDto } from '../../core/application/dto/update-item.dto';
 import { Pagination } from '../../../transaction/core/application/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 
+@ApiTags('Items')
+@ApiBearerAuth('bearer')
 @Controller('items')
 export class ItemController {
   constructor(
@@ -30,6 +37,8 @@ export class ItemController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new item' })
+  @ApiResponse({ status: 201, type: ItemResponseDto })
   async create(
     @Body() createDto: CreateItemRequestDto,
     @CurrentUser() user: User,
@@ -41,6 +50,8 @@ export class ItemController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'List all items with pagination' })
+  @ApiResponse({ status: 200, type: PaginatedItemResponseDto })
   async findAll(
     @CurrentUser() user: User,
     @Query('categoryId') categoryId?: string,
@@ -61,6 +72,8 @@ export class ItemController {
   }
 
   @Get('with-stores')
+  @ApiOperation({ summary: 'Search items with store price information' })
+  @ApiResponse({ status: 200, type: PaginatedItemWithStoresResponseDto })
   async findWithStores(
     @CurrentUser() user: User,
     @Query('search') search?: string,
@@ -78,18 +91,24 @@ export class ItemController {
   }
 
   @Get('search')
+  @ApiOperation({ summary: 'Search for an item by name' })
+  @ApiResponse({ status: 200, type: ItemResponseDto })
   async search(@Query('name') name: string) {
     const item = await this.itemService.findByName(name);
     return item ? ItemResponseDto.fromEntity(item) : null;
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get an item by ID' })
+  @ApiResponse({ status: 200, type: ItemResponseDto })
   async findOne(@Param('id') id: string) {
     const item = await this.itemService.findById(id);
     return ItemResponseDto.fromEntity(item);
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update an item' })
+  @ApiResponse({ status: 200, type: ItemResponseDto })
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateItemRequestDto,
@@ -102,6 +121,8 @@ export class ItemController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete an item' })
+  @ApiResponse({ status: 204, description: 'Item deleted successfully' })
   async delete(@Param('id') id: string) {
     await this.itemService.delete(id);
   }

@@ -18,8 +18,8 @@ import { useCategories } from "@/hooks/use-categories";
 import { useStores } from "@/hooks/use-stores";
 import { useStoreItemPrices } from "@/hooks/use-store-item-prices";
 import { apiClient } from "@/lib/api-client";
-import { formatCurrency } from "@fynans/shared";
-import type { BasketItem, Category, Store } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
+import type { BasketItem, Category, Store } from "@/types";
 import { cn } from "@/lib/utils";
 
 export interface CheckoutLineItem {

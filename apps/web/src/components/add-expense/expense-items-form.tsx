@@ -3,8 +3,9 @@
 import { useState, useMemo, useEffect, type ReactNode } from "react";
 import { Plus, Check, X } from "lucide-react";
 import { toast } from "sonner";
-import { formatCurrency, calculateExpenseItemsTotal } from "@fynans/shared";
-import type { CurrentItem, Category, ExpenseItem } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
+import { calculateExpenseItemsTotal } from "@/utils/calculations";
+import type { CurrentItem, Category, ExpenseItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

@@ -1,13 +1,29 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { StoreItemDiscount } from '../../core/domain/entities/store-item-discount.entity';
 
 export class StoreItemDiscountResponseDto {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
   storeItemId: string;
+
+  @ApiProperty()
   discount: number;
+
+  @ApiProperty()
   startedAt: Date;
+
+  @ApiProperty({ nullable: true })
   endedAt: Date | null;
+
+  @ApiProperty()
   createdAt: Date;
+
+  @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty()
   isActive: boolean;
 
   static fromEntity(

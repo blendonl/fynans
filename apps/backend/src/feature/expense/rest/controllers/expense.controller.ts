@@ -10,6 +10,13 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiProperty,
+} from '@nestjs/swagger';
 import { ExpenseService } from '../../core/application/services/expense.service';
 import { CreateExpenseRequestDto } from '../dto/create-expense-request.dto';
 import { UpdateExpenseRequestDto } from '../dto/update-expense-request.dto';
@@ -25,12 +32,80 @@ import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorato
 import { User } from '../../../user/core/domain/entities/user.entity';
 import { QueryExpenseTrendsDto } from '../dto/query-expense-trends.dto';
 
+export class PaginatedExpenseResponseDto {
+  @ApiProperty({ type: () => [ExpenseResponseDto] })
+  data: ExpenseResponseDto[];
+
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  limit: number;
+}
+
+export class ExpenseByCategoryDto {
+  @ApiProperty()
+  categoryId: string;
+
+  @ApiProperty()
+  categoryName: string;
+
+  @ApiProperty()
+  total: number;
+}
+
+export class ExpenseByStoreDto {
+  @ApiProperty()
+  storeId: string;
+
+  @ApiProperty()
+  total: number;
+}
+
+export class ExpenseStatisticsResponseDto {
+  @ApiProperty()
+  totalExpenses: number;
+
+  @ApiProperty()
+  expenseCount: number;
+
+  @ApiProperty()
+  averageExpense: number;
+
+  @ApiProperty({ type: () => [ExpenseByCategoryDto] })
+  expensesByCategory: ExpenseByCategoryDto[];
+
+  @ApiProperty({ type: () => [ExpenseByStoreDto] })
+  expensesByStore: ExpenseByStoreDto[];
+}
+
+export class ExpenseTrendPointResponseDto {
+  @ApiProperty()
+  date: string;
+
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty()
+  count: number;
+
+  @ApiProperty()
+  showLabel: boolean;
+}
+
+@ApiTags('Expense')
+@ApiBearerAuth('bearer')
 @Controller('expenses')
 export class ExpenseController {
   constructor(private readonly expenseService: ExpenseService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new expense' })
+  @ApiResponse({ status: 201, type: ExpenseResponseDto })
   async create(
     @Body() createDto: CreateExpenseRequestDto,
     @CurrentUser() user: User,
@@ -67,6 +142,8 @@ export class ExpenseController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'List all expenses with pagination and filters' })
+  @ApiResponse({ status: 200, type: PaginatedExpenseResponseDto })
   async findAll(@Query() query: QueryExpenseDto, @CurrentUser() user: User) {
     const filters = new ExpenseFilters(BaseFilters.fromQuery(query, user.id));
 
@@ -98,6 +175,8 @@ export class ExpenseController {
   }
 
   @Get('statistics')
+  @ApiOperation({ summary: 'Get expense statistics' })
+  @ApiResponse({ status: 200, type: ExpenseStatisticsResponseDto })
   async getStatistics(
     @Query() query: QueryExpenseDto,
     @CurrentUser() user: User,
@@ -116,6 +195,8 @@ export class ExpenseController {
   }
 
   @Get('trends')
+  @ApiOperation({ summary: 'Get expense trends over time' })
+  @ApiResponse({ status: 200, type: [ExpenseTrendPointResponseDto] })
   async getTrends(
     @Query() query: QueryExpenseTrendsDto,
     @CurrentUser() user: User,
@@ -133,12 +214,16 @@ export class ExpenseController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get an expense by ID' })
+  @ApiResponse({ status: 200, type: ExpenseResponseDto })
   async findOne(@Param('id') id: string, @CurrentUser() user: User) {
     const expense = await this.expenseService.findById(id, user.id);
     return ExpenseResponseDto.fromEntity(expense);
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update an expense' })
+  @ApiResponse({ status: 200, type: ExpenseResponseDto })
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateExpenseRequestDto,
@@ -155,6 +240,8 @@ export class ExpenseController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete an expense' })
+  @ApiResponse({ status: 204 })
   async remove(@Param('id') id: string, @CurrentUser() user: User) {
     await this.expenseService.delete(id, user.id);
   }

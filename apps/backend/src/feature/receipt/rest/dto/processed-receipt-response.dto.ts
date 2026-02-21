@@ -1,33 +1,89 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EnrichedReceiptDataDto } from '../../core/application/dto/enriched-receipt-data.dto';
 
-class ProcessedStoreDto {
-  id?: string;
+class ItemSizeDto {
+  @ApiProperty()
+  value: number;
+
+  @ApiProperty()
+  unit: string;
+}
+
+class SuggestedExpenseCategoryDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
   name: string;
+}
+
+export class ProcessedStoreDto {
+  @ApiPropertyOptional()
+  id?: string;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
   location: string;
 }
 
-class ProcessedItemDto {
+export class ProcessedItemDto {
+  @ApiPropertyOptional()
   id?: string;
+
+  @ApiProperty()
   name: string;
+
+  @ApiPropertyOptional()
   nameEn?: string;
+
+  @ApiProperty()
   price: number;
+
+  @ApiProperty()
   quantity: number;
+
+  @ApiPropertyOptional()
   categoryId?: string;
+
+  @ApiPropertyOptional()
   suggestedItemCategoryId?: string;
+
+  @ApiPropertyOptional()
   suggestedItemCategoryName?: string;
+
+  @ApiPropertyOptional()
   resolvedCategoryId?: string;
-  size?: { value: number; unit: string };
+
+  @ApiPropertyOptional({ type: () => ItemSizeDto })
+  size?: ItemSizeDto;
 }
 
 export class ProcessedReceiptResponseDto {
+  @ApiProperty({ type: () => ProcessedStoreDto, nullable: true })
   store: ProcessedStoreDto | null;
+
+  @ApiProperty({ type: () => [ProcessedItemDto] })
   items: ProcessedItemDto[];
+
+  @ApiPropertyOptional()
   recordedAt?: string;
+
+  @ApiProperty()
   extractedText: string;
+
+  @ApiProperty()
   confidence: number;
+
+  @ApiProperty()
   isLowConfidence: boolean;
+
+  @ApiPropertyOptional()
   parserUsed?: string;
-  suggestedExpenseCategory?: { id: string; name: string };
+
+  @ApiPropertyOptional({ type: () => SuggestedExpenseCategoryDto })
+  suggestedExpenseCategory?: SuggestedExpenseCategoryDto;
 
   static fromData(data: EnrichedReceiptDataDto): ProcessedReceiptResponseDto {
     const dto = new ProcessedReceiptResponseDto();

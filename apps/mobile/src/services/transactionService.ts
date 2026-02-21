@@ -1,4 +1,8 @@
-import { apiClient } from '../api/client';
+import { expenseControllerFindOne } from '../api/generated/endpoints/expense/expense';
+import {
+  incomeControllerFindOne,
+  incomeControllerFindByTransactionId,
+} from '../api/generated/endpoints/income/income';
 import { Transaction } from '../features/transactions/types';
 
 const mapExpenseToTransaction = (expense: any): Transaction => ({
@@ -37,17 +41,17 @@ const mapIncomeToTransaction = (income: any): Transaction => ({
 
 export const transactionService = {
   async fetchExpenseById(expenseId: string): Promise<Transaction> {
-    const expense = await apiClient.get(`/expenses/${expenseId}`);
+    const expense = (await expenseControllerFindOne(expenseId)).data;
     return mapExpenseToTransaction(expense);
   },
 
   async fetchIncomeById(incomeId: string): Promise<Transaction> {
-    const income = await apiClient.get(`/incomes/${incomeId}`);
+    const income = (await incomeControllerFindOne(incomeId)).data;
     return mapIncomeToTransaction(income);
   },
 
   async fetchIncomeByTransactionId(transactionId: string): Promise<Transaction> {
-    const income = await apiClient.get(`/incomes/transaction/${transactionId}`);
+    const income = (await incomeControllerFindByTransactionId(transactionId)).data;
     return mapIncomeToTransaction(income);
   },
 };

@@ -1,12 +1,29 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { apiClient } from '../api/client';
-import { User, AuthContextType } from '../features/auth/types';
+import { authControllerLogin, authControllerRegister, authControllerLogout, authControllerMe } from '../api/generated/endpoints/auth/auth';
+import type { MeResponseDto, LoginRequestDto, RegisterRequestDto } from '../api/generated/model';
+
+interface SocialAuthData {
+    token: string;
+    userId: string;
+    email: string;
+}
+
+interface AuthContextType {
+    user: MeResponseDto | null;
+    token: string | null;
+    isLoading: boolean;
+    login: (data: LoginRequestDto) => Promise<void>;
+    register: (data: RegisterRequestDto) => Promise<void>;
+    logout: () => Promise<void>;
+    loginWithGoogle: (data: SocialAuthData) => Promise<void>;
+    loginWithApple: (data: SocialAuthData) => Promise<void>;
+}
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<MeResponseDto | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -22,7 +39,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 // Optionally fetch user profile here if needed, or just decode token if it was JWT with user info
                 // For now let's try to fetch 'me'
                 try {
-                    const userData = await apiClient.get('/auth/me');
+                    const { data: userData } = await authControllerMe();
                     setUser(userData);
                 } catch (e) {
                     // Token might be invalid
@@ -37,8 +54,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-    const login = async (data: any) => {
-        const res = await apiClient.post('/auth/login', data);
+    const login = async (data: LoginRequestDto) => {
+        const { data: res } = await authControllerLogin(data);
         if (res.token) {
             setToken(res.token);
             setUser(res.user);
@@ -46,8 +63,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-    const register = async (data: any) => {
-        const res = await apiClient.post('/auth/register', data);
+    const register = async (data: RegisterRequestDto) => {
+        const { data: res } = await authControllerRegister(data);
         if (res.token) {
             setToken(res.token);
             setUser(res.user);
@@ -57,7 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const logout = async () => {
         try {
-            await apiClient.post('/auth/logout', {});
+            await authControllerLogout();
         } catch (e) {
             // ignore
         }
@@ -71,7 +88,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setToken(data.token);
             await AsyncStorage.setItem('token', data.token);
             try {
-                const userData = await apiClient.get('/auth/me');
+                const { data: userData } = await authControllerMe();
                 setUser(userData);
             } catch (e) {
                 console.error('Failed to fetch user data after Google login', e);
@@ -84,7 +101,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setToken(data.token);
             await AsyncStorage.setItem('token', data.token);
             try {
-                const userData = await apiClient.get('/auth/me');
+                const { data: userData } = await authControllerMe();
                 setUser(userData);
             } catch (e) {
                 console.error('Failed to fetch user data after Apple login', e);

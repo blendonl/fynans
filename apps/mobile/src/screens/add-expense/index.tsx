@@ -16,7 +16,8 @@ import {
 } from "../../components/design-system";
 import { PriceInput } from "../../components/forms";
 import { useAppTheme } from "../../theme";
-import { apiClient } from "../../api/client";
+import { expenseControllerCreate } from '../../api/generated/endpoints/expense/expense';
+import type { CreateExpenseRequestDto } from '../../api/generated/model';
 import { useToast } from "../../context/ToastContext";
 import { useCategories } from "./hooks/useCategories";
 import { useStores } from "./hooks/useStores";
@@ -177,7 +178,7 @@ export default function AddExpenseScreen({
           ],
         };
 
-        await apiClient.post("/expenses", payload);
+        await expenseControllerCreate(payload as CreateExpenseRequestDto);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         const total = parseFloat(simpleAmount);
         showToast({
@@ -240,7 +241,7 @@ export default function AddExpenseScreen({
         })),
       };
 
-      await apiClient.post("/expenses", payload);
+      await expenseControllerCreate(payload as CreateExpenseRequestDto);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       imageUpload.clearImages();
 

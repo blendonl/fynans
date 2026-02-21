@@ -12,7 +12,7 @@ import {
   Legend,
 } from "recharts";
 import { GlassCard } from "@/components/glass/glass-card";
-import { formatCurrency } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
 
 interface CategoryData {
   categoryId: string;

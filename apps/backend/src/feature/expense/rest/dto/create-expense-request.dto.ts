@@ -10,6 +10,7 @@ import {
   IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateExpenseItemRequestDto {
   @IsUUID()
@@ -58,6 +59,7 @@ export class CreateExpenseRequestDto {
   @IsOptional()
   storeLocation?: string;
 
+  @ApiProperty({ type: [CreateExpenseItemRequestDto], required: false })
   @ValidateNested({ each: true })
   @Type(() => CreateExpenseItemRequestDto)
   @IsOptional()
@@ -76,6 +78,7 @@ export class CreateExpenseRequestDto {
   @IsUUID()
   familyId?: string;
 
+  @ApiProperty({ enum: ['PERSONAL', 'FAMILY'], required: false })
   @IsOptional()
   @IsString()
   scope?: 'PERSONAL' | 'FAMILY';

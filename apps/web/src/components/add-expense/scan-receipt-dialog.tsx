@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { RECEIPT_MAX_FILE_SIZE, RECEIPT_ALLOWED_MIME_TYPES } from "@fynans/shared";
+import { RECEIPT_MAX_FILE_SIZE, RECEIPT_ALLOWED_MIME_TYPES } from "@/constants/receipt";
 import { useReceiptScan, type ProcessedReceiptResponse } from "@/hooks/use-receipt-scan";
 import { GuidedCameraOverlay } from "@/components/receipt-capture/guided-camera-overlay";
 import { ReceiptCropOverlay } from "@/components/receipt-capture/receipt-crop-overlay";

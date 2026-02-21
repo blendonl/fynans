@@ -1,7 +1,7 @@
 "use client";
 
 import { GlassCard } from "@/components/glass/glass-card";
-import { formatCurrency } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
 
 interface TopExpensesProps {
   expensesByCategory: { categoryId: string; categoryName: string; total: number }[];

@@ -10,8 +10,9 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-class ItemOverrideDto {
+export class ItemOverrideDto {
   @IsUUID()
   id!: string;
 
@@ -31,6 +32,7 @@ class ItemOverrideDto {
 }
 
 export class CheckoutBasketRequestDto {
+  @ApiProperty({ type: [String] })
   @IsArray()
   @IsUUID('4', { each: true })
   @ArrayMinSize(1)
@@ -44,6 +46,7 @@ export class CheckoutBasketRequestDto {
   @IsUUID()
   storeId?: string;
 
+  @ApiPropertyOptional({ type: () => [ItemOverrideDto] })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

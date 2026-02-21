@@ -2,7 +2,7 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
-import { apiClient } from '../api/client';
+import { notificationPreferenceControllerRegisterDevice } from '../api/generated/endpoints/notification-preference/notification-preference';
 import { navigate } from '../navigation/navigationService';
 import { transactionService } from './transactionService';
 
@@ -50,7 +50,7 @@ class PushNotificationService {
 
     // Register token with backend
     try {
-      await apiClient.post('/notification-preferences/devices', {
+      await notificationPreferenceControllerRegisterDevice({
         expoPushToken: token.data,
         platform: Platform.OS,
         deviceId: Constants.deviceId || undefined,

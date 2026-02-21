@@ -1,11 +1,23 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { ExpenseCategory } from '../../core/domain/entities/expense-category.entity';
 
 export class ExpenseCategoryResponseDto {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty({ nullable: true })
   parentId: string | null;
+
+  @ApiProperty()
   name: string;
+
+  @ApiProperty()
   createdAt: Date;
+
+  @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty()
   isConnectedToStore: boolean;
 
   static fromEntity(category: ExpenseCategory): ExpenseCategoryResponseDto {

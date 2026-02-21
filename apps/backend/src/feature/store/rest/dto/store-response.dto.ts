@@ -1,10 +1,20 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Store } from '../../core/domain/entities/store.entity';
 
 export class StoreResponseDto {
+    @ApiProperty()
     id: string;
+
+    @ApiProperty()
     name: string;
+
+    @ApiProperty()
     location: string;
+
+    @ApiProperty()
     createdAt: Date;
+
+    @ApiProperty()
     updatedAt: Date;
 
     static fromEntity(store: Store): StoreResponseDto {

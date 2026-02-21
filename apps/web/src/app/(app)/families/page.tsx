@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Plus, Users, ChevronRight, Mail, Check, X } from "lucide-react";
 import { useFamilies } from "@/hooks/use-families";
-import { formatCurrency } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 

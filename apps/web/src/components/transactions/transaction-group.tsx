@@ -1,7 +1,7 @@
 "use client";
 
-import { formatCurrency } from "@fynans/shared";
-import type { Transaction } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
+import type { Transaction } from "@/types";
 import { GlassCard } from "@/components/glass/glass-card";
 import { TransactionRow } from "./transaction-row";
 

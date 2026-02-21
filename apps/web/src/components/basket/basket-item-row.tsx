@@ -3,8 +3,8 @@
 import { useState, useRef } from "react";
 import { X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { BasketItem } from "@fynans/shared";
-import { formatCurrency, formatQuantity } from "@fynans/shared";
+import type { BasketItem } from "@/types";
+import { formatCurrency, formatQuantity } from "@/utils/currency";
 
 interface BasketItemRowProps {
   item: BasketItem;

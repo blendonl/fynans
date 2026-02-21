@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { RECEIPT_CAPTURE_IDEAL_WIDTH, RECEIPT_CAPTURE_IDEAL_HEIGHT } from "@fynans/shared";
+import { RECEIPT_CAPTURE_IDEAL_WIDTH, RECEIPT_CAPTURE_IDEAL_HEIGHT } from "@/constants/receipt";
 
 interface UseCameraStreamReturn {
   videoRef: React.RefObject<HTMLVideoElement | null>;

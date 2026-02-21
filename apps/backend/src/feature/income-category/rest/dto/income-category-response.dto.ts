@@ -1,10 +1,20 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IncomeCategory } from '../../core/domain/entities/income-category.entity';
 
 export class IncomeCategoryResponseDto {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty({ nullable: true })
   parentId: string | null;
+
+  @ApiProperty()
   name: string;
+
+  @ApiProperty()
   createdAt: Date;
+
+  @ApiProperty()
   updatedAt: Date;
 
   static fromEntity(category: IncomeCategory): IncomeCategoryResponseDto {

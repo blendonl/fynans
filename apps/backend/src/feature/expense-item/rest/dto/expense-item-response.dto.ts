@@ -1,17 +1,41 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { ExpenseItem } from '../../core/domain/entities/expense-item.entity';
 
 export class ExpenseItemResponseDto {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
   itemId: string;
+
+  @ApiProperty()
   name: string;
+
+  @ApiProperty()
   expenseId: string;
+
+  @ApiProperty()
   categoryId: string;
+
+  @ApiProperty()
   price: number;
+
+  @ApiProperty()
   discount: number;
+
+  @ApiProperty()
   finalPrice: number;
+
+  @ApiProperty()
   discountPercentage: number;
+
+  @ApiProperty()
   quantity: number;
+
+  @ApiProperty()
   createdAt: Date;
+
+  @ApiProperty()
   updatedAt: Date;
 
   static fromEntity(item: ExpenseItem): ExpenseItemResponseDto {
@@ -34,4 +58,18 @@ export class ExpenseItemResponseDto {
   static fromEntities(items: ExpenseItem[]): ExpenseItemResponseDto[] {
     return items.map((item) => this.fromEntity(item));
   }
+}
+
+export class PaginatedExpenseItemResponseDto {
+  @ApiProperty({ type: [ExpenseItemResponseDto] })
+  data: ExpenseItemResponseDto[];
+
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  limit: number;
 }

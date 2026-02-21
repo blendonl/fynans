@@ -6,9 +6,8 @@ import type {
   Family,
   ExpenseResponse,
   IncomeResponse,
-  PaginatedResponse,
-} from "@fynans/shared";
-import { PAGE_SIZE } from "@/lib/pagination";
+} from "@/types";
+import { PAGE_SIZE, type PaginatedResponse } from "@/lib/pagination";
 
 function mapExpenseToTransaction(expense: ExpenseResponse, family?: Family): Transaction {
   const tx = expense.transaction;

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system';
-import { apiClient } from '../api/client';
+import { customInstance } from '../api/custom-instance';
 
 interface UploadProgress {
   loaded: number;
@@ -58,10 +58,13 @@ export const useImageUpload = () => {
           total: imageUris.length,
         });
 
-        const response = await apiClient.post('/receipts/upload', formData);
+        const response = await customInstance<{ data: { data: { url: string } }; status: number; headers: Headers }>('/receipts/upload', {
+          method: 'POST',
+          body: formData,
+        });
 
-        if (response.data?.url) {
-          uploadedUrls.push(response.data.url);
+        if (response.data.data?.url) {
+          uploadedUrls.push(response.data.data.url);
         }
       }
 

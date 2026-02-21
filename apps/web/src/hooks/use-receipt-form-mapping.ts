@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { QueryClient } from "@tanstack/react-query";
-import type { Category, Store, ExpenseItem } from "@fynans/shared";
+import type { Category, Store, ExpenseItem } from "@/types";
 import type { ProcessedReceiptResponse } from "@/hooks/use-receipt-scan";
 
 interface UseReceiptFormMappingOptions {

@@ -7,7 +7,8 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "api:generate": "orval"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -49,6 +50,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
-    "@types/react": "~19.1.10"
+    "@types/react": "~19.1.10",
+    "orval": "^8.4.1"
   }
 }

@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { formatCurrency } from "@fynans/shared";
-import type { Category, Store, ExpenseItem } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
+import type { Category, Store, ExpenseItem } from "@/types";
 import { apiClient } from "@/lib/api-client";
 
 interface UseExpenseSubmissionOptions {

@@ -10,6 +10,13 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiProperty,
+} from '@nestjs/swagger';
 import { IncomeCategoryService } from '../../core/application/services/income-category.service';
 import { CreateIncomeCategoryRequestDto } from '../dto/create-income-category-request.dto';
 import { UpdateIncomeCategoryRequestDto } from '../dto/update-income-category-request.dto';
@@ -20,6 +27,30 @@ import { Pagination } from '../../../transaction/core/application/dto/pagination
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 
+export class IncomeCategoryTreeNodeDto {
+  @ApiProperty({ type: () => IncomeCategoryResponseDto })
+  category: IncomeCategoryResponseDto;
+
+  @ApiProperty({ type: () => [IncomeCategoryTreeNodeDto] })
+  children: IncomeCategoryTreeNodeDto[];
+}
+
+export class PaginatedIncomeCategoryResponseDto {
+  @ApiProperty({ type: () => [IncomeCategoryResponseDto] })
+  data: IncomeCategoryResponseDto[];
+
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  limit: number;
+}
+
+@ApiTags('Income Category')
+@ApiBearerAuth('bearer')
 @Controller('income-categories')
 export class IncomeCategoryController {
   constructor(
@@ -28,6 +59,8 @@ export class IncomeCategoryController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create an income category' })
+  @ApiResponse({ status: 201, type: IncomeCategoryResponseDto })
   async create(
     @Body() createDto: CreateIncomeCategoryRequestDto,
     @CurrentUser() user: User,
@@ -42,6 +75,8 @@ export class IncomeCategoryController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'List income categories with pagination' })
+  @ApiResponse({ status: 200, type: PaginatedIncomeCategoryResponseDto })
   async findAll(
     @CurrentUser() user: User,
     @Query('parentId') parentId?: string,
@@ -65,6 +100,8 @@ export class IncomeCategoryController {
   }
 
   @Get('tree')
+  @ApiOperation({ summary: 'Get income category tree' })
+  @ApiResponse({ status: 200, type: [IncomeCategoryTreeNodeDto] })
   async getTree(@CurrentUser() user: User) {
     const tree = await this.incomeCategoryService.getTree(user.id);
 
@@ -77,12 +114,16 @@ export class IncomeCategoryController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get an income category by ID' })
+  @ApiResponse({ status: 200, type: IncomeCategoryResponseDto })
   async findOne(@Param('id') id: string) {
     const category = await this.incomeCategoryService.findById(id);
     return IncomeCategoryResponseDto.fromEntity(category);
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update an income category' })
+  @ApiResponse({ status: 200, type: IncomeCategoryResponseDto })
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateIncomeCategoryRequestDto,
@@ -98,6 +139,8 @@ export class IncomeCategoryController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete an income category' })
+  @ApiResponse({ status: 204 })
   async remove(@Param('id') id: string) {
     await this.incomeCategoryService.delete(id);
   }

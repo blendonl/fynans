@@ -1,4 +1,15 @@
-import { apiClient } from '../api/client';
+import {
+  notificationControllerGetNotifications,
+  notificationControllerGetUnreadCount,
+  notificationControllerMarkAsRead,
+  notificationControllerMarkAllAsRead,
+  notificationControllerDeleteNotification,
+} from '../api/generated/endpoints/notification/notification';
+import {
+  notificationPreferenceControllerGetPreferences,
+  notificationPreferenceControllerUpdatePreferences,
+} from '../api/generated/endpoints/notification-preference/notification-preference';
+import type { UpdatePreferenceRequestDto } from '../api/generated/model';
 
 export const notificationService = {
   async getNotifications(params?: {
@@ -7,41 +18,36 @@ export const notificationService = {
     type?: string;
     unreadOnly?: boolean;
   }) {
-    const queryParams = new URLSearchParams();
-    if (params?.page) queryParams.append('page', params.page.toString());
-    if (params?.limit) queryParams.append('limit', params.limit.toString());
-    if (params?.type) queryParams.append('type', params.type);
-    if (params?.unreadOnly)
-      queryParams.append('unreadOnly', params.unreadOnly.toString());
-
-    const query = queryParams.toString();
-    const endpoint = `/notifications${query ? `?${query}` : ''}`;
-
-    const response = await apiClient.get(endpoint);
-    return response.data;
+    const response = await notificationControllerGetNotifications({
+      page: params?.page?.toString(),
+      limit: params?.limit?.toString(),
+      type: params?.type,
+      unreadOnly: params?.unreadOnly?.toString(),
+    });
+    return response.data.data;
   },
 
   async getUnreadCount() {
-    return await apiClient.get('/notifications/unread-count');
+    return (await notificationControllerGetUnreadCount()).data;
   },
 
   async markAsRead(id: string) {
-    return await apiClient.patch(`/notifications/${id}/read`, {});
+    await notificationControllerMarkAsRead(id);
   },
 
   async markAllAsRead() {
-    return await apiClient.post('/notifications/mark-all-read', {});
+    await notificationControllerMarkAllAsRead();
   },
 
   async deleteNotification(id: string) {
-    return await apiClient.delete(`/notifications/${id}`);
+    await notificationControllerDeleteNotification(id);
   },
 
   async getPreferences() {
-    return await apiClient.get('/notification-preferences');
+    return (await notificationPreferenceControllerGetPreferences()).data;
   },
 
-  async updatePreferences(preferences: any) {
-    return await apiClient.put('/notification-preferences', preferences);
+  async updatePreferences(preferences: UpdatePreferenceRequestDto) {
+    return (await notificationPreferenceControllerUpdatePreferences(preferences)).data;
   },
 };

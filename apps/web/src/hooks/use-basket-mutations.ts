@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import type { BasketItem } from "@fynans/shared";
+import type { BasketItem } from "@/types";
 
 export function useBasketMutations(basketId: string | null) {
   const queryClient = useQueryClient();

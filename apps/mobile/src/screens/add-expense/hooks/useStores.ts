@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Alert } from "react-native";
-import { apiClient } from "../../../api/client";
-import { Store } from "../../../features/expenses/types";
+import { storeControllerFindAll, storeControllerCreate } from '../../../api/generated/endpoints/store/store';
+import type { StoreResponseDto } from '../../../api/generated/model';
+
+type Store = StoreResponseDto;
 
 export function useStores() {
   const [stores, setStores] = useState<Store[]>([]);
@@ -16,7 +18,7 @@ export function useStores() {
 
   const fetchStores = async (search: string) => {
     try {
-      const response = await apiClient.get("/stores", { search });
+      const { data: response } = await storeControllerFindAll({ search });
       setStores(response.data || []);
     } catch (error: any) {
       console.error("Failed to fetch stores:", error);
@@ -60,15 +62,15 @@ export function useStores() {
 
     try {
       setLoading(true);
-      const response = await apiClient.post("/stores", {
+      const { data: created } = await storeControllerCreate({
         name: newStoreName.trim(),
         location: newStoreLocation.trim(),
       });
 
       const newStore: Store = {
-        id: response.id,
-        name: response.name,
-        location: response.location,
+        id: created.id,
+        name: created.name,
+        location: created.location,
       };
 
       setSelectedStore(newStore);

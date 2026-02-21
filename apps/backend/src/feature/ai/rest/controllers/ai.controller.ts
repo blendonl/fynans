@@ -1,9 +1,26 @@
 import { Controller, Post, Body, Logger } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiProperty,
+} from '@nestjs/swagger';
 import { AiCategoryService } from '../../core/application/services/ai-category.service';
 import { SuggestCategoryRequestDto } from '../dto/suggest-category-request.dto';
 import { CurrentUser } from '~feature/auth/rest/decorators/current-user.decorator';
 import { User } from '~feature/user/core/domain/entities/user.entity';
 
+class SuggestCategoryResponseDto {
+  @ApiProperty({ nullable: true })
+  categoryId: string | null;
+
+  @ApiProperty({ nullable: true })
+  categoryName: string | null;
+}
+
+@ApiTags('AI')
+@ApiBearerAuth('bearer')
 @Controller('ai')
 export class AiController {
   private readonly logger = new Logger(AiController.name);
@@ -11,6 +28,8 @@ export class AiController {
   constructor(private readonly aiCategoryService: AiCategoryService) {}
 
   @Post('suggest-category')
+  @ApiOperation({ summary: 'Suggest a category for an item, expense, or income' })
+  @ApiResponse({ status: 201, type: SuggestCategoryResponseDto })
   async suggestCategory(
     @Body() dto: SuggestCategoryRequestDto,
     @CurrentUser() user: User,
