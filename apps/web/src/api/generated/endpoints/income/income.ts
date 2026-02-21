@@ -35,6 +35,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -76,15 +78,15 @@ export const incomeControllerCreate = async (createIncomeRequestDto: CreateIncom
 
 
 export const getIncomeControllerCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof incomeControllerCreate>>, TError,{data: CreateIncomeRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof incomeControllerCreate>>, TError,{data: CreateIncomeRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof incomeControllerCreate>>, TError,{data: CreateIncomeRequestDto}, TContext> => {
 
 const mutationKey = ['incomeControllerCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -92,7 +94,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof incomeControllerCreate>>, {data: CreateIncomeRequestDto}> = (props) => {
           const {data} = props ?? {};
 
-          return  incomeControllerCreate(data,)
+          return  incomeControllerCreate(data,requestOptions)
         }
 
 
@@ -110,7 +112,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Create a new income
  */
 export const useIncomeControllerCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof incomeControllerCreate>>, TError,{data: CreateIncomeRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof incomeControllerCreate>>, TError,{data: CreateIncomeRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof incomeControllerCreate>>,
         TError,
@@ -171,16 +173,16 @@ export const getIncomeControllerFindAllQueryKey = (params?: IncomeControllerFind
     }
 
     
-export const getIncomeControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof incomeControllerFindAll>>, TError = unknown>(params?: IncomeControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindAll>>, TError, TData>>, }
+export const getIncomeControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof incomeControllerFindAll>>, TError = unknown>(params?: IncomeControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getIncomeControllerFindAllQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof incomeControllerFindAll>>> = ({ signal }) => incomeControllerFindAll(params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof incomeControllerFindAll>>> = ({ signal }) => incomeControllerFindAll(params, { signal, ...requestOptions });
 
       
 
@@ -200,7 +202,7 @@ export function useIncomeControllerFindAll<TData = Awaited<ReturnType<typeof inc
           TError,
           Awaited<ReturnType<typeof incomeControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useIncomeControllerFindAll<TData = Awaited<ReturnType<typeof incomeControllerFindAll>>, TError = unknown>(
@@ -210,11 +212,11 @@ export function useIncomeControllerFindAll<TData = Awaited<ReturnType<typeof inc
           TError,
           Awaited<ReturnType<typeof incomeControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useIncomeControllerFindAll<TData = Awaited<ReturnType<typeof incomeControllerFindAll>>, TError = unknown>(
- params?: IncomeControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindAll>>, TError, TData>>, }
+ params?: IncomeControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -222,7 +224,7 @@ export function useIncomeControllerFindAll<TData = Awaited<ReturnType<typeof inc
  */
 
 export function useIncomeControllerFindAll<TData = Awaited<ReturnType<typeof incomeControllerFindAll>>, TError = unknown>(
- params?: IncomeControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindAll>>, TError, TData>>, }
+ params?: IncomeControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -281,16 +283,16 @@ export const getIncomeControllerFindByTransactionIdQueryKey = (transactionId: st
     }
 
     
-export const getIncomeControllerFindByTransactionIdQueryOptions = <TData = Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>, TError = unknown>(transactionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>, TError, TData>>, }
+export const getIncomeControllerFindByTransactionIdQueryOptions = <TData = Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>, TError = unknown>(transactionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getIncomeControllerFindByTransactionIdQueryKey(transactionId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>> = ({ signal }) => incomeControllerFindByTransactionId(transactionId, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>> = ({ signal }) => incomeControllerFindByTransactionId(transactionId, { signal, ...requestOptions });
 
       
 
@@ -310,7 +312,7 @@ export function useIncomeControllerFindByTransactionId<TData = Awaited<ReturnTyp
           TError,
           Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useIncomeControllerFindByTransactionId<TData = Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>, TError = unknown>(
@@ -320,11 +322,11 @@ export function useIncomeControllerFindByTransactionId<TData = Awaited<ReturnTyp
           TError,
           Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useIncomeControllerFindByTransactionId<TData = Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>, TError = unknown>(
- transactionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>, TError, TData>>, }
+ transactionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -332,7 +334,7 @@ export function useIncomeControllerFindByTransactionId<TData = Awaited<ReturnTyp
  */
 
 export function useIncomeControllerFindByTransactionId<TData = Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>, TError = unknown>(
- transactionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>, TError, TData>>, }
+ transactionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindByTransactionId>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -391,16 +393,16 @@ export const getIncomeControllerFindOneQueryKey = (id: string,) => {
     }
 
     
-export const getIncomeControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof incomeControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindOne>>, TError, TData>>, }
+export const getIncomeControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof incomeControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getIncomeControllerFindOneQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof incomeControllerFindOne>>> = ({ signal }) => incomeControllerFindOne(id, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof incomeControllerFindOne>>> = ({ signal }) => incomeControllerFindOne(id, { signal, ...requestOptions });
 
       
 
@@ -420,7 +422,7 @@ export function useIncomeControllerFindOne<TData = Awaited<ReturnType<typeof inc
           TError,
           Awaited<ReturnType<typeof incomeControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useIncomeControllerFindOne<TData = Awaited<ReturnType<typeof incomeControllerFindOne>>, TError = unknown>(
@@ -430,11 +432,11 @@ export function useIncomeControllerFindOne<TData = Awaited<ReturnType<typeof inc
           TError,
           Awaited<ReturnType<typeof incomeControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useIncomeControllerFindOne<TData = Awaited<ReturnType<typeof incomeControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -442,7 +444,7 @@ export function useIncomeControllerFindOne<TData = Awaited<ReturnType<typeof inc
  */
 
 export function useIncomeControllerFindOne<TData = Awaited<ReturnType<typeof incomeControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof incomeControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -496,15 +498,15 @@ export const incomeControllerUpdate = async (id: string,
 
 
 export const getIncomeControllerUpdateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof incomeControllerUpdate>>, TError,{id: string;data: UpdateIncomeRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof incomeControllerUpdate>>, TError,{id: string;data: UpdateIncomeRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof incomeControllerUpdate>>, TError,{id: string;data: UpdateIncomeRequestDto}, TContext> => {
 
 const mutationKey = ['incomeControllerUpdate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -512,7 +514,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof incomeControllerUpdate>>, {id: string;data: UpdateIncomeRequestDto}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  incomeControllerUpdate(id,data,)
+          return  incomeControllerUpdate(id,data,requestOptions)
         }
 
 
@@ -530,7 +532,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Update an income
  */
 export const useIncomeControllerUpdate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof incomeControllerUpdate>>, TError,{id: string;data: UpdateIncomeRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof incomeControllerUpdate>>, TError,{id: string;data: UpdateIncomeRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof incomeControllerUpdate>>,
         TError,
@@ -577,15 +579,15 @@ export const incomeControllerRemove = async (id: string, options?: RequestInit):
 
 
 export const getIncomeControllerRemoveMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof incomeControllerRemove>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof incomeControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof incomeControllerRemove>>, TError,{id: string}, TContext> => {
 
 const mutationKey = ['incomeControllerRemove'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -593,7 +595,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof incomeControllerRemove>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  incomeControllerRemove(id,)
+          return  incomeControllerRemove(id,requestOptions)
         }
 
 
@@ -611,7 +613,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Delete an income
  */
 export const useIncomeControllerRemove = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof incomeControllerRemove>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof incomeControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof incomeControllerRemove>>,
         TError,

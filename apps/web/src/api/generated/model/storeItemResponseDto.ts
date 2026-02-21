@@ -14,7 +14,7 @@ export interface StoreItemResponseDto {
   price: number;
   isDiscounted: boolean;
   categoryId: string;
-  size?: StoreItemSizeDto;
+  sizes: StoreItemSizeDto[];
   createdAt: string;
   updatedAt: string;
 }

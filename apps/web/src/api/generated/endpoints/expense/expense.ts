@@ -39,6 +39,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -80,15 +82,15 @@ export const expenseControllerCreate = async (createExpenseRequestDto: CreateExp
 
 
 export const getExpenseControllerCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseControllerCreate>>, TError,{data: CreateExpenseRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseControllerCreate>>, TError,{data: CreateExpenseRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof expenseControllerCreate>>, TError,{data: CreateExpenseRequestDto}, TContext> => {
 
 const mutationKey = ['expenseControllerCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -96,7 +98,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof expenseControllerCreate>>, {data: CreateExpenseRequestDto}> = (props) => {
           const {data} = props ?? {};
 
-          return  expenseControllerCreate(data,)
+          return  expenseControllerCreate(data,requestOptions)
         }
 
 
@@ -114,7 +116,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Create a new expense
  */
 export const useExpenseControllerCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseControllerCreate>>, TError,{data: CreateExpenseRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseControllerCreate>>, TError,{data: CreateExpenseRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof expenseControllerCreate>>,
         TError,
@@ -175,16 +177,16 @@ export const getExpenseControllerFindAllQueryKey = (params?: ExpenseControllerFi
     }
 
     
-export const getExpenseControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof expenseControllerFindAll>>, TError = unknown>(params?: ExpenseControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerFindAll>>, TError, TData>>, }
+export const getExpenseControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof expenseControllerFindAll>>, TError = unknown>(params?: ExpenseControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getExpenseControllerFindAllQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof expenseControllerFindAll>>> = ({ signal }) => expenseControllerFindAll(params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof expenseControllerFindAll>>> = ({ signal }) => expenseControllerFindAll(params, { signal, ...requestOptions });
 
       
 
@@ -204,7 +206,7 @@ export function useExpenseControllerFindAll<TData = Awaited<ReturnType<typeof ex
           TError,
           Awaited<ReturnType<typeof expenseControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExpenseControllerFindAll<TData = Awaited<ReturnType<typeof expenseControllerFindAll>>, TError = unknown>(
@@ -214,11 +216,11 @@ export function useExpenseControllerFindAll<TData = Awaited<ReturnType<typeof ex
           TError,
           Awaited<ReturnType<typeof expenseControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExpenseControllerFindAll<TData = Awaited<ReturnType<typeof expenseControllerFindAll>>, TError = unknown>(
- params?: ExpenseControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerFindAll>>, TError, TData>>, }
+ params?: ExpenseControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -226,7 +228,7 @@ export function useExpenseControllerFindAll<TData = Awaited<ReturnType<typeof ex
  */
 
 export function useExpenseControllerFindAll<TData = Awaited<ReturnType<typeof expenseControllerFindAll>>, TError = unknown>(
- params?: ExpenseControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerFindAll>>, TError, TData>>, }
+ params?: ExpenseControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -292,16 +294,16 @@ export const getExpenseControllerGetStatisticsQueryKey = (params?: ExpenseContro
     }
 
     
-export const getExpenseControllerGetStatisticsQueryOptions = <TData = Awaited<ReturnType<typeof expenseControllerGetStatistics>>, TError = unknown>(params?: ExpenseControllerGetStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerGetStatistics>>, TError, TData>>, }
+export const getExpenseControllerGetStatisticsQueryOptions = <TData = Awaited<ReturnType<typeof expenseControllerGetStatistics>>, TError = unknown>(params?: ExpenseControllerGetStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerGetStatistics>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getExpenseControllerGetStatisticsQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof expenseControllerGetStatistics>>> = ({ signal }) => expenseControllerGetStatistics(params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof expenseControllerGetStatistics>>> = ({ signal }) => expenseControllerGetStatistics(params, { signal, ...requestOptions });
 
       
 
@@ -321,7 +323,7 @@ export function useExpenseControllerGetStatistics<TData = Awaited<ReturnType<typ
           TError,
           Awaited<ReturnType<typeof expenseControllerGetStatistics>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExpenseControllerGetStatistics<TData = Awaited<ReturnType<typeof expenseControllerGetStatistics>>, TError = unknown>(
@@ -331,11 +333,11 @@ export function useExpenseControllerGetStatistics<TData = Awaited<ReturnType<typ
           TError,
           Awaited<ReturnType<typeof expenseControllerGetStatistics>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExpenseControllerGetStatistics<TData = Awaited<ReturnType<typeof expenseControllerGetStatistics>>, TError = unknown>(
- params?: ExpenseControllerGetStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerGetStatistics>>, TError, TData>>, }
+ params?: ExpenseControllerGetStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerGetStatistics>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -343,7 +345,7 @@ export function useExpenseControllerGetStatistics<TData = Awaited<ReturnType<typ
  */
 
 export function useExpenseControllerGetStatistics<TData = Awaited<ReturnType<typeof expenseControllerGetStatistics>>, TError = unknown>(
- params?: ExpenseControllerGetStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerGetStatistics>>, TError, TData>>, }
+ params?: ExpenseControllerGetStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerGetStatistics>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -409,16 +411,16 @@ export const getExpenseControllerGetTrendsQueryKey = (params?: ExpenseController
     }
 
     
-export const getExpenseControllerGetTrendsQueryOptions = <TData = Awaited<ReturnType<typeof expenseControllerGetTrends>>, TError = unknown>(params: ExpenseControllerGetTrendsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerGetTrends>>, TError, TData>>, }
+export const getExpenseControllerGetTrendsQueryOptions = <TData = Awaited<ReturnType<typeof expenseControllerGetTrends>>, TError = unknown>(params: ExpenseControllerGetTrendsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerGetTrends>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getExpenseControllerGetTrendsQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof expenseControllerGetTrends>>> = ({ signal }) => expenseControllerGetTrends(params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof expenseControllerGetTrends>>> = ({ signal }) => expenseControllerGetTrends(params, { signal, ...requestOptions });
 
       
 
@@ -438,7 +440,7 @@ export function useExpenseControllerGetTrends<TData = Awaited<ReturnType<typeof 
           TError,
           Awaited<ReturnType<typeof expenseControllerGetTrends>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExpenseControllerGetTrends<TData = Awaited<ReturnType<typeof expenseControllerGetTrends>>, TError = unknown>(
@@ -448,11 +450,11 @@ export function useExpenseControllerGetTrends<TData = Awaited<ReturnType<typeof 
           TError,
           Awaited<ReturnType<typeof expenseControllerGetTrends>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExpenseControllerGetTrends<TData = Awaited<ReturnType<typeof expenseControllerGetTrends>>, TError = unknown>(
- params: ExpenseControllerGetTrendsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerGetTrends>>, TError, TData>>, }
+ params: ExpenseControllerGetTrendsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerGetTrends>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -460,7 +462,7 @@ export function useExpenseControllerGetTrends<TData = Awaited<ReturnType<typeof 
  */
 
 export function useExpenseControllerGetTrends<TData = Awaited<ReturnType<typeof expenseControllerGetTrends>>, TError = unknown>(
- params: ExpenseControllerGetTrendsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerGetTrends>>, TError, TData>>, }
+ params: ExpenseControllerGetTrendsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerGetTrends>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -519,16 +521,16 @@ export const getExpenseControllerFindOneQueryKey = (id: string,) => {
     }
 
     
-export const getExpenseControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof expenseControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerFindOne>>, TError, TData>>, }
+export const getExpenseControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof expenseControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getExpenseControllerFindOneQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof expenseControllerFindOne>>> = ({ signal }) => expenseControllerFindOne(id, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof expenseControllerFindOne>>> = ({ signal }) => expenseControllerFindOne(id, { signal, ...requestOptions });
 
       
 
@@ -548,7 +550,7 @@ export function useExpenseControllerFindOne<TData = Awaited<ReturnType<typeof ex
           TError,
           Awaited<ReturnType<typeof expenseControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExpenseControllerFindOne<TData = Awaited<ReturnType<typeof expenseControllerFindOne>>, TError = unknown>(
@@ -558,11 +560,11 @@ export function useExpenseControllerFindOne<TData = Awaited<ReturnType<typeof ex
           TError,
           Awaited<ReturnType<typeof expenseControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExpenseControllerFindOne<TData = Awaited<ReturnType<typeof expenseControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -570,7 +572,7 @@ export function useExpenseControllerFindOne<TData = Awaited<ReturnType<typeof ex
  */
 
 export function useExpenseControllerFindOne<TData = Awaited<ReturnType<typeof expenseControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -624,15 +626,15 @@ export const expenseControllerUpdate = async (id: string,
 
 
 export const getExpenseControllerUpdateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseControllerUpdate>>, TError,{id: string;data: UpdateExpenseRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseControllerUpdate>>, TError,{id: string;data: UpdateExpenseRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof expenseControllerUpdate>>, TError,{id: string;data: UpdateExpenseRequestDto}, TContext> => {
 
 const mutationKey = ['expenseControllerUpdate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -640,7 +642,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof expenseControllerUpdate>>, {id: string;data: UpdateExpenseRequestDto}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  expenseControllerUpdate(id,data,)
+          return  expenseControllerUpdate(id,data,requestOptions)
         }
 
 
@@ -658,7 +660,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Update an expense
  */
 export const useExpenseControllerUpdate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseControllerUpdate>>, TError,{id: string;data: UpdateExpenseRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseControllerUpdate>>, TError,{id: string;data: UpdateExpenseRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof expenseControllerUpdate>>,
         TError,
@@ -705,15 +707,15 @@ export const expenseControllerRemove = async (id: string, options?: RequestInit)
 
 
 export const getExpenseControllerRemoveMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseControllerRemove>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof expenseControllerRemove>>, TError,{id: string}, TContext> => {
 
 const mutationKey = ['expenseControllerRemove'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -721,7 +723,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof expenseControllerRemove>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  expenseControllerRemove(id,)
+          return  expenseControllerRemove(id,requestOptions)
         }
 
 
@@ -739,7 +741,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Delete an expense
  */
 export const useExpenseControllerRemove = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseControllerRemove>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof expenseControllerRemove>>,
         TError,

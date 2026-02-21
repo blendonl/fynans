@@ -107,7 +107,8 @@ export const TransactionControllerCreateBody = zod.object({
   "type": zod.enum(['EXPENSE', 'INCOME']),
   "value": zod.number().min(transactionControllerCreateBodyValueMin),
   "recordedAt": zod.string().optional(),
-  "familyId": zod.string().uuid().optional()
+  "familyId": zod.string().uuid().optional(),
+  "paymentMethodId": zod.string().uuid().optional()
 })
 
 
@@ -141,6 +142,7 @@ export const TransactionControllerFindAllResponse = zod.object({
   "type": zod.enum(['EXPENSE', 'INCOME']),
   "scope": zod.enum(['PERSONAL', 'FAMILY']),
   "value": zod.number(),
+  "paymentMethodId": zod.string().optional(),
   "recordedAt": zod.string().datetime({}),
   "createdAt": zod.string().datetime({}),
   "updatedAt": zod.string().datetime({}),
@@ -201,6 +203,7 @@ export const TransactionControllerFindOneResponse = zod.object({
   "type": zod.enum(['EXPENSE', 'INCOME']),
   "scope": zod.enum(['PERSONAL', 'FAMILY']),
   "value": zod.number(),
+  "paymentMethodId": zod.string().optional(),
   "recordedAt": zod.string().datetime({}),
   "createdAt": zod.string().datetime({}),
   "updatedAt": zod.string().datetime({}),
@@ -235,6 +238,7 @@ export const TransactionControllerUpdateResponse = zod.object({
   "type": zod.enum(['EXPENSE', 'INCOME']),
   "scope": zod.enum(['PERSONAL', 'FAMILY']),
   "value": zod.number(),
+  "paymentMethodId": zod.string().optional(),
   "recordedAt": zod.string().datetime({}),
   "createdAt": zod.string().datetime({}),
   "updatedAt": zod.string().datetime({}),
@@ -752,7 +756,8 @@ export const ExpenseControllerCreateBody = zod.object({
   "amount": zod.number().min(expenseControllerCreateBodyAmountMin).optional(),
   "note": zod.string().optional(),
   "familyId": zod.string().uuid().optional(),
-  "recordedAt": zod.string().optional()
+  "recordedAt": zod.string().optional(),
+  "paymentMethodId": zod.string().uuid().optional()
 })
 
 
@@ -785,6 +790,7 @@ export const ExpenseControllerFindAllResponse = zod.object({
   "type": zod.enum(['EXPENSE', 'INCOME']),
   "scope": zod.enum(['PERSONAL', 'FAMILY']),
   "value": zod.number(),
+  "paymentMethodId": zod.string().optional(),
   "recordedAt": zod.string().datetime({}),
   "createdAt": zod.string().datetime({}),
   "updatedAt": zod.string().datetime({}),
@@ -931,6 +937,7 @@ export const ExpenseControllerFindOneResponse = zod.object({
   "type": zod.enum(['EXPENSE', 'INCOME']),
   "scope": zod.enum(['PERSONAL', 'FAMILY']),
   "value": zod.number(),
+  "paymentMethodId": zod.string().optional(),
   "recordedAt": zod.string().datetime({}),
   "createdAt": zod.string().datetime({}),
   "updatedAt": zod.string().datetime({}),
@@ -1013,6 +1020,7 @@ export const ExpenseControllerUpdateResponse = zod.object({
   "type": zod.enum(['EXPENSE', 'INCOME']),
   "scope": zod.enum(['PERSONAL', 'FAMILY']),
   "value": zod.number(),
+  "paymentMethodId": zod.string().optional(),
   "recordedAt": zod.string().datetime({}),
   "createdAt": zod.string().datetime({}),
   "updatedAt": zod.string().datetime({}),
@@ -1157,10 +1165,10 @@ export const StoreItemControllerFindAllResponse = zod.object({
   "price": zod.number(),
   "isDiscounted": zod.boolean(),
   "categoryId": zod.string(),
-  "size": zod.object({
+  "sizes": zod.array(zod.object({
   "value": zod.number(),
   "unit": zod.string()
-}).optional(),
+})),
   "createdAt": zod.string().datetime({}),
   "updatedAt": zod.string().datetime({})
 })),
@@ -1302,6 +1310,7 @@ export const IncomeControllerFindAllResponse = zod.object({
   "type": zod.enum(['EXPENSE', 'INCOME']),
   "scope": zod.enum(['PERSONAL', 'FAMILY']),
   "value": zod.number(),
+  "paymentMethodId": zod.string().optional(),
   "recordedAt": zod.string().datetime({}),
   "createdAt": zod.string().datetime({}),
   "updatedAt": zod.string().datetime({}),
@@ -1346,6 +1355,7 @@ export const IncomeControllerFindByTransactionIdResponse = zod.object({
   "type": zod.enum(['EXPENSE', 'INCOME']),
   "scope": zod.enum(['PERSONAL', 'FAMILY']),
   "value": zod.number(),
+  "paymentMethodId": zod.string().optional(),
   "recordedAt": zod.string().datetime({}),
   "createdAt": zod.string().datetime({}),
   "updatedAt": zod.string().datetime({}),
@@ -1386,6 +1396,7 @@ export const IncomeControllerFindOneResponse = zod.object({
   "type": zod.enum(['EXPENSE', 'INCOME']),
   "scope": zod.enum(['PERSONAL', 'FAMILY']),
   "value": zod.number(),
+  "paymentMethodId": zod.string().optional(),
   "recordedAt": zod.string().datetime({}),
   "createdAt": zod.string().datetime({}),
   "updatedAt": zod.string().datetime({}),
@@ -1430,6 +1441,7 @@ export const IncomeControllerUpdateResponse = zod.object({
   "type": zod.enum(['EXPENSE', 'INCOME']),
   "scope": zod.enum(['PERSONAL', 'FAMILY']),
   "value": zod.number(),
+  "paymentMethodId": zod.string().optional(),
   "recordedAt": zod.string().datetime({}),
   "createdAt": zod.string().datetime({}),
   "updatedAt": zod.string().datetime({}),
@@ -2070,4 +2082,94 @@ export const BasketControllerCheckoutBody = zod.object({
   "categoryId": zod.string().uuid(),
   "storeId": zod.string().uuid().optional(),
   "recordedAt": zod.string().optional()
+})
+
+
+/**
+ * @summary Create a new payment method
+ */
+export const paymentMethodControllerCreateBodyColorRegExp = new RegExp('^#[0-9A-Fa-f]{6}$');
+
+
+export const PaymentMethodControllerCreateBody = zod.object({
+  "name": zod.string(),
+  "type": zod.enum(['CASH', 'DEBIT_CARD']),
+  "color": zod.string().regex(paymentMethodControllerCreateBodyColorRegExp).optional(),
+  "initialBalance": zod.number().optional()
+})
+
+
+/**
+ * @summary Get all payment methods
+ */
+export const PaymentMethodControllerFindAllResponseItem = zod.object({
+  "id": zod.string(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "type": zod.enum(['CASH', 'DEBIT_CARD']),
+  "color": zod.string(),
+  "initialBalance": zod.number(),
+  "currentBalance": zod.number(),
+  "createdAt": zod.string().datetime({}),
+  "updatedAt": zod.string().datetime({})
+})
+export const PaymentMethodControllerFindAllResponse = zod.array(PaymentMethodControllerFindAllResponseItem)
+
+
+/**
+ * @summary Get a payment method by ID
+ */
+export const PaymentMethodControllerFindOneParams = zod.object({
+  "id": zod.string()
+})
+
+export const PaymentMethodControllerFindOneResponse = zod.object({
+  "id": zod.string(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "type": zod.enum(['CASH', 'DEBIT_CARD']),
+  "color": zod.string(),
+  "initialBalance": zod.number(),
+  "currentBalance": zod.number(),
+  "createdAt": zod.string().datetime({}),
+  "updatedAt": zod.string().datetime({})
+})
+
+
+/**
+ * @summary Update a payment method
+ */
+export const PaymentMethodControllerUpdateParams = zod.object({
+  "id": zod.string()
+})
+
+
+export const paymentMethodControllerUpdateBodyColorRegExp = new RegExp('^#[0-9A-Fa-f]{6}$');
+
+
+export const PaymentMethodControllerUpdateBody = zod.object({
+  "name": zod.string().min(1).optional(),
+  "type": zod.enum(['CASH', 'DEBIT_CARD']).optional(),
+  "color": zod.string().regex(paymentMethodControllerUpdateBodyColorRegExp).optional(),
+  "initialBalance": zod.number().optional()
+})
+
+export const PaymentMethodControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "type": zod.enum(['CASH', 'DEBIT_CARD']),
+  "color": zod.string(),
+  "initialBalance": zod.number(),
+  "currentBalance": zod.number(),
+  "createdAt": zod.string().datetime({}),
+  "updatedAt": zod.string().datetime({})
+})
+
+
+/**
+ * @summary Delete a payment method
+ */
+export const PaymentMethodControllerRemoveParams = zod.object({
+  "id": zod.string()
 })

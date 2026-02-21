@@ -28,6 +28,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -86,16 +88,16 @@ export const getStoreItemControllerFindAllQueryKey = (id: string,
 
     
 export const getStoreItemControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof storeItemControllerFindAll>>, TError = unknown>(id: string,
-    params?: StoreItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemControllerFindAll>>, TError, TData>>, }
+    params?: StoreItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getStoreItemControllerFindAllQueryKey(id,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemControllerFindAll>>> = ({ signal }) => storeItemControllerFindAll(id,params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemControllerFindAll>>> = ({ signal }) => storeItemControllerFindAll(id,params, { signal, ...requestOptions });
 
       
 
@@ -116,7 +118,7 @@ export function useStoreItemControllerFindAll<TData = Awaited<ReturnType<typeof 
           TError,
           Awaited<ReturnType<typeof storeItemControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemControllerFindAll<TData = Awaited<ReturnType<typeof storeItemControllerFindAll>>, TError = unknown>(
@@ -127,12 +129,12 @@ export function useStoreItemControllerFindAll<TData = Awaited<ReturnType<typeof 
           TError,
           Awaited<ReturnType<typeof storeItemControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemControllerFindAll<TData = Awaited<ReturnType<typeof storeItemControllerFindAll>>, TError = unknown>(
  id: string,
-    params?: StoreItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemControllerFindAll>>, TError, TData>>, }
+    params?: StoreItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -141,7 +143,7 @@ export function useStoreItemControllerFindAll<TData = Awaited<ReturnType<typeof 
 
 export function useStoreItemControllerFindAll<TData = Awaited<ReturnType<typeof storeItemControllerFindAll>>, TError = unknown>(
  id: string,
-    params?: StoreItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemControllerFindAll>>, TError, TData>>, }
+    params?: StoreItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 

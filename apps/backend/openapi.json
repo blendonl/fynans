@@ -4202,6 +4202,198 @@
           "Basket"
         ]
       }
+    },
+    "/payment-methods": {
+      "post": {
+        "operationId": "PaymentMethodController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentMethodRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentMethodResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new payment method",
+        "tags": [
+          "PaymentMethod"
+        ]
+      },
+      "get": {
+        "operationId": "PaymentMethodController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentMethodResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all payment methods",
+        "tags": [
+          "PaymentMethod"
+        ]
+      }
+    },
+    "/payment-methods/balance-summary": {
+      "get": {
+        "operationId": "PaymentMethodController_getBalanceSummary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get balance summary",
+        "tags": [
+          "PaymentMethod"
+        ]
+      }
+    },
+    "/payment-methods/{id}": {
+      "get": {
+        "operationId": "PaymentMethodController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentMethodResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a payment method by ID",
+        "tags": [
+          "PaymentMethod"
+        ]
+      },
+      "put": {
+        "operationId": "PaymentMethodController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePaymentMethodRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentMethodResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a payment method",
+        "tags": [
+          "PaymentMethod"
+        ]
+      },
+      "delete": {
+        "operationId": "PaymentMethodController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a payment method",
+        "tags": [
+          "PaymentMethod"
+        ]
+      }
     }
   },
   "info": {
@@ -4411,6 +4603,10 @@
           "familyId": {
             "type": "string",
             "format": "uuid"
+          },
+          "paymentMethodId": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
@@ -4466,6 +4662,9 @@
           },
           "value": {
             "type": "number"
+          },
+          "paymentMethodId": {
+            "type": "string"
           },
           "recordedAt": {
             "format": "date-time",
@@ -5312,6 +5511,10 @@
           },
           "recordedAt": {
             "type": "string"
+          },
+          "paymentMethodId": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
@@ -5621,8 +5824,11 @@
           "categoryId": {
             "type": "string"
           },
-          "size": {
-            "$ref": "#/components/schemas/StoreItemSizeDto"
+          "sizes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StoreItemSizeDto"
+            }
           },
           "createdAt": {
             "format": "date-time",
@@ -5640,6 +5846,7 @@
           "price",
           "isDiscounted",
           "categoryId",
+          "sizes",
           "createdAt",
           "updatedAt"
         ]
@@ -6806,6 +7013,104 @@
         "required": [
           "expenseId"
         ]
+      },
+      "CreatePaymentMethodRequestDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "CASH",
+              "DEBIT_CARD"
+            ],
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "pattern": "/^#[0-9A-Fa-f]{6}$/"
+          },
+          "initialBalance": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ]
+      },
+      "PaymentMethodResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "CASH",
+              "DEBIT_CARD"
+            ],
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "initialBalance": {
+            "type": "number"
+          },
+          "currentBalance": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "name",
+          "type",
+          "color",
+          "initialBalance",
+          "currentBalance",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdatePaymentMethodRequestDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "enum": [
+              "CASH",
+              "DEBIT_CARD"
+            ],
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "pattern": "/^#[0-9A-Fa-f]{6}$/"
+          },
+          "initialBalance": {
+            "type": "number"
+          }
+        }
       }
     }
   }

@@ -37,6 +37,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -78,15 +80,15 @@ export const transactionControllerCreate = async (createTransactionRequestDto: C
 
 
 export const getTransactionControllerCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transactionControllerCreate>>, TError,{data: CreateTransactionRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transactionControllerCreate>>, TError,{data: CreateTransactionRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof transactionControllerCreate>>, TError,{data: CreateTransactionRequestDto}, TContext> => {
 
 const mutationKey = ['transactionControllerCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -94,7 +96,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof transactionControllerCreate>>, {data: CreateTransactionRequestDto}> = (props) => {
           const {data} = props ?? {};
 
-          return  transactionControllerCreate(data,)
+          return  transactionControllerCreate(data,requestOptions)
         }
 
 
@@ -112,7 +114,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Create a new transaction
  */
 export const useTransactionControllerCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transactionControllerCreate>>, TError,{data: CreateTransactionRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transactionControllerCreate>>, TError,{data: CreateTransactionRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof transactionControllerCreate>>,
         TError,
@@ -173,16 +175,16 @@ export const getTransactionControllerFindAllQueryKey = (params?: TransactionCont
     }
 
     
-export const getTransactionControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof transactionControllerFindAll>>, TError = unknown>(params?: TransactionControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerFindAll>>, TError, TData>>, }
+export const getTransactionControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof transactionControllerFindAll>>, TError = unknown>(params?: TransactionControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getTransactionControllerFindAllQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof transactionControllerFindAll>>> = ({ signal }) => transactionControllerFindAll(params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof transactionControllerFindAll>>> = ({ signal }) => transactionControllerFindAll(params, { signal, ...requestOptions });
 
       
 
@@ -202,7 +204,7 @@ export function useTransactionControllerFindAll<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof transactionControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useTransactionControllerFindAll<TData = Awaited<ReturnType<typeof transactionControllerFindAll>>, TError = unknown>(
@@ -212,11 +214,11 @@ export function useTransactionControllerFindAll<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof transactionControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useTransactionControllerFindAll<TData = Awaited<ReturnType<typeof transactionControllerFindAll>>, TError = unknown>(
- params?: TransactionControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerFindAll>>, TError, TData>>, }
+ params?: TransactionControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -224,7 +226,7 @@ export function useTransactionControllerFindAll<TData = Awaited<ReturnType<typeo
  */
 
 export function useTransactionControllerFindAll<TData = Awaited<ReturnType<typeof transactionControllerFindAll>>, TError = unknown>(
- params?: TransactionControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerFindAll>>, TError, TData>>, }
+ params?: TransactionControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -290,16 +292,16 @@ export const getTransactionControllerGetStatisticsQueryKey = (params?: Transacti
     }
 
     
-export const getTransactionControllerGetStatisticsQueryOptions = <TData = Awaited<ReturnType<typeof transactionControllerGetStatistics>>, TError = unknown>(params?: TransactionControllerGetStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerGetStatistics>>, TError, TData>>, }
+export const getTransactionControllerGetStatisticsQueryOptions = <TData = Awaited<ReturnType<typeof transactionControllerGetStatistics>>, TError = unknown>(params?: TransactionControllerGetStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerGetStatistics>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getTransactionControllerGetStatisticsQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof transactionControllerGetStatistics>>> = ({ signal }) => transactionControllerGetStatistics(params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof transactionControllerGetStatistics>>> = ({ signal }) => transactionControllerGetStatistics(params, { signal, ...requestOptions });
 
       
 
@@ -319,7 +321,7 @@ export function useTransactionControllerGetStatistics<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof transactionControllerGetStatistics>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useTransactionControllerGetStatistics<TData = Awaited<ReturnType<typeof transactionControllerGetStatistics>>, TError = unknown>(
@@ -329,11 +331,11 @@ export function useTransactionControllerGetStatistics<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof transactionControllerGetStatistics>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useTransactionControllerGetStatistics<TData = Awaited<ReturnType<typeof transactionControllerGetStatistics>>, TError = unknown>(
- params?: TransactionControllerGetStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerGetStatistics>>, TError, TData>>, }
+ params?: TransactionControllerGetStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerGetStatistics>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -341,7 +343,7 @@ export function useTransactionControllerGetStatistics<TData = Awaited<ReturnType
  */
 
 export function useTransactionControllerGetStatistics<TData = Awaited<ReturnType<typeof transactionControllerGetStatistics>>, TError = unknown>(
- params?: TransactionControllerGetStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerGetStatistics>>, TError, TData>>, }
+ params?: TransactionControllerGetStatisticsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerGetStatistics>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -400,16 +402,16 @@ export const getTransactionControllerFindOneQueryKey = (id: string,) => {
     }
 
     
-export const getTransactionControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof transactionControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerFindOne>>, TError, TData>>, }
+export const getTransactionControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof transactionControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getTransactionControllerFindOneQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof transactionControllerFindOne>>> = ({ signal }) => transactionControllerFindOne(id, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof transactionControllerFindOne>>> = ({ signal }) => transactionControllerFindOne(id, { signal, ...requestOptions });
 
       
 
@@ -429,7 +431,7 @@ export function useTransactionControllerFindOne<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof transactionControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useTransactionControllerFindOne<TData = Awaited<ReturnType<typeof transactionControllerFindOne>>, TError = unknown>(
@@ -439,11 +441,11 @@ export function useTransactionControllerFindOne<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof transactionControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useTransactionControllerFindOne<TData = Awaited<ReturnType<typeof transactionControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -451,7 +453,7 @@ export function useTransactionControllerFindOne<TData = Awaited<ReturnType<typeo
  */
 
 export function useTransactionControllerFindOne<TData = Awaited<ReturnType<typeof transactionControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof transactionControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -505,15 +507,15 @@ export const transactionControllerUpdate = async (id: string,
 
 
 export const getTransactionControllerUpdateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transactionControllerUpdate>>, TError,{id: string;data: UpdateTransactionRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transactionControllerUpdate>>, TError,{id: string;data: UpdateTransactionRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof transactionControllerUpdate>>, TError,{id: string;data: UpdateTransactionRequestDto}, TContext> => {
 
 const mutationKey = ['transactionControllerUpdate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -521,7 +523,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof transactionControllerUpdate>>, {id: string;data: UpdateTransactionRequestDto}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  transactionControllerUpdate(id,data,)
+          return  transactionControllerUpdate(id,data,requestOptions)
         }
 
 
@@ -539,7 +541,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Update a transaction
  */
 export const useTransactionControllerUpdate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transactionControllerUpdate>>, TError,{id: string;data: UpdateTransactionRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transactionControllerUpdate>>, TError,{id: string;data: UpdateTransactionRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof transactionControllerUpdate>>,
         TError,
@@ -586,15 +588,15 @@ export const transactionControllerRemove = async (id: string, options?: RequestI
 
 
 export const getTransactionControllerRemoveMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transactionControllerRemove>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transactionControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof transactionControllerRemove>>, TError,{id: string}, TContext> => {
 
 const mutationKey = ['transactionControllerRemove'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -602,7 +604,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof transactionControllerRemove>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  transactionControllerRemove(id,)
+          return  transactionControllerRemove(id,requestOptions)
         }
 
 
@@ -620,7 +622,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Delete a transaction
  */
 export const useTransactionControllerRemove = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transactionControllerRemove>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof transactionControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof transactionControllerRemove>>,
         TError,

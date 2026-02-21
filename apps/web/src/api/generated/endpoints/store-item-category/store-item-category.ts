@@ -36,6 +36,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -77,15 +79,15 @@ export const storeItemCategoryControllerCreate = async (createStoreItemCategoryR
 
 
 export const getStoreItemCategoryControllerCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerCreate>>, TError,{data: CreateStoreItemCategoryRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerCreate>>, TError,{data: CreateStoreItemCategoryRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerCreate>>, TError,{data: CreateStoreItemCategoryRequestDto}, TContext> => {
 
 const mutationKey = ['storeItemCategoryControllerCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -93,7 +95,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof storeItemCategoryControllerCreate>>, {data: CreateStoreItemCategoryRequestDto}> = (props) => {
           const {data} = props ?? {};
 
-          return  storeItemCategoryControllerCreate(data,)
+          return  storeItemCategoryControllerCreate(data,requestOptions)
         }
 
 
@@ -111,7 +113,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Create a store item category
  */
 export const useStoreItemCategoryControllerCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerCreate>>, TError,{data: CreateStoreItemCategoryRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerCreate>>, TError,{data: CreateStoreItemCategoryRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof storeItemCategoryControllerCreate>>,
         TError,
@@ -172,16 +174,16 @@ export const getStoreItemCategoryControllerFindAllQueryKey = (params?: StoreItem
     }
 
     
-export const getStoreItemCategoryControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>, TError = unknown>(params: StoreItemCategoryControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>, TError, TData>>, }
+export const getStoreItemCategoryControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>, TError = unknown>(params: StoreItemCategoryControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getStoreItemCategoryControllerFindAllQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>> = ({ signal }) => storeItemCategoryControllerFindAll(params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>> = ({ signal }) => storeItemCategoryControllerFindAll(params, { signal, ...requestOptions });
 
       
 
@@ -201,7 +203,7 @@ export function useStoreItemCategoryControllerFindAll<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemCategoryControllerFindAll<TData = Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>, TError = unknown>(
@@ -211,11 +213,11 @@ export function useStoreItemCategoryControllerFindAll<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemCategoryControllerFindAll<TData = Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>, TError = unknown>(
- params: StoreItemCategoryControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>, TError, TData>>, }
+ params: StoreItemCategoryControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -223,7 +225,7 @@ export function useStoreItemCategoryControllerFindAll<TData = Awaited<ReturnType
  */
 
 export function useStoreItemCategoryControllerFindAll<TData = Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>, TError = unknown>(
- params: StoreItemCategoryControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>, TError, TData>>, }
+ params: StoreItemCategoryControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -282,16 +284,16 @@ export const getStoreItemCategoryControllerGetTreeQueryKey = () => {
     }
 
     
-export const getStoreItemCategoryControllerGetTreeQueryOptions = <TData = Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>, TError, TData>>, }
+export const getStoreItemCategoryControllerGetTreeQueryOptions = <TData = Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getStoreItemCategoryControllerGetTreeQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>> = ({ signal }) => storeItemCategoryControllerGetTree({ signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>> = ({ signal }) => storeItemCategoryControllerGetTree({ signal, ...requestOptions });
 
       
 
@@ -311,7 +313,7 @@ export function useStoreItemCategoryControllerGetTree<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemCategoryControllerGetTree<TData = Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>, TError = unknown>(
@@ -321,11 +323,11 @@ export function useStoreItemCategoryControllerGetTree<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemCategoryControllerGetTree<TData = Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -333,7 +335,7 @@ export function useStoreItemCategoryControllerGetTree<TData = Awaited<ReturnType
  */
 
 export function useStoreItemCategoryControllerGetTree<TData = Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerGetTree>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -392,16 +394,16 @@ export const getStoreItemCategoryControllerFindOneQueryKey = (id: string,) => {
     }
 
     
-export const getStoreItemCategoryControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>, TError, TData>>, }
+export const getStoreItemCategoryControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getStoreItemCategoryControllerFindOneQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>> = ({ signal }) => storeItemCategoryControllerFindOne(id, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>> = ({ signal }) => storeItemCategoryControllerFindOne(id, { signal, ...requestOptions });
 
       
 
@@ -421,7 +423,7 @@ export function useStoreItemCategoryControllerFindOne<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemCategoryControllerFindOne<TData = Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>, TError = unknown>(
@@ -431,11 +433,11 @@ export function useStoreItemCategoryControllerFindOne<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemCategoryControllerFindOne<TData = Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -443,7 +445,7 @@ export function useStoreItemCategoryControllerFindOne<TData = Awaited<ReturnType
  */
 
 export function useStoreItemCategoryControllerFindOne<TData = Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemCategoryControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -497,15 +499,15 @@ export const storeItemCategoryControllerUpdate = async (id: string,
 
 
 export const getStoreItemCategoryControllerUpdateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerUpdate>>, TError,{id: string;data: UpdateStoreItemCategoryRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerUpdate>>, TError,{id: string;data: UpdateStoreItemCategoryRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerUpdate>>, TError,{id: string;data: UpdateStoreItemCategoryRequestDto}, TContext> => {
 
 const mutationKey = ['storeItemCategoryControllerUpdate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -513,7 +515,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof storeItemCategoryControllerUpdate>>, {id: string;data: UpdateStoreItemCategoryRequestDto}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  storeItemCategoryControllerUpdate(id,data,)
+          return  storeItemCategoryControllerUpdate(id,data,requestOptions)
         }
 
 
@@ -531,7 +533,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Update a store item category
  */
 export const useStoreItemCategoryControllerUpdate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerUpdate>>, TError,{id: string;data: UpdateStoreItemCategoryRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerUpdate>>, TError,{id: string;data: UpdateStoreItemCategoryRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof storeItemCategoryControllerUpdate>>,
         TError,
@@ -578,15 +580,15 @@ export const storeItemCategoryControllerRemove = async (id: string, options?: Re
 
 
 export const getStoreItemCategoryControllerRemoveMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerRemove>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerRemove>>, TError,{id: string}, TContext> => {
 
 const mutationKey = ['storeItemCategoryControllerRemove'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -594,7 +596,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof storeItemCategoryControllerRemove>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  storeItemCategoryControllerRemove(id,)
+          return  storeItemCategoryControllerRemove(id,requestOptions)
         }
 
 
@@ -612,7 +614,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Delete a store item category
  */
 export const useStoreItemCategoryControllerRemove = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerRemove>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemCategoryControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof storeItemCategoryControllerRemove>>,
         TError,

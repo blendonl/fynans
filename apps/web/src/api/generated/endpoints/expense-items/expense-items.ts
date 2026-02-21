@@ -36,6 +36,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -85,15 +87,15 @@ export const expenseItemControllerCreate = async (createExpenseItemRequestDto: C
 
 
 export const getExpenseItemControllerCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerCreate>>, TError,{data: CreateExpenseItemRequestDto;params: ExpenseItemControllerCreateParams}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerCreate>>, TError,{data: CreateExpenseItemRequestDto;params: ExpenseItemControllerCreateParams}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerCreate>>, TError,{data: CreateExpenseItemRequestDto;params: ExpenseItemControllerCreateParams}, TContext> => {
 
 const mutationKey = ['expenseItemControllerCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -101,7 +103,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof expenseItemControllerCreate>>, {data: CreateExpenseItemRequestDto;params: ExpenseItemControllerCreateParams}> = (props) => {
           const {data,params} = props ?? {};
 
-          return  expenseItemControllerCreate(data,params,)
+          return  expenseItemControllerCreate(data,params,requestOptions)
         }
 
 
@@ -119,7 +121,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Create a new expense item
  */
 export const useExpenseItemControllerCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerCreate>>, TError,{data: CreateExpenseItemRequestDto;params: ExpenseItemControllerCreateParams}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerCreate>>, TError,{data: CreateExpenseItemRequestDto;params: ExpenseItemControllerCreateParams}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof expenseItemControllerCreate>>,
         TError,
@@ -180,16 +182,16 @@ export const getExpenseItemControllerFindAllQueryKey = (params?: ExpenseItemCont
     }
 
     
-export const getExpenseItemControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof expenseItemControllerFindAll>>, TError = unknown>(params: ExpenseItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseItemControllerFindAll>>, TError, TData>>, }
+export const getExpenseItemControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof expenseItemControllerFindAll>>, TError = unknown>(params: ExpenseItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseItemControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getExpenseItemControllerFindAllQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof expenseItemControllerFindAll>>> = ({ signal }) => expenseItemControllerFindAll(params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof expenseItemControllerFindAll>>> = ({ signal }) => expenseItemControllerFindAll(params, { signal, ...requestOptions });
 
       
 
@@ -209,7 +211,7 @@ export function useExpenseItemControllerFindAll<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof expenseItemControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExpenseItemControllerFindAll<TData = Awaited<ReturnType<typeof expenseItemControllerFindAll>>, TError = unknown>(
@@ -219,11 +221,11 @@ export function useExpenseItemControllerFindAll<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof expenseItemControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExpenseItemControllerFindAll<TData = Awaited<ReturnType<typeof expenseItemControllerFindAll>>, TError = unknown>(
- params: ExpenseItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseItemControllerFindAll>>, TError, TData>>, }
+ params: ExpenseItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseItemControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -231,7 +233,7 @@ export function useExpenseItemControllerFindAll<TData = Awaited<ReturnType<typeo
  */
 
 export function useExpenseItemControllerFindAll<TData = Awaited<ReturnType<typeof expenseItemControllerFindAll>>, TError = unknown>(
- params: ExpenseItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseItemControllerFindAll>>, TError, TData>>, }
+ params: ExpenseItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseItemControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -290,16 +292,16 @@ export const getExpenseItemControllerFindOneQueryKey = (id: string,) => {
     }
 
     
-export const getExpenseItemControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof expenseItemControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseItemControllerFindOne>>, TError, TData>>, }
+export const getExpenseItemControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof expenseItemControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseItemControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getExpenseItemControllerFindOneQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof expenseItemControllerFindOne>>> = ({ signal }) => expenseItemControllerFindOne(id, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof expenseItemControllerFindOne>>> = ({ signal }) => expenseItemControllerFindOne(id, { signal, ...requestOptions });
 
       
 
@@ -319,7 +321,7 @@ export function useExpenseItemControllerFindOne<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof expenseItemControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExpenseItemControllerFindOne<TData = Awaited<ReturnType<typeof expenseItemControllerFindOne>>, TError = unknown>(
@@ -329,11 +331,11 @@ export function useExpenseItemControllerFindOne<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof expenseItemControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useExpenseItemControllerFindOne<TData = Awaited<ReturnType<typeof expenseItemControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseItemControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseItemControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -341,7 +343,7 @@ export function useExpenseItemControllerFindOne<TData = Awaited<ReturnType<typeo
  */
 
 export function useExpenseItemControllerFindOne<TData = Awaited<ReturnType<typeof expenseItemControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseItemControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof expenseItemControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -395,15 +397,15 @@ export const expenseItemControllerUpdate = async (id: string,
 
 
 export const getExpenseItemControllerUpdateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerUpdate>>, TError,{id: string;data: UpdateExpenseItemRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerUpdate>>, TError,{id: string;data: UpdateExpenseItemRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerUpdate>>, TError,{id: string;data: UpdateExpenseItemRequestDto}, TContext> => {
 
 const mutationKey = ['expenseItemControllerUpdate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -411,7 +413,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof expenseItemControllerUpdate>>, {id: string;data: UpdateExpenseItemRequestDto}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  expenseItemControllerUpdate(id,data,)
+          return  expenseItemControllerUpdate(id,data,requestOptions)
         }
 
 
@@ -429,7 +431,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Update an expense item
  */
 export const useExpenseItemControllerUpdate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerUpdate>>, TError,{id: string;data: UpdateExpenseItemRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerUpdate>>, TError,{id: string;data: UpdateExpenseItemRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof expenseItemControllerUpdate>>,
         TError,
@@ -476,15 +478,15 @@ export const expenseItemControllerRemove = async (id: string, options?: RequestI
 
 
 export const getExpenseItemControllerRemoveMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerRemove>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerRemove>>, TError,{id: string}, TContext> => {
 
 const mutationKey = ['expenseItemControllerRemove'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -492,7 +494,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof expenseItemControllerRemove>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  expenseItemControllerRemove(id,)
+          return  expenseItemControllerRemove(id,requestOptions)
         }
 
 
@@ -510,7 +512,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Delete an expense item
  */
 export const useExpenseItemControllerRemove = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerRemove>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof expenseItemControllerRemove>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof expenseItemControllerRemove>>,
         TError,

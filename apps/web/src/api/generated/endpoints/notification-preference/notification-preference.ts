@@ -37,6 +37,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -84,16 +86,16 @@ export const getNotificationPreferenceControllerGetPreferencesQueryKey = () => {
     }
 
     
-export const getNotificationPreferenceControllerGetPreferencesQueryOptions = <TData = Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>, TError, TData>>, }
+export const getNotificationPreferenceControllerGetPreferencesQueryOptions = <TData = Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getNotificationPreferenceControllerGetPreferencesQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>> = ({ signal }) => notificationPreferenceControllerGetPreferences({ signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>> = ({ signal }) => notificationPreferenceControllerGetPreferences({ signal, ...requestOptions });
 
       
 
@@ -113,7 +115,7 @@ export function useNotificationPreferenceControllerGetPreferences<TData = Awaite
           TError,
           Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useNotificationPreferenceControllerGetPreferences<TData = Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>, TError = unknown>(
@@ -123,11 +125,11 @@ export function useNotificationPreferenceControllerGetPreferences<TData = Awaite
           TError,
           Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useNotificationPreferenceControllerGetPreferences<TData = Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -135,7 +137,7 @@ export function useNotificationPreferenceControllerGetPreferences<TData = Awaite
  */
 
 export function useNotificationPreferenceControllerGetPreferences<TData = Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationPreferenceControllerGetPreferences>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -188,15 +190,15 @@ export const notificationPreferenceControllerUpdatePreferences = async (updatePr
 
 
 export const getNotificationPreferenceControllerUpdatePreferencesMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUpdatePreferences>>, TError,{data: UpdatePreferenceRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUpdatePreferences>>, TError,{data: UpdatePreferenceRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUpdatePreferences>>, TError,{data: UpdatePreferenceRequestDto}, TContext> => {
 
 const mutationKey = ['notificationPreferenceControllerUpdatePreferences'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -204,7 +206,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof notificationPreferenceControllerUpdatePreferences>>, {data: UpdatePreferenceRequestDto}> = (props) => {
           const {data} = props ?? {};
 
-          return  notificationPreferenceControllerUpdatePreferences(data,)
+          return  notificationPreferenceControllerUpdatePreferences(data,requestOptions)
         }
 
 
@@ -222,7 +224,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Update notification preferences
  */
 export const useNotificationPreferenceControllerUpdatePreferences = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUpdatePreferences>>, TError,{data: UpdatePreferenceRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUpdatePreferences>>, TError,{data: UpdatePreferenceRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof notificationPreferenceControllerUpdatePreferences>>,
         TError,
@@ -270,15 +272,15 @@ export const notificationPreferenceControllerRegisterDevice = async (registerTok
 
 
 export const getNotificationPreferenceControllerRegisterDeviceMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerRegisterDevice>>, TError,{data: RegisterTokenRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerRegisterDevice>>, TError,{data: RegisterTokenRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerRegisterDevice>>, TError,{data: RegisterTokenRequestDto}, TContext> => {
 
 const mutationKey = ['notificationPreferenceControllerRegisterDevice'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -286,7 +288,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof notificationPreferenceControllerRegisterDevice>>, {data: RegisterTokenRequestDto}> = (props) => {
           const {data} = props ?? {};
 
-          return  notificationPreferenceControllerRegisterDevice(data,)
+          return  notificationPreferenceControllerRegisterDevice(data,requestOptions)
         }
 
 
@@ -304,7 +306,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Register a device token for push notifications
  */
 export const useNotificationPreferenceControllerRegisterDevice = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerRegisterDevice>>, TError,{data: RegisterTokenRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerRegisterDevice>>, TError,{data: RegisterTokenRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof notificationPreferenceControllerRegisterDevice>>,
         TError,
@@ -351,15 +353,15 @@ export const notificationPreferenceControllerUnregisterDevice = async (token: st
 
 
 export const getNotificationPreferenceControllerUnregisterDeviceMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterDevice>>, TError,{token: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterDevice>>, TError,{token: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterDevice>>, TError,{token: string}, TContext> => {
 
 const mutationKey = ['notificationPreferenceControllerUnregisterDevice'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -367,7 +369,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterDevice>>, {token: string}> = (props) => {
           const {token} = props ?? {};
 
-          return  notificationPreferenceControllerUnregisterDevice(token,)
+          return  notificationPreferenceControllerUnregisterDevice(token,requestOptions)
         }
 
 
@@ -385,7 +387,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Unregister a device token
  */
 export const useNotificationPreferenceControllerUnregisterDevice = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterDevice>>, TError,{token: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterDevice>>, TError,{token: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterDevice>>,
         TError,
@@ -433,15 +435,15 @@ export const notificationPreferenceControllerRegisterWebPush = async (registerWe
 
 
 export const getNotificationPreferenceControllerRegisterWebPushMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerRegisterWebPush>>, TError,{data: RegisterWebPushRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerRegisterWebPush>>, TError,{data: RegisterWebPushRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerRegisterWebPush>>, TError,{data: RegisterWebPushRequestDto}, TContext> => {
 
 const mutationKey = ['notificationPreferenceControllerRegisterWebPush'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -449,7 +451,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof notificationPreferenceControllerRegisterWebPush>>, {data: RegisterWebPushRequestDto}> = (props) => {
           const {data} = props ?? {};
 
-          return  notificationPreferenceControllerRegisterWebPush(data,)
+          return  notificationPreferenceControllerRegisterWebPush(data,requestOptions)
         }
 
 
@@ -467,7 +469,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Register a web push subscription
  */
 export const useNotificationPreferenceControllerRegisterWebPush = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerRegisterWebPush>>, TError,{data: RegisterWebPushRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerRegisterWebPush>>, TError,{data: RegisterWebPushRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof notificationPreferenceControllerRegisterWebPush>>,
         TError,
@@ -514,15 +516,15 @@ export const notificationPreferenceControllerUnregisterWebPush = async ( options
 
 
 export const getNotificationPreferenceControllerUnregisterWebPushMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterWebPush>>, TError,void, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterWebPush>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterWebPush>>, TError,void, TContext> => {
 
 const mutationKey = ['notificationPreferenceControllerUnregisterWebPush'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -530,7 +532,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterWebPush>>, void> = () => {
           
 
-          return  notificationPreferenceControllerUnregisterWebPush()
+          return  notificationPreferenceControllerUnregisterWebPush(requestOptions)
         }
 
 
@@ -548,7 +550,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Unregister a web push subscription
  */
 export const useNotificationPreferenceControllerUnregisterWebPush = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterWebPush>>, TError,void, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterWebPush>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof notificationPreferenceControllerUnregisterWebPush>>,
         TError,
@@ -602,16 +604,16 @@ export const getNotificationPreferenceControllerGetVapidKeyQueryKey = () => {
     }
 
     
-export const getNotificationPreferenceControllerGetVapidKeyQueryOptions = <TData = Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>, TError, TData>>, }
+export const getNotificationPreferenceControllerGetVapidKeyQueryOptions = <TData = Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getNotificationPreferenceControllerGetVapidKeyQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>> = ({ signal }) => notificationPreferenceControllerGetVapidKey({ signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>> = ({ signal }) => notificationPreferenceControllerGetVapidKey({ signal, ...requestOptions });
 
       
 
@@ -631,7 +633,7 @@ export function useNotificationPreferenceControllerGetVapidKey<TData = Awaited<R
           TError,
           Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useNotificationPreferenceControllerGetVapidKey<TData = Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>, TError = unknown>(
@@ -641,11 +643,11 @@ export function useNotificationPreferenceControllerGetVapidKey<TData = Awaited<R
           TError,
           Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useNotificationPreferenceControllerGetVapidKey<TData = Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -653,7 +655,7 @@ export function useNotificationPreferenceControllerGetVapidKey<TData = Awaited<R
  */
 
 export function useNotificationPreferenceControllerGetVapidKey<TData = Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationPreferenceControllerGetVapidKey>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 

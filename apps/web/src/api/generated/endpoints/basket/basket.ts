@@ -36,6 +36,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -83,16 +85,16 @@ export const getBasketControllerListBasketsQueryKey = () => {
     }
 
     
-export const getBasketControllerListBasketsQueryOptions = <TData = Awaited<ReturnType<typeof basketControllerListBaskets>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof basketControllerListBaskets>>, TError, TData>>, }
+export const getBasketControllerListBasketsQueryOptions = <TData = Awaited<ReturnType<typeof basketControllerListBaskets>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof basketControllerListBaskets>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getBasketControllerListBasketsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof basketControllerListBaskets>>> = ({ signal }) => basketControllerListBaskets({ signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof basketControllerListBaskets>>> = ({ signal }) => basketControllerListBaskets({ signal, ...requestOptions });
 
       
 
@@ -112,7 +114,7 @@ export function useBasketControllerListBaskets<TData = Awaited<ReturnType<typeof
           TError,
           Awaited<ReturnType<typeof basketControllerListBaskets>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useBasketControllerListBaskets<TData = Awaited<ReturnType<typeof basketControllerListBaskets>>, TError = unknown>(
@@ -122,11 +124,11 @@ export function useBasketControllerListBaskets<TData = Awaited<ReturnType<typeof
           TError,
           Awaited<ReturnType<typeof basketControllerListBaskets>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useBasketControllerListBaskets<TData = Awaited<ReturnType<typeof basketControllerListBaskets>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof basketControllerListBaskets>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof basketControllerListBaskets>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -134,7 +136,7 @@ export function useBasketControllerListBaskets<TData = Awaited<ReturnType<typeof
  */
 
 export function useBasketControllerListBaskets<TData = Awaited<ReturnType<typeof basketControllerListBaskets>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof basketControllerListBaskets>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof basketControllerListBaskets>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -188,15 +190,15 @@ export const basketControllerAddItem = async (basketId: string,
 
 
 export const getBasketControllerAddItemMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerAddItem>>, TError,{basketId: string;data: AddBasketItemRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerAddItem>>, TError,{basketId: string;data: AddBasketItemRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof basketControllerAddItem>>, TError,{basketId: string;data: AddBasketItemRequestDto}, TContext> => {
 
 const mutationKey = ['basketControllerAddItem'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -204,7 +206,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof basketControllerAddItem>>, {basketId: string;data: AddBasketItemRequestDto}> = (props) => {
           const {basketId,data} = props ?? {};
 
-          return  basketControllerAddItem(basketId,data,)
+          return  basketControllerAddItem(basketId,data,requestOptions)
         }
 
 
@@ -222,7 +224,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Add an item to a basket
  */
 export const useBasketControllerAddItem = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerAddItem>>, TError,{basketId: string;data: AddBasketItemRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerAddItem>>, TError,{basketId: string;data: AddBasketItemRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof basketControllerAddItem>>,
         TError,
@@ -271,15 +273,15 @@ export const basketControllerUpdateItem = async (itemId: string,
 
 
 export const getBasketControllerUpdateItemMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerUpdateItem>>, TError,{itemId: string;data: UpdateBasketItemRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerUpdateItem>>, TError,{itemId: string;data: UpdateBasketItemRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof basketControllerUpdateItem>>, TError,{itemId: string;data: UpdateBasketItemRequestDto}, TContext> => {
 
 const mutationKey = ['basketControllerUpdateItem'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -287,7 +289,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof basketControllerUpdateItem>>, {itemId: string;data: UpdateBasketItemRequestDto}> = (props) => {
           const {itemId,data} = props ?? {};
 
-          return  basketControllerUpdateItem(itemId,data,)
+          return  basketControllerUpdateItem(itemId,data,requestOptions)
         }
 
 
@@ -305,7 +307,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Update a basket item
  */
 export const useBasketControllerUpdateItem = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerUpdateItem>>, TError,{itemId: string;data: UpdateBasketItemRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerUpdateItem>>, TError,{itemId: string;data: UpdateBasketItemRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof basketControllerUpdateItem>>,
         TError,
@@ -352,15 +354,15 @@ export const basketControllerRemoveItem = async (itemId: string, options?: Reque
 
 
 export const getBasketControllerRemoveItemMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerRemoveItem>>, TError,{itemId: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerRemoveItem>>, TError,{itemId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof basketControllerRemoveItem>>, TError,{itemId: string}, TContext> => {
 
 const mutationKey = ['basketControllerRemoveItem'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -368,7 +370,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof basketControllerRemoveItem>>, {itemId: string}> = (props) => {
           const {itemId} = props ?? {};
 
-          return  basketControllerRemoveItem(itemId,)
+          return  basketControllerRemoveItem(itemId,requestOptions)
         }
 
 
@@ -386,7 +388,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Remove an item from a basket
  */
 export const useBasketControllerRemoveItem = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerRemoveItem>>, TError,{itemId: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerRemoveItem>>, TError,{itemId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof basketControllerRemoveItem>>,
         TError,
@@ -435,15 +437,15 @@ export const basketControllerCheckout = async (basketId: string,
 
 
 export const getBasketControllerCheckoutMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerCheckout>>, TError,{basketId: string;data: CheckoutBasketRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerCheckout>>, TError,{basketId: string;data: CheckoutBasketRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof basketControllerCheckout>>, TError,{basketId: string;data: CheckoutBasketRequestDto}, TContext> => {
 
 const mutationKey = ['basketControllerCheckout'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -451,7 +453,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof basketControllerCheckout>>, {basketId: string;data: CheckoutBasketRequestDto}> = (props) => {
           const {basketId,data} = props ?? {};
 
-          return  basketControllerCheckout(basketId,data,)
+          return  basketControllerCheckout(basketId,data,requestOptions)
         }
 
 
@@ -469,7 +471,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Checkout basket items into an expense
  */
 export const useBasketControllerCheckout = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerCheckout>>, TError,{basketId: string;data: CheckoutBasketRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof basketControllerCheckout>>, TError,{basketId: string;data: CheckoutBasketRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof basketControllerCheckout>>,
         TError,
