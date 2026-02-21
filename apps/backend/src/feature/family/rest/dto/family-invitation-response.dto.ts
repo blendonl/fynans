@@ -1,14 +1,32 @@
-import { FamilyInvitation } from '../../core/domain/entities/family-invitation.entity';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { FamilyInvitation, FamilyInvitationStatus } from '../../core/domain/entities/family-invitation.entity';
 
 export class FamilyInvitationResponseDto {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
   familyId: string;
+
+  @ApiProperty()
   inviterId: string;
+
+  @ApiPropertyOptional()
   inviteeId?: string;
+
+  @ApiProperty()
   inviteeEmail: string;
+
+  @ApiProperty({ enum: FamilyInvitationStatus })
   status: string;
+
+  @ApiProperty()
   expiresAt: Date;
+
+  @ApiProperty()
   createdAt: Date;
+
+  @ApiProperty()
   updatedAt: Date;
 
   static fromEntity(invitation: FamilyInvitation): FamilyInvitationResponseDto {

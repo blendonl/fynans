@@ -13,8 +13,6 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
-  ApiProperty,
-  ApiPropertyOptional,
 } from '@nestjs/swagger';
 import { FamilyService } from '../../core/application/services/family.service';
 import { CreateFamilyRequestDto } from '../dto/create-family-request.dto';
@@ -25,63 +23,6 @@ import { FamilyInvitationResponseDto } from '../dto/family-invitation-response.d
 import { FamilyMemberResponseDto } from '../dto/family-member-response.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
-import { FamilyInvitationStatus } from '../../core/domain/entities/family-invitation.entity';
-import { FamilyMemberRole } from '../../core/domain/entities/family-member.entity';
-
-export class FamilyInvitationResponseDto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
-  familyId: string;
-
-  @ApiProperty()
-  inviterId: string;
-
-  @ApiPropertyOptional()
-  inviteeId?: string;
-
-  @ApiProperty()
-  inviteeEmail: string;
-
-  @ApiProperty({ enum: FamilyInvitationStatus })
-  status: FamilyInvitationStatus;
-
-  @ApiProperty()
-  expiresAt: Date;
-
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
-}
-
-export class FamilyMemberResponseDto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
-  familyId: string;
-
-  @ApiProperty()
-  userId: string;
-
-  @ApiProperty({ enum: FamilyMemberRole })
-  role: FamilyMemberRole;
-
-  @ApiProperty()
-  balance: number;
-
-  @ApiProperty()
-  joinedAt: Date;
-
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
-}
 
 @ApiTags('Family')
 @ApiBearerAuth('bearer')
