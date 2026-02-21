@@ -1,23 +1,18 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
-import { PAGE_SIZE, type PaginatedResponse } from "@/lib/pagination";
+import { itemControllerFindAll } from "@/api/generated/endpoints/items/items";
 
-interface ItemResult {
-  id: string;
-  name: string;
-  categoryId: string;
-}
+const PAGE_SIZE = 20;
 
 export function useItems(search: string) {
   const itemsQuery = useInfiniteQuery({
     queryKey: ["items", search],
     queryFn: async ({ pageParam = 1 }) => {
-      const response = (await apiClient.get("/items", {
+      const response = await itemControllerFindAll({
         search,
-        page: String(pageParam),
-        limit: String(PAGE_SIZE),
-      })) as PaginatedResponse<ItemResult>;
-      return response;
+        page: pageParam,
+        limit: PAGE_SIZE,
+      } as Parameters<typeof itemControllerFindAll>[0]);
+      return response.data;
     },
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
       return (lastPageParam as number) * PAGE_SIZE < (lastPage.total ?? 0)

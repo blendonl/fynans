@@ -37,6 +37,12 @@ export type {
   PaginatedTransactionResponseDto,
 } from '@/api/generated/model';
 
+// Payment method types
+export type { PaymentMethodResponseDto as PaymentMethod } from '@/api/generated/model';
+export type { PaymentMethodResponseDtoType as PaymentMethodType } from '@/api/generated/model';
+export type { CreatePaymentMethodRequestDto as CreatePaymentMethodInput } from '@/api/generated/model';
+export type { UpdatePaymentMethodRequestDto as UpdatePaymentMethodInput } from '@/api/generated/model';
+
 // Local UI-only types
 export type { Transaction, TransactionItem, TransactionFilters, TransactionType, TransactionScope } from './transaction';
 export type { CurrentItem, ExpenseItem } from './expense';

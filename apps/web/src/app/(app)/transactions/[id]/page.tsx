@@ -4,7 +4,8 @@ import { use } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
-import { apiClient } from "@/lib/api-client";
+import { expenseControllerFindOne, expenseControllerRemove } from "@/api/generated/endpoints/expense/expense";
+import { incomeControllerFindOne, incomeControllerRemove } from "@/api/generated/endpoints/income/income";
 import { Button } from "@/components/ui/button";
 import { TransactionDetail } from "@/components/transactions/transaction-detail";
 import type { Transaction } from "@/types";
@@ -15,12 +16,14 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const type = searchParams.get("type") || "expense";
-  const endpoint = type === "income" ? "/incomes" : "/expenses";
 
   const { data: transaction, isLoading } = useQuery({
     queryKey: ["transaction", id, type],
     queryFn: async () => {
-      const data = await apiClient.get<Record<string, unknown>>(`${endpoint}/${id}`);
+      const res = type === "income"
+        ? await incomeControllerFindOne(id)
+        : await expenseControllerFindOne(id);
+      const data = res.data as unknown as Record<string, unknown>;
       const tx = data.transaction as Record<string, unknown> | undefined;
       return {
         id: data.id as string,
@@ -44,7 +47,11 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      await apiClient.delete(`${endpoint}/${id}`);
+      if (type === "income") {
+        await incomeControllerRemove(id);
+      } else {
+        await expenseControllerRemove(id);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });

@@ -1,20 +1,13 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
-
-interface StoreItemPrice {
-  id: string;
-  name: string;
-  price: number;
-  categoryId: string;
-}
+import { storeItemControllerFindAll } from "@/api/generated/endpoints/store-item/store-item";
 
 export function useStoreItemPrices(storeId: string | null) {
   const query = useQuery({
     queryKey: ["store-item-prices", storeId],
     queryFn: async () => {
-      const response = await apiClient.get<{ data: StoreItemPrice[]; total: number }>(`/stores/${storeId}/items`);
-      return response.data;
+      const response = await storeItemControllerFindAll(storeId!, {});
+      return response.data.data;
     },
     enabled: !!storeId,
     staleTime: 5 * 60 * 1000,

@@ -1,51 +1,39 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
+import {
+  paymentMethodControllerFindAll,
+  paymentMethodControllerCreate,
+  paymentMethodControllerUpdate,
+  paymentMethodControllerRemove,
+  getPaymentMethodControllerFindAllQueryKey,
+} from "@/api/generated/endpoints/payment-method/payment-method";
+import type {
+  PaymentMethodResponseDto,
+  CreatePaymentMethodRequestDto,
+  UpdatePaymentMethodRequestDto,
+} from "@/api/generated/model";
 
-export type PaymentMethodType = "CASH" | "DEBIT_CARD";
-
-export interface PaymentMethod {
-  id: string;
-  userId: string;
-  name: string;
-  type: PaymentMethodType;
-  color: string;
-  initialBalance: number;
-  currentBalance: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface CreatePaymentMethodInput {
-  name: string;
-  type: PaymentMethodType;
-  color?: string;
-  initialBalance?: number;
-}
-
-interface UpdatePaymentMethodInput {
-  name?: string;
-  type?: PaymentMethodType;
-  color?: string;
-  initialBalance?: number;
-}
+export type { PaymentMethodResponseDto as PaymentMethod } from "@/api/generated/model";
+export type { PaymentMethodResponseDtoType as PaymentMethodType } from "@/api/generated/model";
 
 export function usePaymentMethods() {
   const queryClient = useQueryClient();
 
   const paymentMethodsQuery = useQuery({
-    queryKey: ["payment-methods"],
+    queryKey: getPaymentMethodControllerFindAllQueryKey(),
     queryFn: async () => {
-      return apiClient.get<PaymentMethod[]>("/payment-methods");
+      const res = await paymentMethodControllerFindAll();
+      return res.data;
     },
   });
 
   const createPaymentMethod = useMutation({
-    mutationFn: async (input: CreatePaymentMethodInput) => {
-      return apiClient.post<PaymentMethod>("/payment-methods", input);
+    mutationFn: async (input: CreatePaymentMethodRequestDto) => {
+      const res = await paymentMethodControllerCreate(input);
+      return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
+      queryClient.invalidateQueries({ queryKey: getPaymentMethodControllerFindAllQueryKey() });
       toast.success("Payment method created");
     },
     onError: (error: Error) => {
@@ -54,11 +42,12 @@ export function usePaymentMethods() {
   });
 
   const updatePaymentMethod = useMutation({
-    mutationFn: async ({ id, ...input }: UpdatePaymentMethodInput & { id: string }) => {
-      return apiClient.put<PaymentMethod>(`/payment-methods/${id}`, input);
+    mutationFn: async ({ id, ...input }: UpdatePaymentMethodRequestDto & { id: string }) => {
+      const res = await paymentMethodControllerUpdate(id, input);
+      return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
+      queryClient.invalidateQueries({ queryKey: getPaymentMethodControllerFindAllQueryKey() });
       toast.success("Payment method updated");
     },
     onError: (error: Error) => {
@@ -68,10 +57,10 @@ export function usePaymentMethods() {
 
   const deletePaymentMethod = useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.delete(`/payment-methods/${id}`);
+      await paymentMethodControllerRemove(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
+      queryClient.invalidateQueries({ queryKey: getPaymentMethodControllerFindAllQueryKey() });
       toast.success("Payment method deleted");
     },
     onError: (error: Error) => {

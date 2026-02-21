@@ -1,15 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
 import type {
-  ExpenseResponse,
-  IncomeResponse,
   TransactionStatisticsResponse,
-  ExpenseStatisticsResponse,
   ExpenseTrendResponse,
 } from "@/types";
-import { DASHBOARD_RECENT_LIMIT, type PaginatedResponse } from "@/lib/pagination";
+import { transactionControllerGetStatistics } from "@/api/generated/endpoints/transaction/transaction";
+import { expenseControllerGetStatistics, expenseControllerGetTrends } from "@/api/generated/endpoints/expense/expense";
+import { expenseControllerFindAll } from "@/api/generated/endpoints/expense/expense";
+import { incomeControllerFindAll } from "@/api/generated/endpoints/income/income";
 import { formatDateForAPI, getChartGranularity } from "@/lib/date-utils";
 import { mapExpenseToTransaction, mapIncomeToTransaction, sortTransactionsByDate } from "@/lib/transaction-mappers";
+
+const DASHBOARD_RECENT_LIMIT = 5;
 
 export type { ExpenseTrendResponse as ExpenseTrendPoint } from "@/types";
 
@@ -61,50 +62,60 @@ export function useDashboardData({
 
   const statsQuery = useQuery({
     queryKey: ["dashboard-transaction-stats", dateFromStr, dateToStr],
-    queryFn: () =>
-      apiClient.get<TransactionStatisticsResponse>("/transactions/statistics", dateParams),
+    queryFn: async () => {
+      const res = await transactionControllerGetStatistics(dateParams);
+      return res.data;
+    },
   });
 
   const prevStatsQuery = useQuery({
     queryKey: ["dashboard-transaction-stats", prevFromStr, prevToStr],
-    queryFn: () =>
-      apiClient.get<TransactionStatisticsResponse>("/transactions/statistics", {
+    queryFn: async () => {
+      const res = await transactionControllerGetStatistics({
         dateFrom: prevFromStr,
         dateTo: prevToStr,
-      }),
+      });
+      return res.data;
+    },
   });
 
   const expenseStatsQuery = useQuery({
     queryKey: ["dashboard-expense-stats", dateFromStr, dateToStr],
-    queryFn: () =>
-      apiClient.get<ExpenseStatisticsResponse>("/expenses/statistics", dateParams),
+    queryFn: async () => {
+      const res = await expenseControllerGetStatistics(dateParams);
+      return res.data;
+    },
   });
 
   const prevExpenseStatsQuery = useQuery({
     queryKey: ["dashboard-expense-stats", prevFromStr, prevToStr],
-    queryFn: () =>
-      apiClient.get<ExpenseStatisticsResponse>("/expenses/statistics", {
+    queryFn: async () => {
+      const res = await expenseControllerGetStatistics({
         dateFrom: prevFromStr,
         dateTo: prevToStr,
-      }),
+      });
+      return res.data;
+    },
   });
 
   const trendsQuery = useQuery({
     queryKey: ["dashboard-expense-trends", dateFromStr, dateToStr, granularity],
-    queryFn: () =>
-      apiClient.get<ExpenseTrendResponse[]>("/expenses/trends", {
+    queryFn: async () => {
+      const res = await expenseControllerGetTrends({
         ...dateParams,
         groupBy: granularity,
-      }),
+      });
+      return res.data;
+    },
   });
 
   const recentQuery = useQuery({
     queryKey: ["dashboard-recent", dateFromStr, dateToStr],
     queryFn: async () => {
-      const limit = String(DASHBOARD_RECENT_LIMIT);
+      const limit = DASHBOARD_RECENT_LIMIT;
       const [expensesRes, incomesRes] = await Promise.all([
-        apiClient.get<PaginatedResponse<ExpenseResponse>>("/expenses", { limit, ...dateParams }),
-        apiClient.get<PaginatedResponse<IncomeResponse>>("/incomes", { limit, ...dateParams }),
+        expenseControllerFindAll({ limit, ...dateParams }).then((r) => r.data),
+        incomeControllerFindAll({ limit, ...dateParams }).then((r) => r.data),
       ]);
 
       const expenses = (expensesRes.data || []).map((e) => mapExpenseToTransaction(e));

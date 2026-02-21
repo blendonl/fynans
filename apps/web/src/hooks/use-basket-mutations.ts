@@ -1,6 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
 import type { BasketItem } from "@/types";
+import {
+  basketControllerAddItem,
+  basketControllerUpdateItem,
+  basketControllerRemoveItem,
+  basketControllerCheckout,
+} from "@/api/generated/endpoints/basket/basket";
 
 export function useBasketMutations(basketId: string | null) {
   const queryClient = useQueryClient();
@@ -14,10 +19,8 @@ export function useBasketMutations(basketId: string | null) {
       notes?: string;
     }) => {
       if (!basketId) throw new Error("No active basket");
-      return (await apiClient.post(
-        `/baskets/${basketId}/items`,
-        data,
-      )) as BasketItem;
+      const res = await basketControllerAddItem(basketId, data);
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["baskets"] });
@@ -36,10 +39,8 @@ export function useBasketMutations(basketId: string | null) {
       categoryId?: string | null;
       notes?: string | null;
     }) => {
-      return (await apiClient.put(
-        `/baskets/items/${itemId}`,
-        data,
-      )) as BasketItem;
+      const res = await basketControllerUpdateItem(itemId, data);
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["baskets"] });
@@ -48,7 +49,7 @@ export function useBasketMutations(basketId: string | null) {
 
   const removeItem = useMutation({
     mutationFn: async (itemId: string) => {
-      await apiClient.delete(`/baskets/items/${itemId}`);
+      await basketControllerRemoveItem(itemId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["baskets"] });
@@ -64,13 +65,14 @@ export function useBasketMutations(basketId: string | null) {
       recordedAt?: string;
     }) => {
       if (!basketId) throw new Error("No active basket");
-      return (await apiClient.post(`/baskets/${basketId}/checkout`, {
+      const res = await basketControllerCheckout(basketId, {
         itemIds: data.itemIds,
         categoryId: data.categoryId,
         storeId: data.storeId,
         itemOverrides: data.itemOverrides,
         recordedAt: data.recordedAt,
-      })) as { expenseId: string };
+      });
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["baskets"] });
