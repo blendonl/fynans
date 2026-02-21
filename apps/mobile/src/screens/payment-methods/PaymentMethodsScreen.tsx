@@ -16,12 +16,16 @@ import { Button, Input, Card } from '../../components/design-system';
 import { PriceInput } from '../../components/forms';
 import { useAppTheme } from '../../theme';
 import { useToast } from '../../context/ToastContext';
-import { apiClient } from '../../api/client';
-import { formatCurrency } from '../../utils/currency';
 import {
-  usePaymentMethods,
-  PaymentMethod,
-} from '../../hooks/usePaymentMethods';
+  paymentMethodControllerCreate,
+  paymentMethodControllerUpdate,
+  paymentMethodControllerRemove,
+} from '../../api/generated/endpoints/payment-method/payment-method';
+import { formatCurrency } from '../../utils/currency';
+import { usePaymentMethods } from '../../hooks/usePaymentMethods';
+import type { PaymentMethodResponseDto } from '../../api/generated/model';
+
+type PaymentMethod = PaymentMethodResponseDto;
 
 const PRESET_COLORS = [
   '#4CAF50',
@@ -95,17 +99,14 @@ export default function PaymentMethodsScreen() {
       };
 
       if (editingMethod) {
-        await apiClient.put(
-          `/payment-methods/${editingMethod.id}`,
-          payload,
-        );
+        await paymentMethodControllerUpdate(editingMethod.id, payload);
         showToast({
           type: 'SUCCESS',
           title: 'Updated',
           message: `${name} has been updated`,
         });
       } else {
-        await apiClient.post('/payment-methods', payload);
+        await paymentMethodControllerCreate(payload as any);
         showToast({
           type: 'SUCCESS',
           title: 'Created',
@@ -133,7 +134,7 @@ export default function PaymentMethodsScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await apiClient.delete(`/payment-methods/${method.id}`);
+              await paymentMethodControllerRemove(method.id);
               showToast({
                 type: 'SUCCESS',
                 title: 'Deleted',

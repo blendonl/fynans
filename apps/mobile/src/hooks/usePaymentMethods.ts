@@ -1,16 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { apiClient } from '../api/client';
-
-export interface PaymentMethod {
-  id: string;
-  name: string;
-  color: string;
-  initialBalance: number;
-  currentBalance: number;
-}
+import { paymentMethodControllerFindAll } from '../api/generated/endpoints/payment-method/payment-method';
+import type { PaymentMethodResponseDto } from '../api/generated/model';
 
 export function usePaymentMethods() {
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,8 +11,8 @@ export function usePaymentMethods() {
     try {
       setLoading(true);
       setError(null);
-      const data = await apiClient.get('/payment-methods');
-      setPaymentMethods(Array.isArray(data) ? data : data.data || []);
+      const { data } = await paymentMethodControllerFindAll();
+      setPaymentMethods(Array.isArray(data) ? data : []);
     } catch (err: any) {
       console.error('Failed to load payment methods:', err);
       setError(err.message || 'Failed to load payment methods');
