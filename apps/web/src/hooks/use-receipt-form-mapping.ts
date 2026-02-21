@@ -46,7 +46,7 @@ export function useReceiptFormMapping({
         autoSelectedCategory = {
           id: data.suggestedExpenseCategory.id,
           name: data.suggestedExpenseCategory.name,
-        };
+        } as Category;
         setSelectedCategory(autoSelectedCategory);
         toast.info(`Category auto-selected: ${data.suggestedExpenseCategory.name}`);
         queryClient.invalidateQueries({ queryKey: ["expense-categories"] });
@@ -54,7 +54,7 @@ export function useReceiptFormMapping({
       }
 
       if (data.store?.id) {
-        setSelectedStore({ id: data.store.id, name: data.store.name, location: data.store.location });
+        setSelectedStore({ id: data.store.id, name: data.store.name, location: data.store.location } as Store);
         queryClient.invalidateQueries({ queryKey: ["stores"] });
       }
 

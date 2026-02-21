@@ -3,10 +3,27 @@ import type {
   Family,
   ExpenseResponse,
   IncomeResponse,
+  TransactionResponse,
 } from "@/types";
 
+/**
+ * Runtime transaction responses include `familyId` and `description`,
+ * but these are not yet in the OpenAPI spec. Extend the generated type
+ * so the mapper can access them safely.
+ */
+interface TransactionWithExtras extends TransactionResponse {
+  familyId?: string | null;
+  description?: string;
+}
+
+/** Runtime expense responses include `receiptImages` not yet in the spec. */
+interface ExpenseWithExtras extends ExpenseResponse {
+  receiptImages?: string[];
+}
+
 export function mapExpenseToTransaction(expense: ExpenseResponse, family?: Family): Transaction {
-  const tx = expense.transaction;
+  const tx = expense.transaction as TransactionWithExtras | undefined;
+  const exp = expense as ExpenseWithExtras;
   return {
     id: expense.id,
     type: "expense",
@@ -36,12 +53,12 @@ export function mapExpenseToTransaction(expense: ExpenseResponse, family?: Famil
           quantity: item.quantity,
         }))
       : undefined,
-    receiptImages: expense.receiptImages || [],
+    receiptImages: exp.receiptImages || [],
   };
 }
 
 export function mapIncomeToTransaction(income: IncomeResponse, family?: Family): Transaction {
-  const tx = income.transaction;
+  const tx = income.transaction as TransactionWithExtras | undefined;
   return {
     id: income.id,
     type: "income",
