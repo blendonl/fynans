@@ -3,14 +3,16 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { format } from "date-fns";
 import { formatCurrency } from "@fynans/shared";
 import type { Category } from "@fynans/shared";
 import { apiClient } from "@/lib/api-client";
 import { useCategories } from "@/hooks/use-categories";
 import { useAiCategorySuggestion } from "@/hooks/use-ai-category-suggestion";
 import { useAutoAcceptSuggestion } from "@/hooks/use-auto-accept-suggestion";
+import { useCreateDialog } from "@/hooks/use-create-dialog";
 import { usePaymentMethods } from "@/hooks/use-payment-methods";
+import { useAutoSelectPaymentMethod } from "@/hooks/use-auto-select-payment-method";
+import { localNow } from "@/lib/date-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CategorySelector } from "@/components/add-expense/category-selector";
@@ -18,10 +20,6 @@ import { AddCategoryDialog } from "@/components/add-expense/add-category-dialog"
 import { AmountHero } from "./amount-hero";
 import { DateTimePicker } from "./date-time-picker";
 import { PaymentMethodSelector } from "./payment-method-selector";
-
-function localNow() {
-  return format(new Date(), "yyyy-MM-dd'T'HH:mm");
-}
 
 interface IncomeFormProps {
   onSuccess: () => void;
@@ -36,13 +34,12 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
   const ai = useAiCategorySuggestion();
 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<string | null>(null);
+  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useAutoSelectPaymentMethod(paymentMethods);
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [recordedAt, setRecordedAt] = useState(localNow);
 
-  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
+  const categoryDialog = useCreateDialog();
 
   // Trigger AI income category suggestion when note changes
   const prevNoteRef = useRef<string>("");
@@ -118,7 +115,7 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
             onSelect={setSelectedCategory}
             onClear={() => setSelectedCategory(null)}
             onSearch={() => {}}
-            onCreateNew={(name) => { setNewCategoryName(name); setShowCategoryDialog(true); }}
+            onCreateNew={(name) => categoryDialog.show(name)}
             isLoading={categoriesLoading}
             aiSuggestion={ai.incomeSuggestion}
             onAcceptSuggestion={ai.dismissIncomeSuggestion}
@@ -155,13 +152,13 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
 
       {/* Dialog */}
       <AddCategoryDialog
-        open={showCategoryDialog}
-        onOpenChange={setShowCategoryDialog}
-        initialName={newCategoryName}
+        open={categoryDialog.open}
+        onOpenChange={categoryDialog.setOpen}
+        initialName={categoryDialog.name}
         onSubmit={async (name, isConnectedToStore) => {
           const cat = await createCategory.mutateAsync({ name, isConnectedToStore });
           setSelectedCategory(cat);
-          setShowCategoryDialog(false);
+          categoryDialog.close();
         }}
         isLoading={createCategory.isPending}
       />
