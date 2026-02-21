@@ -5,15 +5,27 @@ import {
   useQueryClient,
   type InfiniteData,
 } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
-import { PAGE_SIZE, type PaginatedResponse } from "@/lib/pagination";
 import type { Notification } from "@/types";
+import {
+  notificationControllerGetNotifications,
+  notificationControllerGetUnreadCount,
+  notificationControllerMarkAsRead,
+  notificationControllerMarkAllAsRead,
+  notificationControllerDeleteNotification,
+} from "@/api/generated/endpoints/notification/notification";
+
+const PAGE_SIZE = 20;
 
 interface UseNotificationsOptions {
   filter?: "all" | "unread";
 }
 
-type NotificationPage = PaginatedResponse<Notification>;
+interface NotificationPage {
+  data: Notification[];
+  total: number;
+  page: number;
+  limit: number;
+}
 
 export function useNotifications(options: UseNotificationsOptions = {}) {
   const { filter = "all" } = options;
@@ -22,13 +34,16 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
   const notificationsQuery = useInfiniteQuery({
     queryKey: ["notifications", filter],
     queryFn: async ({ pageParam = 1 }) => {
-      const params: Record<string, string> = {
-        page: String(pageParam),
-        limit: String(PAGE_SIZE),
+      const params: Record<string, string | number | boolean> = {
+        page: pageParam,
+        limit: PAGE_SIZE,
       };
-      if (filter === "unread") params.unreadOnly = "true";
+      if (filter === "unread") params.unreadOnly = true;
 
-      return apiClient.get<NotificationPage>("/notifications", params);
+      const response = await notificationControllerGetNotifications(
+        params as Parameters<typeof notificationControllerGetNotifications>[0],
+      );
+      return response.data as NotificationPage;
     },
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
       return (lastPageParam as number) * PAGE_SIZE < lastPage.total
@@ -41,14 +56,14 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
   const unreadCountQuery = useQuery({
     queryKey: ["notifications", "unread-count"],
     queryFn: async () => {
-      const res = await apiClient.get<{ count: number }>("/notifications/unread-count");
-      return res.count;
+      const res = await notificationControllerGetUnreadCount();
+      return res.data.count;
     },
   });
 
   const markAsRead = useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.patch(`/notifications/${id}/read`, {});
+      await notificationControllerMarkAsRead(id);
     },
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ["notifications"] });
@@ -123,7 +138,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
 
   const markAllAsRead = useMutation({
     mutationFn: async () => {
-      await apiClient.post("/notifications/mark-all-read", {});
+      await notificationControllerMarkAllAsRead();
     },
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ["notifications"] });
@@ -196,7 +211,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
 
   const deleteNotification = useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.delete(`/notifications/${id}`);
+      await notificationControllerDeleteNotification(id);
     },
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ["notifications"] });

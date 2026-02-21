@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "@/types";
-import { apiClient } from "@/lib/api-client";
+import { authControllerLogin, authControllerRegister, authControllerLogout } from "@/api/generated/endpoints/auth/auth";
 import { getToken, setToken, removeToken } from "@/lib/auth";
 
 interface AuthContextType {
@@ -18,6 +18,16 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
+async function fetchSession(): Promise<{ user: User } | null> {
+  const token = getToken();
+  if (!token) return null;
+  const res = await fetch("/api/auth/get-session", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -28,8 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const stored = getToken();
     if (stored) {
       setTokenState(stored);
-      apiClient
-        .get<{ user: User } | null>("/api/auth/get-session")
+      fetchSession()
         .then((session) => {
           if (session?.user) {
             setUser(session.user);
@@ -49,19 +58,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = await apiClient.post<{ token: string; user: User }>("/auth/login", { email, password });
-    setToken(res.token);
-    setTokenState(res.token);
-    setUser(res.user);
+    const res = await authControllerLogin({ email, password });
+    setToken(res.data.token);
+    setTokenState(res.data.token);
+    setUser(res.data.user as unknown as User);
     router.push("/");
   }, [router]);
 
   const register = useCallback(
     async (data: { firstName: string; lastName: string; email: string; password: string }) => {
-      const res = await apiClient.post<{ token: string; user: User }>("/auth/register", data);
-      setToken(res.token);
-      setTokenState(res.token);
-      setUser(res.user);
+      const res = await authControllerRegister(data);
+      setToken(res.data.token);
+      setTokenState(res.data.token);
+      setUser(res.data.user as unknown as User);
       router.push("/");
     },
     [router]
@@ -71,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(oauthToken);
     setTokenState(oauthToken);
     try {
-      const session = await apiClient.get<{ user: User } | null>("/api/auth/get-session");
+      const session = await fetchSession();
       if (session?.user) {
         setUser(session.user);
       }
@@ -83,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await apiClient.post("/auth/logout", {});
+      await authControllerLogout();
     } catch {
       // ignore
     }

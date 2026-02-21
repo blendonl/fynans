@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatCurrency } from "@/utils/currency";
 import type { Category } from "@/types";
-import { apiClient } from "@/lib/api-client";
+import { transactionControllerCreate } from "@/api/generated/endpoints/transaction/transaction";
 import { useCategories } from "@/hooks/use-categories";
 import { useAiCategorySuggestion } from "@/hooks/use-ai-category-suggestion";
 import { useAutoAcceptSuggestion } from "@/hooks/use-auto-accept-suggestion";
@@ -58,7 +58,7 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
 
   const submitMutation = useMutation({
     mutationFn: async () => {
-      await apiClient.post("/transactions", {
+      await transactionControllerCreate({
         type: "INCOME",
         value: parseFloat(amount),
         description: note,
@@ -66,7 +66,7 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
         recordedAt: new Date(recordedAt).toISOString(),
         familyId: scope === "FAMILY" ? familyId : undefined,
         paymentMethodId: selectedPaymentMethodId || undefined,
-      });
+      } as unknown as Parameters<typeof transactionControllerCreate>[0]);
     },
     onSuccess: () => {
       toast.success(`Income created: ${formatCurrency(parseFloat(amount))}`);

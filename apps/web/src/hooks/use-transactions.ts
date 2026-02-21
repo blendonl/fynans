@@ -1,5 +1,4 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
 import type {
   Transaction,
   TransactionFilters,
@@ -7,8 +6,11 @@ import type {
   ExpenseResponse,
   IncomeResponse,
 } from "@/types";
-import { PAGE_SIZE, type PaginatedResponse } from "@/lib/pagination";
+import { expenseControllerFindAll } from "@/api/generated/endpoints/expense/expense";
+import { incomeControllerFindAll } from "@/api/generated/endpoints/income/income";
 import { mapExpenseToTransaction, mapIncomeToTransaction, sortTransactionsByDate } from "@/lib/transaction-mappers";
+
+const PAGE_SIZE = 20;
 
 interface ServerFilters {
   type?: string;
@@ -42,9 +44,9 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
       filters.search,
     ],
     queryFn: async ({ pageParam = 1 }): Promise<InfiniteTransactionPage> => {
-      const baseParams: Record<string, string | undefined> = {
-        page: String(pageParam),
-        limit: String(PAGE_SIZE),
+      const baseParams: Record<string, string | number | undefined> = {
+        page: pageParam,
+        limit: PAGE_SIZE,
       };
       if (filters.familyId) baseParams.familyId = filters.familyId;
       if (filters.scope && filters.scope !== "all") baseParams.scope = filters.scope.toUpperCase();
@@ -59,10 +61,10 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
 
       const [expensesRes, incomesRes] = await Promise.all([
         fetchExpenses
-          ? apiClient.get<PaginatedResponse<ExpenseResponse>>("/expenses", baseParams)
+          ? expenseControllerFindAll(baseParams as Record<string, string>).then((r) => r.data)
           : Promise.resolve({ data: [] as ExpenseResponse[], total: 0, page: pageParam, limit: PAGE_SIZE }),
         fetchIncomes
-          ? apiClient.get<PaginatedResponse<IncomeResponse>>("/incomes", baseParams)
+          ? incomeControllerFindAll(baseParams as Record<string, string>).then((r) => r.data)
           : Promise.resolve({ data: [] as IncomeResponse[], total: 0, page: pageParam, limit: PAGE_SIZE }),
       ]);
 
@@ -94,14 +96,14 @@ export function useTransactions(filters?: TransactionFilters, families: Family[]
   return useQuery({
     queryKey: ["transactions", filters?.scope, filters?.familyId, families.length, limit],
     queryFn: async () => {
-      const params: Record<string, string | undefined> = {};
+      const params: Record<string, string | number | undefined> = {};
       if (filters?.familyId) params.familyId = filters.familyId;
       if (filters?.scope && filters.scope !== "all") params.scope = filters.scope.toUpperCase();
-      if (limit) params.limit = String(limit);
+      if (limit) params.limit = limit;
 
       const [expensesRes, incomesRes] = await Promise.all([
-        apiClient.get<PaginatedResponse<ExpenseResponse>>("/expenses", params),
-        apiClient.get<PaginatedResponse<IncomeResponse>>("/incomes", params),
+        expenseControllerFindAll(params as Record<string, string>).then((r) => r.data),
+        incomeControllerFindAll(params as Record<string, string>).then((r) => r.data),
       ]);
 
       const family = filters?.familyId ? families.find((f) => f.id === filters.familyId) : undefined;

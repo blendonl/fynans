@@ -1,26 +1,18 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
-import { PAGE_SIZE, type PaginatedResponse } from "@/lib/pagination";
+import { storeItemControllerFindAll } from "@/api/generated/endpoints/store-item/store-item";
 
-interface StoreItemResult {
-  id: string;
-  name: string;
-  price: number;
-  categoryId: string;
-  isDiscounted: boolean;
-  sizes: { id: string; value: number; unit: string }[];
-}
+const PAGE_SIZE = 20;
 
 export function useStoreItems(storeId: string | undefined, search: string) {
   const query = useInfiniteQuery({
     queryKey: ["store-items", storeId, search],
     queryFn: async ({ pageParam = 1 }) => {
-      const response = (await apiClient.get(`/stores/${storeId}/items`, {
+      const response = await storeItemControllerFindAll(storeId!, {
         search,
-        page: String(pageParam),
-        limit: String(PAGE_SIZE),
-      })) as PaginatedResponse<StoreItemResult>;
-      return response;
+        page: pageParam,
+        limit: PAGE_SIZE,
+      });
+      return response.data;
     },
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
       return (lastPageParam as number) * PAGE_SIZE < (lastPage.total ?? 0)

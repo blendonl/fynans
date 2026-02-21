@@ -1,14 +1,9 @@
 import { useState, useRef, useCallback } from "react";
-import { apiClient } from "@/lib/api-client";
+import { aiControllerSuggestCategory } from "@/api/generated/endpoints/ai/ai";
 
 interface AiSuggestion {
   categoryId: string;
   categoryName: string;
-}
-
-interface SuggestCategoryResponse {
-  categoryId: string | null;
-  categoryName: string | null;
 }
 
 interface AiSuggestionConfig {
@@ -42,12 +37,15 @@ export function useDebouncedAiSuggestion(config: AiSuggestionConfig) {
         abortRef.current = controller;
 
         try {
-          const res = (await apiClient.post("/ai/suggest-category", body, {
-            signal: controller.signal,
-          })) as SuggestCategoryResponse;
+          const res = await aiControllerSuggestCategory(
+            body as unknown as Parameters<typeof aiControllerSuggestCategory>[0],
+            { signal: controller.signal },
+          );
+          const categoryId = res.data.categoryId as unknown as string | null;
+          const categoryName = res.data.categoryName as unknown as string | null;
 
-          if (res.categoryId && res.categoryName) {
-            setSuggestion({ categoryId: res.categoryId, categoryName: res.categoryName });
+          if (categoryId && categoryName) {
+            setSuggestion({ categoryId, categoryName });
           } else {
             setSuggestion(null);
           }

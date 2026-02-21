@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
 import type { Basket } from "@/types";
+import { basketControllerListBaskets } from "@/api/generated/endpoints/basket/basket";
 
 export function useBaskets() {
   const basketsQuery = useQuery({
     queryKey: ["baskets"],
     queryFn: async () => {
-      return apiClient.get<Basket[]>("/baskets");
+      const res = await basketControllerListBaskets();
+      return res.data;
     },
     staleTime: 30 * 1000,
   });

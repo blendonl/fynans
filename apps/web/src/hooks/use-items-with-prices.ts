@@ -1,8 +1,8 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
-import { PAGE_SIZE, type PaginatedResponse } from "@/lib/pagination";
-import type { ItemWithPrices } from "@/types";
+import { itemControllerFindWithStores } from "@/api/generated/endpoints/items/items";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+
+const PAGE_SIZE = 20;
 
 export function useItemsWithPrices(search: string) {
   const debouncedSearch = useDebouncedValue(search, 300);
@@ -10,12 +10,12 @@ export function useItemsWithPrices(search: string) {
   const query = useInfiniteQuery({
     queryKey: ["items-with-prices", debouncedSearch],
     queryFn: async ({ pageParam = 1 }) => {
-      const response = (await apiClient.get("/items/with-stores", {
-        search: debouncedSearch || undefined,
-        page: String(pageParam),
-        limit: String(PAGE_SIZE),
-      })) as PaginatedResponse<ItemWithPrices>;
-      return response;
+      const response = await itemControllerFindWithStores({
+        search: debouncedSearch || "",
+        page: pageParam,
+        limit: PAGE_SIZE,
+      });
+      return response.data;
     },
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
       return (lastPageParam as number) * PAGE_SIZE < (lastPage.total ?? 0)

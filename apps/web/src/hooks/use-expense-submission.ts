@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatCurrency } from "@/utils/currency";
 import type { Category, Store, ExpenseItem } from "@/types";
-import { apiClient } from "@/lib/api-client";
+import { expenseControllerCreate } from "@/api/generated/endpoints/expense/expense";
 
 interface UseExpenseSubmissionOptions {
   isItemized: boolean;
@@ -59,7 +59,7 @@ export function useExpenseSubmission({
         payload.note = simpleNote.trim() || undefined;
       }
 
-      await apiClient.post("/expenses", payload);
+      await expenseControllerCreate(payload as unknown as Parameters<typeof expenseControllerCreate>[0]);
     },
     onSuccess: () => {
       const total = isItemized ? itemsTotal : parseFloat(simpleAmount);

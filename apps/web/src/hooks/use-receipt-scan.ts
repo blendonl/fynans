@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
 import { getToken } from "@/lib/auth";
+import { receiptControllerProcessReceipt } from "@/api/generated/endpoints/receipt/receipt";
 
 export interface ProcessedReceiptResponse {
   store: { id?: string; name: string; location: string } | null;
@@ -20,11 +20,6 @@ export interface ProcessedReceiptResponse {
   confidence: number;
   isLowConfidence: boolean;
   suggestedExpenseCategory?: { id: string; name: string };
-}
-
-interface JobSubmitResponse {
-  jobId: string;
-  status: string;
 }
 
 interface JobStreamEvent {
@@ -126,9 +121,8 @@ export function useReceiptScan() {
     mutationFn: async (file: File) => {
       setProgress(0);
       setStep("Uploading...");
-      const formData = new FormData();
-      formData.append("file", file);
-      const { jobId } = await apiClient.post<JobSubmitResponse>("/receipts/process", formData);
+      const res = await receiptControllerProcessReceipt({ file } as unknown as Parameters<typeof receiptControllerProcessReceipt>[0]);
+      const { jobId } = res.data;
 
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), STREAM_TIMEOUT);

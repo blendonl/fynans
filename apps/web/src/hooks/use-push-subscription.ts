@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useAuth } from "@/providers/auth-provider";
-import { apiClient } from "@/lib/api-client";
+import { notificationPreferenceControllerRegisterWebPush } from "@/api/generated/endpoints/notification-preference/notification-preference";
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -39,10 +39,10 @@ export function usePushSubscription() {
         }
 
         const json = subscription.toJSON();
-        await apiClient.post("/notification-preferences/web-push/subscribe", {
-          endpoint: json.endpoint,
-          p256dh: json.keys?.p256dh,
-          auth: json.keys?.auth,
+        await notificationPreferenceControllerRegisterWebPush({
+          endpoint: json.endpoint!,
+          p256dh: json.keys?.p256dh ?? "",
+          auth: json.keys?.auth ?? "",
           userAgent: navigator.userAgent,
         });
         subscribedRef.current = true;

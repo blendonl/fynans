@@ -17,7 +17,7 @@ import { StoreSelector } from "@/components/add-expense/store-selector";
 import { useCategories } from "@/hooks/use-categories";
 import { useStores } from "@/hooks/use-stores";
 import { useStoreItemPrices } from "@/hooks/use-store-item-prices";
-import { apiClient } from "@/lib/api-client";
+import { aiControllerSuggestCategory } from "@/api/generated/endpoints/ai/ai";
 import { formatCurrency } from "@/utils/currency";
 import type { BasketItem, Category, Store } from "@/types";
 import { cn } from "@/lib/utils";
@@ -33,11 +33,6 @@ export interface CheckoutLineItem {
 interface ItemCategorySuggestion {
   categoryId: string;
   categoryName: string;
-}
-
-interface AiSuggestResponse {
-  categoryId: string | null;
-  categoryName: string | null;
 }
 
 interface BasketCheckoutDialogProps {
@@ -113,21 +108,20 @@ export function BasketCheckoutDialog({
 
     // --- Expense-level AI category (direct call) ---
     setExpenseCategoryLoading(true);
-    apiClient
-      .post(
-        "/ai/suggest-category",
-        { type: "expense", itemNames: names },
-        { signal: controller.signal }
-      )
+    aiControllerSuggestCategory(
+      { type: "expense", itemNames: names } as Parameters<typeof aiControllerSuggestCategory>[0],
+      { signal: controller.signal },
+    )
       .then((res) => {
         if (controller.signal.aborted) return;
-        const data = res as AiSuggestResponse;
-        if (data.categoryId && data.categoryName) {
+        const catId = res.data.categoryId as unknown as string | null;
+        const catName = res.data.categoryName as unknown as string | null;
+        if (catId && catName) {
           setSelectedCategory({
-            id: data.categoryId,
-            name: data.categoryName,
+            id: catId,
+            name: catName,
           } as Category);
-          toast.info(`Category auto-suggested: ${data.categoryName}`);
+          toast.info(`Category auto-suggested: ${catName}`);
         }
       })
       .catch(() => {
@@ -145,12 +139,11 @@ export function BasketCheckoutDialog({
       setItemCategoryLoading(true);
       Promise.allSettled(
         newItems.map(async (item) => {
-          const res = (await apiClient.post(
-            "/ai/suggest-category",
-            { type: "item", itemNames: [item.name] },
-            { signal: controller.signal }
-          )) as AiSuggestResponse;
-          return { itemId: item.id, res };
+          const res = await aiControllerSuggestCategory(
+            { type: "item", itemNames: [item.name] } as Parameters<typeof aiControllerSuggestCategory>[0],
+            { signal: controller.signal },
+          );
+          return { itemId: item.id, res: res.data };
         })
       ).then((results) => {
         if (controller.signal.aborted) return;
@@ -158,10 +151,12 @@ export function BasketCheckoutDialog({
         for (const result of results) {
           if (result.status === "fulfilled") {
             const { itemId, res } = result.value;
-            if (res.categoryId && res.categoryName) {
+            const catId = res.categoryId as unknown as string | null;
+            const catName = res.categoryName as unknown as string | null;
+            if (catId && catName) {
               map[itemId] = {
-                categoryId: res.categoryId,
-                categoryName: res.categoryName,
+                categoryId: catId,
+                categoryName: catName,
               };
             }
           }

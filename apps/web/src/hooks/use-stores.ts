@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
-import type { Store } from "@/types";
-import { PAGE_SIZE, paginatedQueryOptions, type PaginatedResponse } from "@/lib/pagination";
+import { storeControllerFindAll, storeControllerCreate } from "@/api/generated/endpoints/store/store";
+
+const PAGE_SIZE = 20;
 
 export function useStores(search: string) {
   const queryClient = useQueryClient();
@@ -9,20 +9,24 @@ export function useStores(search: string) {
   const storesQuery = useInfiniteQuery({
     queryKey: ["stores", search],
     queryFn: async ({ pageParam = 1 }) => {
-      return apiClient.get<PaginatedResponse<Store>>("/stores", {
+      const response = await storeControllerFindAll({
         search,
-        page: String(pageParam),
-        limit: String(PAGE_SIZE),
+        page: pageParam,
+        limit: PAGE_SIZE,
       });
+      return response.data;
     },
-    ...paginatedQueryOptions(PAGE_SIZE),
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      (lastPageParam as number) * PAGE_SIZE < (lastPage.total ?? 0) ? (lastPageParam as number) + 1 : undefined,
+    initialPageParam: 1,
   });
 
   const allStores = storesQuery.data?.pages.flatMap((p) => p.data) ?? [];
 
   const createStore = useMutation({
     mutationFn: async ({ name, location }: { name: string; location: string }) => {
-      return apiClient.post<Store>("/stores", { name, location });
+      const res = await storeControllerCreate({ name, location });
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stores"] });
