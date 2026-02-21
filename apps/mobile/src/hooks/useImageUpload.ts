@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system';
-import { customInstance } from '../api/custom-instance';
+import { receiptControllerProcessReceipt } from '../api/generated/endpoints/receipt/receipt';
 
 interface UploadProgress {
   loaded: number;
@@ -42,29 +42,29 @@ export const useImageUpload = () => {
           throw new Error(`Image file not found: ${uri}`);
         }
 
-        const formData = new FormData();
         const filename = uri.split('/').pop() || `receipt_${Date.now()}.jpg`;
         const match = /\.(\w+)$/.exec(filename);
         const type = match ? `image/${match[1]}` : 'image/jpeg';
-
-        formData.append('file', {
-          uri,
-          name: filename,
-          type,
-        } as any);
 
         setUploadProgress({
           loaded: i + 1,
           total: imageUris.length,
         });
 
-        const response = await customInstance<{ data: { data: { url: string } }; status: number; headers: Headers }>('/receipts/upload', {
-          method: 'POST',
-          body: formData,
-        });
+        // React Native FormData accepts { uri, name, type } objects for file uploads.
+        // The generated function types file as string, but we pass the RN file object via any.
+        const fileObject = {
+          uri,
+          name: filename,
+          type,
+        } as any;
 
-        if (response.data.data?.url) {
-          uploadedUrls.push(response.data.data.url);
+        const response = await receiptControllerProcessReceipt({ file: fileObject });
+
+        // Extract URL from response if available
+        const data = response.data as any;
+        if (data?.url) {
+          uploadedUrls.push(data.url);
         }
       }
 

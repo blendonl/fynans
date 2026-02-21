@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { customInstance } from "../api/custom-instance";
+import { receiptControllerProcessReceipt } from "../api/generated/endpoints/receipt/receipt";
 
 export interface ProcessedReceiptData {
   store: {
@@ -57,27 +57,26 @@ export const useReceiptScanning = (): UseReceiptScanningReturn => {
       const imageUri = result.assets[0].uri;
       setProcessing(true);
 
-      const formData = new FormData();
       const filename = imageUri.split("/").pop() || `receipt_${Date.now()}.jpg`;
       const match = /\.(\w+)$/.exec(filename);
       const type = match ? `image/${match[1]}` : "image/jpeg";
 
-      formData.append("file", {
+      // React Native FormData accepts { uri, name, type } objects for file uploads.
+      // The generated function types file as string, but we pass the RN file object via any.
+      const fileObject = {
         uri: imageUri,
         name: filename,
         type,
-      } as any);
+      } as any;
 
-      const { data: response } = await customInstance<{ data: any; status: number; headers: Headers }>("/receipts/process", {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await receiptControllerProcessReceipt({ file: fileObject });
 
-      if (!response) {
+      if (!response.data) {
         throw new Error("No data received from server");
       }
 
-      return response as ProcessedReceiptData;
+      // The server returns full receipt data; the generated DTO type is narrower
+      return response.data as unknown as ProcessedReceiptData;
     } catch (error: any) {
       console.error("Error processing receipt:", error);
       Alert.alert("Error", error.message || "Failed to process receipt");
