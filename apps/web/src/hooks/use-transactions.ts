@@ -9,63 +9,7 @@ import type {
   PaginatedResponse,
 } from "@fynans/shared";
 import { PAGE_SIZE } from "@/lib/pagination";
-
-function mapExpenseToTransaction(expense: ExpenseResponse, family?: Family): Transaction {
-  const tx = expense.transaction;
-  return {
-    id: expense.id,
-    type: "expense",
-    category: { id: expense.category.id, name: expense.category.name },
-    store: expense.store ? { id: expense.store.id, name: expense.store.name, location: expense.store.location } : undefined,
-    scope: (tx?.scope as "PERSONAL" | "FAMILY") || "PERSONAL",
-    familyId: tx?.familyId,
-    family: family ? { id: family.id, name: family.name } : undefined,
-    transaction: {
-      id: tx?.id || "",
-      value: tx?.value || 0,
-      recordedAt: tx?.recordedAt,
-      description: tx?.description,
-      user: tx?.user || { id: "", firstName: "", lastName: "" },
-    },
-    items: expense.items?.map((item) => ({
-      name: item.name,
-      price: item.price,
-      discount: item.discount,
-      quantity: item.quantity,
-    })),
-    matchedItems: expense.matchedItems?.length
-      ? expense.matchedItems.map((item) => ({
-          name: item.name,
-          price: item.price,
-          discount: item.discount,
-          quantity: item.quantity,
-        }))
-      : undefined,
-    receiptImages: expense.receiptImages || [],
-  };
-}
-
-function mapIncomeToTransaction(income: IncomeResponse, family?: Family): Transaction {
-  const tx = income.transaction;
-  return {
-    id: income.id,
-    type: "income",
-    category: income.category
-      ? { id: income.category.id, name: income.category.name }
-      : { id: income.categoryId, name: "Income" },
-    scope: (tx?.scope as "PERSONAL" | "FAMILY") || "PERSONAL",
-    familyId: tx?.familyId,
-    family: family ? { id: family.id, name: family.name } : undefined,
-    transaction: {
-      id: income.transactionId || "",
-      value: tx?.value || 0,
-      recordedAt: tx?.recordedAt || income.createdAt,
-      description: tx?.description,
-      user: tx?.user || { id: "", firstName: "", lastName: "" },
-    },
-    receiptImages: [],
-  };
-}
+import { mapExpenseToTransaction, mapIncomeToTransaction, sortTransactionsByDate } from "@/lib/transaction-mappers";
 
 interface ServerFilters {
   type?: string;
@@ -116,10 +60,10 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
 
       const [expensesRes, incomesRes] = await Promise.all([
         fetchExpenses
-          ? (apiClient.get("/expenses", baseParams) as Promise<PaginatedResponse<ExpenseResponse>>)
+          ? apiClient.get<PaginatedResponse<ExpenseResponse>>("/expenses", baseParams)
           : Promise.resolve({ data: [] as ExpenseResponse[], total: 0, page: pageParam, limit: PAGE_SIZE }),
         fetchIncomes
-          ? (apiClient.get("/incomes", baseParams) as Promise<PaginatedResponse<IncomeResponse>>)
+          ? apiClient.get<PaginatedResponse<IncomeResponse>>("/incomes", baseParams)
           : Promise.resolve({ data: [] as IncomeResponse[], total: 0, page: pageParam, limit: PAGE_SIZE }),
       ]);
 
@@ -128,11 +72,7 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
       const expenses = (expensesRes.data || []).map((e) => mapExpenseToTransaction(e, family));
       const incomes = (incomesRes.data || []).map((i) => mapIncomeToTransaction(i, family));
 
-      const merged = [...expenses, ...incomes].sort((a, b) => {
-        const dateA = a.transaction.recordedAt ? new Date(a.transaction.recordedAt).getTime() : 0;
-        const dateB = b.transaction.recordedAt ? new Date(b.transaction.recordedAt).getTime() : 0;
-        return dateB - dateA;
-      });
+      const merged = sortTransactionsByDate([...expenses, ...incomes]);
 
       const expenseHasMore = fetchExpenses && pageParam * PAGE_SIZE < (expensesRes.total ?? 0);
       const incomeHasMore = fetchIncomes && pageParam * PAGE_SIZE < (incomesRes.total ?? 0);
@@ -161,8 +101,8 @@ export function useTransactions(filters?: TransactionFilters, families: Family[]
       if (limit) params.limit = String(limit);
 
       const [expensesRes, incomesRes] = await Promise.all([
-        apiClient.get("/expenses", params) as Promise<PaginatedResponse<ExpenseResponse>>,
-        apiClient.get("/incomes", params) as Promise<PaginatedResponse<IncomeResponse>>,
+        apiClient.get<PaginatedResponse<ExpenseResponse>>("/expenses", params),
+        apiClient.get<PaginatedResponse<IncomeResponse>>("/incomes", params),
       ]);
 
       const family = filters?.familyId ? families.find((f) => f.id === filters.familyId) : undefined;
@@ -170,11 +110,7 @@ export function useTransactions(filters?: TransactionFilters, families: Family[]
       const expenses = (expensesRes.data || []).map((e) => mapExpenseToTransaction(e, family));
       const incomes = (incomesRes.data || []).map((i) => mapIncomeToTransaction(i, family));
 
-      return [...expenses, ...incomes].sort((a, b) => {
-        const dateA = a.transaction.recordedAt ? new Date(a.transaction.recordedAt).getTime() : 0;
-        const dateB = b.transaction.recordedAt ? new Date(b.transaction.recordedAt).getTime() : 0;
-        return dateB - dateA;
-      });
+      return sortTransactionsByDate([...expenses, ...incomes]);
     },
   });
 }

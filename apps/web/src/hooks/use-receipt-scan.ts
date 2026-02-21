@@ -128,7 +128,7 @@ export function useReceiptScan() {
       setStep("Uploading...");
       const formData = new FormData();
       formData.append("file", file);
-      const { jobId } = (await apiClient.post("/receipts/process", formData)) as JobSubmitResponse;
+      const { jobId } = await apiClient.post<JobSubmitResponse>("/receipts/process", formData);
 
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), STREAM_TIMEOUT);

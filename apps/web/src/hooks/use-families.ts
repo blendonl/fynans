@@ -6,7 +6,7 @@ export function usePendingInvitations() {
   const query = useQuery({
     queryKey: ["family-invitations-pending"],
     queryFn: async () => {
-      return (await apiClient.get("/families/invitations/pending")) as FamilyInvitation[];
+      return apiClient.get<FamilyInvitation[]>("/families/invitations/pending");
     },
   });
 
@@ -22,20 +22,20 @@ export function useFamilies() {
   const familiesQuery = useQuery({
     queryKey: ["families"],
     queryFn: async () => {
-      return (await apiClient.get("/families")) as Family[];
+      return apiClient.get<Family[]>("/families");
     },
   });
 
   const pendingInvitationsQuery = useQuery({
     queryKey: ["family-invitations-pending"],
     queryFn: async () => {
-      return (await apiClient.get("/families/invitations/pending")) as FamilyInvitation[];
+      return apiClient.get<FamilyInvitation[]>("/families/invitations/pending");
     },
   });
 
   const createFamily = useMutation({
     mutationFn: async (name: string) => {
-      return (await apiClient.post("/families", { name })) as Family;
+      return apiClient.post<Family>("/families", { name });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["families"] });
@@ -105,7 +105,7 @@ export function useFamilyDetail(familyId: string) {
   return useQuery({
     queryKey: ["family", familyId],
     queryFn: async () => {
-      return (await apiClient.get(`/families/${familyId}`)) as FamilyWithMembers;
+      return apiClient.get<FamilyWithMembers>(`/families/${familyId}`);
     },
     enabled: !!familyId,
   });
@@ -117,7 +117,7 @@ export function useFamilySentInvitations(familyId: string) {
   const sentInvitationsQuery = useQuery({
     queryKey: ["family-sent-invitations", familyId],
     queryFn: async () => {
-      return (await apiClient.get(`/families/${familyId}/invitations/pending`)) as FamilyInvitation[];
+      return apiClient.get<FamilyInvitation[]>(`/families/${familyId}/invitations/pending`);
     },
     enabled: !!familyId,
   });

@@ -20,7 +20,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
   const { data: transaction, isLoading } = useQuery({
     queryKey: ["transaction", id, type],
     queryFn: async () => {
-      const data = (await apiClient.get(`${endpoint}/${id}`)) as Record<string, unknown>;
+      const data = await apiClient.get<Record<string, unknown>>(`${endpoint}/${id}`);
       const tx = data.transaction as Record<string, unknown> | undefined;
       return {
         id: data.id as string,

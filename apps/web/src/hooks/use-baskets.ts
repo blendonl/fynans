@@ -7,7 +7,7 @@ export function useBaskets() {
   const basketsQuery = useQuery({
     queryKey: ["baskets"],
     queryFn: async () => {
-      return (await apiClient.get("/baskets")) as Basket[];
+      return apiClient.get<Basket[]>("/baskets");
     },
     staleTime: 30 * 1000,
   });

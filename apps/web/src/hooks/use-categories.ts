@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import type { Category } from "@fynans/shared";
-import { type PaginatedResponse } from "@/lib/pagination";
+import { paginatedQueryOptions, type PaginatedResponse } from "@/lib/pagination";
 
 const EXPENSE_CATEGORY_PAGE_SIZE = 10;
 
@@ -11,11 +11,11 @@ export function useCategories(expenseCategorySearch?: string) {
   const categoriesQuery = useInfiniteQuery({
     queryKey: ["expense-categories", expenseCategorySearch],
     queryFn: async ({ pageParam = 1 }) => {
-      const response = (await apiClient.get("/expense-categories", {
+      const response = await apiClient.get<PaginatedResponse<Category>>("/expense-categories", {
         search: expenseCategorySearch,
         limit: String(EXPENSE_CATEGORY_PAGE_SIZE),
         page: String(pageParam),
-      })) as PaginatedResponse<Category>;
+      });
       return {
         ...response,
         data: (response.data || []).map((cat) => ({
@@ -24,21 +24,16 @@ export function useCategories(expenseCategorySearch?: string) {
         })),
       };
     },
-    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
-      return (lastPageParam as number) * EXPENSE_CATEGORY_PAGE_SIZE < (lastPage.total ?? 0)
-        ? (lastPageParam as number) + 1
-        : undefined;
-    },
-    initialPageParam: 1,
+    ...paginatedQueryOptions(EXPENSE_CATEGORY_PAGE_SIZE),
     enabled: true,
   });
 
   const itemCategoriesQuery = useQuery({
     queryKey: ["expense-item-categories"],
     queryFn: async () => {
-      const response = (await apiClient.get("/expense-item-categories", {
+      const response = await apiClient.get<{ data: Category[] }>("/expense-item-categories", {
         limit: "50",
-      })) as { data: Category[] };
+      });
       return (response.data || []).map((cat) => ({
         ...cat,
         isConnectedToStore: Boolean(cat.isConnectedToStore),
@@ -49,9 +44,9 @@ export function useCategories(expenseCategorySearch?: string) {
   const incomeCategoriesQuery = useQuery({
     queryKey: ["income-categories"],
     queryFn: async () => {
-      const response = (await apiClient.get("/income-categories", {
+      const response = await apiClient.get<{ data: Category[] }>("/income-categories", {
         limit: "50",
-      })) as { data: Category[] };
+      });
       return (response.data || []).map((cat) => ({
         ...cat,
         isConnectedToStore: Boolean(cat.isConnectedToStore),
@@ -61,10 +56,10 @@ export function useCategories(expenseCategorySearch?: string) {
 
   const createCategory = useMutation({
     mutationFn: async ({ name, isConnectedToStore }: { name: string; isConnectedToStore: boolean }) => {
-      const response = (await apiClient.post("/expense-categories", {
+      const response = await apiClient.post<Category>("/expense-categories", {
         name,
         isConnectedToStore,
-      })) as Category;
+      });
       return {
         id: response.id,
         name: response.name,
@@ -78,9 +73,9 @@ export function useCategories(expenseCategorySearch?: string) {
 
   const createItemCategory = useMutation({
     mutationFn: async ({ name }: { name: string }) => {
-      const response = (await apiClient.post("/expense-item-categories", {
+      const response = await apiClient.post<Category>("/expense-item-categories", {
         name,
-      })) as Category;
+      });
       return { id: response.id, name: response.name };
     },
     onSuccess: () => {

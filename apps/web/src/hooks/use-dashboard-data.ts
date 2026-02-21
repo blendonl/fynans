@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import type {
-  Transaction,
   ExpenseResponse,
   IncomeResponse,
   TransactionStatisticsResponse,
@@ -11,6 +10,7 @@ import type {
 } from "@fynans/shared";
 import { DASHBOARD_RECENT_LIMIT } from "@/lib/pagination";
 import { formatDateForAPI, getChartGranularity } from "@/lib/date-utils";
+import { mapExpenseToTransaction, mapIncomeToTransaction, sortTransactionsByDate } from "@/lib/transaction-mappers";
 
 export type { ExpenseTrendResponse as ExpenseTrendPoint } from "@fynans/shared";
 
@@ -18,53 +18,6 @@ export interface ComparisonData {
   expenses: { delta: number; percentage: number };
   income: { delta: number; percentage: number };
   net: { delta: number; percentage: number };
-}
-
-function mapExpenseToTransaction(expense: ExpenseResponse): Transaction {
-  const tx = expense.transaction;
-  return {
-    id: expense.id,
-    type: "expense",
-    category: { id: expense.category.id, name: expense.category.name },
-    store: expense.store ? { id: expense.store.id, name: expense.store.name, location: expense.store.location } : undefined,
-    scope: (tx?.scope as "PERSONAL" | "FAMILY") || "PERSONAL",
-    familyId: tx?.familyId,
-    transaction: {
-      id: tx?.id || "",
-      value: tx?.value || 0,
-      recordedAt: tx?.recordedAt,
-      description: tx?.description,
-      user: tx?.user || { id: "", firstName: "", lastName: "" },
-    },
-    items: expense.items?.map((item) => ({
-      name: item.name,
-      price: item.price,
-      discount: item.discount,
-      quantity: item.quantity,
-    })),
-    receiptImages: expense.receiptImages || [],
-  };
-}
-
-function mapIncomeToTransaction(income: IncomeResponse): Transaction {
-  const tx = income.transaction;
-  return {
-    id: income.id,
-    type: "income",
-    category: income.category
-      ? { id: income.category.id, name: income.category.name }
-      : { id: income.categoryId, name: "Income" },
-    scope: (tx?.scope as "PERSONAL" | "FAMILY") || "PERSONAL",
-    familyId: tx?.familyId,
-    transaction: {
-      id: income.transactionId || "",
-      value: tx?.value || 0,
-      recordedAt: tx?.recordedAt || income.createdAt,
-      description: tx?.description,
-      user: tx?.user || { id: "", firstName: "", lastName: "" },
-    },
-    receiptImages: [],
-  };
 }
 
 function calcComparison(
@@ -110,40 +63,40 @@ export function useDashboardData({
   const statsQuery = useQuery({
     queryKey: ["dashboard-transaction-stats", dateFromStr, dateToStr],
     queryFn: () =>
-      apiClient.get("/transactions/statistics", dateParams) as Promise<TransactionStatisticsResponse>,
+      apiClient.get<TransactionStatisticsResponse>("/transactions/statistics", dateParams),
   });
 
   const prevStatsQuery = useQuery({
     queryKey: ["dashboard-transaction-stats", prevFromStr, prevToStr],
     queryFn: () =>
-      apiClient.get("/transactions/statistics", {
+      apiClient.get<TransactionStatisticsResponse>("/transactions/statistics", {
         dateFrom: prevFromStr,
         dateTo: prevToStr,
-      }) as Promise<TransactionStatisticsResponse>,
+      }),
   });
 
   const expenseStatsQuery = useQuery({
     queryKey: ["dashboard-expense-stats", dateFromStr, dateToStr],
     queryFn: () =>
-      apiClient.get("/expenses/statistics", dateParams) as Promise<ExpenseStatisticsResponse>,
+      apiClient.get<ExpenseStatisticsResponse>("/expenses/statistics", dateParams),
   });
 
   const prevExpenseStatsQuery = useQuery({
     queryKey: ["dashboard-expense-stats", prevFromStr, prevToStr],
     queryFn: () =>
-      apiClient.get("/expenses/statistics", {
+      apiClient.get<ExpenseStatisticsResponse>("/expenses/statistics", {
         dateFrom: prevFromStr,
         dateTo: prevToStr,
-      }) as Promise<ExpenseStatisticsResponse>,
+      }),
   });
 
   const trendsQuery = useQuery({
     queryKey: ["dashboard-expense-trends", dateFromStr, dateToStr, granularity],
     queryFn: () =>
-      apiClient.get("/expenses/trends", {
+      apiClient.get<ExpenseTrendResponse[]>("/expenses/trends", {
         ...dateParams,
         groupBy: granularity,
-      }) as Promise<ExpenseTrendResponse[]>,
+      }),
   });
 
   const recentQuery = useQuery({
@@ -151,23 +104,14 @@ export function useDashboardData({
     queryFn: async () => {
       const limit = String(DASHBOARD_RECENT_LIMIT);
       const [expensesRes, incomesRes] = await Promise.all([
-        apiClient.get("/expenses", { limit, ...dateParams }) as Promise<PaginatedResponse<ExpenseResponse>>,
-        apiClient.get("/incomes", { limit, ...dateParams }) as Promise<PaginatedResponse<IncomeResponse>>,
+        apiClient.get<PaginatedResponse<ExpenseResponse>>("/expenses", { limit, ...dateParams }),
+        apiClient.get<PaginatedResponse<IncomeResponse>>("/incomes", { limit, ...dateParams }),
       ]);
 
-      const expenses = (expensesRes.data || []).map(mapExpenseToTransaction);
-      const incomes = (incomesRes.data || []).map(mapIncomeToTransaction);
+      const expenses = (expensesRes.data || []).map((e) => mapExpenseToTransaction(e));
+      const incomes = (incomesRes.data || []).map((i) => mapIncomeToTransaction(i));
 
-      return [...expenses, ...incomes]
-        .sort((a, b) => {
-          const dateA = a.transaction.recordedAt
-            ? new Date(a.transaction.recordedAt).getTime()
-            : 0;
-          const dateB = b.transaction.recordedAt
-            ? new Date(b.transaction.recordedAt).getTime()
-            : 0;
-          return dateB - dateA;
-        })
+      return sortTransactionsByDate([...expenses, ...incomes])
         .slice(0, DASHBOARD_RECENT_LIMIT);
     },
   });

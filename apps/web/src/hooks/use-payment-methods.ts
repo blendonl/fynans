@@ -36,13 +36,13 @@ export function usePaymentMethods() {
   const paymentMethodsQuery = useQuery({
     queryKey: ["payment-methods"],
     queryFn: async () => {
-      return (await apiClient.get("/payment-methods")) as PaymentMethod[];
+      return apiClient.get<PaymentMethod[]>("/payment-methods");
     },
   });
 
   const createPaymentMethod = useMutation({
     mutationFn: async (input: CreatePaymentMethodInput) => {
-      return (await apiClient.post("/payment-methods", input)) as PaymentMethod;
+      return apiClient.post<PaymentMethod>("/payment-methods", input);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payment-methods"] });
@@ -55,7 +55,7 @@ export function usePaymentMethods() {
 
   const updatePaymentMethod = useMutation({
     mutationFn: async ({ id, ...input }: UpdatePaymentMethodInput & { id: string }) => {
-      return (await apiClient.put(`/payment-methods/${id}`, input)) as PaymentMethod;
+      return apiClient.put<PaymentMethod>(`/payment-methods/${id}`, input);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payment-methods"] });

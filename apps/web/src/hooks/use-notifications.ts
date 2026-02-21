@@ -28,10 +28,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       };
       if (filter === "unread") params.unreadOnly = "true";
 
-      return apiClient.get(
-        "/notifications",
-        params
-      ) as Promise<NotificationPage>;
+      return apiClient.get<NotificationPage>("/notifications", params);
     },
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
       return (lastPageParam as number) * PAGE_SIZE < lastPage.total
@@ -44,9 +41,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
   const unreadCountQuery = useQuery({
     queryKey: ["notifications", "unread-count"],
     queryFn: async () => {
-      const res = (await apiClient.get("/notifications/unread-count")) as {
-        count: number;
-      };
+      const res = await apiClient.get<{ count: number }>("/notifications/unread-count");
       return res.count;
     },
   });

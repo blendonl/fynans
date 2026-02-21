@@ -13,10 +13,7 @@ export function useStoreItemPrices(storeId: string | null) {
   const query = useQuery({
     queryKey: ["store-item-prices", storeId],
     queryFn: async () => {
-      const response = (await apiClient.get(`/stores/${storeId}/items`)) as {
-        data: StoreItemPrice[];
-        total: number;
-      };
+      const response = await apiClient.get<{ data: StoreItemPrice[]; total: number }>(`/stores/${storeId}/items`);
       return response.data;
     },
     enabled: !!storeId,
