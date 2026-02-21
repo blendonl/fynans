@@ -19,4 +19,5 @@ export interface CreateExpenseRequestDto {
   note?: string;
   familyId?: string;
   recordedAt?: string;
+  paymentMethodId?: string;
 }

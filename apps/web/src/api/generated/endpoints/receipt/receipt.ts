@@ -33,6 +33,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -76,15 +78,15 @@ formData.append(`file`, receiptUploadBodyDto.file);
 
 
 export const getReceiptControllerProcessReceiptMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receiptControllerProcessReceipt>>, TError,{data: ReceiptUploadBodyDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receiptControllerProcessReceipt>>, TError,{data: ReceiptUploadBodyDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof receiptControllerProcessReceipt>>, TError,{data: ReceiptUploadBodyDto}, TContext> => {
 
 const mutationKey = ['receiptControllerProcessReceipt'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -92,7 +94,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof receiptControllerProcessReceipt>>, {data: ReceiptUploadBodyDto}> = (props) => {
           const {data} = props ?? {};
 
-          return  receiptControllerProcessReceipt(data,)
+          return  receiptControllerProcessReceipt(data,requestOptions)
         }
 
 
@@ -110,7 +112,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Upload and process a receipt image
  */
 export const useReceiptControllerProcessReceipt = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receiptControllerProcessReceipt>>, TError,{data: ReceiptUploadBodyDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receiptControllerProcessReceipt>>, TError,{data: ReceiptUploadBodyDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof receiptControllerProcessReceipt>>,
         TError,
@@ -164,16 +166,16 @@ export const getReceiptControllerGetJobStatusQueryKey = (jobId: string,) => {
     }
 
     
-export const getReceiptControllerGetJobStatusQueryOptions = <TData = Awaited<ReturnType<typeof receiptControllerGetJobStatus>>, TError = unknown>(jobId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof receiptControllerGetJobStatus>>, TError, TData>>, }
+export const getReceiptControllerGetJobStatusQueryOptions = <TData = Awaited<ReturnType<typeof receiptControllerGetJobStatus>>, TError = unknown>(jobId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof receiptControllerGetJobStatus>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getReceiptControllerGetJobStatusQueryKey(jobId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof receiptControllerGetJobStatus>>> = ({ signal }) => receiptControllerGetJobStatus(jobId, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof receiptControllerGetJobStatus>>> = ({ signal }) => receiptControllerGetJobStatus(jobId, { signal, ...requestOptions });
 
       
 
@@ -193,7 +195,7 @@ export function useReceiptControllerGetJobStatus<TData = Awaited<ReturnType<type
           TError,
           Awaited<ReturnType<typeof receiptControllerGetJobStatus>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useReceiptControllerGetJobStatus<TData = Awaited<ReturnType<typeof receiptControllerGetJobStatus>>, TError = unknown>(
@@ -203,11 +205,11 @@ export function useReceiptControllerGetJobStatus<TData = Awaited<ReturnType<type
           TError,
           Awaited<ReturnType<typeof receiptControllerGetJobStatus>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useReceiptControllerGetJobStatus<TData = Awaited<ReturnType<typeof receiptControllerGetJobStatus>>, TError = unknown>(
- jobId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof receiptControllerGetJobStatus>>, TError, TData>>, }
+ jobId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof receiptControllerGetJobStatus>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -215,7 +217,7 @@ export function useReceiptControllerGetJobStatus<TData = Awaited<ReturnType<type
  */
 
 export function useReceiptControllerGetJobStatus<TData = Awaited<ReturnType<typeof receiptControllerGetJobStatus>>, TError = unknown>(
- jobId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof receiptControllerGetJobStatus>>, TError, TData>>, }
+ jobId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof receiptControllerGetJobStatus>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -274,16 +276,16 @@ export const getReceiptControllerStreamJobProgressQueryKey = (jobId: string,) =>
     }
 
     
-export const getReceiptControllerStreamJobProgressQueryOptions = <TData = Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>, TError = unknown>(jobId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>, TError, TData>>, }
+export const getReceiptControllerStreamJobProgressQueryOptions = <TData = Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>, TError = unknown>(jobId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getReceiptControllerStreamJobProgressQueryKey(jobId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>> = ({ signal }) => receiptControllerStreamJobProgress(jobId, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>> = ({ signal }) => receiptControllerStreamJobProgress(jobId, { signal, ...requestOptions });
 
       
 
@@ -303,7 +305,7 @@ export function useReceiptControllerStreamJobProgress<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useReceiptControllerStreamJobProgress<TData = Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>, TError = unknown>(
@@ -313,11 +315,11 @@ export function useReceiptControllerStreamJobProgress<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useReceiptControllerStreamJobProgress<TData = Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>, TError = unknown>(
- jobId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>, TError, TData>>, }
+ jobId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -325,7 +327,7 @@ export function useReceiptControllerStreamJobProgress<TData = Awaited<ReturnType
  */
 
 export function useReceiptControllerStreamJobProgress<TData = Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>, TError = unknown>(
- jobId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>, TError, TData>>, }
+ jobId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof receiptControllerStreamJobProgress>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 

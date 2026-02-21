@@ -23,6 +23,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -64,15 +66,15 @@ export const aiControllerSuggestCategory = async (suggestCategoryRequestDto: Sug
 
 
 export const getAiControllerSuggestCategoryMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof aiControllerSuggestCategory>>, TError,{data: SuggestCategoryRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof aiControllerSuggestCategory>>, TError,{data: SuggestCategoryRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof aiControllerSuggestCategory>>, TError,{data: SuggestCategoryRequestDto}, TContext> => {
 
 const mutationKey = ['aiControllerSuggestCategory'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -80,7 +82,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof aiControllerSuggestCategory>>, {data: SuggestCategoryRequestDto}> = (props) => {
           const {data} = props ?? {};
 
-          return  aiControllerSuggestCategory(data,)
+          return  aiControllerSuggestCategory(data,requestOptions)
         }
 
 
@@ -98,7 +100,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Suggest a category for an item, expense, or income
  */
 export const useAiControllerSuggestCategory = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof aiControllerSuggestCategory>>, TError,{data: SuggestCategoryRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof aiControllerSuggestCategory>>, TError,{data: SuggestCategoryRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof aiControllerSuggestCategory>>,
         TError,

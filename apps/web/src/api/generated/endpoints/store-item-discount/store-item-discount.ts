@@ -35,6 +35,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -77,15 +79,15 @@ export const storeItemDiscountControllerCreate = async (storeItemId: string,
 
 
 export const getStoreItemDiscountControllerCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerCreate>>, TError,{storeItemId: string;data: CreateStoreItemDiscountRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerCreate>>, TError,{storeItemId: string;data: CreateStoreItemDiscountRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerCreate>>, TError,{storeItemId: string;data: CreateStoreItemDiscountRequestDto}, TContext> => {
 
 const mutationKey = ['storeItemDiscountControllerCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -93,7 +95,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof storeItemDiscountControllerCreate>>, {storeItemId: string;data: CreateStoreItemDiscountRequestDto}> = (props) => {
           const {storeItemId,data} = props ?? {};
 
-          return  storeItemDiscountControllerCreate(storeItemId,data,)
+          return  storeItemDiscountControllerCreate(storeItemId,data,requestOptions)
         }
 
 
@@ -111,7 +113,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Create a discount for a store item
  */
 export const useStoreItemDiscountControllerCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerCreate>>, TError,{storeItemId: string;data: CreateStoreItemDiscountRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerCreate>>, TError,{storeItemId: string;data: CreateStoreItemDiscountRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof storeItemDiscountControllerCreate>>,
         TError,
@@ -176,16 +178,16 @@ export const getStoreItemDiscountControllerFindAllQueryKey = (storeItemId: strin
 
     
 export const getStoreItemDiscountControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>, TError = unknown>(storeItemId: string,
-    params: StoreItemDiscountControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>, TError, TData>>, }
+    params: StoreItemDiscountControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getStoreItemDiscountControllerFindAllQueryKey(storeItemId,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>> = ({ signal }) => storeItemDiscountControllerFindAll(storeItemId,params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>> = ({ signal }) => storeItemDiscountControllerFindAll(storeItemId,params, { signal, ...requestOptions });
 
       
 
@@ -206,7 +208,7 @@ export function useStoreItemDiscountControllerFindAll<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemDiscountControllerFindAll<TData = Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>, TError = unknown>(
@@ -217,12 +219,12 @@ export function useStoreItemDiscountControllerFindAll<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemDiscountControllerFindAll<TData = Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>, TError = unknown>(
  storeItemId: string,
-    params: StoreItemDiscountControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>, TError, TData>>, }
+    params: StoreItemDiscountControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -231,7 +233,7 @@ export function useStoreItemDiscountControllerFindAll<TData = Awaited<ReturnType
 
 export function useStoreItemDiscountControllerFindAll<TData = Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>, TError = unknown>(
  storeItemId: string,
-    params: StoreItemDiscountControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>, TError, TData>>, }
+    params: StoreItemDiscountControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -290,16 +292,16 @@ export const getStoreItemDiscountControllerGetActiveQueryKey = (storeItemId: str
     }
 
     
-export const getStoreItemDiscountControllerGetActiveQueryOptions = <TData = Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>, TError = unknown>(storeItemId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>, TError, TData>>, }
+export const getStoreItemDiscountControllerGetActiveQueryOptions = <TData = Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>, TError = unknown>(storeItemId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getStoreItemDiscountControllerGetActiveQueryKey(storeItemId);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>> = ({ signal }) => storeItemDiscountControllerGetActive(storeItemId, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>> = ({ signal }) => storeItemDiscountControllerGetActive(storeItemId, { signal, ...requestOptions });
 
       
 
@@ -319,7 +321,7 @@ export function useStoreItemDiscountControllerGetActive<TData = Awaited<ReturnTy
           TError,
           Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemDiscountControllerGetActive<TData = Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>, TError = unknown>(
@@ -329,11 +331,11 @@ export function useStoreItemDiscountControllerGetActive<TData = Awaited<ReturnTy
           TError,
           Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemDiscountControllerGetActive<TData = Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>, TError = unknown>(
- storeItemId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>, TError, TData>>, }
+ storeItemId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -341,7 +343,7 @@ export function useStoreItemDiscountControllerGetActive<TData = Awaited<ReturnTy
  */
 
 export function useStoreItemDiscountControllerGetActive<TData = Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>, TError = unknown>(
- storeItemId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>, TError, TData>>, }
+ storeItemId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerGetActive>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -404,16 +406,16 @@ export const getStoreItemDiscountControllerFindOneQueryKey = (storeItemId: strin
 
     
 export const getStoreItemDiscountControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>, TError = unknown>(storeItemId: string,
-    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>, TError, TData>>, }
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getStoreItemDiscountControllerFindOneQueryKey(storeItemId,id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>> = ({ signal }) => storeItemDiscountControllerFindOne(storeItemId,id, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>> = ({ signal }) => storeItemDiscountControllerFindOne(storeItemId,id, { signal, ...requestOptions });
 
       
 
@@ -434,7 +436,7 @@ export function useStoreItemDiscountControllerFindOne<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemDiscountControllerFindOne<TData = Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>, TError = unknown>(
@@ -445,12 +447,12 @@ export function useStoreItemDiscountControllerFindOne<TData = Awaited<ReturnType
           TError,
           Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useStoreItemDiscountControllerFindOne<TData = Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>, TError = unknown>(
  storeItemId: string,
-    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>, TError, TData>>, }
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -459,7 +461,7 @@ export function useStoreItemDiscountControllerFindOne<TData = Awaited<ReturnType
 
 export function useStoreItemDiscountControllerFindOne<TData = Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>, TError = unknown>(
  storeItemId: string,
-    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>, TError, TData>>, }
+    id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof storeItemDiscountControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -515,15 +517,15 @@ export const storeItemDiscountControllerUpdate = async (storeItemId: string,
 
 
 export const getStoreItemDiscountControllerUpdateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerUpdate>>, TError,{storeItemId: string;id: string;data: UpdateStoreItemDiscountRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerUpdate>>, TError,{storeItemId: string;id: string;data: UpdateStoreItemDiscountRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerUpdate>>, TError,{storeItemId: string;id: string;data: UpdateStoreItemDiscountRequestDto}, TContext> => {
 
 const mutationKey = ['storeItemDiscountControllerUpdate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -531,7 +533,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof storeItemDiscountControllerUpdate>>, {storeItemId: string;id: string;data: UpdateStoreItemDiscountRequestDto}> = (props) => {
           const {storeItemId,id,data} = props ?? {};
 
-          return  storeItemDiscountControllerUpdate(storeItemId,id,data,)
+          return  storeItemDiscountControllerUpdate(storeItemId,id,data,requestOptions)
         }
 
 
@@ -549,7 +551,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Update a store item discount
  */
 export const useStoreItemDiscountControllerUpdate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerUpdate>>, TError,{storeItemId: string;id: string;data: UpdateStoreItemDiscountRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerUpdate>>, TError,{storeItemId: string;id: string;data: UpdateStoreItemDiscountRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof storeItemDiscountControllerUpdate>>,
         TError,
@@ -598,15 +600,15 @@ export const storeItemDiscountControllerDelete = async (storeItemId: string,
 
 
 export const getStoreItemDiscountControllerDeleteMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerDelete>>, TError,{storeItemId: string;id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerDelete>>, TError,{storeItemId: string;id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerDelete>>, TError,{storeItemId: string;id: string}, TContext> => {
 
 const mutationKey = ['storeItemDiscountControllerDelete'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -614,7 +616,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof storeItemDiscountControllerDelete>>, {storeItemId: string;id: string}> = (props) => {
           const {storeItemId,id} = props ?? {};
 
-          return  storeItemDiscountControllerDelete(storeItemId,id,)
+          return  storeItemDiscountControllerDelete(storeItemId,id,requestOptions)
         }
 
 
@@ -632,7 +634,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Delete a store item discount
  */
 export const useStoreItemDiscountControllerDelete = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerDelete>>, TError,{storeItemId: string;id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerDelete>>, TError,{storeItemId: string;id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof storeItemDiscountControllerDelete>>,
         TError,
@@ -686,15 +688,15 @@ export const storeItemDiscountControllerEnd = async (storeItemId: string,
 
 
 export const getStoreItemDiscountControllerEndMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerEnd>>, TError,{storeItemId: string;id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerEnd>>, TError,{storeItemId: string;id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerEnd>>, TError,{storeItemId: string;id: string}, TContext> => {
 
 const mutationKey = ['storeItemDiscountControllerEnd'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -702,7 +704,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof storeItemDiscountControllerEnd>>, {storeItemId: string;id: string}> = (props) => {
           const {storeItemId,id} = props ?? {};
 
-          return  storeItemDiscountControllerEnd(storeItemId,id,)
+          return  storeItemDiscountControllerEnd(storeItemId,id,requestOptions)
         }
 
 
@@ -720,7 +722,7 @@ const {mutation: mutationOptions} = options ?
  * @summary End a store item discount
  */
 export const useStoreItemDiscountControllerEnd = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerEnd>>, TError,{storeItemId: string;id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof storeItemDiscountControllerEnd>>, TError,{storeItemId: string;id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof storeItemDiscountControllerEnd>>,
         TError,

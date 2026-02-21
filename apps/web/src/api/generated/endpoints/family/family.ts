@@ -36,6 +36,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -77,15 +79,15 @@ export const familyControllerCreate = async (createFamilyRequestDto: CreateFamil
 
 
 export const getFamilyControllerCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerCreate>>, TError,{data: CreateFamilyRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerCreate>>, TError,{data: CreateFamilyRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof familyControllerCreate>>, TError,{data: CreateFamilyRequestDto}, TContext> => {
 
 const mutationKey = ['familyControllerCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -93,7 +95,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof familyControllerCreate>>, {data: CreateFamilyRequestDto}> = (props) => {
           const {data} = props ?? {};
 
-          return  familyControllerCreate(data,)
+          return  familyControllerCreate(data,requestOptions)
         }
 
 
@@ -111,7 +113,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Create a new family
  */
 export const useFamilyControllerCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerCreate>>, TError,{data: CreateFamilyRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerCreate>>, TError,{data: CreateFamilyRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof familyControllerCreate>>,
         TError,
@@ -165,16 +167,16 @@ export const getFamilyControllerFindAllQueryKey = () => {
     }
 
     
-export const getFamilyControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof familyControllerFindAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerFindAll>>, TError, TData>>, }
+export const getFamilyControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof familyControllerFindAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getFamilyControllerFindAllQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof familyControllerFindAll>>> = ({ signal }) => familyControllerFindAll({ signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof familyControllerFindAll>>> = ({ signal }) => familyControllerFindAll({ signal, ...requestOptions });
 
       
 
@@ -194,7 +196,7 @@ export function useFamilyControllerFindAll<TData = Awaited<ReturnType<typeof fam
           TError,
           Awaited<ReturnType<typeof familyControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useFamilyControllerFindAll<TData = Awaited<ReturnType<typeof familyControllerFindAll>>, TError = unknown>(
@@ -204,11 +206,11 @@ export function useFamilyControllerFindAll<TData = Awaited<ReturnType<typeof fam
           TError,
           Awaited<ReturnType<typeof familyControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useFamilyControllerFindAll<TData = Awaited<ReturnType<typeof familyControllerFindAll>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerFindAll>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -216,7 +218,7 @@ export function useFamilyControllerFindAll<TData = Awaited<ReturnType<typeof fam
  */
 
 export function useFamilyControllerFindAll<TData = Awaited<ReturnType<typeof familyControllerFindAll>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerFindAll>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -275,16 +277,16 @@ export const getFamilyControllerFindOneQueryKey = (id: string,) => {
     }
 
     
-export const getFamilyControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof familyControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerFindOne>>, TError, TData>>, }
+export const getFamilyControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof familyControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getFamilyControllerFindOneQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof familyControllerFindOne>>> = ({ signal }) => familyControllerFindOne(id, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof familyControllerFindOne>>> = ({ signal }) => familyControllerFindOne(id, { signal, ...requestOptions });
 
       
 
@@ -304,7 +306,7 @@ export function useFamilyControllerFindOne<TData = Awaited<ReturnType<typeof fam
           TError,
           Awaited<ReturnType<typeof familyControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useFamilyControllerFindOne<TData = Awaited<ReturnType<typeof familyControllerFindOne>>, TError = unknown>(
@@ -314,11 +316,11 @@ export function useFamilyControllerFindOne<TData = Awaited<ReturnType<typeof fam
           TError,
           Awaited<ReturnType<typeof familyControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useFamilyControllerFindOne<TData = Awaited<ReturnType<typeof familyControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -326,7 +328,7 @@ export function useFamilyControllerFindOne<TData = Awaited<ReturnType<typeof fam
  */
 
 export function useFamilyControllerFindOne<TData = Awaited<ReturnType<typeof familyControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -380,15 +382,15 @@ export const familyControllerInviteMember = async (id: string,
 
 
 export const getFamilyControllerInviteMemberMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerInviteMember>>, TError,{id: string;data: InviteMemberRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerInviteMember>>, TError,{id: string;data: InviteMemberRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof familyControllerInviteMember>>, TError,{id: string;data: InviteMemberRequestDto}, TContext> => {
 
 const mutationKey = ['familyControllerInviteMember'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -396,7 +398,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof familyControllerInviteMember>>, {id: string;data: InviteMemberRequestDto}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  familyControllerInviteMember(id,data,)
+          return  familyControllerInviteMember(id,data,requestOptions)
         }
 
 
@@ -414,7 +416,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Invite a member to a family
  */
 export const useFamilyControllerInviteMember = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerInviteMember>>, TError,{id: string;data: InviteMemberRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerInviteMember>>, TError,{id: string;data: InviteMemberRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof familyControllerInviteMember>>,
         TError,
@@ -468,16 +470,16 @@ export const getFamilyControllerGetPendingInvitationsQueryKey = () => {
     }
 
     
-export const getFamilyControllerGetPendingInvitationsQueryOptions = <TData = Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>, TError, TData>>, }
+export const getFamilyControllerGetPendingInvitationsQueryOptions = <TData = Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getFamilyControllerGetPendingInvitationsQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>> = ({ signal }) => familyControllerGetPendingInvitations({ signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>> = ({ signal }) => familyControllerGetPendingInvitations({ signal, ...requestOptions });
 
       
 
@@ -497,7 +499,7 @@ export function useFamilyControllerGetPendingInvitations<TData = Awaited<ReturnT
           TError,
           Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useFamilyControllerGetPendingInvitations<TData = Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>, TError = unknown>(
@@ -507,11 +509,11 @@ export function useFamilyControllerGetPendingInvitations<TData = Awaited<ReturnT
           TError,
           Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useFamilyControllerGetPendingInvitations<TData = Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -519,7 +521,7 @@ export function useFamilyControllerGetPendingInvitations<TData = Awaited<ReturnT
  */
 
 export function useFamilyControllerGetPendingInvitations<TData = Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerGetPendingInvitations>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -578,16 +580,16 @@ export const getFamilyControllerGetFamilyPendingInvitationsQueryKey = (id: strin
     }
 
     
-export const getFamilyControllerGetFamilyPendingInvitationsQueryOptions = <TData = Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>, TError, TData>>, }
+export const getFamilyControllerGetFamilyPendingInvitationsQueryOptions = <TData = Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getFamilyControllerGetFamilyPendingInvitationsQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>> = ({ signal }) => familyControllerGetFamilyPendingInvitations(id, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>> = ({ signal }) => familyControllerGetFamilyPendingInvitations(id, { signal, ...requestOptions });
 
       
 
@@ -607,7 +609,7 @@ export function useFamilyControllerGetFamilyPendingInvitations<TData = Awaited<R
           TError,
           Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useFamilyControllerGetFamilyPendingInvitations<TData = Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>, TError = unknown>(
@@ -617,11 +619,11 @@ export function useFamilyControllerGetFamilyPendingInvitations<TData = Awaited<R
           TError,
           Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useFamilyControllerGetFamilyPendingInvitations<TData = Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -629,7 +631,7 @@ export function useFamilyControllerGetFamilyPendingInvitations<TData = Awaited<R
  */
 
 export function useFamilyControllerGetFamilyPendingInvitations<TData = Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof familyControllerGetFamilyPendingInvitations>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -681,15 +683,15 @@ export const familyControllerAcceptInvitation = async (id: string, options?: Req
 
 
 export const getFamilyControllerAcceptInvitationMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerAcceptInvitation>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerAcceptInvitation>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof familyControllerAcceptInvitation>>, TError,{id: string}, TContext> => {
 
 const mutationKey = ['familyControllerAcceptInvitation'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -697,7 +699,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof familyControllerAcceptInvitation>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  familyControllerAcceptInvitation(id,)
+          return  familyControllerAcceptInvitation(id,requestOptions)
         }
 
 
@@ -715,7 +717,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Accept a family invitation
  */
 export const useFamilyControllerAcceptInvitation = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerAcceptInvitation>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerAcceptInvitation>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof familyControllerAcceptInvitation>>,
         TError,
@@ -762,15 +764,15 @@ export const familyControllerDeclineInvitation = async (id: string, options?: Re
 
 
 export const getFamilyControllerDeclineInvitationMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerDeclineInvitation>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerDeclineInvitation>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof familyControllerDeclineInvitation>>, TError,{id: string}, TContext> => {
 
 const mutationKey = ['familyControllerDeclineInvitation'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -778,7 +780,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof familyControllerDeclineInvitation>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  familyControllerDeclineInvitation(id,)
+          return  familyControllerDeclineInvitation(id,requestOptions)
         }
 
 
@@ -796,7 +798,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Decline a family invitation
  */
 export const useFamilyControllerDeclineInvitation = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerDeclineInvitation>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerDeclineInvitation>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof familyControllerDeclineInvitation>>,
         TError,
@@ -843,15 +845,15 @@ export const familyControllerCancelInvitation = async (id: string, options?: Req
 
 
 export const getFamilyControllerCancelInvitationMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerCancelInvitation>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerCancelInvitation>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof familyControllerCancelInvitation>>, TError,{id: string}, TContext> => {
 
 const mutationKey = ['familyControllerCancelInvitation'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -859,7 +861,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof familyControllerCancelInvitation>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  familyControllerCancelInvitation(id,)
+          return  familyControllerCancelInvitation(id,requestOptions)
         }
 
 
@@ -877,7 +879,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Cancel a family invitation
  */
 export const useFamilyControllerCancelInvitation = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerCancelInvitation>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerCancelInvitation>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof familyControllerCancelInvitation>>,
         TError,
@@ -926,15 +928,15 @@ export const familyControllerRemoveMember = async (id: string,
 
 
 export const getFamilyControllerRemoveMemberMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerRemoveMember>>, TError,{id: string;userId: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerRemoveMember>>, TError,{id: string;userId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof familyControllerRemoveMember>>, TError,{id: string;userId: string}, TContext> => {
 
 const mutationKey = ['familyControllerRemoveMember'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -942,7 +944,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof familyControllerRemoveMember>>, {id: string;userId: string}> = (props) => {
           const {id,userId} = props ?? {};
 
-          return  familyControllerRemoveMember(id,userId,)
+          return  familyControllerRemoveMember(id,userId,requestOptions)
         }
 
 
@@ -960,7 +962,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Remove a member from a family
  */
 export const useFamilyControllerRemoveMember = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerRemoveMember>>, TError,{id: string;userId: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerRemoveMember>>, TError,{id: string;userId: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof familyControllerRemoveMember>>,
         TError,
@@ -1007,15 +1009,15 @@ export const familyControllerLeaveFamily = async (id: string, options?: RequestI
 
 
 export const getFamilyControllerLeaveFamilyMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerLeaveFamily>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerLeaveFamily>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof familyControllerLeaveFamily>>, TError,{id: string}, TContext> => {
 
 const mutationKey = ['familyControllerLeaveFamily'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -1023,7 +1025,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof familyControllerLeaveFamily>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  familyControllerLeaveFamily(id,)
+          return  familyControllerLeaveFamily(id,requestOptions)
         }
 
 
@@ -1041,7 +1043,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Leave a family
  */
 export const useFamilyControllerLeaveFamily = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerLeaveFamily>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof familyControllerLeaveFamily>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof familyControllerLeaveFamily>>,
         TError,

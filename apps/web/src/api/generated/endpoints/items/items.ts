@@ -38,6 +38,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -79,15 +81,15 @@ export const itemControllerCreate = async (createItemRequestDto: CreateItemReque
 
 
 export const getItemControllerCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemControllerCreate>>, TError,{data: CreateItemRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemControllerCreate>>, TError,{data: CreateItemRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof itemControllerCreate>>, TError,{data: CreateItemRequestDto}, TContext> => {
 
 const mutationKey = ['itemControllerCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -95,7 +97,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof itemControllerCreate>>, {data: CreateItemRequestDto}> = (props) => {
           const {data} = props ?? {};
 
-          return  itemControllerCreate(data,)
+          return  itemControllerCreate(data,requestOptions)
         }
 
 
@@ -113,7 +115,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Create a new item
  */
 export const useItemControllerCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemControllerCreate>>, TError,{data: CreateItemRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemControllerCreate>>, TError,{data: CreateItemRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof itemControllerCreate>>,
         TError,
@@ -174,16 +176,16 @@ export const getItemControllerFindAllQueryKey = (params?: ItemControllerFindAllP
     }
 
     
-export const getItemControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof itemControllerFindAll>>, TError = unknown>(params: ItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindAll>>, TError, TData>>, }
+export const getItemControllerFindAllQueryOptions = <TData = Awaited<ReturnType<typeof itemControllerFindAll>>, TError = unknown>(params: ItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getItemControllerFindAllQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof itemControllerFindAll>>> = ({ signal }) => itemControllerFindAll(params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof itemControllerFindAll>>> = ({ signal }) => itemControllerFindAll(params, { signal, ...requestOptions });
 
       
 
@@ -203,7 +205,7 @@ export function useItemControllerFindAll<TData = Awaited<ReturnType<typeof itemC
           TError,
           Awaited<ReturnType<typeof itemControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useItemControllerFindAll<TData = Awaited<ReturnType<typeof itemControllerFindAll>>, TError = unknown>(
@@ -213,11 +215,11 @@ export function useItemControllerFindAll<TData = Awaited<ReturnType<typeof itemC
           TError,
           Awaited<ReturnType<typeof itemControllerFindAll>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useItemControllerFindAll<TData = Awaited<ReturnType<typeof itemControllerFindAll>>, TError = unknown>(
- params: ItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindAll>>, TError, TData>>, }
+ params: ItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -225,7 +227,7 @@ export function useItemControllerFindAll<TData = Awaited<ReturnType<typeof itemC
  */
 
 export function useItemControllerFindAll<TData = Awaited<ReturnType<typeof itemControllerFindAll>>, TError = unknown>(
- params: ItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindAll>>, TError, TData>>, }
+ params: ItemControllerFindAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindAll>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -291,16 +293,16 @@ export const getItemControllerFindWithStoresQueryKey = (params?: ItemControllerF
     }
 
     
-export const getItemControllerFindWithStoresQueryOptions = <TData = Awaited<ReturnType<typeof itemControllerFindWithStores>>, TError = unknown>(params: ItemControllerFindWithStoresParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindWithStores>>, TError, TData>>, }
+export const getItemControllerFindWithStoresQueryOptions = <TData = Awaited<ReturnType<typeof itemControllerFindWithStores>>, TError = unknown>(params: ItemControllerFindWithStoresParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindWithStores>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getItemControllerFindWithStoresQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof itemControllerFindWithStores>>> = ({ signal }) => itemControllerFindWithStores(params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof itemControllerFindWithStores>>> = ({ signal }) => itemControllerFindWithStores(params, { signal, ...requestOptions });
 
       
 
@@ -320,7 +322,7 @@ export function useItemControllerFindWithStores<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof itemControllerFindWithStores>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useItemControllerFindWithStores<TData = Awaited<ReturnType<typeof itemControllerFindWithStores>>, TError = unknown>(
@@ -330,11 +332,11 @@ export function useItemControllerFindWithStores<TData = Awaited<ReturnType<typeo
           TError,
           Awaited<ReturnType<typeof itemControllerFindWithStores>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useItemControllerFindWithStores<TData = Awaited<ReturnType<typeof itemControllerFindWithStores>>, TError = unknown>(
- params: ItemControllerFindWithStoresParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindWithStores>>, TError, TData>>, }
+ params: ItemControllerFindWithStoresParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindWithStores>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -342,7 +344,7 @@ export function useItemControllerFindWithStores<TData = Awaited<ReturnType<typeo
  */
 
 export function useItemControllerFindWithStores<TData = Awaited<ReturnType<typeof itemControllerFindWithStores>>, TError = unknown>(
- params: ItemControllerFindWithStoresParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindWithStores>>, TError, TData>>, }
+ params: ItemControllerFindWithStoresParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindWithStores>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -408,16 +410,16 @@ export const getItemControllerSearchQueryKey = (params?: ItemControllerSearchPar
     }
 
     
-export const getItemControllerSearchQueryOptions = <TData = Awaited<ReturnType<typeof itemControllerSearch>>, TError = unknown>(params: ItemControllerSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerSearch>>, TError, TData>>, }
+export const getItemControllerSearchQueryOptions = <TData = Awaited<ReturnType<typeof itemControllerSearch>>, TError = unknown>(params: ItemControllerSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerSearch>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getItemControllerSearchQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof itemControllerSearch>>> = ({ signal }) => itemControllerSearch(params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof itemControllerSearch>>> = ({ signal }) => itemControllerSearch(params, { signal, ...requestOptions });
 
       
 
@@ -437,7 +439,7 @@ export function useItemControllerSearch<TData = Awaited<ReturnType<typeof itemCo
           TError,
           Awaited<ReturnType<typeof itemControllerSearch>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useItemControllerSearch<TData = Awaited<ReturnType<typeof itemControllerSearch>>, TError = unknown>(
@@ -447,11 +449,11 @@ export function useItemControllerSearch<TData = Awaited<ReturnType<typeof itemCo
           TError,
           Awaited<ReturnType<typeof itemControllerSearch>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useItemControllerSearch<TData = Awaited<ReturnType<typeof itemControllerSearch>>, TError = unknown>(
- params: ItemControllerSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerSearch>>, TError, TData>>, }
+ params: ItemControllerSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerSearch>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -459,7 +461,7 @@ export function useItemControllerSearch<TData = Awaited<ReturnType<typeof itemCo
  */
 
 export function useItemControllerSearch<TData = Awaited<ReturnType<typeof itemControllerSearch>>, TError = unknown>(
- params: ItemControllerSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerSearch>>, TError, TData>>, }
+ params: ItemControllerSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerSearch>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -518,16 +520,16 @@ export const getItemControllerFindOneQueryKey = (id: string,) => {
     }
 
     
-export const getItemControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof itemControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindOne>>, TError, TData>>, }
+export const getItemControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof itemControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getItemControllerFindOneQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof itemControllerFindOne>>> = ({ signal }) => itemControllerFindOne(id, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof itemControllerFindOne>>> = ({ signal }) => itemControllerFindOne(id, { signal, ...requestOptions });
 
       
 
@@ -547,7 +549,7 @@ export function useItemControllerFindOne<TData = Awaited<ReturnType<typeof itemC
           TError,
           Awaited<ReturnType<typeof itemControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useItemControllerFindOne<TData = Awaited<ReturnType<typeof itemControllerFindOne>>, TError = unknown>(
@@ -557,11 +559,11 @@ export function useItemControllerFindOne<TData = Awaited<ReturnType<typeof itemC
           TError,
           Awaited<ReturnType<typeof itemControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useItemControllerFindOne<TData = Awaited<ReturnType<typeof itemControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -569,7 +571,7 @@ export function useItemControllerFindOne<TData = Awaited<ReturnType<typeof itemC
  */
 
 export function useItemControllerFindOne<TData = Awaited<ReturnType<typeof itemControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof itemControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -623,15 +625,15 @@ export const itemControllerUpdate = async (id: string,
 
 
 export const getItemControllerUpdateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemControllerUpdate>>, TError,{id: string;data: UpdateItemRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemControllerUpdate>>, TError,{id: string;data: UpdateItemRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof itemControllerUpdate>>, TError,{id: string;data: UpdateItemRequestDto}, TContext> => {
 
 const mutationKey = ['itemControllerUpdate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -639,7 +641,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof itemControllerUpdate>>, {id: string;data: UpdateItemRequestDto}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  itemControllerUpdate(id,data,)
+          return  itemControllerUpdate(id,data,requestOptions)
         }
 
 
@@ -657,7 +659,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Update an item
  */
 export const useItemControllerUpdate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemControllerUpdate>>, TError,{id: string;data: UpdateItemRequestDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemControllerUpdate>>, TError,{id: string;data: UpdateItemRequestDto}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof itemControllerUpdate>>,
         TError,
@@ -704,15 +706,15 @@ export const itemControllerDelete = async (id: string, options?: RequestInit): P
 
 
 export const getItemControllerDeleteMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemControllerDelete>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemControllerDelete>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof itemControllerDelete>>, TError,{id: string}, TContext> => {
 
 const mutationKey = ['itemControllerDelete'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -720,7 +722,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof itemControllerDelete>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  itemControllerDelete(id,)
+          return  itemControllerDelete(id,requestOptions)
         }
 
 
@@ -738,7 +740,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Delete an item
  */
 export const useItemControllerDelete = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemControllerDelete>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof itemControllerDelete>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof itemControllerDelete>>,
         TError,

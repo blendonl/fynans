@@ -29,6 +29,8 @@ import type {
 import { customInstance } from '../../../custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 /**
@@ -83,16 +85,16 @@ export const getUserControllerSearchQueryKey = (params?: UserControllerSearchPar
     }
 
     
-export const getUserControllerSearchQueryOptions = <TData = Awaited<ReturnType<typeof userControllerSearch>>, TError = unknown>(params: UserControllerSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerSearch>>, TError, TData>>, }
+export const getUserControllerSearchQueryOptions = <TData = Awaited<ReturnType<typeof userControllerSearch>>, TError = unknown>(params: UserControllerSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerSearch>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getUserControllerSearchQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerSearch>>> = ({ signal }) => userControllerSearch(params, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerSearch>>> = ({ signal }) => userControllerSearch(params, { signal, ...requestOptions });
 
       
 
@@ -112,7 +114,7 @@ export function useUserControllerSearch<TData = Awaited<ReturnType<typeof userCo
           TError,
           Awaited<ReturnType<typeof userControllerSearch>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUserControllerSearch<TData = Awaited<ReturnType<typeof userControllerSearch>>, TError = unknown>(
@@ -122,11 +124,11 @@ export function useUserControllerSearch<TData = Awaited<ReturnType<typeof userCo
           TError,
           Awaited<ReturnType<typeof userControllerSearch>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUserControllerSearch<TData = Awaited<ReturnType<typeof userControllerSearch>>, TError = unknown>(
- params: UserControllerSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerSearch>>, TError, TData>>, }
+ params: UserControllerSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerSearch>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -134,7 +136,7 @@ export function useUserControllerSearch<TData = Awaited<ReturnType<typeof userCo
  */
 
 export function useUserControllerSearch<TData = Awaited<ReturnType<typeof userControllerSearch>>, TError = unknown>(
- params: UserControllerSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerSearch>>, TError, TData>>, }
+ params: UserControllerSearchParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerSearch>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -193,16 +195,16 @@ export const getUserControllerFindOneQueryKey = (id: string,) => {
     }
 
     
-export const getUserControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof userControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerFindOne>>, TError, TData>>, }
+export const getUserControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof userControllerFindOne>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getUserControllerFindOneQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerFindOne>>> = ({ signal }) => userControllerFindOne(id, { signal });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof userControllerFindOne>>> = ({ signal }) => userControllerFindOne(id, { signal, ...requestOptions });
 
       
 
@@ -222,7 +224,7 @@ export function useUserControllerFindOne<TData = Awaited<ReturnType<typeof userC
           TError,
           Awaited<ReturnType<typeof userControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUserControllerFindOne<TData = Awaited<ReturnType<typeof userControllerFindOne>>, TError = unknown>(
@@ -232,11 +234,11 @@ export function useUserControllerFindOne<TData = Awaited<ReturnType<typeof userC
           TError,
           Awaited<ReturnType<typeof userControllerFindOne>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUserControllerFindOne<TData = Awaited<ReturnType<typeof userControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -244,7 +246,7 @@ export function useUserControllerFindOne<TData = Awaited<ReturnType<typeof userC
  */
 
 export function useUserControllerFindOne<TData = Awaited<ReturnType<typeof userControllerFindOne>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerFindOne>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof userControllerFindOne>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 

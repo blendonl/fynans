@@ -13,4 +13,5 @@ export interface CreateTransactionRequestDto {
   value: number;
   recordedAt?: string;
   familyId?: string;
+  paymentMethodId?: string;
 }

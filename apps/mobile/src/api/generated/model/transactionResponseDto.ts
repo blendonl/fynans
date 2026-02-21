@@ -15,6 +15,7 @@ export interface TransactionResponseDto {
   type: TransactionResponseDtoType;
   scope: TransactionResponseDtoScope;
   value: number;
+  paymentMethodId?: string;
   recordedAt: string;
   createdAt: string;
   updatedAt: string;
