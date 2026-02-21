@@ -65,7 +65,6 @@ export class EnrichReceiptDataUseCase {
     const enrichedItems = await Promise.all(
       processedData.items.map(async (item) => {
         let itemId: string | undefined;
-        let itemSizeId: string | undefined;
         let existingStoreItemId: string | undefined;
         let categoryId: string | undefined;
         let resolvedName = item.name;
@@ -98,20 +97,18 @@ export class EnrichReceiptDataUseCase {
 
             // Find or create ItemSize if size info exists
             if (item.size) {
-              const itemSize = await this.itemSizeRepository.create({
+              await this.itemSizeRepository.create({
                 itemId: dbItem.id,
                 value: item.size.value,
                 unit: item.size.unit,
               });
-              itemSizeId = itemSize.id;
             }
 
-            // Find existing StoreItem by store + item + size
+            // Find existing StoreItem by store + item
             if (store) {
-              const existingStoreItem = await this.storeItemRepository.findByStoreItemAndSize(
+              const existingStoreItem = await this.storeItemRepository.findByStoreAndItemId(
                 store.id,
                 dbItem.id,
-                itemSizeId,
               );
               existingStoreItemId = existingStoreItem?.id;
             }
@@ -133,7 +130,6 @@ export class EnrichReceiptDataUseCase {
           suggestedItemCategoryName: item.suggestedItemCategory,
           size: item.size,
           itemId,
-          itemSizeId,
         };
       }),
     );
@@ -153,14 +149,13 @@ export class EnrichReceiptDataUseCase {
     };
 
     const matched = enrichedItems.filter((i) => i.itemId).length;
-    const withSize = enrichedItems.filter((i) => i.itemSizeId).length;
     const withStoreItem = enrichedItems.filter((i) => i.id).length;
     this.logger.log(
       `resolveStoreAndItems: store="${result.store.name}" (id=${result.store.id ?? 'new'}), ` +
-      `${enrichedItems.length} items (${matched} matched, ${withSize} with size, ${withStoreItem} with storeItem)`,
+      `${enrichedItems.length} items (${matched} matched, ${withStoreItem} with storeItem)`,
     );
     this.logger.debug(
-      `resolveStoreAndItems items: ${JSON.stringify(enrichedItems.map((i) => ({ name: i.name, nameEn: i.nameEn, size: i.size, itemId: i.itemId, itemSizeId: i.itemSizeId, storeItemId: i.id })))}`,
+      `resolveStoreAndItems items: ${JSON.stringify(enrichedItems.map((i) => ({ name: i.name, nameEn: i.nameEn, size: i.size, itemId: i.itemId, storeItemId: i.id })))}`,
     );
 
     return result;

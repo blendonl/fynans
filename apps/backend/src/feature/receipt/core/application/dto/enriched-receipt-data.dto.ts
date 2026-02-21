@@ -17,7 +17,6 @@ export class EnrichedReceiptItemDto {
   resolvedCategoryId?: string;
   size?: { value: number; unit: string };
   itemId?: string;
-  itemSizeId?: string;
 }
 
 export class EnrichedReceiptDataDto {

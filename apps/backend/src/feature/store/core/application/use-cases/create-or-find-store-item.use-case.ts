@@ -36,20 +36,17 @@ export class CreateOrFindStoreItemUseCase {
     await this.itemRepository.linkToUser(item.id, userId);
     await this.storeItemCategoryRepository.linkToUser(dto.categoryId, userId);
 
-    let itemSizeId: string | undefined;
     if (dto.sizeValue && dto.sizeUnit) {
-      const itemSize = await this.itemSizeRepository.create({
+      await this.itemSizeRepository.create({
         itemId: item.id,
         value: dto.sizeValue,
         unit: dto.sizeUnit,
       });
-      itemSizeId = itemSize.id;
     }
 
-    const existingStoreItem = await this.storeItemRepository.findByStoreItemAndSize(
+    const existingStoreItem = await this.storeItemRepository.findByStoreAndItemId(
       dto.storeId,
       item.id,
-      itemSizeId,
     );
 
     if (existingStoreItem) {
@@ -63,7 +60,6 @@ export class CreateOrFindStoreItemUseCase {
     const storeItem = await this.storeItemRepository.create({
       storeId: dto.storeId,
       itemId: item.id,
-      itemSizeId,
       price: new Decimal(dto.price),
       isDiscounted: dto.isDiscounted ?? false,
     } as Partial<StoreItem>);
