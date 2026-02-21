@@ -132,7 +132,9 @@ export function ExpenseItemsForm({
     () =>
       storeItems.map((item) => ({
         value: item.id,
-        label: item.size ? `${item.name} · ${item.size.value} ${item.size.unit}` : item.name,
+        label: item.sizes.length > 0
+          ? `${item.name} · ${item.sizes.map((s) => `${s.value} ${s.unit}`).join(', ')}`
+          : item.name,
         sublabel: formatCurrency(item.price),
       })),
     [storeItems]
@@ -150,7 +152,7 @@ export function ExpenseItemsForm({
     const item = storeItems.find((i) => i.id === itemId);
     if (!item) return;
 
-    onQuickAddItem(item.name, item.price, item.categoryId, item.size);
+    onQuickAddItem(item.name, item.price, item.categoryId);
     setSelectedItemId(null);
     setItemSearch("");
   };

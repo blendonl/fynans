@@ -8,7 +8,7 @@ interface StoreItemResult {
   price: number;
   categoryId: string;
   isDiscounted: boolean;
-  size?: { value: number; unit: string };
+  sizes: { id: string; value: number; unit: string }[];
 }
 
 export function useStoreItems(storeId: string | undefined, search: string) {
