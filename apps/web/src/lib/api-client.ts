@@ -32,7 +32,7 @@ async function handleResponse(response: Response) {
 }
 
 export const apiClient = {
-  async get(endpoint: string, params?: Record<string, string | undefined | null>) {
+  async get<T = unknown>(endpoint: string, params?: Record<string, string | undefined | null>): Promise<T> {
     const token = getToken();
     const headers: HeadersInit = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -47,10 +47,10 @@ export const apiClient = {
     }
 
     const response = await fetch(url, { method: "GET", headers });
-    return handleResponse(response);
+    return handleResponse(response) as T;
   },
 
-  async post(endpoint: string, body: unknown, options?: { headers?: HeadersInit; signal?: AbortSignal }) {
+  async post<T = unknown>(endpoint: string, body: unknown, options?: { headers?: HeadersInit; signal?: AbortSignal }): Promise<T> {
     const token = getToken();
     const headers: HeadersInit = { ...(options?.headers || {}) };
 
@@ -66,10 +66,10 @@ export const apiClient = {
       body: isFormData ? (body as FormData) : JSON.stringify(body),
       signal: options?.signal,
     });
-    return handleResponse(response);
+    return handleResponse(response) as T;
   },
 
-  async put(endpoint: string, body: unknown, options?: { headers?: HeadersInit }) {
+  async put<T = unknown>(endpoint: string, body: unknown, options?: { headers?: HeadersInit }): Promise<T> {
     const token = getToken();
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -82,10 +82,10 @@ export const apiClient = {
       headers,
       body: JSON.stringify(body),
     });
-    return handleResponse(response);
+    return handleResponse(response) as T;
   },
 
-  async patch(endpoint: string, body: unknown, options?: { headers?: HeadersInit }) {
+  async patch<T = unknown>(endpoint: string, body: unknown, options?: { headers?: HeadersInit }): Promise<T> {
     const token = getToken();
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -98,10 +98,10 @@ export const apiClient = {
       headers,
       body: JSON.stringify(body),
     });
-    return handleResponse(response);
+    return handleResponse(response) as T;
   },
 
-  async delete(endpoint: string) {
+  async delete<T = unknown>(endpoint: string): Promise<T> {
     const token = getToken();
     const headers: HeadersInit = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -110,6 +110,6 @@ export const apiClient = {
       method: "DELETE",
       headers,
     });
-    return handleResponse(response);
+    return handleResponse(response) as T;
   },
 };
