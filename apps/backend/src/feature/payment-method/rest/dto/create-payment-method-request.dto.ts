@@ -6,18 +6,22 @@ import {
   IsEnum,
   Matches,
 } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PaymentMethodType } from '../../core/domain/value-objects/payment-method-type.enum';
 
 export class CreatePaymentMethodRequestDto {
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   name!: string;
 
+  @ApiProperty({ enum: PaymentMethodType })
   @IsEnum(PaymentMethodType, {
     message: `Type must be one of: ${Object.values(PaymentMethodType).join(', ')}`,
   })
   type!: PaymentMethodType;
 
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   @Matches(/^#[0-9A-Fa-f]{6}$/, {
@@ -25,6 +29,7 @@ export class CreatePaymentMethodRequestDto {
   })
   color?: string;
 
+  @ApiPropertyOptional()
   @IsNumber()
   @IsOptional()
   initialBalance?: number;
