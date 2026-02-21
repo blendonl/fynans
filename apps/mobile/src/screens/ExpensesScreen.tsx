@@ -8,12 +8,13 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { expenseControllerFindAll } from '../api/generated/endpoints/expense/expense';
+import type { ExpenseResponseDto } from '../api/generated/model';
 import { GlassScreenLayout } from "../components/layout/GlassScreenLayout";
 import { Card } from "../components/design-system/Card";
 import { Button } from "../components/design-system/Button";
 
 export default function ExpensesScreen() {
-  const [expenses, setExpenses] = useState<any[]>([]);
+  const [expenses, setExpenses] = useState<ExpenseResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

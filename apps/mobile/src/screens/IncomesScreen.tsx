@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { incomeControllerFindAll } from '../api/generated/endpoints/income/income';
+import type { IncomeResponseDto } from '../api/generated/model';
 import { GlassScreenLayout } from '../components/layout/GlassScreenLayout';
 import { Card } from '../components/design-system/Card';
 import { Button } from '../components/design-system/Button';
 
 export default function IncomesScreen() {
-    const [incomes, setIncomes] = useState<any[]>([]);
+    const [incomes, setIncomes] = useState<IncomeResponseDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
