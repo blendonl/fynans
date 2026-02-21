@@ -4,17 +4,9 @@ import { useToast, ToastData } from './ToastContext';
 import { notificationService } from '../services/notificationService';
 import { websocketService } from '../services/websocketService';
 import { pushNotificationService } from '../services/pushNotificationService';
+import type { NotificationResponseDto } from '../api/generated/model';
 
-interface Notification {
-  id: string;
-  type: string;
-  title: string;
-  message: string;
-  isRead: boolean;
-  createdAt: string;
-  actionUrl?: string;
-  data?: any;
-}
+type Notification = NotificationResponseDto;
 
 interface NotificationContextType {
   notifications: Notification[];
