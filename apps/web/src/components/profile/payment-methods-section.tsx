@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Wallet, Banknote, CreditCard } from "lucide-react";
-import { formatCurrency } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
 import { usePaymentMethods } from "@/hooks/use-payment-methods";
 import type { PaymentMethod, PaymentMethodType } from "@/hooks/use-payment-methods";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

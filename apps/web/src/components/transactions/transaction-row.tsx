@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { formatCurrency } from "@fynans/shared";
-import type { Transaction } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
+import type { Transaction } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 

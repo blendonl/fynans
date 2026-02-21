@@ -1,8 +1,8 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
-import { formatCurrency } from "@fynans/shared";
-import type { Transaction } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
+import type { Transaction } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { GlassCard } from "@/components/glass/glass-card";
 import {

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import type { Basket } from "@fynans/shared";
+import type { Basket } from "@/types";
 
 export function useBaskets() {
   const basketsQuery = useQuery({

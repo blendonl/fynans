@@ -10,7 +10,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { GlassCard } from "@/components/glass/glass-card";
-import { formatCurrency } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
 import type { ExpenseTrendPoint } from "@/hooks/use-dashboard-data";
 
 interface ExpenseTrendChartProps {

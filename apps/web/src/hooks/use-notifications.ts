@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import { PAGE_SIZE, type PaginatedResponse } from "@/lib/pagination";
-import type { Notification } from "@fynans/shared";
+import type { Notification } from "@/types";
 
 interface UseNotificationsOptions {
   filter?: "all" | "unread";

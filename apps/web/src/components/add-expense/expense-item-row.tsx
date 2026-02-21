@@ -1,8 +1,9 @@
 "use client";
 
 import { Minus, Plus, Pencil, Trash2 } from "lucide-react";
-import { formatCurrency, calculateExpenseItemTotal } from "@fynans/shared";
-import type { ExpenseItem } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
+import { calculateExpenseItemTotal } from "@/utils/calculations";
+import type { ExpenseItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 

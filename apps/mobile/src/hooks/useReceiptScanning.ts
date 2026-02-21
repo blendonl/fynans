@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { apiClient } from "../api/client";
+import { customInstance } from "../api/custom-instance";
 
 export interface ProcessedReceiptData {
   store: {
@@ -68,7 +68,10 @@ export const useReceiptScanning = (): UseReceiptScanningReturn => {
         type,
       } as any);
 
-      const response = await apiClient.post("/receipts/process", formData);
+      const { data: response } = await customInstance<{ data: any; status: number; headers: Headers }>("/receipts/process", {
+        method: 'POST',
+        body: formData,
+      });
 
       if (!response) {
         throw new Error("No data received from server");

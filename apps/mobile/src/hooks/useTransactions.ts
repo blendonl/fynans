@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { apiClient } from "../api/client";
+import { expenseControllerFindAll } from "../api/generated/endpoints/expense/expense";
+import { incomeControllerFindAll } from "../api/generated/endpoints/income/income";
 import { Transaction, TransactionFilters } from "../features/transactions/types";
 import { websocketService } from "../services/websocketService";
 import { useAuth } from "../context/AuthContext";
@@ -62,20 +63,22 @@ export const useTransactions = (filters?: TransactionFilters, families: Family[]
       const shouldFetchAll = !filters?.scope || filters.scope === 'all';
 
       if (shouldFetchAll && families.length > 0) {
-        const [personalExpenses, personalIncomes] = await Promise.all([
-          apiClient.get("/expenses", {}),
-          apiClient.get("/incomes", {}),
+        const [personalExpensesRes, personalIncomesRes] = await Promise.all([
+          expenseControllerFindAll({}),
+          incomeControllerFindAll({}),
         ]);
+        const personalExpenses = personalExpensesRes.data;
+        const personalIncomes = personalIncomesRes.data;
 
         const familyRequests = families.flatMap((family) => [
-          apiClient.get("/expenses", { familyId: family.id }).then((res) => ({
+          expenseControllerFindAll({ familyId: family.id }).then((res) => ({
             type: 'expense' as const,
-            data: res.data || [],
+            data: res.data.data || [],
             family,
           })),
-          apiClient.get("/incomes", { familyId: family.id }).then((res) => ({
+          incomeControllerFindAll({ familyId: family.id }).then((res) => ({
             type: 'income' as const,
-            data: res.data || [],
+            data: res.data.data || [],
             family,
           })),
         ]);
@@ -123,10 +126,12 @@ export const useTransactions = (filters?: TransactionFilters, families: Family[]
           params.scope = filters.scope.toUpperCase();
         }
 
-        const [expensesResponse, incomesResponse] = await Promise.all([
-          apiClient.get("/expenses", params),
-          apiClient.get("/incomes", params),
+        const [expensesRes, incomesRes] = await Promise.all([
+          expenseControllerFindAll(params),
+          incomeControllerFindAll(params),
         ]);
+        const expensesResponse = expensesRes.data;
+        const incomesResponse = incomesRes.data;
 
         const family = filters?.familyId ? families.find((f) => f.id === filters.familyId) : undefined;
 

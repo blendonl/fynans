@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { formatCurrency } from "@fynans/shared";
-import type { Category } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
+import type { Category } from "@/types";
 import { apiClient } from "@/lib/api-client";
 import { useCategories } from "@/hooks/use-categories";
 import { useAiCategorySuggestion } from "@/hooks/use-ai-category-suggestion";

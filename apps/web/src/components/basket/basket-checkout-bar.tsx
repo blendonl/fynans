@@ -2,8 +2,9 @@
 
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCurrency, calculateBasketItemsTotal } from "@fynans/shared";
-import type { BasketItem } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
+import { calculateBasketItemsTotal } from "@/utils/calculations";
+import type { BasketItem } from "@/types";
 
 interface BasketCheckoutBarProps {
   checkedItems: BasketItem[];

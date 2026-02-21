@@ -1,15 +1,31 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Income } from '../../core/domain/entities/income.entity';
 import { TransactionResponseDto } from '~feature/transaction/rest';
 import { IncomeCategoryResponseDto } from '~feature/income-category/rest/dto/income-category-response.dto';
 
 export class IncomeResponseDto {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
   transactionId: string;
+
+  @ApiProperty()
   storeId: string;
+
+  @ApiProperty()
   categoryId: string;
+
+  @ApiProperty({ type: () => TransactionResponseDto, required: false })
   transaction?: TransactionResponseDto;
+
+  @ApiProperty({ type: () => IncomeCategoryResponseDto, required: false })
   category?: IncomeCategoryResponseDto;
+
+  @ApiProperty()
   createdAt: Date;
+
+  @ApiProperty()
   updatedAt: Date;
 
   static fromEntity(income: Income): IncomeResponseDto {

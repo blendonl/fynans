@@ -8,7 +8,7 @@ import { ReceiptGuideOverlay } from "./receipt-guide-overlay";
 import { CaptureButton } from "./capture-button";
 import { useOpenCVWorker } from "@/hooks/use-opencv-worker";
 import type { DetectedCorners } from "@/lib/receipt-image-processing";
-import { RECEIPT_CAPTURE_IDEAL_WIDTH, RECEIPT_CAPTURE_IDEAL_HEIGHT, RECEIPT_JPEG_QUALITY } from "@fynans/shared";
+import { RECEIPT_CAPTURE_IDEAL_WIDTH, RECEIPT_CAPTURE_IDEAL_HEIGHT, RECEIPT_JPEG_QUALITY } from "@/constants/receipt";
 
 interface GuidedCameraOverlayProps {
   onCapture: (file: File) => void;

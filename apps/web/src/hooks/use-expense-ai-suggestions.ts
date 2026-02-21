@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
-import type { Category, ExpenseItem } from "@fynans/shared";
+import type { Category, ExpenseItem } from "@/types";
 import { useAiCategorySuggestion } from "./use-ai-category-suggestion";
 import { useAutoAcceptSuggestion } from "./use-auto-accept-suggestion";
 

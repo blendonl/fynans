@@ -1,10 +1,20 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Family } from '../../core/domain/entities/family.entity';
 
 export class FamilyResponseDto {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
   name: string;
+
+  @ApiProperty()
   balance: number;
+
+  @ApiProperty()
   createdAt: Date;
+
+  @ApiProperty()
   updatedAt: Date;
 
   static fromEntity(family: Family): FamilyResponseDto {

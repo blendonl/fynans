@@ -6,9 +6,8 @@ import type {
   Family,
   ExpenseResponse,
   IncomeResponse,
-  PaginatedResponse,
-} from "@fynans/shared";
-import { PAGE_SIZE } from "@/lib/pagination";
+} from "@/types";
+import { PAGE_SIZE, type PaginatedResponse } from "@/lib/pagination";
 import { mapExpenseToTransaction, mapIncomeToTransaction, sortTransactionsByDate } from "@/lib/transaction-mappers";
 
 interface ServerFilters {

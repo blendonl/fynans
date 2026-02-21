@@ -1,4 +1,5 @@
 import { IsUUID, IsNotEmpty, IsString, IsNumber, Min, IsOptional, IsIn } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateExpenseItemRequestDto {
   @IsUUID()
@@ -36,6 +37,7 @@ export class CreateExpenseItemRequestDto {
   @IsOptional()
   sizeValue?: number;
 
+  @ApiProperty({ enum: ['kg', 'g', 'l', 'ml', 'cl'], required: false })
   @IsString()
   @IsIn(['kg', 'g', 'l', 'ml', 'cl'])
   @IsOptional()

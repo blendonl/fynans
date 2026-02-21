@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import { PAGE_SIZE, type PaginatedResponse } from "@/lib/pagination";
-import type { ItemWithPrices } from "@fynans/shared";
+import type { ItemWithPrices } from "@/types";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 export function useItemsWithPrices(search: string) {

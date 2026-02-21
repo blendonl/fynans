@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import type { Store } from "@fynans/shared";
+import type { Store } from "@/types";
 import { PAGE_SIZE, paginatedQueryOptions, type PaginatedResponse } from "@/lib/pagination";
 
 export function useStores(search: string) {

@@ -1,18 +1,42 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Basket } from '../../core/domain/entities/basket.entity';
 import { BasketItem } from '../../core/domain/entities/basket-item.entity';
 
 export class BasketItemResponseDto {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
   basketId: string;
+
+  @ApiProperty()
   name: string;
+
+  @ApiProperty()
   quantity: number;
+
+  @ApiProperty({ nullable: true })
   price: number | null;
+
+  @ApiProperty({ nullable: true })
   categoryId: string | null;
+
+  @ApiProperty({ nullable: true })
   categoryName: string | null;
+
+  @ApiProperty({ nullable: true })
   notes: string | null;
+
+  @ApiProperty()
   addedBy: string;
+
+  @ApiPropertyOptional()
   addedByName?: string;
+
+  @ApiProperty()
   createdAt: string;
+
+  @ApiProperty()
   updatedAt: string;
 
   static fromEntity(item: BasketItem): BasketItemResponseDto {
@@ -34,13 +58,28 @@ export class BasketItemResponseDto {
 }
 
 export class BasketResponseDto {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
   userId: string;
+
+  @ApiProperty({ nullable: true })
   familyId: string | null;
+
+  @ApiPropertyOptional()
   familyName?: string;
+
+  @ApiProperty()
   scope: string;
+
+  @ApiProperty({ type: () => [BasketItemResponseDto] })
   items: BasketItemResponseDto[];
+
+  @ApiProperty()
   createdAt: string;
+
+  @ApiProperty()
   updatedAt: string;
 
   static fromEntity(basket: Basket): BasketResponseDto {

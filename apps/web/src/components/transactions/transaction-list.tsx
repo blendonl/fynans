@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Receipt, Plus, Loader2 } from "lucide-react";
-import type { Transaction } from "@fynans/shared";
+import type { Transaction } from "@/types";
 import { groupByMonth } from "@/hooks/use-transactions";
 import { TransactionGroup } from "./transaction-group";
 

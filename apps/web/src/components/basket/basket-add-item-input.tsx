@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
 import { useItemsWithPrices } from "@/hooks/use-items-with-prices";
-import { formatCurrency } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
 
 interface BasketAddItemInputProps {
   onAdd: (name: string) => void;

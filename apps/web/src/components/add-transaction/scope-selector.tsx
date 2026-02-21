@@ -1,6 +1,6 @@
 "use client";
 
-import type { Family } from "@fynans/shared";
+import type { Family } from "@/types";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User, Users } from "lucide-react";

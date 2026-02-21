@@ -16,6 +16,16 @@ import {
   MessageEvent,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiConsumes,
+  ApiBody,
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { Observable } from 'rxjs';
 import {
@@ -27,6 +37,38 @@ import { EnrichedReceiptDataDto } from '../../core/application/dto/enriched-rece
 import { CurrentUser } from '~feature/auth/rest/decorators/current-user.decorator';
 import { User } from '~feature/user/core/domain/entities/user.entity';
 
+class ProcessReceiptResponseDto {
+  @ApiProperty()
+  jobId: string;
+
+  @ApiProperty({ example: 'processing' })
+  status: string;
+}
+
+class ReceiptJobStatusResponseDto {
+  @ApiProperty({ enum: ['waiting', 'active', 'completed', 'failed', 'not_found'] })
+  status: string;
+
+  @ApiPropertyOptional({ type: () => ProcessedReceiptResponseDto })
+  data?: ProcessedReceiptResponseDto;
+
+  @ApiPropertyOptional()
+  error?: string;
+
+  @ApiPropertyOptional()
+  progress?: number;
+
+  @ApiPropertyOptional()
+  isPartial?: boolean;
+}
+
+class ReceiptUploadBodyDto {
+  @ApiProperty({ type: 'string', format: 'binary' })
+  file: any;
+}
+
+@ApiTags('Receipt')
+@ApiBearerAuth('bearer')
 @Controller('receipts')
 export class ReceiptController {
   private readonly logger = new Logger(ReceiptController.name);
@@ -38,6 +80,10 @@ export class ReceiptController {
 
   @Post('process')
   @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: 'Upload and process a receipt image' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: ReceiptUploadBodyDto })
+  @ApiResponse({ status: 202, type: ProcessReceiptResponseDto })
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: 100 * 1024 * 1024 },
@@ -66,6 +112,8 @@ export class ReceiptController {
   }
 
   @Get('jobs/:jobId')
+  @ApiOperation({ summary: 'Get receipt processing job status and result' })
+  @ApiResponse({ status: 200, type: ReceiptJobStatusResponseDto })
   async getJobStatus(@Param('jobId') jobId: string) {
     const result =
       await this.receiptJobQueue.getJobResult(jobId) as ReceiptJobResult<EnrichedReceiptDataDto>;
@@ -85,6 +133,8 @@ export class ReceiptController {
   }
 
   @Sse('jobs/:jobId/stream')
+  @ApiOperation({ summary: 'Stream receipt processing job progress via SSE' })
+  @ApiResponse({ status: 200, description: 'SSE stream of job progress events' })
   streamJobProgress(
     @Param('jobId') jobId: string,
     @Req() req: Request,

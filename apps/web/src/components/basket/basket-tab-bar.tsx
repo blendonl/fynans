@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { Basket } from "@fynans/shared";
+import type { Basket } from "@/types";
 
 interface BasketTabBarProps {
   baskets: Basket[];

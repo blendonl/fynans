@@ -3,8 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { MapPin } from "lucide-react";
-import { calculateExpenseItemsTotal } from "@fynans/shared";
-import type { Category, Store } from "@fynans/shared";
+import { calculateExpenseItemsTotal } from "@/utils/calculations";
+import type { Category, Store } from "@/types";
 import { useCategories } from "@/hooks/use-categories";
 import { useStores } from "@/hooks/use-stores";
 import { useExpenseItems } from "@/hooks/use-expense-items";

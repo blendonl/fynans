@@ -3,11 +3,13 @@ import { View, Text, Alert, StyleSheet, ViewStyle } from "react-native";
 import { IconButton } from "react-native-paper";
 import * as Haptics from "expo-haptics";
 import {
-  Category,
   ExpenseItem,
   CurrentItem,
-  Store,
 } from "../../../features/expenses/types";
+import type { ExpenseCategoryResponseDto, StoreResponseDto } from '../../../api/generated/model';
+import { storeItemControllerFindAll } from '../../../api/generated/endpoints/store-item/store-item';
+import { itemControllerFindAll } from '../../../api/generated/endpoints/items/items';
+import { storeItemCategoryControllerCreate } from '../../../api/generated/endpoints/store-item-category/store-item-category';
 import {
   Input,
   Button,
@@ -17,9 +19,11 @@ import {
 } from "../../../components/design-system";
 import { PriceInput, QuantityInput } from "../../../components/forms";
 import { useAppTheme } from "../../../theme";
-import { apiClient } from "../../../api/client";
 import { AddItemCategoryModal } from "./AddItemCategoryModal";
 import { formatCurrency, formatQuantity } from "../../../utils/currency";
+
+type Category = ExpenseCategoryResponseDto;
+type Store = StoreResponseDto;
 
 interface StoreItem {
   id: string;
@@ -118,13 +122,16 @@ export function ExpenseItemsForm({
 
   const fetchStoreItems = async () => {
     try {
-      const endpoint = selectedStore
-        ? `/stores/${selectedStore.id}/items`
-        : `/items`;
+      let items: StoreItem[];
+      if (selectedStore) {
+        const { data: response } = await storeItemControllerFindAll(selectedStore.id);
+        items = response.data;
+      } else {
+        const { data: response } = await itemControllerFindAll({} as any);
+        items = response.data;
+      }
 
-      const response = await apiClient.get(endpoint);
-
-      setStoreItems(response.data);
+      setStoreItems(items);
     } catch (error) {
       console.error("Failed to fetch store items:", error);
       setStoreItems([]);
@@ -204,21 +211,18 @@ export function ExpenseItemsForm({
 
     try {
       setCategoryLoading(true);
-      const payload: any = { name: trimmedName };
+      const createPayload: { name: string; parentId?: string } = { name: trimmedName };
       if (selectedParentCategory) {
-        payload.parentId = selectedParentCategory.id;
+        createPayload.parentId = selectedParentCategory.id;
       }
 
-      const response = await apiClient.post(
-        "/expense-item-categories",
-        payload,
-      );
+      const { data: created } = await storeItemCategoryControllerCreate(createPayload);
 
       const newCategory: Category = {
-        id: response.id,
-        name: response.name,
+        id: created.id,
+        name: created.name,
         isConnectedToStore: false,
-      };
+      } as Category;
 
       setLocalItemCategories([...localItemCategories, newCategory]);
       handleCategorySelect(newCategory);

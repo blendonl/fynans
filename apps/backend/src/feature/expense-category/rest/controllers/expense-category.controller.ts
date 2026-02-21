@@ -10,6 +10,13 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiProperty,
+} from '@nestjs/swagger';
 import { ExpenseCategoryService } from '../../core/application/services/expense-category.service';
 import { CreateExpenseCategoryRequestDto } from '../dto/create-expense-category-request.dto';
 import { UpdateExpenseCategoryRequestDto } from '../dto/update-expense-category-request.dto';
@@ -20,6 +27,30 @@ import { Pagination } from '~common/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 
+export class ExpenseCategoryTreeNodeDto {
+  @ApiProperty({ type: () => ExpenseCategoryResponseDto })
+  category: ExpenseCategoryResponseDto;
+
+  @ApiProperty({ type: () => [ExpenseCategoryTreeNodeDto] })
+  children: ExpenseCategoryTreeNodeDto[];
+}
+
+export class PaginatedExpenseCategoryResponseDto {
+  @ApiProperty({ type: () => [ExpenseCategoryResponseDto] })
+  data: ExpenseCategoryResponseDto[];
+
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  limit: number;
+}
+
+@ApiTags('Expense Category')
+@ApiBearerAuth('bearer')
 @Controller('expense-categories')
 export class ExpenseCategoryController {
   constructor(
@@ -28,6 +59,8 @@ export class ExpenseCategoryController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create an expense category' })
+  @ApiResponse({ status: 201, type: ExpenseCategoryResponseDto })
   async create(
     @Body() createDto: CreateExpenseCategoryRequestDto,
     @CurrentUser() user: User,
@@ -43,6 +76,8 @@ export class ExpenseCategoryController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'List expense categories with pagination' })
+  @ApiResponse({ status: 200, type: PaginatedExpenseCategoryResponseDto })
   async findAll(
     @CurrentUser() user: User,
     @Query('parentId') parentId?: string,
@@ -68,6 +103,8 @@ export class ExpenseCategoryController {
   }
 
   @Get('tree')
+  @ApiOperation({ summary: 'Get expense category tree' })
+  @ApiResponse({ status: 200, type: [ExpenseCategoryTreeNodeDto] })
   async getTree(@CurrentUser() user: User) {
     const tree = await this.expenseCategoryService.getTree(user.id);
 
@@ -80,12 +117,16 @@ export class ExpenseCategoryController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get an expense category by ID' })
+  @ApiResponse({ status: 200, type: ExpenseCategoryResponseDto })
   async findOne(@Param('id') id: string) {
     const category = await this.expenseCategoryService.findById(id);
     return ExpenseCategoryResponseDto.fromEntity(category);
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update an expense category' })
+  @ApiResponse({ status: 200, type: ExpenseCategoryResponseDto })
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateExpenseCategoryRequestDto,
@@ -101,6 +142,8 @@ export class ExpenseCategoryController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete an expense category' })
+  @ApiResponse({ status: 204 })
   async remove(@Param('id') id: string) {
     await this.expenseCategoryService.delete(id);
   }

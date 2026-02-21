@@ -27,7 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/ui/page-header";
-import type { Notification } from "@fynans/shared";
+import type { Notification } from "@/types";
 
 // --- Notification type icon & color mapping ---
 

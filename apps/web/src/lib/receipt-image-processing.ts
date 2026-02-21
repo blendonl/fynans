@@ -1,4 +1,4 @@
-import { RECEIPT_JPEG_QUALITY } from "@fynans/shared";
+import { RECEIPT_JPEG_QUALITY } from "@/constants/receipt";
 
 export interface DetectedCorners {
   topLeft: { x: number; y: number };

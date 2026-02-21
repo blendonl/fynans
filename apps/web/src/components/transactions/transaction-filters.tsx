@@ -5,7 +5,7 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import { startOfMonth, subDays, subMonths, startOfYear } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { GlassCard } from "@/components/glass/glass-card";
-import type { Category } from "@fynans/shared";
+import type { Category } from "@/types";
 
 interface AdvancedFilters {
   dateFrom: string;

@@ -18,7 +18,8 @@ import { useAppTheme } from "../../theme";
 import { Transaction } from "../../features/transactions/types";
 import { Card } from "../../components/design-system";
 import { CategoryIcon } from "../../components/transactions/CategoryIcon";
-import { apiClient } from "../../api/client";
+import { expenseControllerRemove } from '../../api/generated/endpoints/expense/expense';
+import { transactionControllerRemove } from '../../api/generated/endpoints/transaction/transaction';
 
 interface TransactionDetailScreenProps {
   route: {
@@ -88,10 +89,11 @@ export default function TransactionDetailScreen({
           onPress: async () => {
             try {
               setDeleting(true);
-              const endpoint = isExpense
-                ? `/expenses/${transaction.id}`
-                : `/transactions/${transaction.transaction.id}`;
-              await apiClient.post(endpoint, { _method: "DELETE" });
+              if (isExpense) {
+                await expenseControllerRemove(transaction.id);
+              } else {
+                await transactionControllerRemove(transaction.transaction.id);
+              }
               Alert.alert("Success", "Transaction deleted successfully", [
                 { text: "OK", onPress: () => navigation.goBack() },
               ]);

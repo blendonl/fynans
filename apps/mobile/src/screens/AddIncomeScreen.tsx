@@ -16,13 +16,16 @@ import {
 } from "../components/design-system";
 import { PriceInput } from "../components/forms";
 import { useAppTheme } from "../theme";
-import { apiClient } from "../api/client";
+import { expenseCategoryControllerFindAll, expenseCategoryControllerCreate } from '../api/generated/endpoints/expense-category/expense-category';
+import { transactionControllerCreate } from '../api/generated/endpoints/transaction/transaction';
+import type { ExpenseCategoryResponseDto } from '../api/generated/model';
 import { useImageUpload } from "../hooks/useImageUpload";
 import { ReceiptCamera } from "./transactions/add/components/ReceiptCamera";
 import { ReceiptPreview } from "../components/transactions/ReceiptPreview";
-import { Category } from "../features/expenses/types";
 import { usePaymentMethods } from "../hooks/usePaymentMethods";
 import { formatCurrency } from "../utils/currency";
+
+type Category = ExpenseCategoryResponseDto;
 
 type TransactionScope = "PERSONAL" | "FAMILY";
 
@@ -75,7 +78,7 @@ export default function AddIncomeScreen({
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get("/income-categories");
+      const { data: response } = await expenseCategoryControllerFindAll({} as any);
       setCategories(response.data || []);
     } catch (error: any) {
       Alert.alert("Error", "Failed to fetch categories");
@@ -126,14 +129,14 @@ export default function AddIncomeScreen({
 
     try {
       setLoading(true);
-      const response = await apiClient.post("/income-categories", {
+      const { data: created } = await expenseCategoryControllerCreate({
         name: trimmedName,
       });
 
       const newCategory: Category = {
-        id: response.id,
-        name: response.name,
-      };
+        id: created.id,
+        name: created.name,
+      } as Category;
 
       setCategories([...categories, newCategory]);
       handleCategorySelect(newCategory);
@@ -179,7 +182,7 @@ export default function AddIncomeScreen({
         receiptImages: receiptUrls,
       };
 
-      await apiClient.post("/transactions", payload);
+      await transactionControllerCreate(payload as any);
       imageUpload.clearImages();
       navigation.navigate("Main", { screen: "Transactions" });
     } catch (error: any) {

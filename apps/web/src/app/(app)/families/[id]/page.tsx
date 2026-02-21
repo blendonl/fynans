@@ -18,7 +18,7 @@ import {
   useFamilies,
   useFamilySentInvitations,
 } from "@/hooks/use-families";
-import { formatCurrency } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
 import { useAuth } from "@/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";

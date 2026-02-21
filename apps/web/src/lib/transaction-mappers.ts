@@ -3,7 +3,7 @@ import type {
   Family,
   ExpenseResponse,
   IncomeResponse,
-} from "@fynans/shared";
+} from "@/types";
 
 export function mapExpenseToTransaction(expense: ExpenseResponse, family?: Family): Transaction {
   const tx = expense.transaction;

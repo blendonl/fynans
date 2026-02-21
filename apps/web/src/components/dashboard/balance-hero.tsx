@@ -1,7 +1,7 @@
 "use client";
 
 import { GlassCard } from "@/components/glass/glass-card";
-import { formatCurrency } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
 import { TrendingUp, TrendingDown, Activity } from "lucide-react";
 import type { ComparisonData } from "@/hooks/use-dashboard-data";
 

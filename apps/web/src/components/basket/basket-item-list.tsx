@@ -1,6 +1,6 @@
 "use client";
 
-import type { BasketItem } from "@fynans/shared";
+import type { BasketItem } from "@/types";
 import { BasketItemRow } from "./basket-item-row";
 import { BasketEmptyState } from "./basket-empty-state";
 

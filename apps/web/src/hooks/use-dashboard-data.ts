@@ -6,13 +6,12 @@ import type {
   TransactionStatisticsResponse,
   ExpenseStatisticsResponse,
   ExpenseTrendResponse,
-  PaginatedResponse,
-} from "@fynans/shared";
-import { DASHBOARD_RECENT_LIMIT } from "@/lib/pagination";
+} from "@/types";
+import { DASHBOARD_RECENT_LIMIT, type PaginatedResponse } from "@/lib/pagination";
 import { formatDateForAPI, getChartGranularity } from "@/lib/date-utils";
 import { mapExpenseToTransaction, mapIncomeToTransaction, sortTransactionsByDate } from "@/lib/transaction-mappers";
 
-export type { ExpenseTrendResponse as ExpenseTrendPoint } from "@fynans/shared";
+export type { ExpenseTrendResponse as ExpenseTrendPoint } from "@/types";
 
 export interface ComparisonData {
   expenses: { delta: number; percentage: number };

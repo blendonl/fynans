@@ -9,6 +9,14 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger';
 import { GetNotificationPreferencesUseCase } from '../../core/application/use-cases/get-notification-preferences.use-case';
 import { UpdateNotificationPreferencesUseCase } from '../../core/application/use-cases/update-notification-preferences.use-case';
 import { RegisterDeviceTokenUseCase } from '../../core/application/use-cases/register-device-token.use-case';
@@ -22,6 +30,112 @@ import { UpdatePreferenceRequestDto } from '../dto/update-preference-request.dto
 import { RegisterTokenRequestDto } from '../dto/register-token-request.dto';
 import { RegisterWebPushRequestDto } from '../dto/register-web-push-request.dto';
 
+class NotificationPreferenceResponseDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  userId: string;
+
+  @ApiProperty()
+  enablePushNotifications: boolean;
+
+  @ApiProperty()
+  enableInAppNotifications: boolean;
+
+  @ApiProperty()
+  enableToastNotifications: boolean;
+
+  @ApiProperty()
+  quietHoursEnabled: boolean;
+
+  @ApiPropertyOptional()
+  quietHoursStart?: Date;
+
+  @ApiPropertyOptional()
+  quietHoursEnd?: Date;
+
+  @ApiProperty({ type: 'object', additionalProperties: true })
+  typePreferences: Record<string, any>;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+}
+
+class DeviceTokenResponseDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  userId: string;
+
+  @ApiProperty()
+  expoPushToken: string;
+
+  @ApiPropertyOptional()
+  platform?: string;
+
+  @ApiPropertyOptional()
+  deviceId?: string;
+
+  @ApiPropertyOptional()
+  deviceName?: string;
+
+  @ApiProperty()
+  isActive: boolean;
+
+  @ApiProperty()
+  lastUsed: Date;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+}
+
+class WebPushSubscriptionResponseDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  userId: string;
+
+  @ApiProperty()
+  endpoint: string;
+
+  @ApiProperty()
+  p256dh: string;
+
+  @ApiProperty()
+  auth: string;
+
+  @ApiPropertyOptional()
+  userAgent?: string;
+
+  @ApiProperty()
+  isActive: boolean;
+
+  @ApiProperty()
+  lastUsed: Date;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+}
+
+class VapidKeyResponseDto {
+  @ApiProperty()
+  vapidKey: string;
+}
+
+@ApiTags('Notification Preference')
+@ApiBearerAuth('bearer')
 @Controller('notification-preferences')
 export class NotificationPreferenceController {
   constructor(
@@ -34,12 +148,16 @@ export class NotificationPreferenceController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'Get notification preferences for the current user' })
+  @ApiResponse({ status: 200, type: NotificationPreferenceResponseDto })
   async getPreferences(@CurrentUser() user: User) {
     const preferences = await this.getPreferencesUseCase.execute(user.id);
     return preferences.toJSON();
   }
 
   @Put()
+  @ApiOperation({ summary: 'Update notification preferences' })
+  @ApiResponse({ status: 200, type: NotificationPreferenceResponseDto })
   async updatePreferences(
     @Body() dto: UpdatePreferenceRequestDto,
     @CurrentUser() user: User,
@@ -53,6 +171,8 @@ export class NotificationPreferenceController {
 
   @Post('devices')
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Register a device token for push notifications' })
+  @ApiResponse({ status: 201, type: DeviceTokenResponseDto })
   async registerDevice(
     @Body() dto: RegisterTokenRequestDto,
     @CurrentUser() user: User,
@@ -69,6 +189,8 @@ export class NotificationPreferenceController {
 
   @Delete('devices/:token')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Unregister a device token' })
+  @ApiResponse({ status: 204, description: 'Device token unregistered' })
   async unregisterDevice(
     @Param('token') expoPushToken: string,
     @CurrentUser() user: User,
@@ -78,6 +200,8 @@ export class NotificationPreferenceController {
 
   @Post('web-push/subscribe')
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Register a web push subscription' })
+  @ApiResponse({ status: 201, type: WebPushSubscriptionResponseDto })
   async registerWebPush(
     @Body() dto: RegisterWebPushRequestDto,
     @CurrentUser() user: User,
@@ -94,6 +218,8 @@ export class NotificationPreferenceController {
 
   @Delete('web-push/subscribe')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Unregister a web push subscription' })
+  @ApiResponse({ status: 204, description: 'Web push subscription unregistered' })
   async unregisterWebPush(
     @Body() body: { endpoint: string },
     @CurrentUser() user: User,
@@ -103,6 +229,8 @@ export class NotificationPreferenceController {
 
   @Public()
   @Get('web-push/vapid-key')
+  @ApiOperation({ summary: 'Get VAPID public key for web push subscriptions' })
+  @ApiResponse({ status: 200, type: VapidKeyResponseDto })
   getVapidKey() {
     return { vapidKey: process.env.VAPID_PUBLIC_KEY || '' };
   }

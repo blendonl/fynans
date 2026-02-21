@@ -1,5 +1,5 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-/** Must match RECEIPT_LOW_CONFIDENCE_THRESHOLD in @fynans/shared */
+/** Low confidence threshold for receipt data */
 const LOW_CONFIDENCE_THRESHOLD = 50;
 import { ProcessedReceiptData } from '../interfaces/processed-receipt-data.interface';
 import { FindStoreBySimilarityUseCase } from '~feature/store/core/application/use-cases/find-store-by-similarity.use-case';

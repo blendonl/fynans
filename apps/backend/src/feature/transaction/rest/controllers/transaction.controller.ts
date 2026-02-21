@@ -10,6 +10,13 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiProperty,
+} from '@nestjs/swagger';
 import { TransactionService } from '../../core/application/services/transaction.service';
 import { CreateTransactionRequestDto } from '../dto/create-transaction-request.dto';
 import { UpdateTransactionRequestDto } from '../dto/update-transaction-request.dto';
@@ -21,6 +28,36 @@ import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorato
 import { User } from '../../../user/core/domain/entities/user.entity';
 import { PaymentMethodService } from '../../../payment-method/core/application/services/payment-method.service';
 
+export class PaginatedTransactionResponseDto {
+  @ApiProperty({ type: () => [TransactionResponseDto] })
+  data: TransactionResponseDto[];
+
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  limit: number;
+}
+
+export class TransactionStatisticsResponseDto {
+  @ApiProperty()
+  totalIncome: number;
+
+  @ApiProperty()
+  totalExpense: number;
+
+  @ApiProperty()
+  balance: number;
+
+  @ApiProperty()
+  count: number;
+}
+
+@ApiTags('Transaction')
+@ApiBearerAuth('bearer')
 @Controller('transactions')
 export class TransactionController {
   constructor(
@@ -30,6 +67,8 @@ export class TransactionController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new transaction' })
+  @ApiResponse({ status: 201, type: TransactionResponseDto })
   async create(
     @Body() createDto: CreateTransactionRequestDto,
     @CurrentUser() user: User,
@@ -44,6 +83,8 @@ export class TransactionController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'List all transactions with pagination and filters' })
+  @ApiResponse({ status: 200, type: PaginatedTransactionResponseDto })
   async findAll(
     @Query() query: QueryTransactionDto,
     @CurrentUser() user: User,
@@ -71,6 +112,8 @@ export class TransactionController {
   }
 
   @Get('statistics')
+  @ApiOperation({ summary: 'Get transaction statistics' })
+  @ApiResponse({ status: 200, type: TransactionStatisticsResponseDto })
   async getStatistics(
     @Query() query: QueryTransactionDto,
     @CurrentUser() user: User,
@@ -90,12 +133,16 @@ export class TransactionController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a transaction by ID' })
+  @ApiResponse({ status: 200, type: TransactionResponseDto })
   async findOne(@Param('id') id: string, @CurrentUser() user: User) {
     const transaction = await this.transactionService.findById(id, user.id);
     return TransactionResponseDto.fromEntity(transaction);
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update a transaction' })
+  @ApiResponse({ status: 200, type: TransactionResponseDto })
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateTransactionRequestDto,
@@ -112,6 +159,8 @@ export class TransactionController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a transaction' })
+  @ApiResponse({ status: 204 })
   async remove(@Param('id') id: string, @CurrentUser() user: User) {
     const transaction = await this.transactionService.findById(id, user.id);
     await this.transactionService.delete(id, user.id);

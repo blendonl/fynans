@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { GlassCard } from "@/components/glass/glass-card";
-import { formatCurrency } from "@fynans/shared";
-import type { Transaction } from "@fynans/shared";
+import { formatCurrency } from "@/utils/currency";
+import type { Transaction } from "@/types";
 import { ArrowRight } from "lucide-react";
 
 interface RecentTransactionsProps {

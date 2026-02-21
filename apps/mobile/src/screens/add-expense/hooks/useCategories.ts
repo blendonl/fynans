@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { Alert } from "react-native";
-import { apiClient } from "../../../api/client";
-import { Category } from "../../../features/expenses/types";
+import { expenseCategoryControllerFindAll, expenseCategoryControllerCreate } from '../../../api/generated/endpoints/expense-category/expense-category';
+import { storeItemCategoryControllerFindAll } from '../../../api/generated/endpoints/store-item-category/store-item-category';
+import type { ExpenseCategoryResponseDto } from '../../../api/generated/model';
+
+type Category = ExpenseCategoryResponseDto;
 
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -26,7 +29,7 @@ export function useCategories() {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get("/expense-categories");
+      const { data: response } = await expenseCategoryControllerFindAll({} as any);
       const normalizedCategories = (response.data || []).map((cat: any) => ({
         ...cat,
         isConnectedToStore: Boolean(cat.isConnectedToStore),
@@ -41,7 +44,7 @@ export function useCategories() {
 
   const fetchItemCategories = async () => {
     try {
-      const response = await apiClient.get("/expense-item-categories");
+      const { data: response } = await storeItemCategoryControllerFindAll({} as any);
       const normalizedCategories = (response.data || []).map((cat: any) => ({
         ...cat,
         isConnectedToStore: Boolean(cat.isConnectedToStore),
@@ -101,15 +104,15 @@ export function useCategories() {
 
     try {
       setLoading(true);
-      const response = await apiClient.post("/expense-categories", {
+      const { data: created } = await expenseCategoryControllerCreate({
         name: trimmedName,
         isConnectedToStore: isConnectedToStore,
       });
 
       const newCategory: Category = {
-        id: response.id,
-        name: response.name,
-        isConnectedToStore: Boolean(response.isConnectedToStore),
+        id: created.id,
+        name: created.name,
+        isConnectedToStore: Boolean(created.isConnectedToStore),
       };
 
       setCategories([...categories, newCategory]);
