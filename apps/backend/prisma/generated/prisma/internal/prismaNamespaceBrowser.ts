@@ -427,7 +427,6 @@ export const StoreItemScalarFieldEnum = {
   id: 'id',
   itemId: 'itemId',
   storeId: 'storeId',
-  itemSizeId: 'itemSizeId',
   price: 'price',
   isDiscounted: 'isDiscounted',
   createdAt: 'createdAt',

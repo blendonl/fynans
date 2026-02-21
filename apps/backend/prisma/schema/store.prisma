@@ -33,17 +33,15 @@ model Item {
 }
 
 model StoreItem {
-  id         String  @id @default(uuid())
-  itemId     String  @map("item_id")
-  storeId    String  @map("store_id")
-  itemSizeId String? @map("item_size_id")
+  id      String @id @default(uuid())
+  itemId  String @map("item_id")
+  storeId String @map("store_id")
 
   price        Decimal
   isDiscounted Boolean @map("is_discounted")
 
   store     Store               @relation(fields: [storeId], references: [id])
   item      Item                @relation(fields: [itemId], references: [id])
-  itemSize  ItemSize?           @relation(fields: [itemSizeId], references: [id])
   discounts StoreItemDiscount[]
   expenses  ExpenseItem[]
   users     UserStoreItem[]
@@ -60,8 +58,7 @@ model ItemSize {
   value  Decimal
   unit   String
 
-  item       Item        @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  storeItems StoreItem[]
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
