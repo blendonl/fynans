@@ -320,7 +320,7 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
         initialName={categoryDialog.name}
         onSubmit={async (name, isConnectedToStore) => {
           const cat = await createCategory.mutateAsync({ name, isConnectedToStore });
-          setSelectedCategory(cat);
+          setSelectedCategory(cat as Category);
           categoryDialog.close();
         }}
         isLoading={createCategory.isPending}
