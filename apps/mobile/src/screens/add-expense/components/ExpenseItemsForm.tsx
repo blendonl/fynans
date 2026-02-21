@@ -2,10 +2,8 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Alert, StyleSheet, ViewStyle } from "react-native";
 import { IconButton } from "react-native-paper";
 import * as Haptics from "expo-haptics";
-import {
-  ExpenseItem,
-  CurrentItem,
-} from "../../../features/expenses/types";
+import { CurrentItem } from "../../../features/expenses/types";
+import { ExpenseItem } from "../hooks/useExpenseItems";
 import type { ExpenseCategoryResponseDto, StoreResponseDto } from '../../../api/generated/model';
 import { storeItemControllerFindAll } from '../../../api/generated/endpoints/store-item/store-item';
 import { itemControllerFindAll } from '../../../api/generated/endpoints/items/items';

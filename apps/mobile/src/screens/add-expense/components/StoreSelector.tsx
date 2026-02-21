@@ -1,9 +1,11 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Store } from "../../../features/expenses/types";
+import type { StoreResponseDto } from "../../../api/generated/model";
 import { Input, Card, Dropdown, DropdownItem } from "../../../components/design-system";
 import { useAppTheme } from "../../../theme";
+
+type Store = StoreResponseDto;
 
 interface StoreSelectorProps {
   storeInput: string;

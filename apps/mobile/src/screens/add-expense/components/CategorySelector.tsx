@@ -1,8 +1,10 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { Category } from "../../../features/expenses/types";
+import type { ExpenseCategoryResponseDto } from "../../../api/generated/model";
 import { Input, Chip, Dropdown, DropdownItem } from "../../../components/design-system";
 import { useAppTheme } from "../../../theme";
+
+type Category = ExpenseCategoryResponseDto;
 
 interface CategorySelectorProps {
   categoryInput: string;

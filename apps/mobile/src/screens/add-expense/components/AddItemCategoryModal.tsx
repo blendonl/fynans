@@ -7,7 +7,9 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
-import { Category } from "../../../features/expenses/types";
+import type { ExpenseCategoryResponseDto } from "../../../api/generated/model";
+
+type Category = ExpenseCategoryResponseDto;
 import {
   Input,
   Button,

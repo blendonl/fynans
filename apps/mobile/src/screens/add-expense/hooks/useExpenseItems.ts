@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { ExpenseItem, CurrentItem } from "../../../features/expenses/types";
+import { CurrentItem } from "../../../features/expenses/types";
+
+export interface ExpenseItem {
+  name: string;
+  price: number;
+  discount: number;
+  quantity: number;
+  categoryId: string;
+  fromReceipt?: boolean;
+}
 
 const EMPTY_CURRENT_ITEM: CurrentItem = {
   name: "",
