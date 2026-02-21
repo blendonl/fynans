@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/providers/auth-provider";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
-import { DashboardFilterProvider, useDashboardFilter } from "@/contexts/dashboard-filter-context";
+import { DashboardFilterProvider, useDashboardFilter } from "@/providers/dashboard-filter-provider";
 import { DashboardDateFilter } from "@/components/dashboard/dashboard-date-filter";
 import { BalanceHero } from "@/components/dashboard/balance-hero";
 import { ExpenseTrendChart } from "@/components/dashboard/expense-trend-chart";

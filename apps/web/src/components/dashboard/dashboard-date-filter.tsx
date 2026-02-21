@@ -5,7 +5,7 @@ import { Calendar } from "lucide-react";
 import { GlassCard } from "@/components/glass/glass-card";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { useDashboardFilter } from "@/contexts/dashboard-filter-context";
+import { useDashboardFilter } from "@/providers/dashboard-filter-provider";
 import { DATE_PRESET_LABELS, formatDateForAPI, type DatePresetKey } from "@/lib/date-utils";
 
 const PRESETS: { key: Exclude<DatePresetKey, "custom">; label: string }[] = [
