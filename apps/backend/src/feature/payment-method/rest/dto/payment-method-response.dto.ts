@@ -1,10 +1,11 @@
 import { PaymentMethod } from '../../core/domain/entities/payment-method.entity';
+import { PaymentMethodType } from '../../core/domain/value-objects/payment-method-type.enum';
 
 export class PaymentMethodResponseDto {
   id: string;
   userId: string;
   name: string;
-  type: string;
+  type: PaymentMethodType;
   color: string;
   initialBalance: number;
   currentBalance: number;
