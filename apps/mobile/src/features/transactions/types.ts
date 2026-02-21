@@ -50,4 +50,3 @@ export interface TransactionFilters {
   dateTo: Date | null;
 }
 
-export type TransactionType = "expense" | "income";

@@ -1,32 +1,7 @@
 import { useMemo } from 'react';
 import { TopPurchaseItem } from '../components/analytics';
 import { SearchFilter } from '../components/analytics/SearchBar';
-
-interface Transaction {
-    transaction: {
-        id: string;
-        value: number;
-        createdAt?: string;
-        user: {
-            id: string;
-            firstName: string;
-            lastName: string;
-        };
-    };
-    type: 'expense' | 'income';
-    scope: 'PERSONAL' | 'FAMILY';
-    familyId?: string | null;
-    category: {
-        id: string;
-        name: string;
-    };
-    items?: Array<{
-        name: string;
-        price: number;
-        discount?: number;
-        quantity: number;
-    }>;
-}
+import { Transaction } from '../features/transactions/types';
 
 interface AnalyticsData {
     totalExpenses: number;
