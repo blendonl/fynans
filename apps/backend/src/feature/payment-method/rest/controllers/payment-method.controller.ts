@@ -9,6 +9,12 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { PaymentMethodService } from '../../core/application/services/payment-method.service';
 import { CreatePaymentMethodRequestDto } from '../dto/create-payment-method-request.dto';
 import { UpdatePaymentMethodRequestDto } from '../dto/update-payment-method-request.dto';
@@ -18,6 +24,8 @@ import { UpdatePaymentMethodDto } from '../../core/application/dto/update-paymen
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 
+@ApiTags('PaymentMethod')
+@ApiBearerAuth('bearer')
 @Controller('payment-methods')
 export class PaymentMethodController {
   constructor(
@@ -26,6 +34,8 @@ export class PaymentMethodController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new payment method' })
+  @ApiResponse({ status: 201, type: PaymentMethodResponseDto })
   async create(
     @Body() createDto: CreatePaymentMethodRequestDto,
     @CurrentUser() user: User,
@@ -43,12 +53,16 @@ export class PaymentMethodController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all payment methods' })
+  @ApiResponse({ status: 200, type: [PaymentMethodResponseDto] })
   async findAll(@CurrentUser() user: User) {
     const paymentMethods = await this.paymentMethodService.findAll(user.id);
     return PaymentMethodResponseDto.fromEntities(paymentMethods);
   }
 
   @Get('balance-summary')
+  @ApiOperation({ summary: 'Get balance summary' })
+  @ApiResponse({ status: 200 })
   async getBalanceSummary(@CurrentUser() user: User) {
     const summary = await this.paymentMethodService.getBalanceSummary(user.id);
     return summary.map((item) => ({
@@ -60,12 +74,16 @@ export class PaymentMethodController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a payment method by ID' })
+  @ApiResponse({ status: 200, type: PaymentMethodResponseDto })
   async findOne(@Param('id') id: string, @CurrentUser() user: User) {
     const paymentMethod = await this.paymentMethodService.findById(id, user.id);
     return PaymentMethodResponseDto.fromEntity(paymentMethod);
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update a payment method' })
+  @ApiResponse({ status: 200, type: PaymentMethodResponseDto })
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdatePaymentMethodRequestDto,
@@ -88,6 +106,8 @@ export class PaymentMethodController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a payment method' })
+  @ApiResponse({ status: 204 })
   async remove(@Param('id') id: string, @CurrentUser() user: User) {
     await this.paymentMethodService.delete(id, user.id);
   }
