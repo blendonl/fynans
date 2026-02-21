@@ -1,4 +1,4 @@
-import { subDays, subMonths, differenceInDays, startOfDay, endOfDay } from "date-fns";
+import { format, subDays, subMonths, differenceInDays, startOfDay, endOfDay } from "date-fns";
 
 export type DatePresetKey = "7d" | "30d" | "6m" | "custom";
 
@@ -38,6 +38,10 @@ export function getChartGranularity(dateFrom: Date, dateTo: Date): "day" | "week
   if (days <= 30) return "day";
   if (days <= 180) return "week";
   return "month";
+}
+
+export function localNow() {
+  return format(new Date(), "yyyy-MM-dd'T'HH:mm");
 }
 
 export const DATE_PRESET_LABELS: Record<Exclude<DatePresetKey, "custom">, string> = {
