@@ -1,8 +1,11 @@
+import { ItemSize } from './item-size.entity';
+
 export interface ItemProps {
   id: string;
   categoryId: string;
   name: string;
   nameEn?: string;
+  sizes?: ItemSize[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -61,12 +64,17 @@ export class Item {
     return this.props.updatedAt;
   }
 
+  get sizes(): ItemSize[] | undefined {
+    return this.props.sizes;
+  }
+
   toJSON() {
     return {
       id: this.props.id,
       categoryId: this.props.categoryId,
       name: this.props.name,
       nameEn: this.props.nameEn,
+      sizes: this.props.sizes?.map((s) => s.toJSON()),
       createdAt: this.props.createdAt,
       updatedAt: this.props.updatedAt,
     };
