@@ -121,7 +121,7 @@ export function PaymentMethodsSection() {
                     ) : (
                       <CreditCard className="h-3.5 w-3.5" />
                     )}
-                    {pm.type === "CASH" ? "Cash" : "Debit"}
+                    {pm.type === "CASH" ? "Cash" : "Debit Card"}
                   </span>
                   <span
                     className={cn(
