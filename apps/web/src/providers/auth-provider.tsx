@@ -29,9 +29,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (stored) {
       setTokenState(stored);
       apiClient
-        .get("/api/auth/get-session")
-        .then((data) => {
-          const session = data as { user: User } | null;
+        .get<{ user: User } | null>("/api/auth/get-session")
+        .then((session) => {
           if (session?.user) {
             setUser(session.user);
           } else {
@@ -50,10 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = (await apiClient.post("/auth/login", { email, password })) as {
-      token: string;
-      user: User;
-    };
+    const res = await apiClient.post<{ token: string; user: User }>("/auth/login", { email, password });
     setToken(res.token);
     setTokenState(res.token);
     setUser(res.user);
@@ -62,10 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = useCallback(
     async (data: { firstName: string; lastName: string; email: string; password: string }) => {
-      const res = (await apiClient.post("/auth/register", data)) as {
-        token: string;
-        user: User;
-      };
+      const res = await apiClient.post<{ token: string; user: User }>("/auth/register", data);
       setToken(res.token);
       setTokenState(res.token);
       setUser(res.user);
@@ -78,8 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(oauthToken);
     setTokenState(oauthToken);
     try {
-      const data = await apiClient.get("/api/auth/get-session");
-      const session = data as { user: User } | null;
+      const session = await apiClient.get<{ user: User } | null>("/api/auth/get-session");
       if (session?.user) {
         setUser(session.user);
       }
