@@ -1,3 +1,8 @@
+/**
+ * AiCategoryService is used for ad-hoc category suggestions via the AI endpoints.
+ * It is NOT part of the receipt scanning pipeline — receipt categories are generated
+ * inline by the receipt parsing prompt (see receipt-prompt.builder.ts).
+ */
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { IOllamaService } from '~feature/receipt/core/application/interfaces/ollama.interface';
 import { ExpenseCategoryService } from '~feature/expense-category/core/application/services/expense-category.service';

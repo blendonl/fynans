@@ -1,39 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-
-interface RawParsedItem {
-  name: string;
-  nameEn?: string;
-  price: number;
-  quantity?: number;
-  suggestedItemCategory?: string;
-}
-
-interface RawParsedReceipt {
-  storeName?: string;
-  storeLocation?: string;
-  items?: RawParsedItem[];
-  totalAmount?: number;
-  date?: string;
-  time?: string;
-  suggestedExpenseCategory?: string;
-}
-
-export interface PostProcessedReceipt {
-  storeName: string;
-  storeLocation: string;
-  items: Array<{
-    name: string;
-    nameEn?: string;
-    price: number;
-    quantity: number;
-    suggestedItemCategory?: string;
-    size?: { value: number; unit: string };
-  }>;
-  totalAmount?: number;
-  date?: string;
-  time?: string;
-  suggestedExpenseCategory?: string;
-}
+import {
+  ItemSize,
+  ParsedReceipt,
+  ParsedReceiptItem,
+  PostProcessedReceipt,
+  PostProcessedReceiptItem,
+} from './parsers/parser.interfaces';
 
 const JUNK_PATTERNS =
   /^(total[ei]?|sub\s*total|tax|tvsh|tush|ndryshim|cash|kesh|card|kart[eë]|visa|mastercard|discount|zbritje|bonus|faleminderit|thank|change|rest|paguar|pag\.|nr\.?\s*fis|nipt|fatur[eë]|fiscal|operator|ark[eë]|kasier|data|or[eë]|vendndodhja|adresa|tel\.?|bank|rruga|klient|atk|nr\s*serial|kopje|fisk|veprimi|menyra|pageses|shites[ëei]|login|artikujt|nr\s*referimi?t?|kupon|serik|menyra\s*e?\s*pageses)$/i;
@@ -60,31 +32,52 @@ const UNIT_MAP: Record<string, string> = {
 export class ReceiptPostProcessor {
   private readonly logger = new Logger(ReceiptPostProcessor.name);
 
-  process(raw: RawParsedReceipt): PostProcessedReceipt {
-    let items = (raw.items || [])
-      .map((item) => this.cleanItem(item))
-      .filter((item): item is NonNullable<typeof item> => item !== null);
+  process(raw: ParsedReceipt): PostProcessedReceipt {
+    const inputCount = raw.items?.length ?? 0;
+    let junkFiltered = 0;
+    let invalidFiltered = 0;
 
-    items = this.deduplicateItems(items);
+    const items: PostProcessedReceiptItem[] = [];
+    for (const item of raw.items || []) {
+      const cleaned = this.cleanItem(item);
+      if (cleaned) {
+        items.push(cleaned);
+      } else if (item.name && (JUNK_PATTERNS.test(item.name.trim()) || JUNK_CONTAINS.test(item.name))) {
+        junkFiltered++;
+      } else {
+        invalidFiltered++;
+      }
+    }
 
-    const validatedTotal = this.crossCheckTotal(items, raw.totalAmount);
+    const deduped = this.deduplicateItems(items);
+    const duplicatesRemoved = items.length - deduped.length;
 
-    const date = this.validateDate(raw.date);
+    const validatedTotal = this.crossCheckTotal(deduped, raw.totalAmount);
+    const date = ReceiptPostProcessor.validateDate(raw.date);
+
+    if (inputCount > 0) {
+      this.logger.log(
+        `PostProcessor: ${inputCount} input → ${deduped.length} output` +
+          (junkFiltered ? `, ${junkFiltered} junk filtered` : '') +
+          (invalidFiltered ? `, ${invalidFiltered} invalid filtered` : '') +
+          (duplicatesRemoved ? `, ${duplicatesRemoved} duplicates merged` : ''),
+      );
+    }
 
     return {
       storeName: this.cleanStoreName(raw.storeName) || 'Unknown Store',
       storeLocation: (raw.storeLocation || '').trim(),
-      items,
+      items: deduped,
       totalAmount: this.validateTotal(validatedTotal),
       date,
-      time: this.validateTime(raw.time),
+      time: ReceiptPostProcessor.validateTime(raw.time),
       suggestedExpenseCategory: raw.suggestedExpenseCategory || undefined,
     };
   }
 
   private extractSize(name: string): {
     cleanName: string;
-    size?: { value: number; unit: string };
+    size?: ItemSize;
   } {
     const match = name.match(SIZE_REGEX);
     if (!match) return { cleanName: name };
@@ -101,8 +94,8 @@ export class ReceiptPostProcessor {
   }
 
   private cleanItem(
-    item: RawParsedItem,
-  ): PostProcessedReceipt['items'][number] | null {
+    item: ParsedReceiptItem,
+  ): PostProcessedReceiptItem | null {
     if (!item.name || typeof item.name !== 'string') return null;
 
     let name = item.name.trim();
@@ -126,15 +119,15 @@ export class ReceiptPostProcessor {
         : parseFloat(String(item.price));
     if (isNaN(price) || price <= 0 || price >= 10_000) return null;
 
-    // Extract size from Albanian name
-    const { cleanName, size } = this.extractSize(name);
-    name = cleanName;
-
-    // Also strip size from nameEn if present
-    let nameEn = item.nameEn;
-    if (nameEn) {
-      const enResult = this.extractSize(nameEn);
-      nameEn = enResult.cleanName;
+    // Use pre-extracted size from LLM if available, otherwise extract from name
+    let size: ItemSize | undefined = item.size;
+    if (size) {
+      // LLM already extracted size — still clean it from the name if present
+      name = name.replace(SIZE_REGEX, '').trim();
+    } else {
+      const extracted = this.extractSize(name);
+      name = extracted.cleanName;
+      size = extracted.size;
     }
 
     // Validate quantity — preserve fractional (decimal) quantities as-is
@@ -149,7 +142,6 @@ export class ReceiptPostProcessor {
 
     return {
       name,
-      nameEn: nameEn || undefined,
       price,
       quantity,
       suggestedItemCategory: item.suggestedItemCategory || undefined,
@@ -158,9 +150,9 @@ export class ReceiptPostProcessor {
   }
 
   private deduplicateItems(
-    items: PostProcessedReceipt['items'],
-  ): PostProcessedReceipt['items'] {
-    const seen = new Map<string, PostProcessedReceipt['items'][number]>();
+    items: PostProcessedReceiptItem[],
+  ): PostProcessedReceiptItem[] {
+    const seen = new Map<string, PostProcessedReceiptItem>();
 
     for (const item of items) {
       const sizeKey = item.size ? `${item.size.value}|${item.size.unit}` : '';
@@ -177,7 +169,7 @@ export class ReceiptPostProcessor {
   }
 
   private crossCheckTotal(
-    items: PostProcessedReceipt['items'],
+    items: PostProcessedReceiptItem[],
     totalAmount?: number,
   ): number | undefined {
     if (!totalAmount || items.length === 0) return totalAmount;
@@ -201,8 +193,6 @@ export class ReceiptPostProcessor {
     );
 
     if (roundedItemsSum < totalAmount * 0.5) {
-      // Items sum is less than half the receipt total — LLM likely missed items.
-      // Keep the receipt total as it's more reliable than a partial items list.
       this.logger.warn(
         `Items sum (${roundedItemsSum}) is <50% of receipt total (${totalAmount}) — LLM likely missed items. Keeping receipt total.`,
       );
@@ -210,8 +200,6 @@ export class ReceiptPostProcessor {
     }
 
     if (roundedItemsSum > totalAmount * 1.5) {
-      // Items sum is much larger — receipt total was likely misread by OCR.
-      // Use items sum as it's more reliable.
       this.logger.warn(
         `Items sum (${roundedItemsSum}) is >150% of receipt total (${totalAmount}) — receipt total likely misread. Using items sum.`,
       );
@@ -223,7 +211,6 @@ export class ReceiptPostProcessor {
       `Moderate discrepancy (10-50%) — keeping receipt total (${totalAmount}) over items sum (${roundedItemsSum})`,
     );
 
-    // Check if a single item accounts for the entire difference
     for (const item of items) {
       const itemTotal = item.price * item.quantity;
       if (Math.abs(itemTotal - difference) < 1) {
@@ -241,7 +228,7 @@ export class ReceiptPostProcessor {
     return name.trim().replace(/\s+/g, ' ');
   }
 
-  private validateDate(date?: string | null): string | undefined {
+  static validateDate(date?: string | null): string | undefined {
     if (!date) return undefined;
 
     // Accept DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY
@@ -254,7 +241,6 @@ export class ReceiptPostProcessor {
 
     // Reject future dates
     if (parsed > new Date()) {
-      this.logger.warn(`Receipt date ${date} is in the future, discarding`);
       return undefined;
     }
 
@@ -262,7 +248,7 @@ export class ReceiptPostProcessor {
     return `${day}/${month}/${year}`;
   }
 
-  private validateTime(time?: string | null): string | undefined {
+  static validateTime(time?: string | null): string | undefined {
     if (!time) return undefined;
     const match = time.match(/^(\d{2}):(\d{2})$/);
     if (!match) return undefined;

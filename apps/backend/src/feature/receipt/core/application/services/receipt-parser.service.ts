@@ -13,10 +13,10 @@ export interface ReceiptParsingResult {
   storeLocation: string;
   items: Array<{
     name: string;
-    nameEn?: string;
     price: number;
     quantity: number;
     suggestedItemCategory?: string;
+    size?: { value: number; unit: string };
   }>;
   totalAmount?: number;
   date?: string;
@@ -29,7 +29,6 @@ export interface ReceiptParsingResult {
 
 export interface IReceiptParser {
   readonly name: string;
-  canParse(text: string): boolean;
   parse(
     text: string,
     context: ReceiptParsingContext,

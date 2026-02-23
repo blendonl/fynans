@@ -6,8 +6,6 @@ import {
   ReceiptParsingResult,
 } from '../../../application/services/receipt-parser.service';
 import { LlmReceiptParser } from './llm-receipt.parser';
-import { AlbanianReceiptParser } from './albanian-receipt.parser';
-import { GenericReceiptParser } from './generic-receipt.parser';
 
 @Injectable()
 export class ReceiptParserFactory implements IReceiptParserService {
@@ -16,50 +14,30 @@ export class ReceiptParserFactory implements IReceiptParserService {
 
   constructor(
     private readonly llmParser: LlmReceiptParser,
-    private readonly albanianParser: AlbanianReceiptParser,
-    private readonly genericParser: GenericReceiptParser,
     @Optional()
-    @Inject('VisionParser')
-    private readonly visionParser?: IReceiptParser,
+    @Inject('OpencodeParser')
+    private readonly opencodeParser?: IReceiptParser,
   ) {
-    this.parsers = [this.llmParser, this.albanianParser, this.genericParser];
-    const parserNames = this.parsers.map((p) => p.name);
-    if (this.visionParser) parserNames.unshift(this.visionParser.name);
-    this.logger.log(`Initialized parsers: ${parserNames.join(', ')}`);
+    this.parsers = [];
+    if (this.opencodeParser) this.parsers.push(this.opencodeParser);
+    this.parsers.push(this.llmParser);
+
+    this.logger.log(`Initialized parsers: ${this.parsers.map((p) => p.name).join(', ')}`);
   }
 
   async parse(
     text: string,
     context: ReceiptParsingContext,
   ): Promise<ReceiptParsingResult> {
-    // Try vision parser first if image is available
-    if (context.imageBuffer && this.visionParser?.parseFromImage) {
-      try {
-        this.logger.log(`Using parser: ${this.visionParser.name}`);
-        const result = await this.visionParser.parseFromImage(
-          context.imageBuffer,
-          context,
-        );
-
-        if (text) {
-          this.crossValidateWithOcr(result, text);
-        }
-
-        return result;
-      } catch (error) {
-        this.logger.warn(
-          `Vision parser failed, falling back to text parsers: ${error instanceof Error ? error.message : String(error)}`,
-        );
-      }
-    }
-
-    // Fallback to text-based parsers
     for (const parser of this.parsers) {
-      if (!parser.canParse(text)) continue;
-
       try {
-        this.logger.log(`Using parser: ${parser.name}`);
-        return await parser.parse(text, context);
+        this.logger.log(`[TIMING] Starting parser: ${parser.name}`);
+        const parserStart = Date.now();
+        const result = await parser.parse(text, context);
+        this.logger.log(
+          `[TIMING] Parser '${parser.name}' completed in ${Date.now() - parserStart}ms`,
+        );
+        return result;
       } catch (error) {
         this.logger.warn(
           `Parser '${parser.name}' failed, trying next: ${error instanceof Error ? error.message : String(error)}`,
@@ -72,53 +50,5 @@ export class ReceiptParserFactory implements IReceiptParserService {
 
   registerParser(parser: IReceiptParser): void {
     this.parsers.push(parser);
-  }
-
-  /**
-   * Cross-validate VLM parsing results against numbers found in OCR text.
-   * Logging-only — does not auto-correct.
-   */
-  private crossValidateWithOcr(
-    result: ReceiptParsingResult,
-    ocrText: string,
-  ): void {
-    const ocrNumbers = this.extractNumbers(ocrText);
-    if (ocrNumbers.length === 0) return;
-
-    // Check total amount
-    if (result.totalAmount) {
-      const totalFound = ocrNumbers.some(
-        (n) => Math.abs(n - result.totalAmount!) < 0.02,
-      );
-      if (!totalFound) {
-        this.logger.warn(
-          `Cross-validation: VLM total ${result.totalAmount} not found in OCR numbers`,
-        );
-      }
-    }
-
-    // Check each item price
-    let mismatchCount = 0;
-    for (const item of result.items) {
-      const priceFound = ocrNumbers.some(
-        (n) => Math.abs(n - item.price) < 0.02,
-      );
-      if (!priceFound) {
-        mismatchCount++;
-      }
-    }
-
-    if (mismatchCount > 0) {
-      this.logger.warn(
-        `Cross-validation: ${mismatchCount}/${result.items.length} VLM item prices not found in OCR text`,
-      );
-    }
-  }
-
-  private extractNumbers(text: string): number[] {
-    const matches = text.match(/\d+[.,]\d{1,2}/g) || [];
-    return matches
-      .map((m) => parseFloat(m.replace(',', '.')))
-      .filter((n) => !isNaN(n) && n > 0);
   }
 }
