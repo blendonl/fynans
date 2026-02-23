@@ -7,7 +7,6 @@ export class EnrichedReceiptStoreDto {
 export class EnrichedReceiptItemDto {
   id?: string;
   name: string;
-  nameEn?: string;
   price: number;
   quantity: number;
   categoryId?: string;

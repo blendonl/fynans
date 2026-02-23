@@ -68,9 +68,7 @@ export class EnrichReceiptDataUseCase {
         let existingStoreItemId: string | undefined;
         let categoryId: string | undefined;
         let resolvedName = item.name;
-        let resolvedNameEn = item.nameEn;
 
-        // Try to find existing Item record: exact match first, then fuzzy
         try {
           let dbItem = await this.itemRepository.findByName(item.name);
 
@@ -80,20 +78,12 @@ export class EnrichReceiptDataUseCase {
               this.logger.log(
                 `Fuzzy matched "${item.name}" → "${dbItem.name}" (id=${dbItem.id})`,
               );
-              // Keep parser's clean name (size already stripped by post-processor)
-              // Only use DB match for IDs; update nameEn from DB if parser doesn't have one
-              if (!resolvedNameEn && dbItem.nameEn) resolvedNameEn = dbItem.nameEn;
             }
           }
 
           if (dbItem) {
             itemId = dbItem.id;
             categoryId = dbItem.categoryId;
-
-            // Update nameEn if missing
-            if (item.nameEn && !dbItem.nameEn) {
-              await this.itemRepository.update(dbItem.id, { nameEn: item.nameEn } as any);
-            }
 
             // Find or create ItemSize if size info exists
             if (item.size) {
@@ -122,7 +112,6 @@ export class EnrichReceiptDataUseCase {
         return {
           id: existingStoreItemId,
           name: resolvedName,
-          nameEn: resolvedNameEn,
           price: item.price,
           quantity: item.quantity,
           categoryId,
@@ -155,7 +144,7 @@ export class EnrichReceiptDataUseCase {
       `${enrichedItems.length} items (${matched} matched, ${withStoreItem} with storeItem)`,
     );
     this.logger.debug(
-      `resolveStoreAndItems items: ${JSON.stringify(enrichedItems.map((i) => ({ name: i.name, nameEn: i.nameEn, size: i.size, itemId: i.itemId, storeItemId: i.id })))}`,
+      `resolveStoreAndItems items: ${JSON.stringify(enrichedItems.map((i) => ({ name: i.name, size: i.size, itemId: i.itemId, storeItemId: i.id })))}`,
     );
 
     return result;

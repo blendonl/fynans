@@ -165,7 +165,7 @@ export class ReceiptController {
                 `SSE [${jobId}] partial: store="${responseDto.store?.name}", ${responseDto.items.length} items, progress=${typedEvent.progress}%`,
               );
               this.logger.debug(
-                `SSE [${jobId}] partial items: ${JSON.stringify(responseDto.items.map((i) => ({ name: i.name, nameEn: i.nameEn, size: i.size, price: i.price })))}`,
+                `SSE [${jobId}] partial items: ${JSON.stringify(responseDto.items.map((i) => ({ name: i.name, size: i.size, price: i.price })))}`,
               );
             } else if (typedEvent.status === 'completed' && typedEvent.data) {
               const responseDto = ProcessedReceiptResponseDto.fromData(typedEvent.data);
@@ -178,7 +178,7 @@ export class ReceiptController {
                 `expenseCategory="${responseDto.suggestedExpenseCategory?.name ?? 'none'}"`,
               );
               this.logger.debug(
-                `SSE [${jobId}] final items: ${JSON.stringify(responseDto.items.map((i) => ({ name: i.name, nameEn: i.nameEn, size: i.size, categoryId: i.resolvedCategoryId })))}`,
+                `SSE [${jobId}] final items: ${JSON.stringify(responseDto.items.map((i) => ({ name: i.name, size: i.size, categoryId: i.resolvedCategoryId })))}`,
               );
             } else {
               this.logger.debug(

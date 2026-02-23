@@ -35,9 +35,6 @@ export class ProcessedItemDto {
   @ApiProperty()
   name: string;
 
-  @ApiPropertyOptional()
-  nameEn?: string;
-
   @ApiProperty()
   price: number;
 
@@ -91,7 +88,6 @@ export class ProcessedReceiptResponseDto {
     dto.items = data.items.map((item) => ({
       id: item.id,
       name: item.name,
-      nameEn: item.nameEn,
       price: item.price,
       quantity: item.quantity,
       categoryId: item.categoryId,

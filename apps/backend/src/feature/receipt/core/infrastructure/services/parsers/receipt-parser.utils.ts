@@ -1,6 +1,50 @@
 import { Logger } from '@nestjs/common';
+import { LlmJsonReceipt, ParsedReceipt } from './parser.interfaces';
 
 const logger = new Logger('ReceiptParserUtils');
+
+/**
+ * Converts the JSON structure returned by the LLM into the internal ParsedReceipt format
+ * consumed by ReceiptPostProcessor.
+ */
+export function llmJsonToParsedReceipt(json: LlmJsonReceipt): ParsedReceipt {
+  const items = (json.items ?? [])
+    .filter((item) => item.name && typeof item.name === 'string')
+    .map((item) => ({
+      name: item.name!.trim(),
+      price:
+        typeof item.price === 'number'
+          ? item.price
+          : parseFloat(String(item.price)),
+      quantity:
+        typeof item.quantity === 'number' && item.quantity > 0
+          ? item.quantity
+          : 1,
+      suggestedItemCategory: item.category || undefined,
+      size:
+        item.size?.value && item.size?.unit
+          ? {
+              value:
+                typeof item.size.value === 'number'
+                  ? item.size.value
+                  : parseFloat(String(item.size.value)),
+              unit: item.size.unit.toLowerCase(),
+            }
+          : undefined,
+    }))
+    .filter((item) => !isNaN(item.price) && item.price > 0);
+
+  return {
+    storeName: (json.storeName || 'Unknown').trim(),
+    storeLocation: (json.storeLocation || '').trim(),
+    items,
+    totalAmount:
+      json.total !== null && json.total !== undefined ? json.total : undefined,
+    date: json.date || undefined,
+    time: json.time || undefined,
+    suggestedExpenseCategory: json.expenseCategory || undefined,
+  };
+}
 
 export function parseDateTime(
   date?: string | null,

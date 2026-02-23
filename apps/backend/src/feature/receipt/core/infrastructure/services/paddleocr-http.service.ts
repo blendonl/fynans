@@ -1,9 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  IOcrService,
-  OcrResult,
-} from '../../application/services/ocr.service';
+import { IOcrService, OcrResult } from '../../application/services/ocr.service';
 
 interface PaddleOcrResponse {
   text: string;
@@ -36,9 +33,7 @@ export class PaddleOcrHttpService implements IOcrService {
 
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
-        this.logger.log(
-          `OCR extraction attempt ${attempt}/${this.maxRetries}`,
-        );
+        this.logger.log(`OCR extraction attempt ${attempt}/${this.maxRetries}`);
         const startTime = Date.now();
 
         const formData = new FormData();
@@ -63,13 +58,15 @@ export class PaddleOcrHttpService implements IOcrService {
           );
         }
 
-        const result = await response.json() as PaddleOcrResponse;
+        const result = (await response.json()) as PaddleOcrResponse;
         const processingTime = Date.now() - startTime;
 
         this.logger.log(
           `OCR completed in ${processingTime}ms (server: ${result.timings?.total_ms ?? '?'}ms) ` +
-          `with confidence ${(result.confidence * 100).toFixed(2)}%`,
+            `with confidence ${(result.confidence * 100).toFixed(2)}%`,
         );
+
+        this.logger.log(result.text);
 
         return {
           text: result.text.trim(),
@@ -96,9 +93,7 @@ export class PaddleOcrHttpService implements IOcrService {
       }
     }
 
-    this.logger.error(
-      `All ${this.maxRetries} OCR extraction attempts failed`,
-    );
+    this.logger.error(`All ${this.maxRetries} OCR extraction attempts failed`);
     throw new Error(
       `Failed to extract text from image after ${this.maxRetries} attempts: ${lastError?.message || 'Unknown error'}`,
     );
