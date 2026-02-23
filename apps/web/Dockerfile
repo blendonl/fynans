@@ -5,11 +5,9 @@ WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml tsconfig.base.json ./
 COPY .yarn ./.yarn
 COPY apps/web/package.json ./apps/web/
-COPY packages/shared/package.json ./packages/shared/
 
 RUN corepack enable && yarn workspaces focus @fynans/web
 
-COPY packages/shared ./packages/shared
 COPY apps/web ./apps/web
 
 ARG NEXT_PUBLIC_API_URL
@@ -24,7 +22,6 @@ WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
 COPY apps/web/package.json ./apps/web/
-COPY packages/shared/package.json ./packages/shared/
 
 RUN corepack enable && yarn workspaces focus @fynans/web --production
 
