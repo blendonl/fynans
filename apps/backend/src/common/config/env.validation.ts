@@ -53,6 +53,13 @@ const envSchema = z.object({
   VISION_PARSER: z.string().optional(),
   DONUT_SERVICE_URL: z.string().optional(),
   DONUT_TIMEOUT: z.string().optional(),
+
+  // MinIO / S3-compatible storage (optional - defaults provided)
+  MINIO_ENDPOINT: z.string().optional().default('http://localhost:9000'),
+  MINIO_ACCESS_KEY: z.string().optional().default('minioadmin'),
+  MINIO_SECRET_KEY: z.string().optional().default('minioadmin'),
+  MINIO_BUCKET: z.string().optional().default('fynans'),
+  MINIO_REGION: z.string().optional().default('us-east-1'),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;

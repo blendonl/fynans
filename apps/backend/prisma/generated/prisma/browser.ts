@@ -118,6 +118,11 @@ export type WebPushSubscription = Prisma.WebPushSubscriptionModel
  */
 export type PaymentMethod = Prisma.PaymentMethodModel
 /**
+ * Model Receipt
+ * 
+ */
+export type Receipt = Prisma.ReceiptModel
+/**
  * Model User
  * 
  */

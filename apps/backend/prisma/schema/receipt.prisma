@@ -1,0 +1,23 @@
+model Receipt {
+  id           String  @id @default(uuid())
+  userId       String  @map("user_id")
+  familyId     String? @map("family_id")
+  expenseId    String? @unique @map("expense_id")
+  fileName     String  @map("file_name")
+  originalName String  @map("original_name")
+  mimeType     String  @map("mime_type")
+  fileSize     Int     @map("file_size")
+  storageKey   String  @map("storage_key")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family  Family?  @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  expense Expense? @relation(fields: [expenseId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([familyId])
+  @@index([expenseId])
+  @@map("receipt")
+}

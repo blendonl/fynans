@@ -4,6 +4,7 @@ import {
   Get,
   Sse,
   Param,
+  Body,
   Req,
   UseInterceptors,
   UploadedFile,
@@ -32,7 +33,9 @@ import {
   IReceiptJobQueue,
   ReceiptJobResult,
 } from '../../core/application/interfaces/receipt-job-queue.interface';
+import { SaveReceiptFileUseCase } from '../../core/application/use-cases/save-receipt-file.use-case';
 import { ProcessedReceiptResponseDto } from '../dto/processed-receipt-response.dto';
+import { ProcessReceiptBodyDto } from '../dto/process-receipt-body.dto';
 import { EnrichedReceiptDataDto } from '../../core/application/dto/enriched-receipt-data.dto';
 import { CurrentUser } from '~feature/auth/rest/decorators/current-user.decorator';
 import { User } from '~feature/user/core/domain/entities/user.entity';
@@ -76,6 +79,7 @@ export class ReceiptController {
   constructor(
     @Inject('ReceiptJobQueue')
     private readonly receiptJobQueue: IReceiptJobQueue,
+    private readonly saveReceiptFileUseCase: SaveReceiptFileUseCase,
   ) {}
 
   @Post('process')
@@ -100,15 +104,35 @@ export class ReceiptController {
   )
   async processReceipt(
     @UploadedFile() file: Express.Multer.File,
+    @Body() body: ProcessReceiptBodyDto,
     @CurrentUser() user: User,
   ) {
     if (!file) {
       throw new BadRequestException('No image file provided');
     }
 
-    const jobId = await this.receiptJobQueue.addJob(file.buffer, user.id);
+    let receiptId: string | undefined;
+    try {
+      const stored = await this.saveReceiptFileUseCase.execute({
+        buffer: file.buffer,
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        userId: user.id,
+        familyId: body.familyId,
+      });
+      receiptId = stored.id;
+    } catch (error) {
+      this.logger.error(
+        `Failed to store receipt file: ${error instanceof Error ? error.message : error}`,
+      );
+    }
 
-    return { jobId, status: 'processing' };
+    const jobId = await this.receiptJobQueue.addJob(file.buffer, user.id, {
+      receiptId,
+      familyId: body.familyId,
+    });
+
+    return { jobId, status: 'processing', receiptId };
   }
 
   @Get('jobs/:jobId')

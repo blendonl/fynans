@@ -35,6 +35,12 @@ import { VisionReceiptParser } from './infrastructure/services/parsers/vision-re
 import { DonutReceiptParser } from './infrastructure/services/parsers/donut-receipt.parser';
 import { ReceiptPostProcessor } from './infrastructure/services/receipt-post-processor';
 import { IReceiptParser } from './application/services/receipt-parser.service';
+import { PrismaStoredReceiptRepository } from './infrastructure/repositories/prisma-stored-receipt.repository';
+import { SaveReceiptFileUseCase } from './application/use-cases/save-receipt-file.use-case';
+import { ListStoredReceiptsUseCase } from './application/use-cases/list-stored-receipts.use-case';
+import { GetStoredReceiptUseCase } from './application/use-cases/get-stored-receipt.use-case';
+import { DeleteStoredReceiptUseCase } from './application/use-cases/delete-stored-receipt.use-case';
+import { LinkReceiptToExpenseUseCase } from './application/use-cases/link-receipt-to-expense.use-case';
 
 @Module({
   imports: [
@@ -102,11 +108,25 @@ import { IReceiptParser } from './application/services/receipt-parser.service';
     AutoCreateCategoriesUseCase,
     ProcessReceiptUseCase,
     EnrichReceiptDataUseCase,
+    {
+      provide: 'StoredReceiptRepository',
+      useClass: PrismaStoredReceiptRepository,
+    },
+    SaveReceiptFileUseCase,
+    ListStoredReceiptsUseCase,
+    GetStoredReceiptUseCase,
+    DeleteStoredReceiptUseCase,
+    LinkReceiptToExpenseUseCase,
   ],
   exports: [
     ProcessReceiptUseCase,
     EnrichReceiptDataUseCase,
     'ReceiptJobQueue',
+    SaveReceiptFileUseCase,
+    ListStoredReceiptsUseCase,
+    GetStoredReceiptUseCase,
+    DeleteStoredReceiptUseCase,
+    LinkReceiptToExpenseUseCase,
   ],
 })
 export class ReceiptCoreModule {}
