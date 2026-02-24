@@ -1,25 +1,22 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { type IExpenseCategoryRepository } from '../../domain/repositories/expense-category.repository.interface';
-import { PrismaService } from '~common/prisma/prisma.service';
 
 @Injectable()
 export class DeleteExpenseCategoryUseCase {
   constructor(
     @Inject('ExpenseCategoryRepository')
     private readonly expenseCategoryRepository: IExpenseCategoryRepository,
-    private readonly prisma: PrismaService,
   ) {}
 
   async execute(id: string): Promise<void> {
     const category = await this.expenseCategoryRepository.findById(id);
 
     if (!category) {
-      throw new NotFoundException('Expense category not found');
+      throw new DomainNotFoundException('Expense category not found');
     }
 
     await this.validate(id);
@@ -28,20 +25,17 @@ export class DeleteExpenseCategoryUseCase {
   }
 
   private async validate(id: string): Promise<void> {
-    // Check if category has children
     const children = await this.expenseCategoryRepository.findChildren(id);
     if (children.length > 0) {
-      throw new BadRequestException(
+      throw new DomainValidationException(
         'Cannot delete category with child categories',
       );
     }
 
-    // Check if category is used by any expenses
-    const expenseCount = await this.prisma.expense.count({
-      where: { categoryId: id },
-    });
+    const expenseCount =
+      await this.expenseCategoryRepository.countExpensesByCategory(id);
     if (expenseCount > 0) {
-      throw new BadRequestException(
+      throw new DomainValidationException(
         'Cannot delete category that is used by existing expenses',
       );
     }

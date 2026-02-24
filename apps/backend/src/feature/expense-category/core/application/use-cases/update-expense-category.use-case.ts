@@ -1,9 +1,8 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { type IExpenseCategoryRepository } from '../../domain/repositories/expense-category.repository.interface';
 import { UpdateExpenseCategoryDto } from '../dto/update-expense-category.dto';
 import { ExpenseCategory } from '../../domain/entities/expense-category.entity';
@@ -22,7 +21,7 @@ export class UpdateExpenseCategoryUseCase {
     const category = await this.expenseCategoryRepository.findById(id);
 
     if (!category) {
-      throw new NotFoundException('Expense category not found');
+      throw new DomainNotFoundException('Expense category not found');
     }
 
     await this.validate(id, dto);
@@ -39,29 +38,26 @@ export class UpdateExpenseCategoryUseCase {
     id: string,
     dto: UpdateExpenseCategoryDto,
   ): Promise<void> {
-    // Validate name uniqueness if changed
     if (dto.name) {
       const existingCategory =
         await this.expenseCategoryRepository.findByName(dto.name);
       if (existingCategory && existingCategory.id !== id) {
-        throw new BadRequestException('Category name must be unique');
+        throw new DomainValidationException('Category name must be unique');
       }
     }
 
-    // Validate parent exists and prevent circular reference
     if (dto.parentId !== undefined) {
       if (dto.parentId === id) {
-        throw new BadRequestException('Category cannot be its own parent');
+        throw new DomainValidationException('Category cannot be its own parent');
       }
 
       if (dto.parentId !== null) {
         const parent =
           await this.expenseCategoryRepository.findById(dto.parentId);
         if (!parent) {
-          throw new BadRequestException('Parent category not found');
+          throw new DomainValidationException('Parent category not found');
         }
 
-        // Check if new parent is a descendant of current category
         await this.checkCircularReference(id, dto.parentId);
       }
     }
@@ -75,7 +71,7 @@ export class UpdateExpenseCategoryUseCase {
 
     while (currentId !== null) {
       if (currentId === categoryId) {
-        throw new BadRequestException('Circular reference detected');
+        throw new DomainValidationException('Circular reference detected');
       }
 
       const current = await this.expenseCategoryRepository.findById(currentId);
