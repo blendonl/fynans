@@ -6,17 +6,8 @@ import { mapExpenseToTransaction, sortTransactionsByDate } from "@/lib/transacti
 
 type TransactionStatus = "CONFIRMED" | "PENDING" | "REJECTED";
 
-/**
- * Runtime expense responses include status/rejectionReason fields
- * added by the pending transactions feature, not yet in the OpenAPI spec.
- */
-interface ExpenseWithStatus extends ExpenseResponse {
-  status?: TransactionStatus;
-  rejectionReason?: string;
-}
-
 interface PaginatedResponse {
-  data: ExpenseWithStatus[];
+  data: ExpenseResponse[];
   total: number;
   page: number;
   limit: number;
@@ -122,7 +113,7 @@ export function usePendingExpense(id: string) {
   return useQuery({
     queryKey: pendingKeys.detail(id),
     queryFn: async () => {
-      const res = await customInstance<{ data: ExpenseWithStatus; status: number; headers: Headers }>(`/expenses/${id}`, { method: "GET" });
+      const res = await customInstance<{ data: ExpenseResponse; status: number; headers: Headers }>(`/expenses/${id}`, { method: "GET" });
       return res.data;
     },
     enabled: !!id,
