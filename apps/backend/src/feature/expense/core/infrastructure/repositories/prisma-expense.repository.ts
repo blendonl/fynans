@@ -172,6 +172,12 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       updateData.storeId = data.storeId;
     }
 
+    if ((data as any).description !== undefined) {
+      updateData.transaction = {
+        update: { description: (data as any).description },
+      };
+    }
+
     const expense = await this.prisma.expense.update({
       where: { id },
       data: updateData,

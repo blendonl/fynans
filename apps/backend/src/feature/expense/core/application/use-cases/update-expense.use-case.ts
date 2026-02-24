@@ -5,6 +5,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
+import { type ITransactionRepository } from '~feature/transaction/core/domain/repositories/transaction.repository.interface';
 import { UpdateExpenseDto } from '../dto/update-expense.dto';
 import { type IExpenseCategoryRepository } from '../../../../expense-category/core/domain/repositories/expense-category.repository.interface';
 import { Expense } from '../../domain/entities/expense.entity';
@@ -17,6 +18,8 @@ export class UpdateExpenseUseCase {
     private readonly expenseRepository: IExpenseRepository,
     @Inject('ExpenseCategoryRepository')
     private readonly expenseCategoryRepository: IExpenseCategoryRepository,
+    @Inject('TransactionRepository')
+    private readonly transactionRepository: ITransactionRepository,
     @Inject()
     private readonly storeService: StoreService,
   ) {}
@@ -39,10 +42,31 @@ export class UpdateExpenseUseCase {
 
     await this.validate(dto);
 
+    // Update expense-level fields (categoryId, storeId, description)
     const updated = await this.expenseRepository.update(id, {
       categoryId: dto.categoryId,
       storeId: dto.storeId,
+      description: dto.description,
     } as Partial<Expense>);
+
+    // Update transaction-level fields (value, recordedAt, paymentMethodId)
+    const txUpdates: Record<string, unknown> = {};
+    if (dto.amount !== undefined) txUpdates.value = dto.amount;
+    if (dto.recordedAt !== undefined) txUpdates.recordedAt = dto.recordedAt;
+    if (dto.paymentMethodId !== undefined)
+      txUpdates.paymentMethodId = dto.paymentMethodId;
+
+    if (Object.keys(txUpdates).length > 0) {
+      await this.transactionRepository.update(
+        expense.transactionId!,
+        txUpdates as any,
+      );
+    }
+
+    // Re-fetch to return the full updated entity
+    if (Object.keys(txUpdates).length > 0) {
+      return (await this.expenseRepository.findById(id))!;
+    }
 
     return updated;
   }
