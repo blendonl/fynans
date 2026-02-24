@@ -77,71 +77,6 @@ services:
       retries: 5
     restart: unless-stopped
 
-  ollama:
-    image: ollama/ollama:latest
-    profiles: [ollama]
-    volumes:
-      - ollama-models:/root/.ollama
-    ports:
-      - '11434:11434'
-    environment:
-      - OLLAMA_HOST=0.0.0.0:11434
-    healthcheck:
-      test: ['CMD', 'ollama', 'list']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
-    restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-
-  ollama-init:
-    image: ollama/ollama:latest
-    profiles: [ollama]
-    depends_on:
-      ollama:
-        condition: service_healthy
-    entrypoint:
-      [
-        '/bin/sh',
-        '-c',
-        'ollama pull ${OLLAMA_VISION_MODEL:-qwen2.5vl:3b} && ollama pull ${OLLAMA_MODEL:-qwen2.5:3b}',
-      ]
-    environment:
-      - OLLAMA_HOST=ollama:11434
-    restart: 'no'
-
-  donut:
-    build:
-      context: ./docker/donut-service
-      dockerfile: Dockerfile
-    profiles: [donut]
-    volumes:
-      - donut-models:/root/.cache/huggingface
-    ports:
-      - '8001:8001'
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8001/health']
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 180s
-    shm_size: 2G
-    restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-
   minio:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
@@ -182,6 +117,4 @@ volumes:
   paddleocr-models:
   paddlex-models:
   redis-data:
-  ollama-models:
-  donut-models:
   minio-data:
