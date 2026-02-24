@@ -60,6 +60,9 @@ const envSchema = z.object({
   MINIO_SECRET_KEY: z.string().optional().default('minioadmin'),
   MINIO_BUCKET: z.string().optional().default('fynans'),
   MINIO_REGION: z.string().optional().default('us-east-1'),
+
+  // Copilot category suggestions
+  COPILOT_CATEGORY_MODEL: z.string().optional(),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
