@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "@/types";
-import { authControllerLogin, authControllerRegister, authControllerLogout } from "@/api/generated/endpoints/auth/auth";
+import { authControllerLogin, authControllerRegister, authControllerLogout, authControllerMe } from "@/api/generated/endpoints/auth/auth";
 import { getToken, setToken, removeToken } from "@/lib/auth";
 
 interface AuthContextType {
@@ -21,11 +21,8 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 async function fetchSession(): Promise<{ user: User } | null> {
   const token = getToken();
   if (!token) return null;
-  const res = await fetch("/api/auth/get-session", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) return null;
-  return res.json();
+  const res = await authControllerMe();
+  return { user: res.data };
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
