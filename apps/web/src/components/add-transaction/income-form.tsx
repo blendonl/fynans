@@ -13,21 +13,22 @@ import { useCreateDialog } from "@/hooks/use-create-dialog";
 import { usePaymentMethods } from "@/hooks/use-payment-methods";
 import { useAutoSelectPaymentMethod } from "@/hooks/use-auto-select-payment-method";
 import { localNow } from "@/lib/date-utils";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CategorySelector } from "@/components/add-expense/category-selector";
 import { AddCategoryDialog } from "@/components/add-expense/add-category-dialog";
 import { AmountHero } from "./amount-hero";
 import { DateTimePicker } from "./date-time-picker";
 import { PaymentMethodSelector } from "./payment-method-selector";
+import { SubmitButtons } from "./submit-buttons";
 
 interface IncomeFormProps {
   onSuccess: () => void;
+  onSaveForReview?: () => void;
   scope: "PERSONAL" | "FAMILY";
   familyId: string;
 }
 
-export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
+export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: IncomeFormProps) {
   const { incomeCategories, isLoading: categoriesLoading, createCategory } = useCategories();
   const { paymentMethods, isLoading: paymentMethodsLoading } = usePaymentMethods();
 
@@ -56,17 +57,20 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
   );
   useAutoAcceptSuggestion(ai.incomeSuggestion, selectedCategory, incomeCategories, handleAutoAccept);
 
+  const buildIncomePayload = (pending?: boolean) => ({
+    type: "INCOME" as const,
+    value: parseFloat(amount),
+    description: note,
+    categoryId: selectedCategory?.id,
+    recordedAt: new Date(recordedAt).toISOString(),
+    familyId: scope === "FAMILY" ? familyId : undefined,
+    paymentMethodId: selectedPaymentMethodId || undefined,
+    ...(pending ? { pending: true } : {}),
+  });
+
   const submitMutation = useMutation({
     mutationFn: async () => {
-      await transactionControllerCreate({
-        type: "INCOME",
-        value: parseFloat(amount),
-        description: note,
-        categoryId: selectedCategory!.id,
-        recordedAt: new Date(recordedAt).toISOString(),
-        familyId: scope === "FAMILY" ? familyId : undefined,
-        paymentMethodId: selectedPaymentMethodId || undefined,
-      } as unknown as Parameters<typeof transactionControllerCreate>[0]);
+      await transactionControllerCreate(buildIncomePayload() as unknown as Parameters<typeof transactionControllerCreate>[0]);
     },
     onSuccess: () => {
       toast.success(`Income created: ${formatCurrency(parseFloat(amount))}`);
@@ -77,7 +81,21 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
     },
   });
 
+  const saveForReviewMutation = useMutation({
+    mutationFn: async () => {
+      await transactionControllerCreate(buildIncomePayload(true) as unknown as Parameters<typeof transactionControllerCreate>[0]);
+    },
+    onSuccess: () => {
+      toast.success(`Income saved for review: ${formatCurrency(parseFloat(amount))}`);
+      onSaveForReview?.();
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to save income for review");
+    },
+  });
+
   const canSubmit = selectedCategory && amount && parseFloat(amount) > 0;
+  const canSaveForReview = amount && parseFloat(amount) > 0;
 
   const validationMessage = () => {
     if (!amount || parseFloat(amount) <= 0) return "Enter an amount";
@@ -133,20 +151,16 @@ export function IncomeForm({ onSuccess, scope, familyId }: IncomeFormProps) {
 
           <DateTimePicker value={recordedAt} onChange={setRecordedAt} />
 
-          <div className="submit-sticky">
-            <Button
-              variant="income"
-              className="w-full h-12 text-base font-semibold"
-              onClick={() => submitMutation.mutate()}
-              loading={submitMutation.isPending}
-              disabled={!canSubmit}
-            >
-              Create Income
-            </Button>
-            {!canSubmit && (
-              <p className="text-xs text-text-secondary text-center mt-2">{validationMessage()}</p>
-            )}
-          </div>
+          <SubmitButtons
+            type="income"
+            canSubmit={!!canSubmit}
+            canSaveForReview={!!canSaveForReview}
+            isSubmitting={submitMutation.isPending}
+            isSavingForReview={saveForReviewMutation.isPending}
+            validationMessage={validationMessage()}
+            onSubmit={() => submitMutation.mutate()}
+            onSaveForReview={() => saveForReviewMutation.mutate()}
+          />
         </div>
       </div>
 

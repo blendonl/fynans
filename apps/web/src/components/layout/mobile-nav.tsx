@@ -11,6 +11,7 @@ import {
   Settings2,
 } from "lucide-react";
 import { useNotifications } from "@/hooks/use-notifications";
+import { usePendingTransactionCount } from "@/hooks/use-pending-transactions";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
 export function MobileNav() {
   const pathname = usePathname();
   const { unreadCount } = useNotifications();
+  const { data: pendingCount } = usePendingTransactionCount();
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-glass-border-outer bg-glass-bg-strong backdrop-blur-lg pb-[env(safe-area-inset-bottom)]">
@@ -47,6 +49,11 @@ export function MobileNav() {
               {item.href === "/notifications" && unreadCount > 0 && (
                 <span className="absolute -top-0.5 right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-error px-1 text-[10px] font-semibold text-white">
                   {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+              {item.href === "/transactions" && (pendingCount ?? 0) > 0 && (
+                <span className="absolute -top-0.5 right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-warning px-1 text-[10px] font-semibold text-white">
+                  {pendingCount! > 9 ? "9+" : pendingCount}
                 </span>
               )}
               {item.label}

@@ -28,4 +28,5 @@ export class EnrichedReceiptDataDto {
   parserUsed?: string;
   suggestedExpenseCategoryId?: string;
   suggestedExpenseCategoryName?: string;
+  pendingExpenseId?: string;
 }

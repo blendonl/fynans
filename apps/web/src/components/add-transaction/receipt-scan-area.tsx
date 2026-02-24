@@ -4,15 +4,16 @@ import { useState } from "react";
 import { Camera, Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScanReceiptDialog } from "@/components/add-expense/scan-receipt-dialog";
-import type { ProcessedReceiptResponse } from "@/hooks/use-receipt-scan";
+import type { ProcessedReceiptResponse, ReceiptScanOptions } from "@/hooks/use-receipt-scan";
 
 interface ReceiptScanAreaProps {
   onResult: (data: ProcessedReceiptResponse) => void;
   isPending?: boolean;
   hasScanned?: boolean;
+  scanOptions?: ReceiptScanOptions;
 }
 
-export function ReceiptScanArea({ onResult, isPending = false, hasScanned = false }: ReceiptScanAreaProps) {
+export function ReceiptScanArea({ onResult, isPending = false, hasScanned = false, scanOptions }: ReceiptScanAreaProps) {
   const [showDialog, setShowDialog] = useState(false);
 
   return (
@@ -65,6 +66,7 @@ export function ReceiptScanArea({ onResult, isPending = false, hasScanned = fals
         open={showDialog}
         onOpenChange={setShowDialog}
         onResult={onResult}
+        scanOptions={scanOptions}
       />
     </>
   );

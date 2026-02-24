@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { TransactionResponseDto } from '~feature/transaction/rest';
 import { Expense } from '../../core/domain/entities/expense.entity';
 import { ExpenseCategoryResponseDto } from '~feature/expense-category/rest/dto/expense-category-response.dto';
@@ -37,6 +37,12 @@ export class ExpenseResponseDto {
   name: string;
 
   @ApiProperty()
+  status: string;
+
+  @ApiPropertyOptional()
+  rejectionReason?: string;
+
+  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()
@@ -48,6 +54,8 @@ export class ExpenseResponseDto {
     dto.transactionId = expense.transactionId;
     dto.categoryId = expense.categoryId;
     dto.storeId = expense.storeId;
+    dto.status = expense.transaction.status;
+    dto.rejectionReason = expense.transaction.rejectionReason;
     dto.createdAt = expense.createdAt;
     dto.updatedAt = expense.updatedAt;
     dto.category = ExpenseCategoryResponseDto.fromEntity(expense.category);

@@ -1,4 +1,4 @@
-import { IsUUID, IsOptional } from 'class-validator';
+import { IsUUID, IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ProcessReceiptBodyDto {
@@ -6,4 +6,14 @@ export class ProcessReceiptBodyDto {
   @IsUUID()
   @IsOptional()
   familyId?: string;
+
+  @ApiPropertyOptional({ description: 'Auto-create a pending expense from the receipt' })
+  @IsString()
+  @IsOptional()
+  autoCreatePending?: string | boolean;
+
+  @ApiPropertyOptional({ description: 'Payment method ID for auto-created pending expense' })
+  @IsUUID()
+  @IsOptional()
+  paymentMethodId?: string;
 }

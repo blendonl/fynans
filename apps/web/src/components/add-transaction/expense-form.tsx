@@ -11,11 +11,11 @@ import { useExpenseItems } from "@/hooks/use-expense-items";
 import { useExpenseAiSuggestions } from "@/hooks/use-expense-ai-suggestions";
 import { useReceiptFormMapping } from "@/hooks/use-receipt-form-mapping";
 import { useExpenseSubmission } from "@/hooks/use-expense-submission";
+import { useDeletePendingExpense } from "@/hooks/use-pending-transactions";
 import { usePaymentMethods } from "@/hooks/use-payment-methods";
 import { useAutoSelectPaymentMethod } from "@/hooks/use-auto-select-payment-method";
 import { useCreateDialog } from "@/hooks/use-create-dialog";
 import { localNow } from "@/lib/date-utils";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StoreSelector } from "@/components/add-expense/store-selector";
 import { CategorySelector } from "@/components/add-expense/category-selector";
@@ -28,14 +28,16 @@ import { AmountHero } from "./amount-hero";
 import { DateTimePicker } from "./date-time-picker";
 import { ReceiptScanArea } from "./receipt-scan-area";
 import { PaymentMethodSelector } from "./payment-method-selector";
+import { SubmitButtons } from "./submit-buttons";
 
 interface ExpenseFormProps {
   onSuccess: () => void;
+  onSaveForReview?: () => void;
   scope: "PERSONAL" | "FAMILY";
   familyId: string;
 }
 
-export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
+export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: ExpenseFormProps) {
   const {
     categories,
     itemCategories,
@@ -64,6 +66,8 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
   const [simpleNote, setSimpleNote] = useState("");
   const [recordedAt, setRecordedAt] = useState(localNow);
   const [hasScannedReceipt, setHasScannedReceipt] = useState(false);
+  const [pendingIdFromScan, setPendingIdFromScan] = useState<string | null>(null);
+  const deletePendingMutation = useDeletePendingExpense();
   const [, setCategorySearch] = useState("");
 
   const storeDialog = useCreateDialog();
@@ -112,9 +116,16 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
     setHasScannedReceipt,
     setItems: expenseItems.setItems,
     queryClient,
+    onPendingCreated: (id) => setPendingIdFromScan(id),
   });
 
-  const { submitMutation, canSubmit, validationMessage } = useExpenseSubmission({
+  const receiptScanOptions = useMemo(() => ({
+    autoCreatePending: true,
+    familyId: scope === "FAMILY" ? familyId : undefined,
+    paymentMethodId: selectedPaymentMethodId || undefined,
+  }), [scope, familyId, selectedPaymentMethodId]);
+
+  const { submitMutation, saveForReviewMutation, canSubmit, canSaveForReview, validationMessage } = useExpenseSubmission({
     isItemized,
     items: expenseItems.items,
     itemsTotal,
@@ -127,6 +138,9 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
     familyId,
     paymentMethodId: selectedPaymentMethodId,
     onSuccess,
+    onSaveForReview,
+    pendingIdToCleanup: pendingIdFromScan,
+    onCleanupPending: () => setPendingIdFromScan(null),
   });
 
   const hasItems = isItemized && expenseItems.items.length > 0;
@@ -168,6 +182,7 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
           <ReceiptScanArea
             onResult={handleReceiptResult}
             hasScanned={hasScannedReceipt}
+            scanOptions={receiptScanOptions}
           />
         </div>
 
@@ -283,20 +298,16 @@ export function ExpenseForm({ onSuccess, scope, familyId }: ExpenseFormProps) {
 
             <DateTimePicker value={recordedAt} onChange={setRecordedAt} />
 
-            <div className="submit-sticky">
-              <Button
-                variant="expense"
-                className="w-full h-12 text-base font-semibold"
-                onClick={() => submitMutation.mutate()}
-                loading={submitMutation.isPending}
-                disabled={!canSubmit()}
-              >
-                Create Expense
-              </Button>
-              {!canSubmit() && (
-                <p className="text-xs text-text-secondary text-center mt-2">{validationMessage()}</p>
-              )}
-            </div>
+            <SubmitButtons
+              type="expense"
+              canSubmit={canSubmit()}
+              canSaveForReview={canSaveForReview()}
+              isSubmitting={submitMutation.isPending}
+              isSavingForReview={saveForReviewMutation.isPending}
+              validationMessage={validationMessage()}
+              onSubmit={() => submitMutation.mutate()}
+              onSaveForReview={() => saveForReviewMutation.mutate()}
+            />
           </div>
         </div>
       </div>

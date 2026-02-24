@@ -5,6 +5,14 @@ enum TransactionType {
   @@map("transaction_type")
 }
 
+enum TransactionStatus {
+  CONFIRMED
+  PENDING
+  REJECTED
+
+  @@map("transaction_status")
+}
+
 enum TransactionScope {
   PERSONAL
   FAMILY
@@ -20,8 +28,10 @@ model Transaction {
   familyId String? @map("family_id")
   scope    TransactionScope @default(PERSONAL)
 
-  type  TransactionType
-  value Decimal
+  type            TransactionType
+  status          TransactionStatus @default(CONFIRMED) @map("status")
+  value           Decimal
+  rejectionReason String?           @map("rejection_reason")
 
   recordedAt DateTime @default(now()) @map("recorded_at")
 
@@ -42,5 +52,7 @@ model Transaction {
   @@index([familyId])
   @@index([paymentMethodId])
   @@index([scope])
+  @@index([status])
+  @@index([userId, status])
   @@map("transaction")
 }

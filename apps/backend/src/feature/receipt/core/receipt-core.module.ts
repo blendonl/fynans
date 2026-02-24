@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { TesseractOcrService } from './infrastructure/services/tesseract-ocr.service';
@@ -25,6 +25,7 @@ import { ListStoredReceiptsUseCase } from './application/use-cases/list-stored-r
 import { GetStoredReceiptUseCase } from './application/use-cases/get-stored-receipt.use-case';
 import { DeleteStoredReceiptUseCase } from './application/use-cases/delete-stored-receipt.use-case';
 import { LinkReceiptToExpenseUseCase } from './application/use-cases/link-receipt-to-expense.use-case';
+import { ExpenseCoreModule } from '~feature/expense/core/expense-core.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { LinkReceiptToExpenseUseCase } from './application/use-cases/link-receip
     ItemCoreModule,
     StoreItemCategoryCoreModule,
     ExpenseCategoryCoreModule,
+    forwardRef(() => ExpenseCoreModule),
     BullModule.registerQueue({ name: 'receipt-processing' }),
   ],
   providers: [

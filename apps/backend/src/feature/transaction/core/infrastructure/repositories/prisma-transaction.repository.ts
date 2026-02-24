@@ -13,7 +13,9 @@ import {
   Prisma,
   TransactionType as PrismaTransactionType,
   TransactionScope,
+  TransactionStatus as PrismaTransactionStatus,
 } from 'prisma/generated/prisma/client';
+import { TransactionStatus } from '../../domain/value-objects/transaction-status.vo';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
 @Injectable()
@@ -26,6 +28,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
         userId: data.userId!,
         familyId: data.familyId,
         type: data.type as PrismaTransactionType,
+        status: (data.status as PrismaTransactionStatus) ?? PrismaTransactionStatus.CONFIRMED,
         scope: data.familyId
           ? TransactionScope.FAMILY
           : TransactionScope.PERSONAL,
@@ -114,6 +117,27 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     };
   }
 
+  async updateStatus(
+    id: string,
+    status: TransactionStatus,
+    rejectionReason?: string,
+  ): Promise<Transaction> {
+    const transaction = await this.prisma.transaction.update({
+      where: { id },
+      data: {
+        status: status as PrismaTransactionStatus,
+        rejectionReason: rejectionReason ?? null,
+      },
+      include: {
+        user: true,
+        expense: true,
+        income: true,
+      },
+    });
+
+    return TransactionMapper.toDomain(transaction);
+  }
+
   async update(id: string, data: Partial<Transaction>): Promise<Transaction> {
     const updateData: Prisma.TransactionUpdateInput = {};
 
@@ -123,6 +147,24 @@ export class PrismaTransactionRepository implements ITransactionRepository {
 
     if (data.value !== undefined) {
       updateData.value = new Decimal(data.value.toString());
+    }
+
+    if ((data as any).status !== undefined) {
+      updateData.status = (data as any).status as PrismaTransactionStatus;
+    }
+
+    if ((data as any).rejectionReason !== undefined) {
+      updateData.rejectionReason = (data as any).rejectionReason;
+    }
+
+    if ((data as any).recordedAt !== undefined) {
+      updateData.recordedAt = (data as any).recordedAt;
+    }
+
+    if ((data as any).paymentMethodId !== undefined) {
+      updateData.paymentMethod = (data as any).paymentMethodId
+        ? { connect: { id: (data as any).paymentMethodId } }
+        : { disconnect: true };
     }
 
     const transaction = await this.prisma.transaction.update({
@@ -153,10 +195,12 @@ export class PrismaTransactionRepository implements ITransactionRepository {
       ...this.buildWhereClause(filters),
     };
 
+    const confirmedWhere = { ...where, status: PrismaTransactionStatus.CONFIRMED };
+
     const [incomeResult, expenseResult, count] = await Promise.all([
       this.prisma.transaction.aggregate({
         where: {
-          ...where,
+          ...confirmedWhere,
           type: PrismaTransactionType.INCOME,
         },
         _sum: {
@@ -165,14 +209,14 @@ export class PrismaTransactionRepository implements ITransactionRepository {
       }),
       this.prisma.transaction.aggregate({
         where: {
-          ...where,
+          ...confirmedWhere,
           type: PrismaTransactionType.EXPENSE,
         },
         _sum: {
           value: true,
         },
       }),
-      this.prisma.transaction.count({ where }),
+      this.prisma.transaction.count({ where: confirmedWhere }),
     ]);
 
     const totalIncome = incomeResult._sum.value?.toNumber() || 0;
@@ -203,6 +247,10 @@ export class PrismaTransactionRepository implements ITransactionRepository {
 
     if (filters.type) {
       where.type = filters.type as PrismaTransactionType;
+    }
+
+    if (filters.status) {
+      where.status = filters.status as PrismaTransactionStatus;
     }
 
     if (filters.dateFrom || filters.dateTo) {

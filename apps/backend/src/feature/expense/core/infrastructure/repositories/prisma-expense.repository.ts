@@ -10,7 +10,8 @@ import { ExpenseTrendPoint } from '../../application/dto/expense-trends.dto';
 import { Expense } from '../../domain/entities/expense.entity';
 import { Pagination } from '~common/dto/pagination.dto';
 import { ExpenseMapper } from '../mappers/expense.mapper';
-import { Prisma } from 'prisma/generated/prisma/client';
+import { Prisma, TransactionStatus as PrismaTransactionStatus } from 'prisma/generated/prisma/client';
+import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
 @Injectable()
@@ -349,7 +350,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   private buildWhereClause(
     filters?: ExpenseFiltersInterface,
   ): Prisma.ExpenseWhereInput {
-    if (!filters) return {};
+    if (!filters) return { transaction: { status: PrismaTransactionStatus.CONFIRMED } };
 
     const where: Prisma.ExpenseWhereInput = {};
 
@@ -361,42 +362,36 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       where.storeId = filters.storeId;
     }
 
-    if (
-      filters.userId ||
-      filters.familyId ||
-      filters.scope ||
-      filters.valueMin !== undefined ||
-      filters.valueMax !== undefined
-    ) {
-      where.transaction = {};
+    // Always initialize transaction filter to apply status default
+    where.transaction = {};
 
-      if (filters.userId) {
-        where.transaction.userId = filters.userId;
+    // Default to CONFIRMED if no status filter provided (backward compat)
+    const statusFilter = filters.status ?? TransactionStatus.CONFIRMED;
+    where.transaction.status = statusFilter as PrismaTransactionStatus;
+
+    if (filters.userId) {
+      where.transaction.userId = filters.userId;
+    }
+
+    if (filters.familyId) {
+      where.transaction.familyId = filters.familyId;
+    }
+
+    if (filters.scope) {
+      where.transaction.scope = filters.scope;
+    }
+
+    if (filters.valueMin !== undefined || filters.valueMax !== undefined) {
+      where.transaction.value = {};
+      if (filters.valueMin !== undefined) {
+        where.transaction.value.gte = new Decimal(filters.valueMin);
       }
-
-      if (filters.familyId) {
-        where.transaction.familyId = filters.familyId;
-      }
-
-      if (filters.scope) {
-        where.transaction.scope = filters.scope;
-      }
-
-      if (filters.valueMin !== undefined || filters.valueMax !== undefined) {
-        where.transaction.value = {};
-        if (filters.valueMin !== undefined) {
-          where.transaction.value.gte = new Decimal(filters.valueMin);
-        }
-        if (filters.valueMax !== undefined) {
-          where.transaction.value.lte = new Decimal(filters.valueMax);
-        }
+      if (filters.valueMax !== undefined) {
+        where.transaction.value.lte = new Decimal(filters.valueMax);
       }
     }
 
     if (filters.dateFrom || filters.dateTo) {
-      if (!where.transaction) {
-        where.transaction = {};
-      }
       where.transaction.recordedAt = {};
       if (filters.dateFrom) {
         where.transaction.recordedAt.gte = filters.dateFrom;

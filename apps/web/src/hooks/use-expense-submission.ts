@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { formatCurrency } from "@/utils/currency";
 import type { Category, Store, ExpenseItem } from "@/types";
 import { expenseControllerCreate } from "@/api/generated/endpoints/expense/expense";
+import { customInstance } from "@/api/custom-instance";
 
 interface UseExpenseSubmissionOptions {
   isItemized: boolean;
@@ -17,6 +18,63 @@ interface UseExpenseSubmissionOptions {
   familyId: string;
   paymentMethodId: string | null;
   onSuccess: () => void;
+  onSaveForReview?: () => void;
+  pendingIdToCleanup?: string | null;
+  onCleanupPending?: () => void;
+}
+
+function buildPayload({
+  isItemized,
+  items,
+  selectedCategory,
+  selectedStore,
+  simpleAmount,
+  simpleNote,
+  recordedAt,
+  scope,
+  familyId,
+  paymentMethodId,
+  pending,
+}: {
+  isItemized: boolean;
+  items: ExpenseItem[];
+  selectedCategory: Category | null;
+  selectedStore: Store | null;
+  simpleAmount: string;
+  simpleNote: string;
+  recordedAt: string;
+  scope: string;
+  familyId: string;
+  paymentMethodId: string | null;
+  pending?: boolean;
+}) {
+  const payload: Record<string, unknown> = {
+    categoryId: selectedCategory?.id,
+    storeName: selectedStore?.name,
+    storeLocation: selectedStore?.location,
+    recordedAt: new Date(recordedAt).toISOString(),
+    scope,
+    familyId: scope === "FAMILY" ? familyId : null,
+    paymentMethodId: paymentMethodId || undefined,
+  };
+
+  if (pending) payload.pending = true;
+
+  if (isItemized) {
+    payload.items = items.map((item) => ({
+      categoryId: item.categoryId,
+      itemName: item.name,
+      itemPrice: item.price,
+      discount: item.discount,
+      quantity: item.quantity,
+      ...(item.size ? { sizeValue: item.size.value, sizeUnit: item.size.unit } : {}),
+    }));
+  } else {
+    payload.amount = parseFloat(simpleAmount);
+    payload.note = simpleNote.trim() || undefined;
+  }
+
+  return payload;
 }
 
 export function useExpenseSubmission({
@@ -32,34 +90,27 @@ export function useExpenseSubmission({
   familyId,
   paymentMethodId,
   onSuccess,
+  onSaveForReview,
+  pendingIdToCleanup,
+  onCleanupPending,
 }: UseExpenseSubmissionOptions) {
   const submitMutation = useMutation({
     mutationFn: async () => {
-      const payload: Record<string, unknown> = {
-        categoryId: selectedCategory!.id,
-        storeName: selectedStore?.name,
-        storeLocation: selectedStore?.location,
-        recordedAt: new Date(recordedAt).toISOString(),
-        scope,
-        familyId: scope === "FAMILY" ? familyId : null,
-        paymentMethodId: paymentMethodId || undefined,
-      };
-
-      if (isItemized) {
-        payload.items = items.map((item) => ({
-          categoryId: item.categoryId,
-          itemName: item.name,
-          itemPrice: item.price,
-          discount: item.discount,
-          quantity: item.quantity,
-          ...(item.size ? { sizeValue: item.size.value, sizeUnit: item.size.unit } : {}),
-        }));
-      } else {
-        payload.amount = parseFloat(simpleAmount);
-        payload.note = simpleNote.trim() || undefined;
-      }
-
+      const payload = buildPayload({
+        isItemized, items, selectedCategory, selectedStore,
+        simpleAmount, simpleNote, recordedAt, scope, familyId, paymentMethodId,
+      });
       await expenseControllerCreate(payload as unknown as Parameters<typeof expenseControllerCreate>[0]);
+
+      // Clean up auto-created pending expense from receipt scan
+      if (pendingIdToCleanup) {
+        try {
+          await customInstance(`/expenses/${pendingIdToCleanup}`, { method: "DELETE" });
+          onCleanupPending?.();
+        } catch {
+          // Ignore cleanup failures
+        }
+      }
     },
     onSuccess: () => {
       const total = isItemized ? itemsTotal : parseFloat(simpleAmount);
@@ -68,6 +119,25 @@ export function useExpenseSubmission({
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to create expense");
+    },
+  });
+
+  const saveForReviewMutation = useMutation({
+    mutationFn: async () => {
+      const payload = buildPayload({
+        isItemized, items, selectedCategory, selectedStore,
+        simpleAmount, simpleNote, recordedAt, scope, familyId, paymentMethodId,
+        pending: true,
+      });
+      await expenseControllerCreate(payload as unknown as Parameters<typeof expenseControllerCreate>[0]);
+    },
+    onSuccess: () => {
+      const total = isItemized ? itemsTotal : parseFloat(simpleAmount);
+      toast.success(`Expense saved for review: ${formatCurrency(total)}`);
+      onSaveForReview?.();
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to save expense for review");
     },
   });
 
@@ -80,6 +150,11 @@ export function useExpenseSubmission({
     return simpleAmount !== "" && parseFloat(simpleAmount) > 0;
   };
 
+  const canSaveForReview = () => {
+    if (isItemized) return items.length > 0;
+    return simpleAmount !== "" && parseFloat(simpleAmount) > 0;
+  };
+
   const validationMessage = () => {
     if (!isItemized && (!simpleAmount || parseFloat(simpleAmount) <= 0)) return "Enter an amount";
     if (isItemized && !selectedStore) return "Select a store to continue";
@@ -88,5 +163,5 @@ export function useExpenseSubmission({
     return null;
   };
 
-  return { submitMutation, canSubmit, validationMessage };
+  return { submitMutation, saveForReviewMutation, canSubmit, canSaveForReview, validationMessage };
 }

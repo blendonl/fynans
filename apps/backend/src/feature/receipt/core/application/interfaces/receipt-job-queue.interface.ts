@@ -18,8 +18,14 @@ export interface ReceiptJobMeta {
   familyId?: string;
 }
 
+export interface ReceiptJobOptions {
+  autoCreatePending?: boolean;
+  familyId?: string;
+  paymentMethodId?: string;
+}
+
 export interface IReceiptJobQueue {
-  addJob(imageBuffer: Buffer, userId?: string, meta?: ReceiptJobMeta): Promise<string>;
+  addJob(imageBuffer: Buffer, userId?: string, options?: ReceiptJobOptions, meta?: ReceiptJobMeta): Promise<string>;
   getJobStatus(jobId: string): Promise<ReceiptJobStatus>;
   getJobResult(jobId: string): Promise<ReceiptJobResult>;
   streamJobProgress(
