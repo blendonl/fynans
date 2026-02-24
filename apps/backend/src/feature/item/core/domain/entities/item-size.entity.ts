@@ -3,6 +3,19 @@ import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 const VALID_UNITS = ['kg', 'g', 'l', 'ml', 'cl'] as const;
 export type ItemSizeUnit = (typeof VALID_UNITS)[number];
 
+const UNIT_ALIASES: Record<string, ItemSizeUnit> = {
+  gr: 'g',
+  gram: 'g',
+  lt: 'l',
+  liter: 'l',
+  litre: 'l',
+};
+
+export function normalizeUnit(unit: string): string {
+  const lower = unit.toLowerCase();
+  return UNIT_ALIASES[lower] ?? lower;
+}
+
 export interface ItemSizeProps {
   id: string;
   itemId: string;
@@ -16,6 +29,7 @@ export class ItemSize {
   private readonly props: ItemSizeProps;
 
   constructor(props: ItemSizeProps) {
+    props = { ...props, unit: normalizeUnit(props.unit) };
     this.validate(props);
     this.props = props;
   }
