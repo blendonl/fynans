@@ -42,4 +42,24 @@ export class StoreService {
   async delete(id: string): Promise<void> {
     return this.deleteStoreUseCase.execute(id);
   }
+
+  async resolveStore(params: {
+    storeId?: string;
+    storeName?: string;
+    storeLocation?: string;
+    userId: string;
+  }): Promise<Store | null> {
+    if (params.storeId) {
+      return this.getStoreByIdUseCase.execute(params.storeId);
+    }
+
+    if (params.storeName && params.storeLocation) {
+      return this.createOrFindStoreUseCase.execute(
+        new CreateStoreDto(params.storeName, params.storeLocation),
+        params.userId,
+      );
+    }
+
+    return null;
+  }
 }

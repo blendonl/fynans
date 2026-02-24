@@ -7,7 +7,6 @@ import { ExpenseCategoryService } from '../../../../expense-category/core/applic
 import { NotifyFamilyMembersService } from '~common/services/notify-family-members.service';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { CreateTransactionDto } from '../../../../transaction/core/application/dto/create-transaction.dto';
-import { CreateStoreDto } from '../../../../store/core/application/dto/create-store.dto';
 import { CreateExpenseItemDto } from '../../../../expense-item/core/application/dto/create-expense-item.dto';
 import { Expense } from '../../domain/entities/expense.entity';
 import { TransactionType } from '../../../../transaction/core/domain/value-objects/transaction-type.vo';
@@ -53,16 +52,14 @@ export class CreateExpenseUseCase {
       }),
     ];
 
-    let store = null;
-
-    if (dto.storeId) {
-      store = await this.storeService.findById(dto.storeId);
-    } else if (category.isConnectedToStore && dto.storeName && dto.storeLocation) {
-      store = await this.storeService.createOrFind(
-        new CreateStoreDto(dto.storeName, dto.storeLocation),
-        dto.userId,
-      );
-    }
+    const store = category.isConnectedToStore || dto.storeId
+      ? await this.storeService.resolveStore({
+          storeId: dto.storeId,
+          storeName: dto.storeName,
+          storeLocation: dto.storeLocation,
+          userId: dto.userId,
+        })
+      : null;
 
     const totalValue = items.reduce((sum, item) => {
       const itemPrice = item.itemPrice;
@@ -91,7 +88,7 @@ export class CreateExpenseUseCase {
       transactionId: transaction.id,
       storeId: store?.id,
       categoryId: dto.categoryId,
-    } as Partial<Expense>);
+    });
 
     if (store) {
       await Promise.all(
@@ -113,31 +110,19 @@ export class CreateExpenseUseCase {
     }
 
     if (dto.familyId) {
-      if (isPending) {
-        // Notify family that a pending expense was created (for review)
-        await this.notifyFamilyMembersService.notify({
-          familyId: dto.familyId,
-          actorUserId: dto.userId,
-          type: NotificationType.TRANSACTION_PENDING_CREATED,
-          data: {
-            expenseId: expense.id,
-            amount: totalValue.toFixed(2),
-          },
-        });
-      } else {
-        await this.notifyFamilyMembersService.notify({
-          familyId: dto.familyId,
-          actorUserId: dto.userId,
-          type: NotificationType.FAMILY_EXPENSE_CREATED,
-          data: {
-            expenseId: expense.id,
-            amount: totalValue.toFixed(2),
-          },
-        });
-      }
+      await this.notifyFamilyMembersService.notify({
+        familyId: dto.familyId,
+        actorUserId: dto.userId,
+        type: isPending
+          ? NotificationType.TRANSACTION_PENDING_CREATED
+          : NotificationType.FAMILY_EXPENSE_CREATED,
+        data: {
+          expenseId: expense.id,
+          amount: totalValue.toFixed(2),
+        },
+      });
     }
 
-    // Only recalculate balance for confirmed transactions
     if (dto.paymentMethodId && !isPending) {
       await this.paymentMethodService.recalculateBalance(dto.paymentMethodId);
     }
