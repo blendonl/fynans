@@ -16,7 +16,7 @@ RUN pip3 install --no-cache-dir torch torchvision --index-url https://download.p
 
 COPY requirements.txt .
 
-# paddleocr pulls paddlepaddle (CPU) by default — no GPU override needed
+# paddlepaddle (CPU) is listed explicitly in requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY . .
