@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { opencvWorkerBridge } from "@/lib/opencv-worker-bridge";
 import type { DetectedCorners, FrameAnalysis } from "@/lib/receipt-image-processing";
 
@@ -37,20 +37,19 @@ export function useOpenCVWorker(): UseOpenCVWorkerReturn {
     };
   }, []);
 
-  const analyzeFrame = useCallback(
-    (imageData: ImageData) => opencvWorkerBridge.analyzeFrame(imageData),
+  // Stable references — opencvWorkerBridge is a module-level singleton
+  const methods = useMemo(
+    () => ({
+      analyzeFrame: (imageData: ImageData) => opencvWorkerBridge.analyzeFrame(imageData),
+      perspectiveTransform: (
+        imageData: ImageData,
+        corners: DetectedCorners,
+        outWidth: number,
+        outHeight: number,
+      ) => opencvWorkerBridge.perspectiveTransform(imageData, corners, outWidth, outHeight),
+    }),
     [],
   );
 
-  const perspectiveTransform = useCallback(
-    (
-      imageData: ImageData,
-      corners: DetectedCorners,
-      outWidth: number,
-      outHeight: number,
-    ) => opencvWorkerBridge.perspectiveTransform(imageData, corners, outWidth, outHeight),
-    [],
-  );
-
-  return { ready, error, analyzeFrame, perspectiveTransform };
+  return { ready, error, ...methods };
 }

@@ -1,44 +1,45 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { storeControllerFindAll, storeControllerCreate } from "@/api/generated/endpoints/store/store";
+import { usePaginatedQuery } from "@/hooks/use-paginated-query";
+import { queryKeys, DEFAULT_PAGE_SIZE } from "@/lib/query-keys";
 
-const PAGE_SIZE = 20;
-
-export function useStores(search: string) {
-  const queryClient = useQueryClient();
-
-  const storesQuery = useInfiniteQuery({
-    queryKey: ["stores", search],
-    queryFn: async ({ pageParam = 1 }) => {
-      const response = await storeControllerFindAll({
-        search,
-        page: pageParam,
-        limit: PAGE_SIZE,
-      });
+/** Paginated store list only (for manage pages) */
+export function useStoresList(search: string) {
+  const { data, ...rest } = usePaginatedQuery({
+    queryKey: queryKeys.stores.list(search),
+    queryFn: async ({ page, limit }) => {
+      const response = await storeControllerFindAll({ search, page, limit });
       return response.data;
     },
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      (lastPageParam as number) * PAGE_SIZE < (lastPage.total ?? 0) ? (lastPageParam as number) + 1 : undefined,
-    initialPageParam: 1,
+    pageSize: DEFAULT_PAGE_SIZE,
   });
 
-  const allStores = storesQuery.data?.pages.flatMap((p) => p.data) ?? [];
+  return { stores: data, ...rest };
+}
 
-  const createStore = useMutation({
+/** Store creation mutation */
+export function useCreateStore() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: async ({ name, location }: { name: string; location: string }) => {
       const res = await storeControllerCreate({ name, location });
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["stores"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.stores.all });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to create store");
     },
   });
+}
 
-  return {
-    stores: allStores,
-    isLoading: storesQuery.isLoading,
-    fetchNextPage: storesQuery.fetchNextPage,
-    hasNextPage: !!storesQuery.hasNextPage,
-    isFetchingNextPage: storesQuery.isFetchingNextPage,
-    createStore,
-  };
+/** Backward-compatible composite hook (list + create) */
+export function useStores(search: string) {
+  const { stores, ...listRest } = useStoresList(search);
+  const createStore = useCreateStore();
+
+  return { stores, ...listRest, createStore };
 }

@@ -11,7 +11,6 @@ import { useExpenseItems } from "@/hooks/use-expense-items";
 import { useExpenseAiSuggestions } from "@/hooks/use-expense-ai-suggestions";
 import { useReceiptFormMapping } from "@/hooks/use-receipt-form-mapping";
 import { useExpenseSubmission } from "@/hooks/use-expense-submission";
-import { useDeletePendingExpense } from "@/hooks/use-pending-transactions";
 import { usePaymentMethods } from "@/hooks/use-payment-methods";
 import { useAutoSelectPaymentMethod } from "@/hooks/use-auto-select-payment-method";
 import { useCreateDialog } from "@/hooks/use-create-dialog";
@@ -68,7 +67,6 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
   const [hasScannedReceipt, setHasScannedReceipt] = useState(false);
   const [pendingIdFromScan, setPendingIdFromScan] = useState<string | null>(null);
   const [receiptIdFromScan, setReceiptIdFromScan] = useState<string | null>(null);
-  const deletePendingMutation = useDeletePendingExpense();
   const [, setCategorySearch] = useState("");
 
   const storeDialog = useCreateDialog();
@@ -127,7 +125,13 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
     paymentMethodId: selectedPaymentMethodId || undefined,
   }), [scope, familyId, selectedPaymentMethodId]);
 
-  const { submitMutation, saveForReviewMutation, canSubmit, canSaveForReview, validationMessage } = useExpenseSubmission({
+  const { submitMutation, saveForReviewMutation, canSubmit: canSubmitFn, canSaveForReview: canSaveForReviewFn, getValidationMessage } = useExpenseSubmission({
+    onSuccess,
+    onSaveForReview,
+    onCleanupPending: () => setPendingIdFromScan(null),
+  });
+
+  const formState = {
     isItemized,
     items: expenseItems.items,
     itemsTotal,
@@ -139,12 +143,9 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
     scope,
     familyId,
     paymentMethodId: selectedPaymentMethodId,
-    onSuccess,
-    onSaveForReview,
     pendingIdToCleanup: pendingIdFromScan,
     receiptIdToLink: receiptIdFromScan,
-    onCleanupPending: () => setPendingIdFromScan(null),
-  });
+  } as const;
 
   const hasItems = isItemized && expenseItems.items.length > 0;
   const hasAmount = !isItemized && simpleAmount !== "" && parseFloat(simpleAmount) > 0;
@@ -154,11 +155,11 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
     ? [
         { label: "Store", completed: storeSelected, active: !storeSelected },
         { label: "Items", completed: hasItems, active: storeSelected && !hasItems },
-        { label: "Review", completed: false, active: canSubmit() },
+        { label: "Review", completed: false, active: canSubmitFn(formState) },
       ]
     : [
         { label: "Amount", completed: hasAmount, active: !hasAmount },
-        { label: "Review", completed: false, active: canSubmit() },
+        { label: "Review", completed: false, active: canSubmitFn(formState) },
       ];
 
   return (
@@ -303,13 +304,13 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
 
             <SubmitButtons
               type="expense"
-              canSubmit={canSubmit()}
-              canSaveForReview={canSaveForReview()}
+              canSubmit={canSubmitFn(formState)}
+              canSaveForReview={canSaveForReviewFn(formState)}
               isSubmitting={submitMutation.isPending}
               isSavingForReview={saveForReviewMutation.isPending}
-              validationMessage={validationMessage()}
-              onSubmit={() => submitMutation.mutate()}
-              onSaveForReview={() => saveForReviewMutation.mutate()}
+              validationMessage={getValidationMessage(formState)}
+              onSubmit={() => submitMutation.mutate(formState)}
+              onSaveForReview={() => saveForReviewMutation.mutate(formState)}
             />
           </div>
         </div>

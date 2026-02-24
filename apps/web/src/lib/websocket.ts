@@ -1,6 +1,13 @@
 import { io, Socket } from "socket.io-client";
+import { API_BASE_URL } from "@/lib/env";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+export interface WebSocketEventMap {
+  notification: { id: string; type: string; title: string; body: string };
+  "basket:updated": { basketId: string };
+  "expense:approved": { expenseId: string };
+  "expense:rejected": { expenseId: string };
+  [event: string]: unknown;
+}
 
 class WebSocketService {
   private socket: Socket | null = null;
@@ -8,7 +15,7 @@ class WebSocketService {
   connect(token: string) {
     if (this.socket?.connected) return;
 
-    this.socket = io(`${BASE_URL}/notifications`, {
+    this.socket = io(`${API_BASE_URL}/notifications`, {
       auth: { token: `Bearer ${token}` },
       transports: ["websocket"],
       reconnection: true,
@@ -17,13 +24,15 @@ class WebSocketService {
       reconnectionAttempts: 5,
     });
 
-    this.socket.on("connect", () => {
-      console.log("WebSocket connected");
-    });
+    if (process.env.NODE_ENV === "development") {
+      this.socket.on("connect", () => {
+        console.log("WebSocket connected");
+      });
 
-    this.socket.on("disconnect", (reason) => {
-      console.log("WebSocket disconnected:", reason);
-    });
+      this.socket.on("disconnect", (reason) => {
+        console.log("WebSocket disconnected:", reason);
+      });
+    }
   }
 
   disconnect() {
@@ -33,14 +42,20 @@ class WebSocketService {
     }
   }
 
+  on<K extends keyof WebSocketEventMap>(event: K & string, callback: (data: WebSocketEventMap[K]) => void): void;
+  on(event: string, callback: (data: unknown) => void): void;
   on(event: string, callback: (data: unknown) => void) {
     this.socket?.on(event, callback);
   }
 
+  off<K extends keyof WebSocketEventMap>(event: K & string, callback?: (data: WebSocketEventMap[K]) => void): void;
+  off(event: string, callback?: (data: unknown) => void): void;
   off(event: string, callback?: (data: unknown) => void) {
     this.socket?.off(event, callback);
   }
 
+  emit<K extends keyof WebSocketEventMap>(event: K & string, data: WebSocketEventMap[K]): void;
+  emit(event: string, data: unknown): void;
   emit(event: string, data: unknown) {
     if (this.socket?.connected) {
       this.socket.emit(event, data);

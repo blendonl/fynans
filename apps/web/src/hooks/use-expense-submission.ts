@@ -5,7 +5,7 @@ import type { Category, Store, ExpenseItem } from "@/types";
 import { expenseControllerCreate } from "@/api/generated/endpoints/expense/expense";
 import { customInstance } from "@/api/custom-instance";
 
-interface UseExpenseSubmissionOptions {
+interface SubmitArgs {
   isItemized: boolean;
   items: ExpenseItem[];
   itemsTotal: number;
@@ -17,10 +17,13 @@ interface UseExpenseSubmissionOptions {
   scope: "PERSONAL" | "FAMILY";
   familyId: string;
   paymentMethodId: string | null;
-  onSuccess: () => void;
-  onSaveForReview?: () => void;
   pendingIdToCleanup?: string | null;
   receiptIdToLink?: string | null;
+}
+
+interface UseExpenseSubmissionOptions {
+  onSuccess: () => void;
+  onSaveForReview?: () => void;
   onCleanupPending?: () => void;
 }
 
@@ -78,60 +81,77 @@ function buildPayload({
   return payload;
 }
 
+export function canSubmit(state: Pick<SubmitArgs, "selectedCategory" | "isItemized" | "selectedStore" | "items" | "simpleAmount">) {
+  if (!state.selectedCategory) return false;
+  if (state.isItemized) {
+    if (!state.selectedStore) return false;
+    return state.items.length > 0;
+  }
+  return state.simpleAmount !== "" && parseFloat(state.simpleAmount) > 0;
+}
+
+export function canSaveForReview(state: Pick<SubmitArgs, "isItemized" | "items" | "simpleAmount">) {
+  if (state.isItemized) return state.items.length > 0;
+  return state.simpleAmount !== "" && parseFloat(state.simpleAmount) > 0;
+}
+
+export function getValidationMessage(state: Pick<SubmitArgs, "isItemized" | "selectedStore" | "items" | "simpleAmount" | "selectedCategory">) {
+  if (!state.isItemized && (!state.simpleAmount || parseFloat(state.simpleAmount) <= 0)) return "Enter an amount";
+  if (state.isItemized && !state.selectedStore) return "Select a store to continue";
+  if (state.isItemized && state.items.length === 0) return "Add at least one item";
+  if (!state.selectedCategory) return "Category will be auto-assigned";
+  return null;
+}
+
 export function useExpenseSubmission({
-  isItemized,
-  items,
-  itemsTotal,
-  selectedCategory,
-  selectedStore,
-  simpleAmount,
-  simpleNote,
-  recordedAt,
-  scope,
-  familyId,
-  paymentMethodId,
   onSuccess,
   onSaveForReview,
-  pendingIdToCleanup,
-  receiptIdToLink,
   onCleanupPending,
 }: UseExpenseSubmissionOptions) {
   const submitMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (args: SubmitArgs) => {
       const payload = buildPayload({
-        isItemized, items, selectedCategory, selectedStore,
-        simpleAmount, simpleNote, recordedAt, scope, familyId, paymentMethodId,
+        isItemized: args.isItemized,
+        items: args.items,
+        selectedCategory: args.selectedCategory,
+        selectedStore: args.selectedStore,
+        simpleAmount: args.simpleAmount,
+        simpleNote: args.simpleNote,
+        recordedAt: args.recordedAt,
+        scope: args.scope,
+        familyId: args.familyId,
+        paymentMethodId: args.paymentMethodId,
       });
       const res = await expenseControllerCreate(payload as unknown as Parameters<typeof expenseControllerCreate>[0]);
 
-      // Re-link receipt to the new expense before deleting the pending one
-      if (receiptIdToLink) {
+      if (args.receiptIdToLink) {
         const newExpenseId = (res as unknown as { data: { id: string } }).data?.id;
         if (newExpenseId) {
           try {
-            await customInstance(`/receipts/${receiptIdToLink}/link-expense`, {
+            await customInstance(`/receipts/${args.receiptIdToLink}/link-expense`, {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ expenseId: newExpenseId }),
             });
           } catch {
-            // Non-critical - receipt link failed but expense was created
+            toast.warning("Expense created but receipt linking failed");
           }
         }
       }
 
-      // Clean up auto-created pending expense from receipt scan
-      if (pendingIdToCleanup) {
+      if (args.pendingIdToCleanup) {
         try {
-          await customInstance(`/expenses/${pendingIdToCleanup}`, { method: "DELETE" });
+          await customInstance(`/expenses/${args.pendingIdToCleanup}`, { method: "DELETE" });
           onCleanupPending?.();
         } catch {
-          // Ignore cleanup failures
+          toast.warning("Expense created but pending cleanup failed");
         }
       }
+
+      return args;
     },
-    onSuccess: () => {
-      const total = isItemized ? itemsTotal : parseFloat(simpleAmount);
+    onSuccess: (args) => {
+      const total = args.isItemized ? args.itemsTotal : parseFloat(args.simpleAmount);
       toast.success(`Expense created: ${formatCurrency(total)}`);
       onSuccess();
     },
@@ -141,16 +161,25 @@ export function useExpenseSubmission({
   });
 
   const saveForReviewMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (args: SubmitArgs) => {
       const payload = buildPayload({
-        isItemized, items, selectedCategory, selectedStore,
-        simpleAmount, simpleNote, recordedAt, scope, familyId, paymentMethodId,
+        isItemized: args.isItemized,
+        items: args.items,
+        selectedCategory: args.selectedCategory,
+        selectedStore: args.selectedStore,
+        simpleAmount: args.simpleAmount,
+        simpleNote: args.simpleNote,
+        recordedAt: args.recordedAt,
+        scope: args.scope,
+        familyId: args.familyId,
+        paymentMethodId: args.paymentMethodId,
         pending: true,
       });
       await expenseControllerCreate(payload as unknown as Parameters<typeof expenseControllerCreate>[0]);
+      return args;
     },
-    onSuccess: () => {
-      const total = isItemized ? itemsTotal : parseFloat(simpleAmount);
+    onSuccess: (args) => {
+      const total = args.isItemized ? args.itemsTotal : parseFloat(args.simpleAmount);
       toast.success(`Expense saved for review: ${formatCurrency(total)}`);
       onSaveForReview?.();
     },
@@ -159,27 +188,5 @@ export function useExpenseSubmission({
     },
   });
 
-  const canSubmit = () => {
-    if (!selectedCategory) return false;
-    if (isItemized) {
-      if (!selectedStore) return false;
-      return items.length > 0;
-    }
-    return simpleAmount !== "" && parseFloat(simpleAmount) > 0;
-  };
-
-  const canSaveForReview = () => {
-    if (isItemized) return items.length > 0;
-    return simpleAmount !== "" && parseFloat(simpleAmount) > 0;
-  };
-
-  const validationMessage = () => {
-    if (!isItemized && (!simpleAmount || parseFloat(simpleAmount) <= 0)) return "Enter an amount";
-    if (isItemized && !selectedStore) return "Select a store to continue";
-    if (isItemized && items.length === 0) return "Add at least one item";
-    if (!selectedCategory) return "Category will be auto-assigned";
-    return null;
-  };
-
-  return { submitMutation, saveForReviewMutation, canSubmit, canSaveForReview, validationMessage };
+  return { submitMutation, saveForReviewMutation, canSubmit, canSaveForReview, getValidationMessage };
 }

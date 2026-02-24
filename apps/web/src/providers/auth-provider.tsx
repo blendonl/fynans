@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "@/types";
 import { authControllerLogin, authControllerRegister, authControllerLogout, authControllerMe } from "@/api/generated/endpoints/auth/auth";
@@ -16,7 +16,7 @@ interface AuthContextType {
   handleOAuthCallback: (token: string) => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+const AuthContext = createContext<AuthContextType | null>(null);
 
 async function fetchSession(): Promise<{ user: User } | null> {
   const token = getToken();
@@ -99,13 +99,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/login");
   }, [router]);
 
+  const value = useMemo(
+    () => ({ user, token, isLoading, login, register, logout, handleOAuthCallback }),
+    [user, token, isLoading, login, register, logout, handleOAuthCallback],
+  );
+
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, handleOAuthCallback }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 }

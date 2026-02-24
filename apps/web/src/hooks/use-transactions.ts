@@ -9,8 +9,7 @@ import type {
 import { expenseControllerFindAll } from "@/api/generated/endpoints/expense/expense";
 import { incomeControllerFindAll } from "@/api/generated/endpoints/income/income";
 import { mapExpenseToTransaction, mapIncomeToTransaction, sortTransactionsByDate } from "@/lib/transaction-mappers";
-
-const PAGE_SIZE = 20;
+import { DEFAULT_PAGE_SIZE } from "@/lib/query-keys";
 
 interface ServerFilters {
   type?: string;
@@ -46,7 +45,7 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
     queryFn: async ({ pageParam = 1 }): Promise<InfiniteTransactionPage> => {
       const baseParams: Record<string, string | number | undefined> = {
         page: pageParam,
-        limit: PAGE_SIZE,
+        limit: DEFAULT_PAGE_SIZE,
       };
       if (filters.familyId) baseParams.familyId = filters.familyId;
       if (filters.scope && filters.scope !== "all") baseParams.scope = filters.scope.toUpperCase();
@@ -62,10 +61,10 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
       const [expensesRes, incomesRes] = await Promise.all([
         fetchExpenses
           ? expenseControllerFindAll(baseParams as Record<string, string>).then((r) => r.data)
-          : Promise.resolve({ data: [] as ExpenseResponse[], total: 0, page: pageParam, limit: PAGE_SIZE }),
+          : Promise.resolve({ data: [] as ExpenseResponse[], total: 0, page: pageParam, limit: DEFAULT_PAGE_SIZE }),
         fetchIncomes
           ? incomeControllerFindAll(baseParams as Record<string, string>).then((r) => r.data)
-          : Promise.resolve({ data: [] as IncomeResponse[], total: 0, page: pageParam, limit: PAGE_SIZE }),
+          : Promise.resolve({ data: [] as IncomeResponse[], total: 0, page: pageParam, limit: DEFAULT_PAGE_SIZE }),
       ]);
 
       const family = filters.familyId ? families.find((f) => f.id === filters.familyId) : undefined;
@@ -75,8 +74,8 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
 
       const merged = sortTransactionsByDate([...expenses, ...incomes]);
 
-      const expenseHasMore = fetchExpenses && pageParam * PAGE_SIZE < (expensesRes.total ?? 0);
-      const incomeHasMore = fetchIncomes && pageParam * PAGE_SIZE < (incomesRes.total ?? 0);
+      const expenseHasMore = fetchExpenses && pageParam * DEFAULT_PAGE_SIZE < (expensesRes.total ?? 0);
+      const incomeHasMore = fetchIncomes && pageParam * DEFAULT_PAGE_SIZE < (incomesRes.total ?? 0);
 
       return {
         transactions: merged,
@@ -94,7 +93,7 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
 
 export function useTransactions(filters?: TransactionFilters, families: Family[] = [], limit?: number) {
   return useQuery({
-    queryKey: ["transactions", filters?.scope, filters?.familyId, families.length, limit],
+    queryKey: ["transactions", filters?.type, filters?.scope, filters?.familyId, families.length, limit],
     queryFn: async () => {
       const params: Record<string, string | number | undefined> = {};
       if (filters?.familyId) params.familyId = filters.familyId;
@@ -116,54 +115,8 @@ export function useTransactions(filters?: TransactionFilters, families: Family[]
   });
 }
 
-export interface MonthGroup {
-  key: string;
-  monthLabel: string;
-  total: number;
-  income: number;
-  expenses: number;
-  matchedItemsTotal: number;
-  transactions: Transaction[];
-}
-
-export function groupByMonth(transactions: Transaction[]): MonthGroup[] {
-  const groups: Record<string, Transaction[]> = {};
-
-  transactions.forEach((transaction) => {
-    if (transaction.transaction.recordedAt) {
-      const date = new Date(transaction.transaction.recordedAt);
-      const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
-
-      if (!groups[monthKey]) {
-        groups[monthKey] = [];
-      }
-      groups[monthKey].push(transaction);
-    }
-  });
-
-  return Object.entries(groups).map(([key, items]) => {
-    const date = new Date(items[0].transaction.recordedAt!);
-    const monthLabel = date.toLocaleDateString("en-US", {
-      month: "long",
-      year: "numeric",
-    });
-    const income = items
-      .filter((t) => t.type === "income")
-      .reduce((sum, t) => sum + t.transaction.value, 0);
-    const expenses = items
-      .filter((t) => t.type === "expense")
-      .reduce((sum, t) => sum + t.transaction.value, 0);
-    const matchedItemsTotal = items.reduce((sum, t) => {
-      if (!t.matchedItems?.length) return sum;
-      return sum + t.matchedItems.reduce(
-        (itemSum, item) => itemSum + (item.price - (item.discount || 0)) * item.quantity,
-        0,
-      );
-    }, 0);
-    const total = income - expenses;
-    return { key, monthLabel, total, income, expenses, matchedItemsTotal, transactions: items };
-  });
-}
+// Re-export groupByMonth for backward compatibility
+export { groupByMonth, type MonthGroup } from "@/lib/transaction-mappers";
 
 export function getStats(transactions: Transaction[]) {
   const totalExpenses = transactions

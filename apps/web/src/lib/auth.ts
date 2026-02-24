@@ -7,7 +7,11 @@ export function getToken(): string | null {
 }
 
 export function setToken(token: string) {
-  Cookies.set(TOKEN_KEY, token, { expires: 30, sameSite: "lax" });
+  Cookies.set(TOKEN_KEY, token, {
+    expires: 30,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+  });
 }
 
 export function removeToken() {

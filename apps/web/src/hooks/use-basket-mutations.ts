@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { BasketItem } from "@/types";
+import { toast } from "sonner";
 import {
   basketControllerAddItem,
   basketControllerUpdateItem,
   basketControllerRemoveItem,
   basketControllerCheckout,
 } from "@/api/generated/endpoints/basket/basket";
+import { queryKeys } from "@/lib/query-keys";
 
 export function useBasketMutations(basketId: string | null) {
   const queryClient = useQueryClient();
@@ -23,7 +24,10 @@ export function useBasketMutations(basketId: string | null) {
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["baskets"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.baskets.all });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to add item");
     },
   });
 
@@ -43,7 +47,10 @@ export function useBasketMutations(basketId: string | null) {
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["baskets"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.baskets.all });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to update item");
     },
   });
 
@@ -52,7 +59,10 @@ export function useBasketMutations(basketId: string | null) {
       await basketControllerRemoveItem(itemId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["baskets"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.baskets.all });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to remove item");
     },
   });
 
@@ -75,8 +85,11 @@ export function useBasketMutations(basketId: string | null) {
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["baskets"] });
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.baskets.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to checkout basket");
     },
   });
 

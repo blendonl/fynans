@@ -11,32 +11,14 @@ import {
 } from "recharts";
 import { GlassCard } from "@/components/glass/glass-card";
 import { formatCurrency } from "@/utils/currency";
+import { CrosshairCursor, formatYAxisTick } from "./chart-utils";
 import type { ExpenseTrendPoint } from "@/hooks/use-dashboard-data";
 
 interface ExpenseTrendChartProps {
   data: ExpenseTrendPoint[];
 }
 
-function CrosshairCursor({ points, width, height }: Record<string, unknown>) {
-  if (!points || !(points as { x: number; y: number }[]).length) return null;
-  const { x, y } = (points as { x: number; y: number }[])[0];
-  return (
-    <g>
-      <line
-        x1={x}
-        y1={y}
-        x2={x}
-        y2={height as number}
-        stroke="var(--expense)"
-        strokeOpacity={0.3}
-        strokeDasharray="3 3"
-        strokeWidth={1}
-      />
-    </g>
-  );
-}
-
-function CustomTooltip({ active, payload, label }: Record<string, unknown>) {
+function TrendTooltip({ active, payload, label }: Record<string, unknown>) {
   if (!active || !payload || !(payload as unknown[]).length) return null;
   const entry = (payload as { value: number }[])[0];
   return (
@@ -88,12 +70,10 @@ export function ExpenseTrendChart({ data }: ExpenseTrendChartProps) {
               tick={{ fontSize: 10, fill: "var(--text-secondary)" }}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v: number) =>
-                v >= 1000 ? `${(v / 1000).toFixed(v % 1000 === 0 ? 0 : 1)}K` : formatCurrency(v)
-              }
+              tickFormatter={formatYAxisTick}
             />
             <Tooltip
-              content={<CustomTooltip />}
+              content={<TrendTooltip />}
               cursor={<CrosshairCursor />}
               isAnimationActive={false}
               trigger="hover"
