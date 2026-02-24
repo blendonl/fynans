@@ -1,4 +1,6 @@
-export interface StoreProps {
+import { Store as PrismaStore } from 'prisma/generated/prisma/client';
+
+interface StoreProps {
   id: string;
   name: string;
   location: string;
@@ -34,6 +36,16 @@ export class Store {
     if (!props.updatedAt) {
       throw new Error('Updated date is required');
     }
+  }
+
+  static fromPrisma(data: PrismaStore): Store {
+    return new Store({
+      id: data.id,
+      name: data.name,
+      location: data.location,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    });
   }
 
   get id(): string {

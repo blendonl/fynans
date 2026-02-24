@@ -3,117 +3,72 @@ import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IExpenseRepository,
   PaginatedResult,
+  CreateExpenseData,
+  UpdateExpenseData,
   ExpenseFilters as ExpenseFiltersInterface,
   ExpenseStatistics,
 } from '../../domain/repositories/expense.repository.interface';
 import { ExpenseTrendPoint } from '../../application/dto/expense-trends.dto';
 import { Expense } from '../../domain/entities/expense.entity';
 import { Pagination } from '~common/dto/pagination.dto';
-import { ExpenseMapper } from '../mappers/expense.mapper';
 import { Prisma, TransactionStatus as PrismaTransactionStatus } from 'prisma/generated/prisma/client';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+
+const EXPENSE_INCLUDE = {
+  transaction: { include: { user: true } },
+  category: true,
+  store: true,
+  receipt: true,
+  items: {
+    include: {
+      item: {
+        include: {
+          item: {
+            include: {
+              category: true,
+            },
+          },
+        },
+      },
+    },
+  },
+} as const satisfies Prisma.ExpenseInclude;
 
 @Injectable()
 export class PrismaExpenseRepository implements IExpenseRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: Partial<Expense>): Promise<Expense> {
+  async create(data: CreateExpenseData): Promise<Expense> {
     const expense = await this.prisma.expense.create({
       data: {
-        id: data.id!,
-        transactionId: data.transactionId!,
+        id: data.id,
+        transactionId: data.transactionId,
         storeId: data.storeId ?? null,
-        categoryId: data.categoryId!,
+        categoryId: data.categoryId,
       },
-      include: {
-        transaction: {
-          include: {
-            user: true,
-          },
-        },
-        category: true,
-        store: true,
-        receipt: true,
-        items: {
-          include: {
-            item: {
-              include: {
-                item: {
-                  include: {
-                    category: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      include: EXPENSE_INCLUDE,
     });
 
-    return ExpenseMapper.toDomain(expense);
+    return Expense.fromPrisma(expense);
   }
 
   async findById(id: string): Promise<Expense | null> {
     const expense = await this.prisma.expense.findUnique({
       where: { id },
-      include: {
-        transaction: {
-          include: {
-            user: true,
-          },
-        },
-        category: true,
-        store: true,
-        receipt: true,
-        items: {
-          include: {
-            item: {
-              include: {
-                item: {
-                  include: {
-                    category: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      include: EXPENSE_INCLUDE,
     });
 
-    return expense ? ExpenseMapper.toDomain(expense) : null;
+    return expense ? Expense.fromPrisma(expense) : null;
   }
 
   async findByTransactionId(transactionId: string): Promise<Expense | null> {
     const expense = await this.prisma.expense.findUnique({
       where: { transactionId },
-      include: {
-        transaction: {
-          include: {
-            user: true,
-          },
-        },
-        category: true,
-        store: true,
-        receipt: true,
-        items: {
-          include: {
-            item: {
-              include: {
-                item: {
-                  include: {
-                    category: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      include: EXPENSE_INCLUDE,
     });
 
-    return expense ? ExpenseMapper.toDomain(expense) : null;
+    return expense ? Expense.fromPrisma(expense) : null;
   }
 
   async findAll(
@@ -156,57 +111,35 @@ export class PrismaExpenseRepository implements IExpenseRepository {
     ]);
 
     return {
-      data: expenses.map(ExpenseMapper.toDomain),
+      data: expenses.map(Expense.fromPrisma),
       total,
     };
   }
 
-  async update(id: string, data: Partial<Expense>): Promise<Expense> {
-    const updateData: any = {};
+  async update(id: string, data: UpdateExpenseData): Promise<Expense> {
+    const updateData: Prisma.ExpenseUpdateInput = {};
 
     if (data.categoryId !== undefined) {
-      updateData.categoryId = data.categoryId;
+      updateData.category = { connect: { id: data.categoryId } };
     }
 
     if (data.storeId !== undefined) {
-      updateData.storeId = data.storeId;
+      updateData.store = data.storeId
+        ? { connect: { id: data.storeId } }
+        : { disconnect: true };
     }
 
-    if ((data as any).description !== undefined) {
-      updateData.transaction = {
-        update: { description: (data as any).description },
-      };
+    if (data.description !== undefined) {
+      updateData.description = data.description;
     }
 
     const expense = await this.prisma.expense.update({
       where: { id },
       data: updateData,
-      include: {
-        transaction: {
-          include: {
-            user: true,
-          },
-        },
-        category: true,
-        store: true,
-        receipt: true,
-        items: {
-          include: {
-            item: {
-              include: {
-                item: {
-                  include: {
-                    category: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      include: EXPENSE_INCLUDE,
     });
 
-    return ExpenseMapper.toDomain(expense);
+    return Expense.fromPrisma(expense);
   }
 
   async delete(id: string): Promise<void> {
@@ -255,7 +188,6 @@ export class PrismaExpenseRepository implements IExpenseRepository {
 
     const averageExpense = count > 0 ? totalExpenses / count : 0;
 
-    // Group by category
     const categoryMap = new Map<string, { name: string; total: number }>();
     allExpenses.forEach((expense) => {
       const current = categoryMap.get(expense.categoryId);
@@ -269,7 +201,6 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       }
     });
 
-    // Group by store
     const storeMap = new Map<string, number>();
     allExpenses.forEach((expense) => {
       if (!expense.storeId) return;
