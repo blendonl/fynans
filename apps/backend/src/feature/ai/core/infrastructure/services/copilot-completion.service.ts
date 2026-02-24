@@ -1,22 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
-import { homedir } from 'os';
 import {
   IOllamaService,
   OllamaCompletionOptions,
   OllamaCompletionResult,
 } from '~feature/receipt/core/application/interfaces/ollama.interface';
-
-interface CopilotAuthData {
-  'github-copilot'?: {
-    type: string;
-    access: string;
-    refresh: string;
-    expires: number;
-  };
-}
+import { CopilotTokenService } from '~common/services/copilot-token.service';
 
 @Injectable()
 export class CopilotCompletionService implements IOllamaService {
@@ -24,13 +13,12 @@ export class CopilotCompletionService implements IOllamaService {
   private readonly model: string;
   private readonly timeout: number;
   private readonly apiEndpoint: string;
-  private cachedToken: string | null = null;
 
-  constructor(private readonly configService: ConfigService) {
-    this.model = this.configService.get<string>(
-      'COPILOT_CATEGORY_MODEL',
-      'gpt-4o',
-    );
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly tokenService: CopilotTokenService,
+  ) {
+    this.model = this.configService.get<string>('COPILOT_CATEGORY_MODEL', 'gpt-4o');
     this.timeout = 15_000;
     this.apiEndpoint = this.configService.get<string>(
       'COPILOT_API_ENDPOINT',
@@ -42,7 +30,34 @@ export class CopilotCompletionService implements IOllamaService {
     prompt: string,
     options?: OllamaCompletionOptions,
   ): Promise<OllamaCompletionResult> {
-    const token = await this.getAuthToken();
+    return this.callWithRetry(prompt, options);
+  }
+
+  async healthCheck(): Promise<boolean> {
+    return this.tokenService.isConfigured();
+  }
+
+  private async callWithRetry(
+    prompt: string,
+    options?: OllamaCompletionOptions,
+  ): Promise<OllamaCompletionResult> {
+    try {
+      return await this.doCall(prompt, options);
+    } catch (err) {
+      if (err instanceof Error && err.message.includes('401')) {
+        this.logger.warn('Copilot API returned 401, refreshing token and retrying...');
+        await this.tokenService.refreshIfUnauthorized();
+        return this.doCall(prompt, options);
+      }
+      throw err;
+    }
+  }
+
+  private async doCall(
+    prompt: string,
+    options?: OllamaCompletionOptions,
+  ): Promise<OllamaCompletionResult> {
+    const token = await this.tokenService.getToken();
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeout);
@@ -106,49 +121,11 @@ export class CopilotCompletionService implements IOllamaService {
 
       return {
         response: content,
-        totalDuration: duration * 1e6, // ms → ns to match Ollama convention
+        totalDuration: duration * 1e6,
         tokenCount: usage?.completion_tokens,
       };
     } finally {
       clearTimeout(timer);
-    }
-  }
-
-  async healthCheck(): Promise<boolean> {
-    try {
-      await this.getAuthToken();
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  private async getAuthToken(): Promise<string> {
-    if (this.cachedToken) return this.cachedToken;
-
-    const authPath = join(
-      homedir(),
-      '.local',
-      'share',
-      'opencode',
-      'auth.json',
-    );
-
-    try {
-      const raw = await readFile(authPath, 'utf-8');
-      const auth = JSON.parse(raw) as CopilotAuthData;
-      const token = auth['github-copilot']?.access;
-      if (!token) {
-        throw new Error(
-          'No github-copilot access token found in auth.json',
-        );
-      }
-      this.cachedToken = token;
-      return token;
-    } catch (err) {
-      throw new Error(
-        `Failed to read Copilot auth token: ${err instanceof Error ? err.message : String(err)}`,
-      );
     }
   }
 }
