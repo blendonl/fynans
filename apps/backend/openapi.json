@@ -2297,6 +2297,77 @@
         "tags": [
           "Store"
         ]
+      },
+      "put": {
+        "operationId": "StoreController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStoreRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a store",
+        "tags": [
+          "Store"
+        ]
+      },
+      "delete": {
+        "operationId": "StoreController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Store deleted successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a store",
+        "tags": [
+          "Store"
+        ]
       }
     },
     "/stores/{id}/items": {
@@ -5788,6 +5859,17 @@
           "limit"
         ]
       },
+      "UpdateStoreRequestDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          }
+        }
+      },
       "StoreItemSizeDto": {
         "type": "object",
         "properties": {
@@ -6143,9 +6225,6 @@
             "type": "string"
           },
           "name": {
-            "type": "string"
-          },
-          "nameEn": {
             "type": "string"
           },
           "price": {
