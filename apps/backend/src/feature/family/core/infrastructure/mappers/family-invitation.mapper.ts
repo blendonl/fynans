@@ -24,18 +24,6 @@ export class FamilyInvitationMapper {
     });
   }
 
-  static toPrisma(invitation: FamilyInvitation): any {
-    return {
-      id: invitation.id,
-      familyId: invitation.familyId,
-      inviterId: invitation.inviterId,
-      inviteeId: invitation.inviteeId ?? null,
-      inviteeEmail: invitation.inviteeEmail,
-      status: this.mapStatusToPrisma(invitation.status),
-      expiresAt: invitation.expiresAt,
-    };
-  }
-
   private static mapStatusToDomain(
     prismaStatus: PrismaFamilyInvitationStatus,
   ): FamilyInvitationStatus {
@@ -49,20 +37,5 @@ export class FamilyInvitationMapper {
       CANCELLED: FamilyInvitationStatus.CANCELLED,
     };
     return statusMap[prismaStatus];
-  }
-
-  private static mapStatusToPrisma(
-    status: FamilyInvitationStatus,
-  ): PrismaFamilyInvitationStatus {
-    const statusMap: Record<
-      FamilyInvitationStatus,
-      PrismaFamilyInvitationStatus
-    > = {
-      [FamilyInvitationStatus.PENDING]: 'PENDING',
-      [FamilyInvitationStatus.ACCEPTED]: 'ACCEPTED',
-      [FamilyInvitationStatus.REJECTED]: 'REJECTED',
-      [FamilyInvitationStatus.CANCELLED]: 'CANCELLED',
-    };
-    return statusMap[status];
   }
 }

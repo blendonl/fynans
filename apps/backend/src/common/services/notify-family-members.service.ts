@@ -9,7 +9,7 @@ import {
   NotificationType,
 } from '~feature/notification/core/domain/value-objects/notification-type.vo';
 
-export interface FamilyNotificationOptions {
+interface FamilyNotificationOptions {
   familyId: string;
   actorUserId: string;
   type: NotificationType;

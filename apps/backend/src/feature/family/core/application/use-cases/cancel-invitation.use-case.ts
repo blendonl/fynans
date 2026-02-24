@@ -28,7 +28,6 @@ export class CancelInvitationUseCase {
       throw new BadRequestException('Invitation expired or already processed');
     }
 
-    // Verify caller has permission to manage members (OWNER/ADMIN)
     const member = await this.familyRepository.findMember(
       invitation.familyId,
       userId,

@@ -14,16 +14,13 @@ export class EndDiscountUseCase {
   ) {}
 
   async execute(id: string): Promise<StoreItemDiscount> {
-    // Check if discount exists
     const existingDiscount = await this.discountRepository.findById(id);
     if (!existingDiscount) {
       throw new DomainNotFoundException(`Discount with ID ${id} not found`);
     }
 
-    // End the discount
     const discount = await this.discountRepository.endDiscount(id);
 
-    // Update StoreItem.isDiscounted flag
     await this.storeItemRepository.update(existingDiscount.storeItemId, {
       isDiscounted: false,
     } as any);

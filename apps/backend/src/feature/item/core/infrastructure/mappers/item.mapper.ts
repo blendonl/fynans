@@ -24,15 +24,4 @@ export class ItemMapper {
       updatedAt: prismaItem.updatedAt,
     });
   }
-
-  static toPersistence(item: Item) {
-    return {
-      id: item.id,
-      categoryId: item.categoryId,
-      name: item.name,
-      nameEn: item.nameEn,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    };
-  }
 }

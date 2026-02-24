@@ -19,18 +19,15 @@ export class RegisterDeviceTokenUseCase {
   ) {}
 
   async execute(dto: RegisterDeviceTokenDto): Promise<DeviceToken> {
-    // Check if token already exists
     const existing = await this.deviceTokenRepository.findByToken(
       dto.expoPushToken,
     );
 
     if (existing) {
-      // Update last used
       await this.deviceTokenRepository.updateLastUsed(existing.id);
       return existing;
     }
 
-    // Create new token
     return await this.deviceTokenRepository.create({
       id: uuid(),
       userId: dto.userId,

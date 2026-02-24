@@ -11,14 +11,4 @@ export class IncomeCategoryMapper {
       updatedAt: prismaCategory.updatedAt,
     });
   }
-
-  static toPersistence(category: IncomeCategory) {
-    return {
-      id: category.id,
-      parentId: category.parentId,
-      name: category.name,
-      createdAt: category.createdAt,
-      updatedAt: category.updatedAt,
-    };
-  }
 }

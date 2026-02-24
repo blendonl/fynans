@@ -1,7 +1,7 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { Item } from '~feature/item/core';
 
-export interface StoreItemProps {
+interface StoreItemProps {
   id: string;
   storeId: string;
   itemId: string;
@@ -76,13 +76,6 @@ export class StoreItem {
 
   get updatedAt(): Date {
     return this.props.updatedAt;
-  }
-
-  getCurrentPrice(activeDiscount?: any): Decimal {
-    if (!this.props.isDiscounted || !activeDiscount || !activeDiscount.isActive()) {
-      return this.props.price;
-    }
-    return this.props.price.minus(activeDiscount.discount);
   }
 
   getDiscountPercentage(activeDiscount?: any): number {

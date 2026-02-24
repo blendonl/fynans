@@ -21,7 +21,6 @@ export class ListIncomesUseCase {
     filters?: IncomeFilters,
     pagination?: Pagination,
   ): Promise<PaginatedResult<Income>> {
-    // Verify family membership if familyId is provided
     if (filters?.familyId) {
       await this.familyService.verifyMembership(
         filters.familyId,

@@ -8,7 +8,6 @@ export interface FamilyWithMembersAndUsers {
 }
 
 export interface IFamilyRepository {
-  // Family CRUD
   create(data: Partial<Family>): Promise<Family>;
   findById(id: string): Promise<Family | null>;
   findByIdWithMembers(id: string): Promise<FamilyWithMembersAndUsers | null>;
@@ -16,7 +15,6 @@ export interface IFamilyRepository {
   update(id: string, data: Partial<Family>): Promise<Family>;
   delete(id: string): Promise<void>;
 
-  // Member management
   addMember(member: Partial<FamilyMember>): Promise<FamilyMember>;
   removeMember(familyId: string, userId: string): Promise<void>;
   findMember(familyId: string, userId: string): Promise<FamilyMember | null>;
@@ -32,7 +30,6 @@ export interface IFamilyRepository {
     balance: number,
   ): Promise<void>;
 
-  // Balance operations
   updateFamilyBalance(familyId: string, balance: number): Promise<void>;
   calculateFamilyBalance(familyId: string): Promise<number>;
 }

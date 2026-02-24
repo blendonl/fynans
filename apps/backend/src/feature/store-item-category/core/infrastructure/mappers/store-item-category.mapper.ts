@@ -11,14 +11,4 @@ export class StoreItemCategoryMapper {
       updatedAt: prismaCategory.updatedAt,
     });
   }
-
-  static toPersistence(category: StoreItemCategory) {
-    return {
-      id: category.id,
-      parentId: category.parentId,
-      name: category.name,
-      createdAt: category.createdAt,
-      updatedAt: category.updatedAt,
-    };
-  }
 }

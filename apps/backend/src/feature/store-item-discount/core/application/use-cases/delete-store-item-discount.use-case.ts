@@ -10,7 +10,6 @@ export class DeleteStoreItemDiscountUseCase {
   ) {}
 
   async execute(id: string): Promise<void> {
-    // Check if discount exists
     const discount = await this.discountRepository.findById(id);
     if (!discount) {
       throw new DomainNotFoundException(`Discount with ID ${id} not found`);

@@ -1,4 +1,4 @@
-export interface FamilyProps {
+interface FamilyProps {
   id: string;
   name: string;
   balance: number;

@@ -81,13 +81,6 @@ export class StoreItemDiscount {
     return this.props.startedAt <= now && (this.props.endedAt === null || this.props.endedAt > now);
   }
 
-  getDiscountedPrice(originalPrice: Decimal): Decimal {
-    if (!this.isActive()) {
-      return originalPrice;
-    }
-    return originalPrice.minus(this.props.discount);
-  }
-
   getDiscountPercentage(originalPrice: Decimal): number {
     if (!this.isActive() || originalPrice.toNumber() === 0) {
       return 0;

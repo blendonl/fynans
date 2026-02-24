@@ -48,21 +48,4 @@ export class TransactionMapper {
       user,
     });
   }
-
-  static toPersistence(transaction: Transaction) {
-    return {
-      id: transaction.id,
-      userId: transaction.userId,
-      type: transaction.type,
-      status: transaction.status,
-      value: transaction.value,
-      familyId: transaction.familyId ?? null,
-      paymentMethodId: transaction.paymentMethodId ?? null,
-      rejectionReason: transaction.rejectionReason ?? null,
-      scope: transaction.scope,
-      recordedAt: transaction.recordedAt,
-      createdAt: transaction.createdAt,
-      updatedAt: transaction.updatedAt,
-    };
-  }
 }

@@ -40,24 +40,6 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
     return item ? StoreItemMapper.toDomain(item) : null;
   }
 
-  async findByStoreAndName(
-    storeId: string,
-    name: string,
-  ): Promise<StoreItem | null> {
-    const item = await this.prisma.storeItem.findFirst({
-      where: {
-        storeId,
-        item: {
-          name,
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-      include: STORE_ITEM_INCLUDE,
-    });
-
-    return item ? StoreItemMapper.toDomain(item) : null;
-  }
-
   async findByStoreAndItemId(
     storeId: string,
     itemId: string,

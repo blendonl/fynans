@@ -20,14 +20,12 @@ export class GetFamilyWithMembersUseCase {
     familyId: string,
     userId: string,
   ): Promise<FamilyWithMembersAndUsers> {
-    // Fetch family with members
     const result = await this.familyRepository.findByIdWithMembers(familyId);
 
     if (!result) {
       throw new NotFoundException(`Family with ID ${familyId} not found`);
     }
 
-    // Verify requesting user is a member of the family
     const isUserMember = result.membersWithUsers.some(
       ({ member }) => member.userId === userId,
     );

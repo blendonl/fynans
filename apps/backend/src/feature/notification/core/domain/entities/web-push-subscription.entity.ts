@@ -89,16 +89,6 @@ export class WebPushSubscription {
     return this.props.updatedAt;
   }
 
-  deactivate(): void {
-    this.props.isActive = false;
-    this.props.updatedAt = new Date();
-  }
-
-  updateLastUsed(): void {
-    this.props.lastUsed = new Date();
-    this.props.updatedAt = new Date();
-  }
-
   toJSON(): WebPushSubscriptionProps {
     return { ...this.props };
   }

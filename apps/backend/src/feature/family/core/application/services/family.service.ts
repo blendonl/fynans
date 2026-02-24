@@ -40,8 +40,6 @@ export class FamilyService {
     private readonly verifyFamilyMembershipUseCase: VerifyFamilyMembershipUseCase,
   ) {}
 
-  // --- Query methods (cross-module access) ---
-
   async findById(id: string): Promise<Family | null> {
     return this.familyRepository.findById(id);
   }
@@ -64,8 +62,6 @@ export class FamilyService {
   async verifyMembership(familyId: string, userId: string): Promise<void> {
     return this.verifyFamilyMembershipUseCase.execute(familyId, userId);
   }
-
-  // --- Use-case methods ---
 
   async create(dto: CreateFamilyDto, ownerId: string): Promise<Family> {
     return this.createFamilyUseCase.execute(dto, ownerId);

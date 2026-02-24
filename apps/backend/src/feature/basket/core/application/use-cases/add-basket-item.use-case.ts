@@ -39,7 +39,6 @@ export class AddBasketItemUseCase {
       throw new DomainNotFoundException('Basket not found');
     }
 
-    // Authorization check
     if (basket.scope === BasketScope.PERSONAL) {
       if (basket.userId !== dto.addedBy) {
         throw new DomainForbiddenException('Not authorized to add items to this basket');
@@ -64,7 +63,6 @@ export class AddBasketItemUseCase {
       addedBy: dto.addedBy,
     });
 
-    // Send notification to family members
     if (basket.scope === BasketScope.FAMILY && basket.familyId) {
       await this.notifyFamilyMembersService.notify({
         familyId: basket.familyId,

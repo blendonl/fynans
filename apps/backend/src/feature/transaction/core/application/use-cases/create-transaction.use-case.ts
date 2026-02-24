@@ -26,7 +26,6 @@ export class CreateTransactionUseCase {
   async execute(dto: CreateTransactionDto): Promise<Transaction> {
     this.validateTransactionData(dto);
 
-    // If familyId is provided, verify user is a member
     if (dto.familyId) {
       const member = await this.familyService.findMember(
         dto.familyId,
@@ -50,7 +49,6 @@ export class CreateTransactionUseCase {
       paymentMethodId: dto.paymentMethodId,
     } as Partial<Transaction>);
 
-    // Only update family balances for CONFIRMED transactions
     if (dto.familyId && status === TransactionStatus.CONFIRMED) {
       await this.familyBalanceService.updateBalancesAfterTransaction(
         dto.familyId,

@@ -28,7 +28,6 @@ export class RemoveFamilyMemberUseCase {
     targetUserId: string,
     requestingUserId: string,
   ): Promise<void> {
-    // Validate requesting user is a member with permission
     const requestingMember = await this.familyRepository.findMember(
       familyId,
       requestingUserId,
@@ -44,14 +43,12 @@ export class RemoveFamilyMemberUseCase {
       );
     }
 
-    // Prevent removing yourself
     if (targetUserId === requestingUserId) {
       throw new BadRequestException(
         'You cannot remove yourself. Use the leave family endpoint instead.',
       );
     }
 
-    // Validate target user is a member
     const targetMember = await this.familyRepository.findMember(
       familyId,
       targetUserId,
@@ -63,24 +60,19 @@ export class RemoveFamilyMemberUseCase {
       );
     }
 
-    // Prevent removing the owner
     if (targetMember.isOwner()) {
       throw new BadRequestException('The family owner cannot be removed');
     }
 
-    // Remove the member
     await this.familyRepository.removeMember(familyId, targetUserId);
 
-    // Recalculate family balance after member removal
     const newBalance =
       await this.familyRepository.calculateFamilyBalance(familyId);
     await this.familyRepository.updateFamilyBalance(familyId, newBalance);
 
-    // Get family and removed user details for notifications
     const family = await this.familyRepository.findById(familyId);
     const removedUser = await this.userService.findById(targetUserId);
 
-    // Notify all remaining family members (except the admin who removed)
     const remainingMembers = await this.familyRepository.findMembers(familyId);
     for (const familyMember of remainingMembers) {
       if (familyMember.userId === requestingUserId) continue;
@@ -100,7 +92,6 @@ export class RemoveFamilyMemberUseCase {
       });
     }
 
-    // Notify the removed user
     await this.createNotificationUseCase.execute({
       userId: targetUserId,
       type: NotificationType.FAMILY_MEMBER_LEFT,

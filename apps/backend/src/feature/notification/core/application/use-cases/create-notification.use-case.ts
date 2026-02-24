@@ -17,10 +17,8 @@ export class CreateNotificationUseCase {
   ) {}
 
   async execute(dto: CreateNotificationDto): Promise<Notification> {
-    // Generate notification content from template
     const template = this.templateService.generateTemplate(dto.type, dto.data || {});
 
-    // Create notification entity
     const notification = await this.notificationRepository.create({
       id: uuid(),
       userId: dto.userId,
@@ -40,7 +38,6 @@ export class CreateNotificationUseCase {
       updatedAt: new Date(),
     });
 
-    // Deliver notification
     await this.deliveryService.deliver(notification);
 
     return notification;

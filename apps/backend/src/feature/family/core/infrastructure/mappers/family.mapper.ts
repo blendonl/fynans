@@ -11,12 +11,4 @@ export class FamilyMapper {
       updatedAt: prismaFamily.updatedAt,
     });
   }
-
-  static toPrisma(family: Family): any {
-    return {
-      id: family.id,
-      name: family.name,
-      balance: family.balance,
-    };
-  }
 }

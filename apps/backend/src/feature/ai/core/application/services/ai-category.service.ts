@@ -88,14 +88,10 @@ export class AiCategoryService {
   }
 
   private parseJsonResponse(raw: string): Record<string, unknown> {
-    // Try direct parse first
     try {
       return JSON.parse(raw) as Record<string, unknown>;
-    } catch {
-      // continue to extraction attempts
-    }
+    } catch {}
 
-    // Extract JSON object from surrounding text/markdown fences
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const cleaned = jsonMatch[0]
@@ -104,7 +100,6 @@ export class AiCategoryService {
       try {
         return JSON.parse(cleaned) as Record<string, unknown>;
       } catch {
-        // Try truncated JSON repair: close open strings and braces
         const repaired = this.repairTruncatedJson(cleaned);
         return JSON.parse(repaired) as Record<string, unknown>;
       }
@@ -122,7 +117,6 @@ export class AiCategoryService {
       repaired += '"';
     }
 
-    // Close any unclosed braces/brackets
     const open = (repaired.match(/\{/g) || []).length;
     const close = (repaired.match(/\}/g) || []).length;
     for (let i = 0; i < open - close; i++) {

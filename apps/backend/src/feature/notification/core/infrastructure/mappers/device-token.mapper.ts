@@ -18,19 +18,4 @@ export class DeviceTokenMapper {
       updatedAt: prismaToken.updatedAt,
     });
   }
-
-  static toPersistence(token: DeviceToken) {
-    return {
-      id: token.id,
-      userId: token.userId,
-      expoPushToken: token.expoPushToken,
-      platform: token.platform,
-      deviceId: token.deviceId,
-      deviceName: token.deviceName,
-      isActive: token.isActive,
-      lastUsed: token.lastUsed,
-      createdAt: token.createdAt,
-      updatedAt: token.updatedAt,
-    };
-  }
 }

@@ -100,7 +100,6 @@ export class ReceiptPostProcessor {
 
     let name = item.name.trim();
 
-    // Remove leading/trailing numbers that aren't part of a weight/size
     name = name.replace(/^\d+\s+(?!\s*(kg|g|l|ml|cl)\b)/i, '');
     name = name.replace(/\s+\d+$/, '');
     name = name.trim();
@@ -108,21 +107,17 @@ export class ReceiptPostProcessor {
     if (name.length <= 1) return null;
     if (/^\d+([.,]\d+)?$/.test(name)) return null;
 
-    // Check junk patterns
     if (JUNK_PATTERNS.test(name.trim())) return null;
     if (JUNK_CONTAINS.test(name)) return null;
 
-    // Validate price
     const price =
       typeof item.price === 'number'
         ? item.price
         : parseFloat(String(item.price));
     if (isNaN(price) || price <= 0 || price >= 10_000) return null;
 
-    // Use pre-extracted size from LLM if available, otherwise extract from name
     let size: ItemSize | undefined = item.size;
     if (size) {
-      // Normalize unit (e.g., "gr" → "g") and clean size from name
       const rawUnit = size.unit.toLowerCase();
       size = { ...size, unit: UNIT_MAP[rawUnit] || rawUnit };
       name = name.replace(SIZE_REGEX, '').trim();
@@ -132,12 +127,11 @@ export class ReceiptPostProcessor {
       size = extracted.size;
     }
 
-    // Validate quantity — preserve fractional (decimal) quantities as-is
+    // Preserve fractional (decimal) quantities as-is
     let quantity = item.quantity ?? 1;
     if (typeof quantity !== 'number' || quantity <= 0) quantity = 1;
     quantity = Math.round(quantity * 1000) / 1000;
 
-    // Capitalize properly: first letter uppercase
     if (name.length > 0) {
       name = name.charAt(0).toUpperCase() + name.slice(1);
     }
@@ -233,7 +227,6 @@ export class ReceiptPostProcessor {
   static validateDate(date?: string | null): string | undefined {
     if (!date) return undefined;
 
-    // Accept DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY
     const match = date.match(/(\d{2})[/\-.](\d{2})[/\-.](\d{4})/);
     if (!match) return undefined;
 
@@ -241,12 +234,10 @@ export class ReceiptPostProcessor {
     const parsed = new Date(`${year}-${month}-${day}`);
     if (isNaN(parsed.getTime())) return undefined;
 
-    // Reject future dates
     if (parsed > new Date()) {
       return undefined;
     }
 
-    // Normalize to DD/MM/YYYY format
     return `${day}/${month}/${year}`;
   }
 

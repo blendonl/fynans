@@ -12,13 +12,10 @@ export class ListBasketsUseCase {
   ) {}
 
   async execute(userId: string): Promise<Basket[]> {
-    // Upsert personal basket
     const personalBasket = await this.basketRepository.upsertPersonal(userId);
 
-    // Get all families the user belongs to
     const families = await this.familyService.findByUserId(userId);
 
-    // Upsert one basket per family
     const familyBaskets = await Promise.all(
       families.map((family) =>
         this.basketRepository.upsertFamily(family.id, userId),

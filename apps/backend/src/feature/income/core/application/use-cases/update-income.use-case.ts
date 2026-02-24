@@ -34,7 +34,6 @@ export class UpdateIncomeUseCase {
       categoryId: dto.categoryId,
     } as Partial<Income>);
 
-    // Update transaction-level fields (value, recordedAt, paymentMethodId)
     const txUpdates: Record<string, unknown> = {};
     if (dto.amount !== undefined) txUpdates.value = dto.amount;
     if (dto.recordedAt !== undefined) txUpdates.recordedAt = dto.recordedAt;
@@ -48,7 +47,6 @@ export class UpdateIncomeUseCase {
       );
     }
 
-    // Re-fetch to return the full updated entity
     if (Object.keys(txUpdates).length > 0) {
       return (await this.incomeRepository.findById(id))!;
     }

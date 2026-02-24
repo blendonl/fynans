@@ -20,7 +20,6 @@ export class UpdateStoreItemDiscountUseCase {
     id: string,
     dto: UpdateStoreItemDiscountDto,
   ): Promise<StoreItemDiscount> {
-    // Check if discount exists
     const existingDiscount = await this.discountRepository.findById(id);
     if (!existingDiscount) {
       throw new NotFoundException(`Discount with ID ${id} not found`);
@@ -40,7 +39,6 @@ export class UpdateStoreItemDiscountUseCase {
     existingDiscount: StoreItemDiscount,
     dto: UpdateStoreItemDiscountDto,
   ): Promise<void> {
-    // Cannot update if already ended
     if (existingDiscount.endedAt && existingDiscount.endedAt < new Date()) {
       throw new BadRequestException('Cannot update an already ended discount');
     }

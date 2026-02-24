@@ -1,5 +1,4 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-/** Low confidence threshold for receipt data */
 const LOW_CONFIDENCE_THRESHOLD = 50;
 import { ProcessedReceiptData } from '../interfaces/processed-receipt-data.interface';
 import { FindStoreBySimilarityUseCase } from '~feature/store/core/application/use-cases/find-store-by-similarity.use-case';
@@ -11,7 +10,7 @@ import { type IItemSizeRepository } from '~feature/item/core/domain/repositories
 import { EnrichedReceiptDataDto } from '../dto/enriched-receipt-data.dto';
 import { AutoCreateCategoriesUseCase } from './auto-create-categories.use-case';
 
-export interface CategoryResolutionResult {
+interface CategoryResolutionResult {
   itemCategoryMap: Map<string, string>;
   suggestedExpenseCategoryId?: string;
   suggestedExpenseCategoryName?: string;

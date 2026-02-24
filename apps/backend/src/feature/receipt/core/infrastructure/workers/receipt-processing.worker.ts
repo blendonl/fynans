@@ -60,7 +60,6 @@ export class ReceiptProcessingWorker extends WorkerHost {
       userId,
     );
 
-    // Emit partial result for immediate UI display
     await job.updateProgress({
       type: 'partial-result',
       percent: 90,
@@ -73,7 +72,6 @@ export class ReceiptProcessingWorker extends WorkerHost {
       userId,
     );
 
-    // Merge partial + category results into full enriched DTO
     const enrichedResult: EnrichedReceiptDataDto = {
       ...partialResult,
       items: partialResult.items.map((item) => ({
@@ -94,7 +92,6 @@ export class ReceiptProcessingWorker extends WorkerHost {
 
     tracker.completeStage('enrich');
 
-    // Auto-create pending expense if requested
     if (job.data.autoCreatePending && userId && this.expenseService) {
       try {
         const categoryId = enrichedResult.suggestedExpenseCategoryId;

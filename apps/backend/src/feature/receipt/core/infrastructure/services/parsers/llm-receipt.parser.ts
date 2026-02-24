@@ -44,7 +44,6 @@ export class LlmReceiptParser implements IReceiptParser {
     const parsePrompt = buildReceiptPrompt(text);
     let processed = await this.attemptParse(parsePrompt, tracker);
 
-    // Single retry if no items were extracted
     if (!processed.items.length) {
       this.logger.warn(
         'LLM parse returned no items, retrying with directive prompt',
@@ -126,7 +125,6 @@ ${parsePrompt}`;
       `Post-processed: ${processed.items.length} items, sizes extracted: ${processed.items.filter((i) => i.size).length}`,
     );
 
-    // Optional second pass: normalize OCR-garbled item names
     if (this.nameNormalizer?.isEnabled() && processed.items.length) {
       processed.items = await this.nameNormalizer.normalizeItemNames(
         processed.items,

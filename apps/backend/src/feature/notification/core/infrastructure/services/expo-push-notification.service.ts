@@ -21,7 +21,6 @@ export class ExpoPushNotificationService {
       data?: Record<string, any>;
     },
   ): Promise<void> {
-    // Get all active device tokens for user
     const deviceTokens = await this.deviceTokenRepository.findActiveByUserId(
       userId,
     );
@@ -46,7 +45,6 @@ export class ExpoPushNotificationService {
       return;
     }
 
-    // Send in chunks
     const chunks = this.expo.chunkPushNotifications(messages);
     const tickets: ExpoPushTicket[] = [];
 
@@ -59,7 +57,6 @@ export class ExpoPushNotificationService {
       }
     }
 
-    // Handle invalid tokens
     await this.handleInvalidTokens(tickets, deviceTokens);
   }
 
@@ -73,7 +70,6 @@ export class ExpoPushNotificationService {
           ticket.details?.error === 'DeviceNotRegistered' ||
           ticket.details?.error === 'InvalidCredentials'
         ) {
-          // Deactivate the token
           const token = deviceTokens[index];
           if (token) {
             this.deviceTokenRepository.deactivate(token.id);

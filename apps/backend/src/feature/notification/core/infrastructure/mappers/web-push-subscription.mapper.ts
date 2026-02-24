@@ -21,19 +21,4 @@ export class WebPushSubscriptionMapper {
       updatedAt: prismaSubscription.updatedAt,
     });
   }
-
-  static toPersistence(subscription: WebPushSubscription) {
-    return {
-      id: subscription.id,
-      userId: subscription.userId,
-      endpoint: subscription.endpoint,
-      p256dh: subscription.p256dh,
-      auth: subscription.auth,
-      userAgent: subscription.userAgent,
-      isActive: subscription.isActive,
-      lastUsed: subscription.lastUsed,
-      createdAt: subscription.createdAt,
-      updatedAt: subscription.updatedAt,
-    };
-  }
 }

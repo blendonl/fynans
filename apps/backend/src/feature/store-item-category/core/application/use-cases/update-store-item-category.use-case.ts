@@ -39,7 +39,6 @@ export class UpdateStoreItemCategoryUseCase {
     id: string,
     dto: UpdateStoreItemCategoryDto,
   ): Promise<void> {
-    // Validate parent exists and prevent circular reference
     if (dto.parentId !== undefined) {
       if (dto.parentId === id) {
         throw new BadRequestException('Category cannot be its own parent');
@@ -52,7 +51,6 @@ export class UpdateStoreItemCategoryUseCase {
           throw new BadRequestException('Parent category not found');
         }
 
-        // Check if new parent is a descendant of current category
         await this.checkCircularReference(id, dto.parentId);
       }
     }

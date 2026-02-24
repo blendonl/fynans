@@ -39,15 +39,4 @@ export class IncomeMapper {
       updatedAt: prismaIncome.updatedAt,
     });
   }
-
-  static toPersistence(income: Income) {
-    return {
-      id: income.id,
-      transactionId: income.transactionId,
-      storeId: income.storeId,
-      categoryId: income.categoryId,
-      createdAt: income.createdAt,
-      updatedAt: income.updatedAt,
-    };
-  }
 }

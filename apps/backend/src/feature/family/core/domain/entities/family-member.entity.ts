@@ -4,7 +4,7 @@ export enum FamilyMemberRole {
   MEMBER = 'MEMBER',
 }
 
-export interface FamilyMemberProps {
+interface FamilyMemberProps {
   id: string;
   familyId: string;
   userId: string;
@@ -85,7 +85,6 @@ export class FamilyMember {
     return this.props.updatedAt;
   }
 
-  // Permission helpers
   isOwner(): boolean {
     return this.props.role === FamilyMemberRole.OWNER;
   }

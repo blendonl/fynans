@@ -28,7 +28,6 @@ export class LeaveFamilyUseCase {
       throw new NotFoundException('Not a family member');
     }
 
-    // If owner, check if there are other members
     if (member.isOwner()) {
       const allMembers = await this.familyRepository.findMembers(familyId);
       if (allMembers.length > 1) {
@@ -36,19 +35,15 @@ export class LeaveFamilyUseCase {
           'Owner must transfer ownership or remove all members before leaving',
         );
       }
-      // If owner is the only member, delete the family
       await this.familyRepository.delete(familyId);
       return;
     }
 
-    // Remove member
     await this.familyRepository.removeMember(familyId, userId);
 
-    // Get family and leaving user details for notification
     const family = await this.familyRepository.findById(familyId);
     const leavingUser = await this.userService.findById(userId);
 
-    // Notify all remaining family members
     const remainingMembers = await this.familyRepository.findMembers(familyId);
     for (const familyMember of remainingMembers) {
       await this.createNotificationUseCase.execute({

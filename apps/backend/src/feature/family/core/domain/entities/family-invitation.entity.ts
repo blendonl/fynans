@@ -5,7 +5,7 @@ export enum FamilyInvitationStatus {
   CANCELLED = 'CANCELLED',
 }
 
-export interface FamilyInvitationProps {
+interface FamilyInvitationProps {
   id: string;
   familyId: string;
   inviterId: string;
@@ -95,7 +95,6 @@ export class FamilyInvitation {
     return this.props.updatedAt;
   }
 
-  // Status helpers
   isPending(): boolean {
     return this.props.status === FamilyInvitationStatus.PENDING;
   }

@@ -41,7 +41,6 @@ export class DeviceToken {
     }
   }
 
-  // Getters
   get id(): string {
     return this.props.id;
   }
@@ -80,17 +79,6 @@ export class DeviceToken {
 
   get updatedAt(): Date {
     return this.props.updatedAt;
-  }
-
-  // Business logic methods
-  deactivate(): void {
-    this.props.isActive = false;
-    this.props.updatedAt = new Date();
-  }
-
-  updateLastUsed(): void {
-    this.props.lastUsed = new Date();
-    this.props.updatedAt = new Date();
   }
 
   toJSON(): DeviceTokenProps {
