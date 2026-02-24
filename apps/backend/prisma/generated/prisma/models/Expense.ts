@@ -202,6 +202,7 @@ export type ExpenseWhereInput = {
   transaction?: Prisma.XOR<Prisma.TransactionScalarRelationFilter, Prisma.TransactionWhereInput>
   store?: Prisma.XOR<Prisma.StoreNullableScalarRelationFilter, Prisma.StoreWhereInput> | null
   items?: Prisma.ExpenseItemListRelationFilter
+  receipt?: Prisma.XOR<Prisma.ReceiptNullableScalarRelationFilter, Prisma.ReceiptWhereInput> | null
 }
 
 export type ExpenseOrderByWithRelationInput = {
@@ -216,6 +217,7 @@ export type ExpenseOrderByWithRelationInput = {
   transaction?: Prisma.TransactionOrderByWithRelationInput
   store?: Prisma.StoreOrderByWithRelationInput
   items?: Prisma.ExpenseItemOrderByRelationAggregateInput
+  receipt?: Prisma.ReceiptOrderByWithRelationInput
 }
 
 export type ExpenseWhereUniqueInput = Prisma.AtLeast<{
@@ -233,6 +235,7 @@ export type ExpenseWhereUniqueInput = Prisma.AtLeast<{
   transaction?: Prisma.XOR<Prisma.TransactionScalarRelationFilter, Prisma.TransactionWhereInput>
   store?: Prisma.XOR<Prisma.StoreNullableScalarRelationFilter, Prisma.StoreWhereInput> | null
   items?: Prisma.ExpenseItemListRelationFilter
+  receipt?: Prisma.XOR<Prisma.ReceiptNullableScalarRelationFilter, Prisma.ReceiptWhereInput> | null
 }, "id" | "transactionId">
 
 export type ExpenseOrderByWithAggregationInput = {
@@ -270,6 +273,7 @@ export type ExpenseCreateInput = {
   transaction: Prisma.TransactionCreateNestedOneWithoutExpenseInput
   store?: Prisma.StoreCreateNestedOneWithoutExpensesInput
   items?: Prisma.ExpenseItemCreateNestedManyWithoutExpenseInput
+  receipt?: Prisma.ReceiptCreateNestedOneWithoutExpenseInput
 }
 
 export type ExpenseUncheckedCreateInput = {
@@ -281,6 +285,7 @@ export type ExpenseUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutExpenseInput
+  receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutExpenseInput
 }
 
 export type ExpenseUpdateInput = {
@@ -292,6 +297,7 @@ export type ExpenseUpdateInput = {
   transaction?: Prisma.TransactionUpdateOneRequiredWithoutExpenseNestedInput
   store?: Prisma.StoreUpdateOneWithoutExpensesNestedInput
   items?: Prisma.ExpenseItemUpdateManyWithoutExpenseNestedInput
+  receipt?: Prisma.ReceiptUpdateOneWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateInput = {
@@ -303,6 +309,7 @@ export type ExpenseUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.ExpenseItemUncheckedUpdateManyWithoutExpenseNestedInput
+  receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutExpenseNestedInput
 }
 
 export type ExpenseCreateManyInput = {
@@ -438,6 +445,22 @@ export type ExpenseUncheckedUpdateManyWithoutCategoryNestedInput = {
   deleteMany?: Prisma.ExpenseScalarWhereInput | Prisma.ExpenseScalarWhereInput[]
 }
 
+export type ExpenseCreateNestedOneWithoutReceiptInput = {
+  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutReceiptInput, Prisma.ExpenseUncheckedCreateWithoutReceiptInput>
+  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutReceiptInput
+  connect?: Prisma.ExpenseWhereUniqueInput
+}
+
+export type ExpenseUpdateOneWithoutReceiptNestedInput = {
+  create?: Prisma.XOR<Prisma.ExpenseCreateWithoutReceiptInput, Prisma.ExpenseUncheckedCreateWithoutReceiptInput>
+  connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutReceiptInput
+  upsert?: Prisma.ExpenseUpsertWithoutReceiptInput
+  disconnect?: Prisma.ExpenseWhereInput | boolean
+  delete?: Prisma.ExpenseWhereInput | boolean
+  connect?: Prisma.ExpenseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ExpenseUpdateToOneWithWhereWithoutReceiptInput, Prisma.ExpenseUpdateWithoutReceiptInput>, Prisma.ExpenseUncheckedUpdateWithoutReceiptInput>
+}
+
 export type ExpenseCreateNestedManyWithoutStoreInput = {
   create?: Prisma.XOR<Prisma.ExpenseCreateWithoutStoreInput, Prisma.ExpenseUncheckedCreateWithoutStoreInput> | Prisma.ExpenseCreateWithoutStoreInput[] | Prisma.ExpenseUncheckedCreateWithoutStoreInput[]
   connectOrCreate?: Prisma.ExpenseCreateOrConnectWithoutStoreInput | Prisma.ExpenseCreateOrConnectWithoutStoreInput[]
@@ -520,6 +543,7 @@ export type ExpenseCreateWithoutItemsInput = {
   category: Prisma.ExpenseCategoryCreateNestedOneWithoutExpensesInput
   transaction: Prisma.TransactionCreateNestedOneWithoutExpenseInput
   store?: Prisma.StoreCreateNestedOneWithoutExpensesInput
+  receipt?: Prisma.ReceiptCreateNestedOneWithoutExpenseInput
 }
 
 export type ExpenseUncheckedCreateWithoutItemsInput = {
@@ -530,6 +554,7 @@ export type ExpenseUncheckedCreateWithoutItemsInput = {
   description?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutExpenseInput
 }
 
 export type ExpenseCreateOrConnectWithoutItemsInput = {
@@ -556,6 +581,7 @@ export type ExpenseUpdateWithoutItemsInput = {
   category?: Prisma.ExpenseCategoryUpdateOneRequiredWithoutExpensesNestedInput
   transaction?: Prisma.TransactionUpdateOneRequiredWithoutExpenseNestedInput
   store?: Prisma.StoreUpdateOneWithoutExpensesNestedInput
+  receipt?: Prisma.ReceiptUpdateOneWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateWithoutItemsInput = {
@@ -566,6 +592,7 @@ export type ExpenseUncheckedUpdateWithoutItemsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutExpenseNestedInput
 }
 
 export type ExpenseCreateWithoutCategoryInput = {
@@ -576,6 +603,7 @@ export type ExpenseCreateWithoutCategoryInput = {
   transaction: Prisma.TransactionCreateNestedOneWithoutExpenseInput
   store?: Prisma.StoreCreateNestedOneWithoutExpensesInput
   items?: Prisma.ExpenseItemCreateNestedManyWithoutExpenseInput
+  receipt?: Prisma.ReceiptCreateNestedOneWithoutExpenseInput
 }
 
 export type ExpenseUncheckedCreateWithoutCategoryInput = {
@@ -586,6 +614,7 @@ export type ExpenseUncheckedCreateWithoutCategoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutExpenseInput
+  receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutExpenseInput
 }
 
 export type ExpenseCreateOrConnectWithoutCategoryInput = {
@@ -627,6 +656,66 @@ export type ExpenseScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
 }
 
+export type ExpenseCreateWithoutReceiptInput = {
+  id: string
+  description?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ExpenseCategoryCreateNestedOneWithoutExpensesInput
+  transaction: Prisma.TransactionCreateNestedOneWithoutExpenseInput
+  store?: Prisma.StoreCreateNestedOneWithoutExpensesInput
+  items?: Prisma.ExpenseItemCreateNestedManyWithoutExpenseInput
+}
+
+export type ExpenseUncheckedCreateWithoutReceiptInput = {
+  id: string
+  transactionId: string
+  storeId?: string | null
+  categoryId: string
+  description?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutExpenseInput
+}
+
+export type ExpenseCreateOrConnectWithoutReceiptInput = {
+  where: Prisma.ExpenseWhereUniqueInput
+  create: Prisma.XOR<Prisma.ExpenseCreateWithoutReceiptInput, Prisma.ExpenseUncheckedCreateWithoutReceiptInput>
+}
+
+export type ExpenseUpsertWithoutReceiptInput = {
+  update: Prisma.XOR<Prisma.ExpenseUpdateWithoutReceiptInput, Prisma.ExpenseUncheckedUpdateWithoutReceiptInput>
+  create: Prisma.XOR<Prisma.ExpenseCreateWithoutReceiptInput, Prisma.ExpenseUncheckedCreateWithoutReceiptInput>
+  where?: Prisma.ExpenseWhereInput
+}
+
+export type ExpenseUpdateToOneWithWhereWithoutReceiptInput = {
+  where?: Prisma.ExpenseWhereInput
+  data: Prisma.XOR<Prisma.ExpenseUpdateWithoutReceiptInput, Prisma.ExpenseUncheckedUpdateWithoutReceiptInput>
+}
+
+export type ExpenseUpdateWithoutReceiptInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ExpenseCategoryUpdateOneRequiredWithoutExpensesNestedInput
+  transaction?: Prisma.TransactionUpdateOneRequiredWithoutExpenseNestedInput
+  store?: Prisma.StoreUpdateOneWithoutExpensesNestedInput
+  items?: Prisma.ExpenseItemUpdateManyWithoutExpenseNestedInput
+}
+
+export type ExpenseUncheckedUpdateWithoutReceiptInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionId?: Prisma.StringFieldUpdateOperationsInput | string
+  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.ExpenseItemUncheckedUpdateManyWithoutExpenseNestedInput
+}
+
 export type ExpenseCreateWithoutStoreInput = {
   id: string
   description?: string | null
@@ -635,6 +724,7 @@ export type ExpenseCreateWithoutStoreInput = {
   category: Prisma.ExpenseCategoryCreateNestedOneWithoutExpensesInput
   transaction: Prisma.TransactionCreateNestedOneWithoutExpenseInput
   items?: Prisma.ExpenseItemCreateNestedManyWithoutExpenseInput
+  receipt?: Prisma.ReceiptCreateNestedOneWithoutExpenseInput
 }
 
 export type ExpenseUncheckedCreateWithoutStoreInput = {
@@ -645,6 +735,7 @@ export type ExpenseUncheckedCreateWithoutStoreInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutExpenseInput
+  receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutExpenseInput
 }
 
 export type ExpenseCreateOrConnectWithoutStoreInput = {
@@ -681,6 +772,7 @@ export type ExpenseCreateWithoutTransactionInput = {
   category: Prisma.ExpenseCategoryCreateNestedOneWithoutExpensesInput
   store?: Prisma.StoreCreateNestedOneWithoutExpensesInput
   items?: Prisma.ExpenseItemCreateNestedManyWithoutExpenseInput
+  receipt?: Prisma.ReceiptCreateNestedOneWithoutExpenseInput
 }
 
 export type ExpenseUncheckedCreateWithoutTransactionInput = {
@@ -691,6 +783,7 @@ export type ExpenseUncheckedCreateWithoutTransactionInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.ExpenseItemUncheckedCreateNestedManyWithoutExpenseInput
+  receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutExpenseInput
 }
 
 export type ExpenseCreateOrConnectWithoutTransactionInput = {
@@ -717,6 +810,7 @@ export type ExpenseUpdateWithoutTransactionInput = {
   category?: Prisma.ExpenseCategoryUpdateOneRequiredWithoutExpensesNestedInput
   store?: Prisma.StoreUpdateOneWithoutExpensesNestedInput
   items?: Prisma.ExpenseItemUpdateManyWithoutExpenseNestedInput
+  receipt?: Prisma.ReceiptUpdateOneWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateWithoutTransactionInput = {
@@ -727,6 +821,7 @@ export type ExpenseUncheckedUpdateWithoutTransactionInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.ExpenseItemUncheckedUpdateManyWithoutExpenseNestedInput
+  receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutExpenseNestedInput
 }
 
 export type ExpenseCreateManyCategoryInput = {
@@ -746,6 +841,7 @@ export type ExpenseUpdateWithoutCategoryInput = {
   transaction?: Prisma.TransactionUpdateOneRequiredWithoutExpenseNestedInput
   store?: Prisma.StoreUpdateOneWithoutExpensesNestedInput
   items?: Prisma.ExpenseItemUpdateManyWithoutExpenseNestedInput
+  receipt?: Prisma.ReceiptUpdateOneWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateWithoutCategoryInput = {
@@ -756,6 +852,7 @@ export type ExpenseUncheckedUpdateWithoutCategoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.ExpenseItemUncheckedUpdateManyWithoutExpenseNestedInput
+  receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateManyWithoutCategoryInput = {
@@ -784,6 +881,7 @@ export type ExpenseUpdateWithoutStoreInput = {
   category?: Prisma.ExpenseCategoryUpdateOneRequiredWithoutExpensesNestedInput
   transaction?: Prisma.TransactionUpdateOneRequiredWithoutExpenseNestedInput
   items?: Prisma.ExpenseItemUpdateManyWithoutExpenseNestedInput
+  receipt?: Prisma.ReceiptUpdateOneWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateWithoutStoreInput = {
@@ -794,6 +892,7 @@ export type ExpenseUncheckedUpdateWithoutStoreInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.ExpenseItemUncheckedUpdateManyWithoutExpenseNestedInput
+  receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutExpenseNestedInput
 }
 
 export type ExpenseUncheckedUpdateManyWithoutStoreInput = {
@@ -848,6 +947,7 @@ export type ExpenseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
   store?: boolean | Prisma.Expense$storeArgs<ExtArgs>
   items?: boolean | Prisma.Expense$itemsArgs<ExtArgs>
+  receipt?: boolean | Prisma.Expense$receiptArgs<ExtArgs>
   _count?: boolean | Prisma.ExpenseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["expense"]>
 
@@ -893,6 +993,7 @@ export type ExpenseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
   store?: boolean | Prisma.Expense$storeArgs<ExtArgs>
   items?: boolean | Prisma.Expense$itemsArgs<ExtArgs>
+  receipt?: boolean | Prisma.Expense$receiptArgs<ExtArgs>
   _count?: boolean | Prisma.ExpenseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ExpenseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -913,6 +1014,7 @@ export type $ExpensePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     transaction: Prisma.$TransactionPayload<ExtArgs>
     store: Prisma.$StorePayload<ExtArgs> | null
     items: Prisma.$ExpenseItemPayload<ExtArgs>[]
+    receipt: Prisma.$ReceiptPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1320,6 +1422,7 @@ export interface Prisma__ExpenseClient<T, Null = never, ExtArgs extends runtime.
   transaction<T extends Prisma.TransactionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TransactionDefaultArgs<ExtArgs>>): Prisma.Prisma__TransactionClient<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   store<T extends Prisma.Expense$storeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Expense$storeArgs<ExtArgs>>): Prisma.Prisma__StoreClient<runtime.Types.Result.GetResult<Prisma.$StorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.Expense$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Expense$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpenseItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  receipt<T extends Prisma.Expense$receiptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Expense$receiptArgs<ExtArgs>>): Prisma.Prisma__ReceiptClient<runtime.Types.Result.GetResult<Prisma.$ReceiptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1792,6 +1895,25 @@ export type Expense$itemsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.ExpenseItemScalarFieldEnum | Prisma.ExpenseItemScalarFieldEnum[]
+}
+
+/**
+ * Expense.receipt
+ */
+export type Expense$receiptArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Receipt
+   */
+  select?: Prisma.ReceiptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Receipt
+   */
+  omit?: Prisma.ReceiptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReceiptInclude<ExtArgs> | null
+  where?: Prisma.ReceiptWhereInput
 }
 
 /**
