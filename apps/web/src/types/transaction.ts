@@ -22,6 +22,7 @@ export interface Transaction {
     value: number;
     recordedAt?: string;
     description?: string;
+    paymentMethodId?: string;
     user: {
       id: string;
       firstName: string;
