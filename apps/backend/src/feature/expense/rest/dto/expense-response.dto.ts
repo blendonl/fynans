@@ -42,6 +42,9 @@ export class ExpenseResponseDto {
   @ApiPropertyOptional()
   rejectionReason?: string;
 
+  @ApiProperty({ type: [String], description: 'Presigned receipt image URLs' })
+  receiptImages: string[];
+
   @ApiProperty()
   createdAt: Date;
 
@@ -62,6 +65,7 @@ export class ExpenseResponseDto {
     dto.transaction = TransactionResponseDto.fromEntity(expense.transaction);
     dto.store = expense.store ? StoreResponseDto.fromEntity(expense.store) : null;
     dto.items = ExpenseItemResponseDto.fromEntities(expense.items);
+    dto.receiptImages = [];
     return dto;
   }
 

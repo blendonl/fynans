@@ -3,6 +3,11 @@ import { Store } from '~feature/store/core';
 import { Transaction } from '~feature/transaction/core';
 import { ExpenseItem } from '~feature/expense-item/core/domain/entities/expense-item.entity';
 
+export interface ExpenseReceiptInfo {
+  id: string;
+  storageKey: string;
+}
+
 export interface ExpenseProps {
   id: string;
   category: ExpenseCategory;
@@ -12,6 +17,7 @@ export interface ExpenseProps {
   storeId: string | null;
   categoryId: string;
   items?: ExpenseItem[];
+  receipt?: ExpenseReceiptInfo | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -84,6 +90,10 @@ export class Expense {
 
   get items(): ExpenseItem[] {
     return this.props.items || [];
+  }
+
+  get receipt(): ExpenseReceiptInfo | null {
+    return this.props.receipt ?? null;
   }
 
   toJSON() {
