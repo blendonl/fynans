@@ -42,9 +42,9 @@ export class ReceiptProcessingWorker extends WorkerHost {
           { name: 'enrich', weight: 10 },
         ]
       : [
-          { name: 'ocr', weight: 5 },
+          { name: 'ocr', weight: 10 },
           { name: 'llm-parse', weight: 85 },
-          { name: 'enrich', weight: 10 },
+          { name: 'enrich', weight: 5 },
         ];
 
     const tracker = new ProgressTracker(stages, (percent) =>
