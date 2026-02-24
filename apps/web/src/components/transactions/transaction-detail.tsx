@@ -5,6 +5,7 @@ import { formatCurrency } from "@/utils/currency";
 import type { Transaction } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { GlassCard } from "@/components/glass/glass-card";
+import { ReceiptGallery } from "./receipt-gallery";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +38,8 @@ export function TransactionDetail({ transaction, onDelete, isDeleting }: Transac
       })
     : "";
 
+  const receiptImages = transaction.receiptImages || [];
+
   return (
     <div className="space-y-6">
       <GlassCard variant="strong" className="p-6 sm:p-8 text-center">
@@ -51,7 +54,7 @@ export function TransactionDetail({ transaction, onDelete, isDeleting }: Transac
             isExpense ? "text-expense" : "text-income"
           }`}
         >
-          {isExpense ? "−" : "+"}
+          {isExpense ? "\u2212" : "+"}
           {formatCurrency(transaction.transaction.value)}
         </p>
         <div className="h-px my-5 rounded-full bg-gradient-to-r from-transparent via-primary/20 to-transparent gradient-line-shimmer" />
@@ -116,7 +119,7 @@ export function TransactionDetail({ transaction, onDelete, isDeleting }: Transac
                     <span className="text-xs text-text-secondary">Qty: {item.quantity}</span>
                     {item.discount ? (
                       <Badge variant="secondary" className="text-[10px] py-0 px-1.5">
-                        −{formatCurrency(item.discount)}
+                        {"\u2212"}{formatCurrency(item.discount)}
                       </Badge>
                     ) : null}
                   </div>
@@ -130,23 +133,7 @@ export function TransactionDetail({ transaction, onDelete, isDeleting }: Transac
         </GlassCard>
       )}
 
-      {transaction.receiptImages && transaction.receiptImages.length > 0 && (
-        <GlassCard className="p-5 sm:p-6">
-          <h3 className="text-[11px] font-medium text-text-secondary uppercase tracking-wider mb-4">
-            Receipts
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {transaction.receiptImages.map((url, i) => (
-              <img
-                key={i}
-                src={url}
-                alt={`Receipt ${i + 1}`}
-                className="rounded-2xl ring-1 ring-border-light object-cover w-full"
-              />
-            ))}
-          </div>
-        </GlassCard>
-      )}
+      <ReceiptGallery images={receiptImages} />
 
       <div className="flex justify-center pt-2">
         <AlertDialog>

@@ -1,85 +1,110 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 import {
   usePendingExpense,
   useApprovePendingExpense,
   useRejectPendingExpense,
   useResubmitExpense,
+  useUpdatePendingExpense,
   useDeletePendingExpense,
+  pendingKeys,
 } from "@/hooks/use-pending-transactions";
+import {
+  expenseItemControllerCreate,
+  expenseItemControllerRemove,
+} from "@/api/generated/endpoints/expense-items/expense-items";
 import { Button } from "@/components/ui/button";
-import { PendingTransactionDetail } from "@/components/transactions/pending-transaction-detail";
-import type { Transaction } from "@/types";
+import {
+  PendingTransactionDetail,
+  type PendingExpenseData,
+  type ItemsSync,
+} from "@/components/transactions/pending-transaction-detail";
 
-interface ExpenseWithStatus {
-  id: string;
-  transactionId: string;
-  categoryId: string;
-  storeId: string | null;
-  status?: string;
-  rejectionReason?: string;
-  transaction: {
-    id: string;
-    userId: string;
-    value: number;
-    scope: string;
-    recordedAt: string;
-    description?: string;
-    familyId?: string | null;
-    user: { id: string; firstName: string; lastName: string; image?: string | null };
-  };
-  category: { id: string; name: string };
-  store: { id: string; name: string; location?: string } | null;
-  items: { name: string; price: number; discount?: number; quantity: number }[];
-  receiptImages?: string[];
+/**
+ * Syncs local item changes to the API using a delete-all + recreate strategy.
+ *
+ * NOTE: This is not atomic — if a create fails mid-loop, previously deleted
+ * items are lost and only some new items will exist. A backend batch endpoint
+ * would be needed for true atomicity.
+ */
+async function syncExpenseItems(itemsSync: ItemsSync) {
+  // Delete all original items
+  await Promise.all(
+    itemsSync.originalIds.map((itemId) =>
+      expenseItemControllerRemove(itemId),
+    ),
+  );
+
+  // Create current items (requires a storeId)
+  if (itemsSync.storeId && itemsSync.items.length > 0) {
+    for (const item of itemsSync.items) {
+      await expenseItemControllerCreate(
+        {
+          expenseId: itemsSync.expenseId,
+          categoryId: item.categoryId,
+          itemName: item.name,
+          itemPrice: item.price,
+          discount: item.discount || undefined,
+          quantity: item.quantity || undefined,
+          sizeValue: item.size?.value,
+          sizeUnit: item.size?.unit as
+            | "kg"
+            | "g"
+            | "l"
+            | "ml"
+            | "cl"
+            | undefined,
+        },
+        { storeId: itemsSync.storeId },
+      );
+    }
+  }
 }
 
-function mapToTransaction(expense: ExpenseWithStatus): Transaction & { status?: string; rejectionReason?: string } {
-  return {
-    id: expense.id,
-    type: "expense",
-    category: { id: expense.category.id, name: expense.category.name },
-    store: expense.store
-      ? { id: expense.store.id, name: expense.store.name, location: expense.store.location }
-      : undefined,
-    scope: (expense.transaction.scope as "PERSONAL" | "FAMILY") || "PERSONAL",
-    familyId: expense.transaction.familyId,
-    transaction: {
-      id: expense.transaction.id || "",
-      value: expense.transaction.value || 0,
-      recordedAt: expense.transaction.recordedAt,
-      description: expense.transaction.description,
-      user: expense.transaction.user || { id: "", firstName: "", lastName: "" },
-    },
-    items: expense.items?.map((item) => ({
-      name: item.name,
-      price: item.price,
-      discount: item.discount,
-      quantity: item.quantity,
-    })),
-    receiptImages: expense.receiptImages || [],
-    status: expense.status,
-    rejectionReason: expense.rejectionReason,
-  };
-}
-
-export default function PendingTransactionDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default function PendingTransactionDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = use(params);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { data: expense, isLoading } = usePendingExpense(id);
   const approveMutation = useApprovePendingExpense();
   const rejectMutation = useRejectPendingExpense();
   const resubmitMutation = useResubmitExpense();
+  const updateMutation = useUpdatePendingExpense();
   const deleteMutation = useDeletePendingExpense();
 
-  const handleApprove = () => {
-    approveMutation.mutate(id, {
-      onSuccess: () => router.push("/transactions?tab=pending"),
-    });
+  // Local loading state that covers the full async flow (sync + update + action)
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Key to force remount after save so refs/state reset from fresh data
+  const [resetKey, setResetKey] = useState(0);
+
+  const handleApprove = async (
+    changes?: Record<string, unknown>,
+    itemsSync?: ItemsSync,
+  ) => {
+    setIsSaving(true);
+    try {
+      if (itemsSync) await syncExpenseItems(itemsSync);
+      if (changes && Object.keys(changes).length > 0) {
+        await updateMutation.mutateAsync({ id, data: changes });
+      }
+      await approveMutation.mutateAsync(id);
+      router.push("/transactions?tab=pending");
+    } catch {
+      // Error toasts handled by each mutation's onError
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleReject = (reason: string) => {
@@ -89,11 +114,51 @@ export default function PendingTransactionDetailPage({ params }: { params: Promi
     );
   };
 
-  const handleResubmit = () => {
-    resubmitMutation.mutate(
-      { id },
-      { onSuccess: () => router.push("/transactions?tab=pending") },
-    );
+  const handleResubmit = async (
+    changes?: Record<string, unknown>,
+    itemsSync?: ItemsSync,
+  ) => {
+    setIsSaving(true);
+    try {
+      if (itemsSync) await syncExpenseItems(itemsSync);
+      // Persist note/storeId via update first (resubmit DTO doesn't support them)
+      if (changes && Object.keys(changes).length > 0) {
+        await updateMutation.mutateAsync({ id, data: changes });
+      }
+      await resubmitMutation.mutateAsync({ id });
+      router.push("/transactions?tab=pending");
+    } catch {
+      // Error toasts handled by each mutation's onError
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleUpdate = async (
+    changes: Record<string, unknown>,
+    itemsSync?: ItemsSync,
+  ) => {
+    setIsSaving(true);
+    try {
+      if (itemsSync) await syncExpenseItems(itemsSync);
+      if (Object.keys(changes).length > 0) {
+        await updateMutation.mutateAsync({ id, data: changes });
+      } else if (itemsSync) {
+        toast.success("Pending expense updated");
+        queryClient.invalidateQueries({ queryKey: pendingKeys.all });
+      }
+      // Refetch detail so the component remounts with fresh data
+      await queryClient.refetchQueries({
+        queryKey: pendingKeys.detail(id),
+      });
+      setResetKey((k) => k + 1);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to update expense",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = () => {
@@ -120,23 +185,28 @@ export default function PendingTransactionDetailPage({ params }: { params: Promi
     );
   }
 
-  const transaction = mapToTransaction(expense as unknown as ExpenseWithStatus);
-
   return (
     <div className="space-y-6 dash-animate-in">
-      <Button variant="ghost" onClick={() => router.back()} className="text-text-secondary">
+      <Button
+        variant="ghost"
+        onClick={() => router.back()}
+        className="text-text-secondary"
+      >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Transactions
       </Button>
       <PendingTransactionDetail
-        transaction={transaction}
+        key={resetKey}
+        expense={expense as unknown as PendingExpenseData}
         onApprove={handleApprove}
         onReject={handleReject}
         onResubmit={handleResubmit}
+        onUpdate={handleUpdate}
         onDelete={handleDelete}
-        isApproving={approveMutation.isPending}
+        isApproving={isSaving || approveMutation.isPending}
         isRejecting={rejectMutation.isPending}
-        isResubmitting={resubmitMutation.isPending}
+        isResubmitting={isSaving || resubmitMutation.isPending}
+        isUpdating={isSaving || updateMutation.isPending}
         isDeleting={deleteMutation.isPending}
       />
     </div>

@@ -16,14 +16,8 @@ interface TransactionWithExtras extends TransactionResponse {
   description?: string;
 }
 
-/** Runtime expense responses include `receiptImages` not yet in the spec. */
-interface ExpenseWithExtras extends ExpenseResponse {
-  receiptImages?: string[];
-}
-
 export function mapExpenseToTransaction(expense: ExpenseResponse, family?: Family): Transaction {
   const tx = expense.transaction as TransactionWithExtras | undefined;
-  const exp = expense as ExpenseWithExtras;
   return {
     id: expense.id,
     type: "expense",
@@ -53,7 +47,7 @@ export function mapExpenseToTransaction(expense: ExpenseResponse, family?: Famil
           quantity: item.quantity,
         }))
       : undefined,
-    receiptImages: exp.receiptImages || [],
+    receiptImages: expense.receiptImages || [],
   };
 }
 
