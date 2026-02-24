@@ -48,13 +48,15 @@ export function useExpenseAiSuggestions({
   const prevItemNamesRef = useRef<string>("");
   useEffect(() => {
     if (!isItemized) return;
+    // Skip AI suggestion when a category is already selected (e.g. from receipt scan)
+    if (selectedCategory) return;
     const names = expenseItems.map((i: ExpenseItem) => i.name);
     const key = names.join("|");
     if (key !== prevItemNamesRef.current && names.length > 0) {
       prevItemNamesRef.current = key;
       ai.setExpenseItemNames(names);
     }
-  }, [expenseItems, isItemized, ai]);
+  }, [expenseItems, isItemized, ai, selectedCategory]);
 
   // Auto-accept AI expense suggestion (itemized mode)
   const handleItemizedAutoAccept = useCallback(
