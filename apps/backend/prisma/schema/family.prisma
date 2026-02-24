@@ -27,6 +27,7 @@ model Family {
   transactions  Transaction[]
   notifications Notification[]
   baskets       Basket[]
+  receipts      Receipt[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
