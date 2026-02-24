@@ -1,8 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
-import { homedir } from 'os';
+import { CopilotTokenService } from '~common/services/copilot-token.service';
 import {
   IReceiptParser,
   ReceiptParsingContext,
@@ -21,27 +19,18 @@ import { ItemNameNormalizerService } from './item-name-normalizer.service';
 const SYSTEM_PROMPT =
   'You are a receipt data extraction tool. Return ONLY valid JSON. No explanation, no reasoning, no markdown fences.';
 
-interface CopilotAuthData {
-  'github-copilot'?: {
-    type: string;
-    access: string;
-    refresh: string;
-    expires: number;
-  };
-}
-
 export class OpencodeReceiptParser implements IReceiptParser {
   readonly name = 'opencode';
   private readonly logger = new Logger(OpencodeReceiptParser.name);
   private readonly model: string;
   private readonly timeout: number;
   private readonly apiEndpoint: string;
-  private cachedToken: string | null = null;
 
   constructor(
     private readonly configService: ConfigService,
     private readonly postProcessor: ReceiptPostProcessor,
-    private readonly nameNormalizer?: ItemNameNormalizerService,
+    private readonly nameNormalizer: ItemNameNormalizerService | undefined,
+    private readonly tokenService: CopilotTokenService,
   ) {
     const rawModel = this.configService.get<string>(
       'OPENCODE_MODEL',
@@ -193,7 +182,20 @@ export class OpencodeReceiptParser implements IReceiptParser {
   }
 
   private async callCopilotApi(prompt: string): Promise<string> {
-    const token = await this.getAuthToken();
+    try {
+      return await this.doApiCall(prompt);
+    } catch (err) {
+      if (err instanceof Error && err.message.includes('401')) {
+        this.logger.warn('Copilot API returned 401, refreshing token and retrying...');
+        await this.tokenService.refreshIfUnauthorized();
+        return this.doApiCall(prompt);
+      }
+      throw err;
+    }
+  }
+
+  private async doApiCall(prompt: string): Promise<string> {
+    const token = await this.tokenService.getToken();
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeout);
@@ -251,35 +253,6 @@ export class OpencodeReceiptParser implements IReceiptParser {
       return content;
     } finally {
       clearTimeout(timer);
-    }
-  }
-
-  private async getAuthToken(): Promise<string> {
-    if (this.cachedToken) return this.cachedToken;
-
-    const authPath = join(
-      homedir(),
-      '.local',
-      'share',
-      'opencode',
-      'auth.json',
-    );
-
-    try {
-      const raw = await readFile(authPath, 'utf-8');
-      const auth = JSON.parse(raw) as CopilotAuthData;
-      const token = auth['github-copilot']?.access;
-      if (!token) {
-        throw new Error(
-          'No github-copilot access token found in auth.json',
-        );
-      }
-      this.cachedToken = token;
-      return token;
-    } catch (err) {
-      throw new Error(
-        `Failed to read Copilot auth token: ${err instanceof Error ? err.message : String(err)}`,
-      );
     }
   }
 }
