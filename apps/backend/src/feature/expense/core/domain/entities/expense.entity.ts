@@ -1,3 +1,4 @@
+import { Prisma } from 'prisma/generated/prisma/client';
 import { ExpenseCategory } from '~feature/expense-category/core';
 import { Store } from '~feature/store/core';
 import { Transaction } from '~feature/transaction/core';
@@ -22,12 +23,56 @@ export interface ExpenseProps {
   updatedAt: Date;
 }
 
+type PrismaExpenseWithRelations = Prisma.ExpenseGetPayload<{
+  include: {
+    category: true;
+    store: true;
+    receipt: true;
+    transaction: {
+      include: {
+        user: true;
+      };
+    };
+    items: {
+      include: {
+        item: {
+          include: {
+            item: {
+              include: {
+                category: true;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+}>;
+
 export class Expense {
   private readonly props: ExpenseProps;
 
   constructor(props: ExpenseProps) {
     this.validate(props);
     this.props = props;
+  }
+
+  static fromPrisma(data: PrismaExpenseWithRelations): Expense {
+    return new Expense({
+      id: data.id,
+      transactionId: data.transactionId,
+      transaction: Transaction.fromPrisma(data.transaction),
+      store: data.store ? Store.fromPrisma(data.store) : null,
+      category: ExpenseCategory.fromPrisma(data.category),
+      storeId: data.storeId,
+      categoryId: data.categoryId,
+      items: data.items.map(ExpenseItem.fromPrisma),
+      receipt: data.receipt
+        ? { id: data.receipt.id, storageKey: data.receipt.storageKey }
+        : null,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    });
   }
 
   private validate(props: ExpenseProps): void {

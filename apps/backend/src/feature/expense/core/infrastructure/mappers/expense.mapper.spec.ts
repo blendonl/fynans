@@ -1,12 +1,13 @@
-import { ExpenseMapper } from './expense.mapper';
-// Mock Decimal
+import { Expense } from '../../domain/entities/expense.entity';
+
 class Decimal {
     constructor(private readonly value: number | string) { }
     toNumber() { return Number(this.value); }
     minus(d: Decimal) { return new Decimal(Number(this.value) - Number(d.value)); }
+    times(d: Decimal) { return new Decimal(Number(this.value) * Number(d.value)); }
 }
 
-describe('ExpenseMapper', () => {
+describe('Expense.fromPrisma', () => {
     it('should map prisma expense with items to domain expense', () => {
         const date = new Date();
         const prismaExpense = {
@@ -20,8 +21,11 @@ describe('ExpenseMapper', () => {
                 id: 'tx-1',
                 userId: 'user-1',
                 type: 'EXPENSE',
+                status: 'CONFIRMED',
                 value: new Decimal(100),
                 familyId: null,
+                paymentMethodId: null,
+                rejectionReason: null,
                 scope: 'PERSONAL',
                 recordedAt: date,
                 createdAt: date,
@@ -37,7 +41,8 @@ describe('ExpenseMapper', () => {
             category: {
                 id: 'cat-1',
                 name: 'Groceries',
-                userId: 'user-1',
+                parentId: null,
+                isConnectedToStore: false,
                 createdAt: date,
                 updatedAt: date,
             },
@@ -48,6 +53,7 @@ describe('ExpenseMapper', () => {
                 createdAt: date,
                 updatedAt: date,
             },
+            receipt: null,
             items: [
                 {
                     id: 'expense-item-1',
@@ -74,7 +80,6 @@ describe('ExpenseMapper', () => {
                             category: {
                                 id: 'item-cat-1',
                                 name: 'Dairy',
-                                userId: 'user-1',
                                 parentId: null,
                                 createdAt: date,
                                 updatedAt: date,
@@ -86,8 +91,11 @@ describe('ExpenseMapper', () => {
         };
 
         // @ts-ignore - ignoring type mismatch for deep prisma types which are hard to mock perfectly
-        const domainExpense = ExpenseMapper.toDomain(prismaExpense);
+        const domainExpense = Expense.fromPrisma(prismaExpense);
 
+        expect(domainExpense.id).toBe('expense-1');
+        expect(domainExpense.transactionId).toBe('tx-1');
+        expect(domainExpense.categoryId).toBe('cat-1');
         expect(domainExpense.items).toHaveLength(1);
         expect(domainExpense.items[0].id).toBe('expense-item-1');
         expect(domainExpense.items[0].itemName).toBe('Milk');
