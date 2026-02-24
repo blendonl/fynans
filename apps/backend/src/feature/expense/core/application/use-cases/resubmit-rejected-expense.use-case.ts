@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
 import { type ITransactionRepository } from '../../../../transaction/core/domain/repositories/transaction.repository.interface';
+import { Transaction } from '../../../../transaction/core/domain/entities/transaction.entity';
 import { NotifyFamilyMembersService } from '~common/services/notify-family-members.service';
 import { Expense } from '../../domain/entities/expense.entity';
 import { ResubmitExpenseDto } from '../dto/resubmit-expense.dto';
@@ -37,18 +38,15 @@ export class ResubmitRejectedExpenseUseCase {
       throw new DomainValidationException('Only rejected expenses can be re-submitted');
     }
 
-    // Only creator can re-submit
     if (transaction.userId !== userId) {
       throw new DomainForbiddenException('Only the creator can re-submit a rejected expense');
     }
 
-    // Apply optional field updates to expense
     if (dto?.categoryId) {
-      await this.expenseRepository.update(expenseId, { categoryId: dto.categoryId } as Partial<Expense>);
+      await this.expenseRepository.update(expenseId, { categoryId: dto.categoryId });
     }
 
-    // Apply optional updates to transaction (value, recordedAt, paymentMethodId)
-    const transactionUpdates: Record<string, any> = {};
+    const transactionUpdates: Record<string, unknown> = {};
     if (dto?.amount !== undefined) {
       transactionUpdates.value = dto.amount;
     }
@@ -56,20 +54,18 @@ export class ResubmitRejectedExpenseUseCase {
       transactionUpdates.recordedAt = dto.recordedAt;
     }
     if (dto?.paymentMethodId !== undefined) {
-      transactionUpdates.paymentMethodId = dto.paymentMethodId;
+      transactionUpdates.paymentMethodId = dto.paymentMethodId ?? undefined;
     }
 
     if (Object.keys(transactionUpdates).length > 0) {
-      await this.transactionRepository.update(transaction.id, transactionUpdates as any);
+      await this.transactionRepository.update(transaction.id, transactionUpdates as Partial<Transaction>);
     }
 
-    // Set status back to PENDING, clear rejectionReason
     await this.transactionRepository.updateStatus(
       transaction.id,
       TransactionStatus.PENDING,
     );
 
-    // Notify family about re-submission
     if (transaction.familyId) {
       await this.notifyFamilyMembersService.notify({
         familyId: transaction.familyId,

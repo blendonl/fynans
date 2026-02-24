@@ -30,16 +30,13 @@ export class AddItemToExpenseUseCase {
 
     await this.expenseItemService.create(itemDto, storeId, userId);
 
-    // 2. Recalculate total
     const newTotal = await this.expenseItemService.calculateTotal(expenseId);
 
-    // 3. Update Transaction value
     await this.transactionService.update(
       expense.transactionId,
       new UpdateTransactionDto({ value: newTotal }),
     );
 
-    // 4. Return updated expense
     return this.expenseRepository.findById(expenseId) as Promise<Expense>;
   }
 }

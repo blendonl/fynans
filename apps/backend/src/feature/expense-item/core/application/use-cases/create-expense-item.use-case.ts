@@ -50,11 +50,10 @@ export class CreateExpenseItemUseCase {
     const expenseItem = await this.expenseItemRepository.create({
       expenseId: dto.expenseId,
       itemId,
-      categoryId: dto.categoryId,
       price: new Decimal(dto.itemPrice),
       discount: new Decimal(dto.discount ?? 0),
       quantity: new Decimal(dto.quantity ?? 1),
-    } as Partial<ExpenseItem>);
+    });
 
     return expenseItem;
   }

@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
 import { type ITransactionRepository } from '../../../../transaction/core/domain/repositories/transaction.repository.interface';
+import { Transaction } from '../../../../transaction/core/domain/entities/transaction.entity';
 import { Expense } from '../../domain/entities/expense.entity';
 import { UpdatePendingExpenseDto } from '../dto/update-pending-expense.dto';
 import {
@@ -33,13 +34,11 @@ export class UpdatePendingExpenseUseCase {
       throw new DomainValidationException('Only pending expenses can be edited');
     }
 
-    // Only creator can edit pending expense
     if (transaction.userId !== userId) {
       throw new DomainForbiddenException('Only the creator can edit a pending expense');
     }
 
-    // Update expense-level fields
-    const expenseUpdates: Record<string, any> = {};
+    const expenseUpdates: { categoryId?: string; storeId?: string | null } = {};
     if (dto.categoryId !== undefined) {
       expenseUpdates.categoryId = dto.categoryId;
     }
@@ -48,11 +47,10 @@ export class UpdatePendingExpenseUseCase {
     }
 
     if (Object.keys(expenseUpdates).length > 0) {
-      await this.expenseRepository.update(expenseId, expenseUpdates as Partial<Expense>);
+      await this.expenseRepository.update(expenseId, expenseUpdates);
     }
 
-    // Update transaction-level fields
-    const transactionUpdates: Record<string, any> = {};
+    const transactionUpdates: Record<string, unknown> = {};
     if (dto.amount !== undefined) {
       transactionUpdates.value = dto.amount;
     }
@@ -60,11 +58,11 @@ export class UpdatePendingExpenseUseCase {
       transactionUpdates.recordedAt = dto.recordedAt;
     }
     if (dto.paymentMethodId !== undefined) {
-      transactionUpdates.paymentMethodId = dto.paymentMethodId;
+      transactionUpdates.paymentMethodId = dto.paymentMethodId ?? undefined;
     }
 
     if (Object.keys(transactionUpdates).length > 0) {
-      await this.transactionRepository.update(transaction.id, transactionUpdates as any);
+      await this.transactionRepository.update(transaction.id, transactionUpdates as Partial<Transaction>);
     }
 
     return this.expenseRepository.findById(expenseId) as Promise<Expense>;

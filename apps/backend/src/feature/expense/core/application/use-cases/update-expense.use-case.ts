@@ -1,11 +1,11 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+  DomainNotFoundException,
+  DomainForbiddenException,
+} from '~common/exceptions/domain.exceptions';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
 import { type ITransactionRepository } from '~feature/transaction/core/domain/repositories/transaction.repository.interface';
+import { Transaction } from '~feature/transaction/core/domain/entities/transaction.entity';
 import { UpdateExpenseDto } from '../dto/update-expense.dto';
 import { type IExpenseCategoryRepository } from '../../../../expense-category/core/domain/repositories/expense-category.repository.interface';
 import { Expense } from '../../domain/entities/expense.entity';
@@ -32,38 +32,35 @@ export class UpdateExpenseUseCase {
     const expense = await this.expenseRepository.findById(id);
 
     if (!expense) {
-      throw new NotFoundException('Expense not found');
+      throw new DomainNotFoundException('Expense not found');
     }
 
     const isOwner = await this.expenseRepository.verifyOwnership(id, userId);
     if (!isOwner) {
-      throw new ForbiddenException('Access denied');
+      throw new DomainForbiddenException('Access denied');
     }
 
     await this.validate(dto);
 
-    // Update expense-level fields (categoryId, storeId, description)
     const updated = await this.expenseRepository.update(id, {
       categoryId: dto.categoryId,
       storeId: dto.storeId,
-      description: dto.description,
-    } as Partial<Expense>);
+      description: dto.note,
+    });
 
-    // Update transaction-level fields (value, recordedAt, paymentMethodId)
     const txUpdates: Record<string, unknown> = {};
     if (dto.amount !== undefined) txUpdates.value = dto.amount;
     if (dto.recordedAt !== undefined) txUpdates.recordedAt = dto.recordedAt;
     if (dto.paymentMethodId !== undefined)
-      txUpdates.paymentMethodId = dto.paymentMethodId;
+      txUpdates.paymentMethodId = dto.paymentMethodId ?? undefined;
 
     if (Object.keys(txUpdates).length > 0) {
       await this.transactionRepository.update(
-        expense.transactionId!,
-        txUpdates as any,
+        expense.transactionId,
+        txUpdates as Partial<Transaction>,
       );
     }
 
-    // Re-fetch to return the full updated entity
     if (Object.keys(txUpdates).length > 0) {
       return (await this.expenseRepository.findById(id))!;
     }
@@ -72,21 +69,19 @@ export class UpdateExpenseUseCase {
   }
 
   private async validate(dto: UpdateExpenseDto): Promise<void> {
-    // Validate category exists if changed
     if (dto.categoryId) {
       const category = await this.expenseCategoryRepository.findById(
         dto.categoryId,
       );
       if (!category) {
-        throw new NotFoundException('Expense category not found');
+        throw new DomainNotFoundException('Expense category not found');
       }
     }
 
-    // Validate store exists if changed
     if (dto.storeId) {
       const store = await this.storeService.findById(dto.storeId);
       if (!store) {
-        throw new NotFoundException('Store not found');
+        throw new DomainNotFoundException('Store not found');
       }
     }
   }
