@@ -8,6 +8,7 @@ import {
   PlusCircle,
   ShoppingCart,
   Bell,
+  Settings2,
   LogOut,
   User,
   ChevronsUpDown,
@@ -32,6 +33,7 @@ const NAV_ITEMS = [
   { href: "/add", label: "Add Transaction", icon: PlusCircle },
   { href: "/basket", label: "Basket", icon: ShoppingCart },
   { href: "/notifications", label: "Notifications", icon: Bell },
+  { href: "/manage", label: "Manage", icon: Settings2 },
 ];
 
 export function AppSidebar() {
