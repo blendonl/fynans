@@ -312,6 +312,19 @@
             }
           },
           {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CONFIRMED",
+                "PENDING",
+                "REJECTED"
+              ]
+            }
+          },
+          {
             "name": "dateFrom",
             "required": false,
             "in": "query",
@@ -431,6 +444,19 @@
               "enum": [
                 "PERSONAL",
                 "FAMILY"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CONFIRMED",
+                "PENDING",
+                "REJECTED"
               ]
             }
           },
@@ -1692,6 +1718,19 @@
         "operationId": "ExpenseController_findAll",
         "parameters": [
           {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CONFIRMED",
+                "PENDING",
+                "REJECTED"
+              ]
+            }
+          },
+          {
             "name": "search",
             "required": false,
             "in": "query",
@@ -1814,6 +1853,19 @@
       "get": {
         "operationId": "ExpenseController_getStatistics",
         "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CONFIRMED",
+                "PENDING",
+                "REJECTED"
+              ]
+            }
+          },
           {
             "name": "search",
             "required": false,
@@ -2169,6 +2221,180 @@
           }
         ],
         "summary": "Delete an expense",
+        "tags": [
+          "Expense"
+        ]
+      }
+    },
+    "/expenses/{id}/approve": {
+      "post": {
+        "operationId": "ExpenseController_approve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approve a pending expense",
+        "tags": [
+          "Expense"
+        ]
+      }
+    },
+    "/expenses/{id}/reject": {
+      "post": {
+        "operationId": "ExpenseController_reject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectExpenseRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reject a pending expense",
+        "tags": [
+          "Expense"
+        ]
+      }
+    },
+    "/expenses/{id}/resubmit": {
+      "post": {
+        "operationId": "ExpenseController_resubmit",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResubmitExpenseRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Re-submit a rejected expense for review",
+        "tags": [
+          "Expense"
+        ]
+      }
+    },
+    "/expenses/{id}/pending": {
+      "patch": {
+        "operationId": "ExpenseController_updatePending",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePendingExpenseRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a pending expense",
         "tags": [
           "Expense"
         ]
@@ -3054,6 +3280,180 @@
           }
         ],
         "summary": "Stream receipt processing job progress via SSE",
+        "tags": [
+          "Receipt"
+        ]
+      }
+    },
+    "/receipts": {
+      "get": {
+        "operationId": "StoredReceiptController_findAll",
+        "parameters": [
+          {
+            "name": "familyId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "expenseId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StoredReceiptResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List stored receipts",
+        "tags": [
+          "Receipt"
+        ]
+      }
+    },
+    "/receipts/{id}": {
+      "get": {
+        "operationId": "StoredReceiptController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoredReceiptResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a stored receipt with download URL",
+        "tags": [
+          "Receipt"
+        ]
+      },
+      "delete": {
+        "operationId": "StoredReceiptController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a stored receipt and its file",
+        "tags": [
+          "Receipt"
+        ]
+      }
+    },
+    "/receipts/{id}/link-expense": {
+      "patch": {
+        "operationId": "StoredReceiptController_linkToExpense",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkReceiptToExpenseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoredReceiptResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Link a receipt to an expense",
         "tags": [
           "Receipt"
         ]
@@ -4734,7 +5134,18 @@
           "value": {
             "type": "number"
           },
+          "status": {
+            "enum": [
+              "CONFIRMED",
+              "PENDING",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
           "paymentMethodId": {
+            "type": "string"
+          },
+          "rejectionReason": {
             "type": "string"
           },
           "recordedAt": {
@@ -4759,6 +5170,7 @@
           "type",
           "scope",
           "value",
+          "status",
           "recordedAt",
           "createdAt",
           "updatedAt",
@@ -5586,6 +5998,9 @@
           "paymentMethodId": {
             "type": "string",
             "format": "uuid"
+          },
+          "pending": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -5666,6 +6081,19 @@
           "name": {
             "type": "string"
           },
+          "status": {
+            "type": "string"
+          },
+          "rejectionReason": {
+            "type": "string"
+          },
+          "receiptImages": {
+            "description": "Presigned receipt image URLs",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -5685,6 +6113,8 @@
           "store",
           "items",
           "name",
+          "status",
+          "receiptImages",
           "createdAt",
           "updatedAt"
         ]
@@ -5814,6 +6244,67 @@
           },
           "storeId": {
             "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "RejectExpenseRequestDto": {
+        "type": "object",
+        "properties": {
+          "rejectionReason": {
+            "type": "string",
+            "minLength": 5
+          }
+        },
+        "required": [
+          "rejectionReason"
+        ]
+      },
+      "ResubmitExpenseRequestDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "recordedAt": {
+            "type": "string"
+          },
+          "paymentMethodId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UpdatePendingExpenseRequestDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "storeId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "note": {
+            "type": "string"
+          },
+          "recordedAt": {
+            "type": "string"
+          },
+          "paymentMethodId": {
+            "type": "string",
+            "nullable": true,
             "format": "uuid"
           }
         }
@@ -6163,6 +6654,18 @@
           "file": {
             "type": "string",
             "format": "binary"
+          },
+          "autoCreatePending": {
+            "type": "string",
+            "description": "Auto-create a pending expense from the receipt"
+          },
+          "familyId": {
+            "type": "string",
+            "description": "Family ID to assign the receipt to"
+          },
+          "paymentMethodId": {
+            "type": "string",
+            "description": "Payment method ID for auto-created pending expense"
           }
         },
         "required": [
@@ -6178,6 +6681,9 @@
           "status": {
             "type": "string",
             "example": "processing"
+          },
+          "receiptId": {
+            "type": "string"
           }
         },
         "required": [
@@ -6304,6 +6810,9 @@
           },
           "suggestedExpenseCategory": {
             "$ref": "#/components/schemas/SuggestedExpenseCategoryDto"
+          },
+          "pendingExpenseId": {
+            "type": "string"
           }
         },
         "required": [
@@ -6342,6 +6851,71 @@
         },
         "required": [
           "status"
+        ]
+      },
+      "StoredReceiptResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "familyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "expenseId": {
+            "type": "string",
+            "nullable": true
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "fileSize": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "downloadUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "fileName",
+          "originalName",
+          "mimeType",
+          "fileSize",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "LinkReceiptToExpenseDto": {
+        "type": "object",
+        "properties": {
+          "expenseId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the expense to link"
+          }
+        },
+        "required": [
+          "expenseId"
         ]
       },
       "SuggestCategoryRequestDto": {

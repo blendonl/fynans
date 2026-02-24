@@ -9,6 +9,7 @@ interface PrismaExpense extends Prisma.ExpenseGetPayload<{
   include: {
     category: true;
     store: true;
+    receipt: true;
     transaction: {
       include: {
         user: true;
@@ -41,6 +42,9 @@ export class ExpenseMapper {
       storeId: prismaExpense.storeId,
       categoryId: prismaExpense.categoryId,
       items: prismaExpense.items.map(ExpenseItemMapper.toDomain),
+      receipt: prismaExpense.receipt
+        ? { id: prismaExpense.receipt.id, storageKey: prismaExpense.receipt.storageKey }
+        : null,
       createdAt: prismaExpense.createdAt,
       updatedAt: prismaExpense.updatedAt,
     });

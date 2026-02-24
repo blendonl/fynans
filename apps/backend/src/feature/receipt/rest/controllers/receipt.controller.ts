@@ -46,6 +46,9 @@ class ProcessReceiptResponseDto {
 
   @ApiProperty({ example: 'processing' })
   status: string;
+
+  @ApiPropertyOptional()
+  receiptId?: string;
 }
 
 class ReceiptJobStatusResponseDto {
@@ -68,6 +71,15 @@ class ReceiptJobStatusResponseDto {
 class ReceiptUploadBodyDto {
   @ApiProperty({ type: 'string', format: 'binary' })
   file: any;
+
+  @ApiPropertyOptional({ description: 'Auto-create a pending expense from the receipt' })
+  autoCreatePending?: string;
+
+  @ApiPropertyOptional({ description: 'Family ID to assign the receipt to' })
+  familyId?: string;
+
+  @ApiPropertyOptional({ description: 'Payment method ID for auto-created pending expense' })
+  paymentMethodId?: string;
 }
 
 @ApiTags('Receipt')
