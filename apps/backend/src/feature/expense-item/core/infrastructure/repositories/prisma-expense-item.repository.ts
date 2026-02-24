@@ -3,57 +3,54 @@ import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IExpenseItemRepository,
   PaginatedResult,
+  CreateExpenseItemData,
+  UpdateExpenseItemData,
 } from '../../domain/repositories/expense-item.repository.interface';
 import { ExpenseItem } from '../../domain/entities/expense-item.entity';
 import { Pagination } from '~common/dto/pagination.dto';
-import { ExpenseItemMapper } from '../mappers/expense-item.mapper';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+
+const EXPENSE_ITEM_INCLUDE = {
+  item: { include: { item: { include: { category: true } } } },
+  expense: true,
+} as const;
 
 @Injectable()
 export class PrismaExpenseItemRepository implements IExpenseItemRepository {
   constructor(private readonly prisma: PrismaService) { }
 
-  async create(data: Partial<ExpenseItem>): Promise<ExpenseItem> {
+  async create(data: CreateExpenseItemData): Promise<ExpenseItem> {
     const item = await this.prisma.expenseItem.create({
       data: {
-        itemId: data.itemId!,
-        expenseId: data.expenseId!,
-        price: new Decimal(data.price?.toString() || '0'),
-        discount: new Decimal(data.discount?.toString() || '0'),
-        quantity: data.quantity || 1,
+        itemId: data.itemId,
+        expenseId: data.expenseId,
+        price: new Decimal(data.price.toString()),
+        discount: new Decimal(data.discount.toString()),
+        quantity: data.quantity,
       },
-      include: {
-        item: { include: { item: { include: { category: true } } } },
-        expense: true,
-      },
+      include: EXPENSE_ITEM_INCLUDE,
     });
 
-    return ExpenseItemMapper.toDomain(item);
+    return ExpenseItem.fromPrisma(item);
   }
 
   async findById(id: string): Promise<ExpenseItem | null> {
     const item = await this.prisma.expenseItem.findUnique({
       where: { id },
-      include: {
-        item: { include: { item: { include: { category: true } } } },
-        expense: true,
-      },
+      include: EXPENSE_ITEM_INCLUDE,
     });
 
-    return item ? ExpenseItemMapper.toDomain(item) : null;
+    return item ? ExpenseItem.fromPrisma(item) : null;
   }
 
   async findByExpenseId(expenseId: string): Promise<ExpenseItem[]> {
     const items = await this.prisma.expenseItem.findMany({
       where: { expenseId },
-      include: {
-        item: { include: { item: { include: { category: true } } } },
-        expense: true,
-      },
+      include: EXPENSE_ITEM_INCLUDE,
       orderBy: { createdAt: 'asc' },
     });
 
-    return items.map(ExpenseItemMapper.toDomain);
+    return items.map(ExpenseItem.fromPrisma);
   }
 
   async findAll(
@@ -73,13 +70,13 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
     ]);
 
     return {
-      data: items.map(ExpenseItemMapper.toDomain),
+      data: items.map(ExpenseItem.fromPrisma),
       total,
     };
   }
 
-  async update(id: string, data: Partial<ExpenseItem>): Promise<ExpenseItem> {
-    const updateData: any = {};
+  async update(id: string, data: UpdateExpenseItemData): Promise<ExpenseItem> {
+    const updateData: Record<string, unknown> = {};
 
     if (data.categoryId !== undefined) {
       updateData.categoryId = data.categoryId;
@@ -96,24 +93,15 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
     const item = await this.prisma.expenseItem.update({
       where: { id },
       data: updateData,
-      include: {
-        item: { include: { item: { include: { category: true } } } },
-        expense: true,
-      },
+      include: EXPENSE_ITEM_INCLUDE,
     });
 
-    return ExpenseItemMapper.toDomain(item);
+    return ExpenseItem.fromPrisma(item);
   }
 
   async delete(id: string): Promise<void> {
     await this.prisma.expenseItem.delete({
       where: { id },
-    });
-  }
-
-  async deleteByExpenseId(expenseId: string): Promise<void> {
-    await this.prisma.expenseItem.deleteMany({
-      where: { expenseId },
     });
   }
 
