@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Moon, Sun, Monitor, LogOut, Users, ChevronRight } from "lucide-react";
+import { Moon, Sun, Monitor, LogOut, Users, ChevronRight, Bell, Settings2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/providers/auth-provider";
 import { useFamilies } from "@/hooks/use-families";
+import { useNotifications } from "@/hooks/use-notifications";
 import { PaymentMethodsSection } from "@/components/profile/payment-methods-section";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +17,7 @@ export default function ProfilePage() {
   const { theme, setTheme } = useTheme();
   const { pendingInvitations } = useFamilies();
   const pendingInvitationCount = pendingInvitations.length;
+  const { unreadCount } = useNotifications();
 
   const themes = [
     { value: "light", label: "Light", icon: Sun },
@@ -79,6 +81,27 @@ export default function ProfilePage() {
 
       <Card className="overflow-hidden">
         <CardHeader>
+          <CardTitle>Notifications</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Link
+            href="/notifications"
+            className="flex items-center gap-3 px-6 py-4 hover:bg-surface-variant transition-colors"
+          >
+            <Bell className="h-5 w-5 text-text-secondary shrink-0" />
+            <span className="flex-1 text-sm font-medium text-text">Notifications</span>
+            {unreadCount > 0 && (
+              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-error px-1.5 text-[11px] font-semibold text-white">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+            <ChevronRight className="h-4 w-4 text-text-secondary shrink-0" />
+          </Link>
+        </CardContent>
+      </Card>
+
+      <Card className="overflow-hidden">
+        <CardHeader>
           <CardTitle>Families</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -93,6 +116,22 @@ export default function ProfilePage() {
                 {pendingInvitationCount > 99 ? "99+" : pendingInvitationCount}
               </span>
             )}
+            <ChevronRight className="h-4 w-4 text-text-secondary shrink-0" />
+          </Link>
+        </CardContent>
+      </Card>
+
+      <Card className="overflow-hidden">
+        <CardHeader>
+          <CardTitle>Manage</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Link
+            href="/manage"
+            className="flex items-center gap-3 px-6 py-4 hover:bg-surface-variant transition-colors"
+          >
+            <Settings2 className="h-5 w-5 text-text-secondary shrink-0" />
+            <span className="flex-1 text-sm font-medium text-text">Manage Items & Categories</span>
             <ChevronRight className="h-4 w-4 text-text-secondary shrink-0" />
           </Link>
         </CardContent>
