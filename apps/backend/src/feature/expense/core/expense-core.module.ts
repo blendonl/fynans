@@ -22,6 +22,7 @@ import { RejectPendingExpenseUseCase } from './application/use-cases/reject-pend
 import { ResubmitRejectedExpenseUseCase } from './application/use-cases/resubmit-rejected-expense.use-case';
 import { UpdatePendingExpenseUseCase } from './application/use-cases/update-pending-expense.use-case';
 import { ExpenseService } from './application/services/expense.service';
+import { ExpenseAuthService } from './application/services/expense-auth.service';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { ExpenseService } from './application/services/expense.service';
     ResubmitRejectedExpenseUseCase,
     UpdatePendingExpenseUseCase,
     ExpenseService,
+    ExpenseAuthService,
   ],
   exports: [ExpenseService],
 })

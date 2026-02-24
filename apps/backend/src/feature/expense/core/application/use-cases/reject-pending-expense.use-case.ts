@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
 import { type ITransactionRepository } from '../../../../transaction/core/domain/repositories/transaction.repository.interface';
-import { FamilyService } from '../../../../family/core/application/services/family.service';
 import { CreateNotificationUseCase } from '../../../../notification/core/application/use-cases/create-notification.use-case';
+import { ExpenseAuthService } from '../services/expense-auth.service';
 import { Expense } from '../../domain/entities/expense.entity';
 import { TransactionStatus } from '../../../../transaction/core/domain/value-objects/transaction-status.vo';
 import {
@@ -12,7 +12,6 @@ import {
 } from '../../../../notification/core/domain/value-objects/notification-type.vo';
 import {
   DomainNotFoundException,
-  DomainForbiddenException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
 
@@ -23,7 +22,7 @@ export class RejectPendingExpenseUseCase {
     private readonly expenseRepository: IExpenseRepository,
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
-    private readonly familyService: FamilyService,
+    private readonly expenseAuthService: ExpenseAuthService,
     private readonly createNotificationUseCase: CreateNotificationUseCase,
   ) {}
 
@@ -42,26 +41,14 @@ export class RejectPendingExpenseUseCase {
       throw new DomainValidationException('Only pending expenses can be rejected');
     }
 
-    // Auth check: personal = creator only, family = any member
-    if (transaction.familyId) {
-      const member = await this.familyService.findMember(transaction.familyId, userId);
-      if (!member) {
-        throw new DomainForbiddenException('Not a member of this family');
-      }
-    } else {
-      if (transaction.userId !== userId) {
-        throw new DomainForbiddenException('Access denied');
-      }
-    }
+    await this.expenseAuthService.verifyTransactionAccess(transaction, userId);
 
-    // Update status to REJECTED with reason
     await this.transactionRepository.updateStatus(
       transaction.id,
       TransactionStatus.REJECTED,
       rejectionReason,
     );
 
-    // Notify creator if rejector is different
     if (userId !== transaction.userId) {
       await this.createNotificationUseCase.execute({
         userId: transaction.userId,
