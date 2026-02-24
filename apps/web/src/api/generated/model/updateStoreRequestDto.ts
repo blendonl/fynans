@@ -6,7 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-/**
- * @nullable
- */
-export type SuggestCategoryResponseDtoCategoryId = { [key: string]: unknown } | null;
+export interface UpdateStoreRequestDto {
+  name?: string;
+  location?: string;
+}
