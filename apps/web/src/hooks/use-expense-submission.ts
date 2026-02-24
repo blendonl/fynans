@@ -20,6 +20,7 @@ interface UseExpenseSubmissionOptions {
   onSuccess: () => void;
   onSaveForReview?: () => void;
   pendingIdToCleanup?: string | null;
+  receiptIdToLink?: string | null;
   onCleanupPending?: () => void;
 }
 
@@ -92,6 +93,7 @@ export function useExpenseSubmission({
   onSuccess,
   onSaveForReview,
   pendingIdToCleanup,
+  receiptIdToLink,
   onCleanupPending,
 }: UseExpenseSubmissionOptions) {
   const submitMutation = useMutation({
@@ -100,7 +102,23 @@ export function useExpenseSubmission({
         isItemized, items, selectedCategory, selectedStore,
         simpleAmount, simpleNote, recordedAt, scope, familyId, paymentMethodId,
       });
-      await expenseControllerCreate(payload as unknown as Parameters<typeof expenseControllerCreate>[0]);
+      const res = await expenseControllerCreate(payload as unknown as Parameters<typeof expenseControllerCreate>[0]);
+
+      // Re-link receipt to the new expense before deleting the pending one
+      if (receiptIdToLink) {
+        const newExpenseId = (res as unknown as { data: { id: string } }).data?.id;
+        if (newExpenseId) {
+          try {
+            await customInstance(`/receipts/${receiptIdToLink}/link-expense`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ expenseId: newExpenseId }),
+            });
+          } catch {
+            // Non-critical - receipt link failed but expense was created
+          }
+        }
+      }
 
       // Clean up auto-created pending expense from receipt scan
       if (pendingIdToCleanup) {
