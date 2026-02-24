@@ -11,7 +11,6 @@ export class CreateExpenseDto {
   amount?: number;
   note?: string;
   familyId?: string;
-  scope?: 'PERSONAL' | 'FAMILY';
   recordedAt?: Date;
   paymentMethodId?: string;
   status?: TransactionStatus;

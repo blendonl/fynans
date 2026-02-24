@@ -34,9 +34,6 @@ export class ExpenseResponseDto {
   matchedItems?: ExpenseItemResponseDto[];
 
   @ApiProperty()
-  name: string;
-
-  @ApiProperty()
   status: string;
 
   @ApiPropertyOptional()
@@ -69,7 +66,4 @@ export class ExpenseResponseDto {
     return dto;
   }
 
-  static fromEntities(expenses: Expense[]): ExpenseResponseDto[] {
-    return expenses.map((expense) => this.fromEntity(expense));
-  }
 }
