@@ -4,7 +4,7 @@ import {
   ReceiptParsingContext,
   ReceiptParsingResult,
 } from '../../../application/services/receipt-parser.service';
-import { IOllamaService } from '../../../application/interfaces/ollama.interface';
+import { ILlmService } from '../../../application/interfaces/llm.interface';
 import { ReceiptPostProcessor } from '../receipt-post-processor';
 import { ItemNameNormalizerService } from './item-name-normalizer.service';
 import { LlmJsonReceipt } from './parser.interfaces';
@@ -21,8 +21,8 @@ export class LlmReceiptParser implements IReceiptParser {
   private readonly logger = new Logger(LlmReceiptParser.name);
 
   constructor(
-    @Inject('OllamaService')
-    private readonly ollamaService: IOllamaService,
+    @Inject('LlmService')
+    private readonly llmService: ILlmService,
     private readonly postProcessor: ReceiptPostProcessor,
     @Optional() private readonly nameNormalizer?: ItemNameNormalizerService,
   ) {}
@@ -31,9 +31,9 @@ export class LlmReceiptParser implements IReceiptParser {
     text: string,
     context: ReceiptParsingContext,
   ): Promise<ReceiptParsingResult> {
-    const isHealthy = await this.ollamaService.healthCheck();
+    const isHealthy = await this.llmService.healthCheck();
     if (!isHealthy) {
-      throw new Error('Ollama service is not available');
+      throw new Error('LLM service is not available');
     }
 
     const tracker = context.progressTracker;
@@ -82,7 +82,7 @@ ${parsePrompt}`;
     prompt: string,
     tracker?: ReceiptParsingContext['progressTracker'],
   ) {
-    const completion = await this.ollamaService.generateCompletion(prompt, {
+    const completion = await this.llmService.generateCompletion(prompt, {
       format: 'json',
       onToken: tracker?.tokenCallback('llm-parse', 400),
     });

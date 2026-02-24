@@ -52,7 +52,7 @@ export class ProgressTracker {
   }
 
   /**
-   * Create an `onToken` callback for Ollama streaming within a named stage.
+   * Create an `onToken` callback for LLM streaming within a named stage.
    * Progress asymptotically approaches the end of the stage's range as
    * tokens are generated relative to the expected count.
    */

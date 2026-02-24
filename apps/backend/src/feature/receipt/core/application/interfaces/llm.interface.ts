@@ -1,12 +1,12 @@
-export interface IOllamaService {
+export interface ILlmService {
   generateCompletion(
     prompt: string,
-    options?: OllamaCompletionOptions,
-  ): Promise<OllamaCompletionResult>;
+    options?: LlmCompletionOptions,
+  ): Promise<LlmCompletionResult>;
   healthCheck(): Promise<boolean>;
 }
 
-export interface OllamaCompletionOptions {
+export interface LlmCompletionOptions {
   temperature?: number;
   maxTokens?: number;
   onToken?: (tokensSoFar: number) => void;
@@ -15,7 +15,7 @@ export interface OllamaCompletionOptions {
   model?: string;
 }
 
-export interface OllamaCompletionResult {
+export interface LlmCompletionResult {
   response: string;
   totalDuration?: number;
   tokenCount?: number;

@@ -4,7 +4,7 @@
  * inline by the receipt parsing prompt (see receipt-prompt.builder.ts).
  */
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import { IOllamaService } from '~feature/receipt/core/application/interfaces/ollama.interface';
+import { ILlmService } from '~feature/receipt/core/application/interfaces/llm.interface';
 import { ExpenseCategoryService } from '~feature/expense-category/core/application/services/expense-category.service';
 import { StoreItemCategoryService } from '~feature/store-item-category/core/application/services/store-item-category.service';
 import { IncomeCategoryService } from '~feature/income-category/core/application/services/income-category.service';
@@ -18,8 +18,8 @@ export class AiCategoryService {
   private readonly logger = new Logger(AiCategoryService.name);
 
   constructor(
-    @Inject('OllamaService')
-    private readonly ollamaService: IOllamaService,
+    @Inject('LlmService')
+    private readonly llmService: ILlmService,
     private readonly expenseCategoryService: ExpenseCategoryService,
     private readonly storeItemCategoryService: StoreItemCategoryService,
     private readonly incomeCategoryService: IncomeCategoryService,
@@ -71,7 +71,7 @@ export class AiCategoryService {
   private async askCategoryName(context: string): Promise<string | null> {
     try {
       const prompt = `${context}\n\nRespond ONLY with valid JSON: {"translation": "<English translation if not English, otherwise repeat the name>", "category": "<category name>"}\nThe category must be in English, short (1-3 words), and describe the product type.\nAlways provide a category. Use common grocery/shopping categories like: Dairy, Meat, Bread, Beverages, Snacks, Cleaning, Bags, Fruits, Vegetables, Household, etc.\nDo not include any text outside the JSON object.`;
-      const response = await this.ollamaService.generateCompletion(prompt, {
+      const response = await this.llmService.generateCompletion(prompt, {
         format: 'json',
         temperature: 0,
         maxTokens: 200,
