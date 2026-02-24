@@ -8,7 +8,6 @@ import {
 } from '../../domain/repositories/expense-category.repository.interface';
 import { ExpenseCategory } from '../../domain/entities/expense-category.entity';
 import { Pagination } from '~common/dto/pagination.dto';
-import { ExpenseCategoryMapper } from '../mappers/expense-category.mapper';
 import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
 
 @Injectable()
@@ -24,7 +23,7 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
       },
     });
 
-    return ExpenseCategoryMapper.toDomain(category);
+    return ExpenseCategory.fromPrisma(category);
   }
 
   async findById(id: string): Promise<ExpenseCategory | null> {
@@ -32,7 +31,7 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
       where: { id },
     });
 
-    return category ? ExpenseCategoryMapper.toDomain(category) : null;
+    return category ? ExpenseCategory.fromPrisma(category) : null;
   }
 
   async findByName(name: string): Promise<ExpenseCategory | null> {
@@ -40,7 +39,7 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
       where: { name },
     });
 
-    return category ? ExpenseCategoryMapper.toDomain(category) : null;
+    return category ? ExpenseCategory.fromPrisma(category) : null;
   }
 
   async findAll(
@@ -68,7 +67,7 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
     ]);
 
     return {
-      data: categories.map(ExpenseCategoryMapper.toDomain),
+      data: categories.map(ExpenseCategory.fromPrisma),
       total,
     };
   }
@@ -95,7 +94,7 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
     ]);
 
     return {
-      data: categories.map(ExpenseCategoryMapper.toDomain),
+      data: categories.map(ExpenseCategory.fromPrisma),
       total,
     };
   }
@@ -106,7 +105,7 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
       orderBy: { name: 'asc' },
     });
 
-    return categories.map(ExpenseCategoryMapper.toDomain);
+    return categories.map(ExpenseCategory.fromPrisma);
   }
 
   async linkToUser(categoryId: string, userId: string): Promise<void> {
@@ -140,12 +139,18 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
       data: updateData,
     });
 
-    return ExpenseCategoryMapper.toDomain(category);
+    return ExpenseCategory.fromPrisma(category);
   }
 
   async delete(id: string): Promise<void> {
     await this.prisma.expenseCategory.delete({
       where: { id },
+    });
+  }
+
+  async countExpensesByCategory(categoryId: string): Promise<number> {
+    return this.prisma.expense.count({
+      where: { categoryId },
     });
   }
 }
