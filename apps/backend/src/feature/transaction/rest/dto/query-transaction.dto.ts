@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { TransactionType } from '../../core/domain/value-objects/transaction-type.vo';
+import { TransactionStatus } from '../../core/domain/value-objects/transaction-status.vo';
 import { TransactionScope } from '../../core/domain/entities/transaction.entity';
 
 export class QueryTransactionDto {
@@ -29,6 +30,10 @@ export class QueryTransactionDto {
   @IsEnum(TransactionScope)
   @IsOptional()
   scope?: TransactionScope;
+
+  @IsEnum(TransactionStatus)
+  @IsOptional()
+  status?: TransactionStatus;
 
   @IsDateString()
   @IsOptional()

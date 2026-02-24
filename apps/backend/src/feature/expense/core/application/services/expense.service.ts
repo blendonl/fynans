@@ -7,8 +7,14 @@ import { DeleteExpenseUseCase } from '../use-cases/delete-expense.use-case';
 import { GetExpenseStatisticsUseCase } from '../use-cases/get-expense-statistics.use-case';
 import { GetExpenseTrendsUseCase } from '../use-cases/get-expense-trends.use-case';
 import { AddItemToExpenseUseCase } from '../use-cases/add-item-to-expense.use-case';
+import { ApprovePendingExpenseUseCase } from '../use-cases/approve-pending-expense.use-case';
+import { RejectPendingExpenseUseCase } from '../use-cases/reject-pending-expense.use-case';
+import { ResubmitRejectedExpenseUseCase } from '../use-cases/resubmit-rejected-expense.use-case';
+import { UpdatePendingExpenseUseCase } from '../use-cases/update-pending-expense.use-case';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { UpdateExpenseDto } from '../dto/update-expense.dto';
+import { UpdatePendingExpenseDto } from '../dto/update-pending-expense.dto';
+import { ResubmitExpenseDto } from '../dto/resubmit-expense.dto';
 import { ExpenseFilters } from '../dto/expense-filters.dto';
 import { ExpenseStatistics } from '../dto/expense-statistics.dto';
 import { ExpenseTrendPoint } from '../dto/expense-trends.dto';
@@ -28,6 +34,10 @@ export class ExpenseService {
     private readonly getExpenseStatisticsUseCase: GetExpenseStatisticsUseCase,
     private readonly getExpenseTrendsUseCase: GetExpenseTrendsUseCase,
     private readonly addItemToExpenseUseCase: AddItemToExpenseUseCase,
+    private readonly approvePendingExpenseUseCase: ApprovePendingExpenseUseCase,
+    private readonly rejectPendingExpenseUseCase: RejectPendingExpenseUseCase,
+    private readonly resubmitRejectedExpenseUseCase: ResubmitRejectedExpenseUseCase,
+    private readonly updatePendingExpenseUseCase: UpdatePendingExpenseUseCase,
   ) {}
 
   async create(dto: CreateExpenseDto): Promise<Expense> {
@@ -90,5 +100,33 @@ export class ExpenseService {
     userId: string,
   ): Promise<Expense> {
     return this.addItemToExpenseUseCase.execute(expenseId, itemDto, storeId, userId);
+  }
+
+  async approvePending(expenseId: string, userId: string): Promise<Expense> {
+    return this.approvePendingExpenseUseCase.execute(expenseId, userId);
+  }
+
+  async rejectPending(
+    expenseId: string,
+    userId: string,
+    rejectionReason: string,
+  ): Promise<Expense> {
+    return this.rejectPendingExpenseUseCase.execute(expenseId, userId, rejectionReason);
+  }
+
+  async resubmitRejected(
+    expenseId: string,
+    userId: string,
+    dto?: ResubmitExpenseDto,
+  ): Promise<Expense> {
+    return this.resubmitRejectedExpenseUseCase.execute(expenseId, userId, dto);
+  }
+
+  async updatePending(
+    expenseId: string,
+    userId: string,
+    dto: UpdatePendingExpenseDto,
+  ): Promise<Expense> {
+    return this.updatePendingExpenseUseCase.execute(expenseId, userId, dto);
   }
 }

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { RECEIPT_MAX_FILE_SIZE, RECEIPT_ALLOWED_MIME_TYPES } from "@/constants/receipt";
-import { useReceiptScan, type ProcessedReceiptResponse } from "@/hooks/use-receipt-scan";
+import { useReceiptScan, type ProcessedReceiptResponse, type ReceiptScanOptions } from "@/hooks/use-receipt-scan";
 import { GuidedCameraOverlay } from "@/components/receipt-capture/guided-camera-overlay";
 import { ReceiptCropOverlay } from "@/components/receipt-capture/receipt-crop-overlay";
 
@@ -23,14 +23,15 @@ interface ScanReceiptDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onResult: (data: ProcessedReceiptResponse) => void;
+  scanOptions?: ReceiptScanOptions;
 }
 
-export function ScanReceiptDialog({ open, onOpenChange, onResult }: ScanReceiptDialogProps) {
+export function ScanReceiptDialog({ open, onOpenChange, onResult, scanOptions }: ScanReceiptDialogProps) {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const [showGuidedCapture, setShowGuidedCapture] = useState(false);
   const [pendingCropFile, setPendingCropFile] = useState<File | null>(null);
-  const { scan, isPending, progress, step, reset } = useReceiptScan();
+  const { scan, isPending, progress, step, reset } = useReceiptScan(scanOptions);
 
   const handleFile = (file: File) => {
     if (!RECEIPT_ALLOWED_MIME_TYPES.includes(file.type)) {

@@ -40,7 +40,9 @@ export type TransactionMinAggregateOutputType = {
   familyId: string | null
   scope: $Enums.TransactionScope | null
   type: $Enums.TransactionType | null
+  status: $Enums.TransactionStatus | null
   value: runtime.Decimal | null
+  rejectionReason: string | null
   recordedAt: Date | null
   paymentMethodId: string | null
   createdAt: Date | null
@@ -53,7 +55,9 @@ export type TransactionMaxAggregateOutputType = {
   familyId: string | null
   scope: $Enums.TransactionScope | null
   type: $Enums.TransactionType | null
+  status: $Enums.TransactionStatus | null
   value: runtime.Decimal | null
+  rejectionReason: string | null
   recordedAt: Date | null
   paymentMethodId: string | null
   createdAt: Date | null
@@ -66,7 +70,9 @@ export type TransactionCountAggregateOutputType = {
   familyId: number
   scope: number
   type: number
+  status: number
   value: number
+  rejectionReason: number
   recordedAt: number
   paymentMethodId: number
   createdAt: number
@@ -89,7 +95,9 @@ export type TransactionMinAggregateInputType = {
   familyId?: true
   scope?: true
   type?: true
+  status?: true
   value?: true
+  rejectionReason?: true
   recordedAt?: true
   paymentMethodId?: true
   createdAt?: true
@@ -102,7 +110,9 @@ export type TransactionMaxAggregateInputType = {
   familyId?: true
   scope?: true
   type?: true
+  status?: true
   value?: true
+  rejectionReason?: true
   recordedAt?: true
   paymentMethodId?: true
   createdAt?: true
@@ -115,7 +125,9 @@ export type TransactionCountAggregateInputType = {
   familyId?: true
   scope?: true
   type?: true
+  status?: true
   value?: true
+  rejectionReason?: true
   recordedAt?: true
   paymentMethodId?: true
   createdAt?: true
@@ -215,7 +227,9 @@ export type TransactionGroupByOutputType = {
   familyId: string | null
   scope: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status: $Enums.TransactionStatus
   value: runtime.Decimal
+  rejectionReason: string | null
   recordedAt: Date
   paymentMethodId: string | null
   createdAt: Date
@@ -251,7 +265,9 @@ export type TransactionWhereInput = {
   familyId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   scope?: Prisma.EnumTransactionScopeFilter<"Transaction"> | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
   value?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.StringNullableFilter<"Transaction"> | string | null
   recordedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   paymentMethodId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
@@ -270,7 +286,9 @@ export type TransactionOrderByWithRelationInput = {
   familyId?: Prisma.SortOrderInput | Prisma.SortOrder
   scope?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -292,7 +310,9 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   familyId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   scope?: Prisma.EnumTransactionScopeFilter<"Transaction"> | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
   value?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.StringNullableFilter<"Transaction"> | string | null
   recordedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   paymentMethodId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
@@ -311,7 +331,9 @@ export type TransactionOrderByWithAggregationInput = {
   familyId?: Prisma.SortOrderInput | Prisma.SortOrder
   scope?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -332,7 +354,9 @@ export type TransactionScalarWhereWithAggregatesInput = {
   familyId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   scope?: Prisma.EnumTransactionScopeWithAggregatesFilter<"Transaction"> | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeWithAggregatesFilter<"Transaction"> | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusWithAggregatesFilter<"Transaction"> | $Enums.TransactionStatus
   value?: Prisma.DecimalWithAggregatesFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   recordedAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
   paymentMethodId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
@@ -343,7 +367,9 @@ export type TransactionCreateInput = {
   id?: string
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -361,7 +387,9 @@ export type TransactionUncheckedCreateInput = {
   familyId?: string | null
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   paymentMethodId?: string | null
   createdAt?: Date | string
@@ -375,7 +403,9 @@ export type TransactionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -393,7 +423,9 @@ export type TransactionUncheckedUpdateInput = {
   familyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -409,7 +441,9 @@ export type TransactionCreateManyInput = {
   familyId?: string | null
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   paymentMethodId?: string | null
   createdAt?: Date | string
@@ -420,7 +454,9 @@ export type TransactionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -432,7 +468,9 @@ export type TransactionUncheckedUpdateManyInput = {
   familyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -465,7 +503,9 @@ export type TransactionCountOrderByAggregateInput = {
   familyId?: Prisma.SortOrder
   scope?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -482,7 +522,9 @@ export type TransactionMaxOrderByAggregateInput = {
   familyId?: Prisma.SortOrder
   scope?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -495,7 +537,9 @@ export type TransactionMinOrderByAggregateInput = {
   familyId?: Prisma.SortOrder
   scope?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -684,11 +728,17 @@ export type EnumTransactionTypeFieldUpdateOperationsInput = {
   set?: $Enums.TransactionType
 }
 
+export type EnumTransactionStatusFieldUpdateOperationsInput = {
+  set?: $Enums.TransactionStatus
+}
+
 export type TransactionCreateWithoutExpenseInput = {
   id?: string
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -705,7 +755,9 @@ export type TransactionUncheckedCreateWithoutExpenseInput = {
   familyId?: string | null
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   paymentMethodId?: string | null
   createdAt?: Date | string
@@ -734,7 +786,9 @@ export type TransactionUpdateWithoutExpenseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -751,7 +805,9 @@ export type TransactionUncheckedUpdateWithoutExpenseInput = {
   familyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -764,7 +820,9 @@ export type TransactionCreateWithoutFamilyInput = {
   id?: string
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -780,7 +838,9 @@ export type TransactionUncheckedCreateWithoutFamilyInput = {
   userId: string
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   paymentMethodId?: string | null
   createdAt?: Date | string
@@ -825,7 +885,9 @@ export type TransactionScalarWhereInput = {
   familyId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   scope?: Prisma.EnumTransactionScopeFilter<"Transaction"> | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
   value?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.StringNullableFilter<"Transaction"> | string | null
   recordedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   paymentMethodId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
@@ -836,7 +898,9 @@ export type TransactionCreateWithoutIncomeInput = {
   id?: string
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -853,7 +917,9 @@ export type TransactionUncheckedCreateWithoutIncomeInput = {
   familyId?: string | null
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   paymentMethodId?: string | null
   createdAt?: Date | string
@@ -882,7 +948,9 @@ export type TransactionUpdateWithoutIncomeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -899,7 +967,9 @@ export type TransactionUncheckedUpdateWithoutIncomeInput = {
   familyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -912,7 +982,9 @@ export type TransactionCreateWithoutNotificationsInput = {
   id?: string
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -929,7 +1001,9 @@ export type TransactionUncheckedCreateWithoutNotificationsInput = {
   familyId?: string | null
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   paymentMethodId?: string | null
   createdAt?: Date | string
@@ -958,7 +1032,9 @@ export type TransactionUpdateWithoutNotificationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -975,7 +1051,9 @@ export type TransactionUncheckedUpdateWithoutNotificationsInput = {
   familyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -988,7 +1066,9 @@ export type TransactionCreateWithoutPaymentMethodInput = {
   id?: string
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1005,7 +1085,9 @@ export type TransactionUncheckedCreateWithoutPaymentMethodInput = {
   familyId?: string | null
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1044,7 +1126,9 @@ export type TransactionCreateWithoutUserInput = {
   id?: string
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1060,7 +1144,9 @@ export type TransactionUncheckedCreateWithoutUserInput = {
   familyId?: string | null
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   paymentMethodId?: string | null
   createdAt?: Date | string
@@ -1101,7 +1187,9 @@ export type TransactionCreateManyFamilyInput = {
   userId: string
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   paymentMethodId?: string | null
   createdAt?: Date | string
@@ -1112,7 +1200,9 @@ export type TransactionUpdateWithoutFamilyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1128,7 +1218,9 @@ export type TransactionUncheckedUpdateWithoutFamilyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1143,7 +1235,9 @@ export type TransactionUncheckedUpdateManyWithoutFamilyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1156,7 +1250,9 @@ export type TransactionCreateManyPaymentMethodInput = {
   familyId?: string | null
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1166,7 +1262,9 @@ export type TransactionUpdateWithoutPaymentMethodInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1183,7 +1281,9 @@ export type TransactionUncheckedUpdateWithoutPaymentMethodInput = {
   familyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1198,7 +1298,9 @@ export type TransactionUncheckedUpdateManyWithoutPaymentMethodInput = {
   familyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1209,7 +1311,9 @@ export type TransactionCreateManyUserInput = {
   familyId?: string | null
   scope?: $Enums.TransactionScope
   type: $Enums.TransactionType
+  status?: $Enums.TransactionStatus
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: string | null
   recordedAt?: Date | string
   paymentMethodId?: string | null
   createdAt?: Date | string
@@ -1220,7 +1324,9 @@ export type TransactionUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1236,7 +1342,9 @@ export type TransactionUncheckedUpdateWithoutUserInput = {
   familyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1251,7 +1359,9 @@ export type TransactionUncheckedUpdateManyWithoutUserInput = {
   familyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scope?: Prisma.EnumTransactionScopeFieldUpdateOperationsInput | $Enums.TransactionScope
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  status?: Prisma.EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1295,7 +1405,9 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   familyId?: boolean
   scope?: boolean
   type?: boolean
+  status?: boolean
   value?: boolean
+  rejectionReason?: boolean
   recordedAt?: boolean
   paymentMethodId?: boolean
   createdAt?: boolean
@@ -1315,7 +1427,9 @@ export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   familyId?: boolean
   scope?: boolean
   type?: boolean
+  status?: boolean
   value?: boolean
+  rejectionReason?: boolean
   recordedAt?: boolean
   paymentMethodId?: boolean
   createdAt?: boolean
@@ -1331,7 +1445,9 @@ export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   familyId?: boolean
   scope?: boolean
   type?: boolean
+  status?: boolean
   value?: boolean
+  rejectionReason?: boolean
   recordedAt?: boolean
   paymentMethodId?: boolean
   createdAt?: boolean
@@ -1347,14 +1463,16 @@ export type TransactionSelectScalar = {
   familyId?: boolean
   scope?: boolean
   type?: boolean
+  status?: boolean
   value?: boolean
+  rejectionReason?: boolean
   recordedAt?: boolean
   paymentMethodId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "familyId" | "scope" | "type" | "value" | "recordedAt" | "paymentMethodId" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "familyId" | "scope" | "type" | "status" | "value" | "rejectionReason" | "recordedAt" | "paymentMethodId" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
 export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   paymentMethod?: boolean | Prisma.Transaction$paymentMethodArgs<ExtArgs>
   expense?: boolean | Prisma.Transaction$expenseArgs<ExtArgs>
@@ -1391,7 +1509,9 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     familyId: string | null
     scope: $Enums.TransactionScope
     type: $Enums.TransactionType
+    status: $Enums.TransactionStatus
     value: runtime.Decimal
+    rejectionReason: string | null
     recordedAt: Date
     paymentMethodId: string | null
     createdAt: Date
@@ -1830,7 +1950,9 @@ export interface TransactionFieldRefs {
   readonly familyId: Prisma.FieldRef<"Transaction", 'String'>
   readonly scope: Prisma.FieldRef<"Transaction", 'TransactionScope'>
   readonly type: Prisma.FieldRef<"Transaction", 'TransactionType'>
+  readonly status: Prisma.FieldRef<"Transaction", 'TransactionStatus'>
   readonly value: Prisma.FieldRef<"Transaction", 'Decimal'>
+  readonly rejectionReason: Prisma.FieldRef<"Transaction", 'String'>
   readonly recordedAt: Prisma.FieldRef<"Transaction", 'DateTime'>
   readonly paymentMethodId: Prisma.FieldRef<"Transaction", 'String'>
   readonly createdAt: Prisma.FieldRef<"Transaction", 'DateTime'>

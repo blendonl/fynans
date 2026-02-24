@@ -4,6 +4,7 @@ import {
   TransactionUser,
 } from '../../domain/entities/transaction.entity';
 import { TransactionType } from '../../domain/value-objects/transaction-type.vo';
+import { TransactionStatus } from '../../domain/value-objects/transaction-status.vo';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
 interface PrismaTransactionWithUser extends PrismaTransaction {
@@ -35,9 +36,11 @@ export class TransactionMapper {
       id: prismaTransaction.id,
       userId: prismaTransaction.userId,
       type: prismaTransaction.type as TransactionType,
+      status: prismaTransaction.status as TransactionStatus,
       value: prismaTransaction.value as Decimal,
       familyId: prismaTransaction.familyId ?? undefined,
       paymentMethodId: prismaTransaction.paymentMethodId ?? undefined,
+      rejectionReason: prismaTransaction.rejectionReason ?? undefined,
       scope: prismaTransaction.scope as any,
       recordedAt: prismaTransaction.recordedAt,
       createdAt: prismaTransaction.createdAt,
@@ -51,9 +54,11 @@ export class TransactionMapper {
       id: transaction.id,
       userId: transaction.userId,
       type: transaction.type,
+      status: transaction.status,
       value: transaction.value,
       familyId: transaction.familyId ?? null,
       paymentMethodId: transaction.paymentMethodId ?? null,
+      rejectionReason: transaction.rejectionReason ?? null,
       scope: transaction.scope,
       recordedAt: transaction.recordedAt,
       createdAt: transaction.createdAt,

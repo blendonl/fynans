@@ -5,6 +5,7 @@ import {
   Transaction,
   TransactionScope,
 } from '../../domain/entities/transaction.entity';
+import { TransactionStatus } from '../../domain/value-objects/transaction-status.vo';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { FamilyService } from '../../../../family/core/application/services/family.service';
 import { FamilyBalanceService } from '../../../../family/core/application/services/family-balance.service';
@@ -36,9 +37,12 @@ export class CreateTransactionUseCase {
       }
     }
 
+    const status = dto.status ?? TransactionStatus.CONFIRMED;
+
     const transaction = await this.transactionRepository.create({
       userId: dto.userId,
       type: dto.type,
+      status,
       value: new Decimal(dto.value),
       familyId: dto.familyId,
       scope: dto.familyId ? TransactionScope.FAMILY : TransactionScope.PERSONAL,
@@ -46,7 +50,8 @@ export class CreateTransactionUseCase {
       paymentMethodId: dto.paymentMethodId,
     } as Partial<Transaction>);
 
-    if (dto.familyId) {
+    // Only update family balances for CONFIRMED transactions
+    if (dto.familyId && status === TransactionStatus.CONFIRMED) {
       await this.familyBalanceService.updateBalancesAfterTransaction(
         dto.familyId,
         dto.userId,

@@ -5,6 +5,7 @@ import {
   TransactionUser,
 } from '../../core/domain/entities/transaction.entity';
 import { TransactionType } from '../../core/domain/value-objects/transaction-type.vo';
+import { TransactionStatus } from '../../core/domain/value-objects/transaction-status.vo';
 
 export class TransactionUserDto {
   @ApiProperty()
@@ -36,8 +37,14 @@ export class TransactionResponseDto {
   @ApiProperty()
   value: number;
 
+  @ApiProperty({ enum: TransactionStatus })
+  status: TransactionStatus;
+
   @ApiPropertyOptional()
   paymentMethodId?: string;
+
+  @ApiPropertyOptional()
+  rejectionReason?: string;
 
   @ApiProperty()
   recordedAt: Date;
@@ -56,8 +63,10 @@ export class TransactionResponseDto {
     this.userId = transaction.userId;
     this.type = transaction.type;
     this.scope = transaction.scope;
+    this.status = transaction.status;
     this.value = transaction.value.toNumber();
     this.paymentMethodId = transaction.paymentMethodId;
+    this.rejectionReason = transaction.rejectionReason;
     this.recordedAt = transaction.recordedAt;
     this.createdAt = transaction.createdAt;
     this.updatedAt = transaction.updatedAt;
