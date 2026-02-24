@@ -11,6 +11,10 @@ import {
   XCircle,
   Save,
   Pencil,
+  User,
+  Tag,
+  StickyNote,
+  ShoppingBasket,
 } from "lucide-react";
 import { formatCurrency } from "@/utils/currency";
 import { useAuth } from "@/hooks/use-auth";
@@ -19,7 +23,7 @@ import { useStores } from "@/hooks/use-stores";
 import { usePaymentMethods } from "@/hooks/use-payment-methods";
 import { useExpenseItems } from "@/hooks/use-expense-items";
 import { useCreateDialog } from "@/hooks/use-create-dialog";
-import type { Category, Store, ExpenseItem } from "@/types";
+import type { Category, Store as StoreType, ExpenseItem } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -170,8 +174,8 @@ export function PendingTransactionDetail({
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     expense.category as Category,
   );
-  const [selectedStore, setSelectedStore] = useState<Store | null>(
-    expense.store as Store | null,
+  const [selectedStore, setSelectedStore] = useState<StoreType | null>(
+    expense.store as StoreType | null,
   );
   const [note, setNote] = useState(expense.transaction.description || "");
   const [recordedAt, setRecordedAt] = useState(initialRecordedAt);
@@ -329,7 +333,7 @@ export function PendingTransactionDetail({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* ── Status + Amount hero ─────────────────────────────────────── */}
       <GlassCard variant="strong" className="p-6 sm:p-8">
         <div className="flex justify-center mb-2">
@@ -349,11 +353,17 @@ export function PendingTransactionDetail({
 
         <AmountHero value={amount} onChange={setAmount} type="expense" />
 
-        {isCreator && (
-          <p className="text-xs text-text-disabled text-center mt-1">
-            Created by you
-          </p>
-        )}
+        {/* Submitted by line */}
+        <div className="flex items-center justify-center gap-2 mt-3 text-xs text-text-secondary">
+          <User className="h-3 w-3" />
+          <span>
+            {isCreator
+              ? "Submitted by you"
+              : `${expense.transaction.user.firstName} ${expense.transaction.user.lastName}`}
+          </span>
+          <span className="text-text-disabled">·</span>
+          <span>{format(new Date(expense.transaction.recordedAt), "MMM d, yyyy")}</span>
+        </div>
       </GlassCard>
 
       {/* ── Rejection reason ─────────────────────────────────────────── */}
@@ -366,19 +376,32 @@ export function PendingTransactionDetail({
         </GlassCard>
       )}
 
+      {/* ── Unsaved changes indicator ────────────────────────────────── */}
+      {hasChanges && (
+        <div className="flex items-center justify-between px-4 py-2.5 rounded-2xl bg-primary/8 border border-primary/15 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 text-xs font-medium text-primary">
+            <Pencil className="h-3 w-3" />
+            Unsaved changes
+          </div>
+          <Button
+            variant="ghost"
+            className="h-8 px-3 text-xs font-medium text-primary hover:bg-primary/10"
+            onClick={handleSave}
+            loading={isUpdating}
+            disabled={anyLoading && !isUpdating}
+          >
+            <Save className="h-3 w-3 mr-1.5" />
+            Save
+          </Button>
+        </div>
+      )}
+
       {/* ── Editable details ─────────────────────────────────────────── */}
       <GlassCard className="p-5 sm:p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="text-[11px] font-medium text-text-secondary uppercase tracking-wider">
-            Details
-          </h3>
-          {hasChanges && (
-            <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] gap-1 animate-in fade-in duration-200">
-              <Pencil className="h-2.5 w-2.5" />
-              Unsaved changes
-            </Badge>
-          )}
-        </div>
+        <h3 className="text-[11px] font-medium text-text-secondary uppercase tracking-wider mb-5 flex items-center gap-2">
+          <Tag className="h-3 w-3" />
+          Transaction Details
+        </h3>
 
         <div className="space-y-5">
           <CategorySelector
@@ -405,7 +428,10 @@ export function PendingTransactionDetail({
           />
 
           <div className="space-y-2">
-            <Label>Note</Label>
+            <Label className="flex items-center gap-1.5">
+              <StickyNote className="h-3 w-3 text-text-disabled" />
+              Note
+            </Label>
             <Input
               placeholder="Add a note (optional)"
               value={note}
@@ -414,32 +440,6 @@ export function PendingTransactionDetail({
             />
           </div>
 
-          {/* Read-only fields: Scope & Creator */}
-          <div className="border-t border-border-light/50 pt-4">
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-              <div>
-                <p className="text-[11px] text-text-disabled uppercase tracking-wide">
-                  Scope
-                </p>
-                <p className="text-sm font-medium text-text mt-0.5">
-                  {expense.transaction.scope}
-                </p>
-              </div>
-              {expense.transaction.user && (
-                <div>
-                  <p className="text-[11px] text-text-disabled uppercase tracking-wide">
-                    By
-                  </p>
-                  <p className="text-sm font-medium text-text mt-0.5">
-                    {expense.transaction.user.firstName}{" "}
-                    {expense.transaction.user.lastName}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Payment method & Date */}
           <div className="border-t border-border-light/50 pt-4 space-y-5">
             <PaymentMethodSelector
               paymentMethods={paymentMethods}
@@ -450,12 +450,30 @@ export function PendingTransactionDetail({
 
             <DateTimePicker value={recordedAt} onChange={setRecordedAt} />
           </div>
+
+          {/* Read-only: Scope */}
+          <div className="border-t border-border-light/50 pt-4">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+              <div>
+                <p className="text-[11px] text-text-disabled uppercase tracking-wide">
+                  Scope
+                </p>
+                <p className="text-sm font-medium text-text mt-0.5">
+                  {expense.transaction.scope}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </GlassCard>
 
       {/* ── Items (editable) ─────────────────────────────────────────── */}
       {(expenseItems.items.length > 0 || expense.items.length > 0) && (
         <GlassCard className="p-5 sm:p-6">
+          <h3 className="text-[11px] font-medium text-text-secondary uppercase tracking-wider mb-4 flex items-center gap-2">
+            <ShoppingBasket className="h-3.5 w-3.5" />
+            Items
+          </h3>
           <ExpenseItemsForm
             items={expenseItems.items}
             currentItem={expenseItems.currentItem}
@@ -473,68 +491,66 @@ export function PendingTransactionDetail({
             onQuantityChange={expenseItems.handleUpdateQuantity}
             onCreateNewItemCategory={(name) => itemCategoryDialog.show(name)}
             isLoadingCategories={categoriesLoading}
+            borderless
           />
         </GlassCard>
       )}
 
       <ReceiptGallery images={expense.receiptImages || []} />
 
-      {/* ── Actions ──────────────────────────────────────────────────── */}
-      <div className="space-y-3">
-        {hasChanges && (
-          <Button
-            className="w-full h-12 gap-2"
-            variant="outline"
-            onClick={handleSave}
-            loading={isUpdating}
-            disabled={anyLoading && !isUpdating}
-          >
-            <Save className="h-4 w-4" />
-            Save Changes
-          </Button>
-        )}
-
+      {/* ── Review Decision ───────────────────────────────────────────── */}
+      <GlassCard variant="strong" className="p-5 sm:p-6">
         {isPending && (
-          <div className="flex gap-3">
-            <Button
-              className="flex-1 h-12 gap-2 bg-income hover:bg-income/90 text-white"
-              onClick={handleApprove}
-              loading={isApproving}
-              disabled={anyLoading && !isApproving}
-            >
-              <Check className="h-4 w-4" />
-              {hasChanges ? "Save & Approve" : "Approve"}
-            </Button>
-            <Button
-              variant="destructive"
-              className="flex-1 h-12 gap-2"
-              onClick={() => setShowRejectDialog(true)}
-              disabled={anyLoading}
-            >
-              <X className="h-4 w-4" />
-              Reject
-            </Button>
+          <div className="space-y-3">
+            <h3 className="text-[11px] font-medium text-text-secondary uppercase tracking-wider mb-4">
+              Review Decision
+            </h3>
+            <div className="flex gap-3">
+              <Button
+                className="flex-1 h-12 gap-2"
+                onClick={handleApprove}
+                loading={isApproving}
+                disabled={anyLoading && !isApproving}
+              >
+                <Check className="h-4 w-4" />
+                {hasChanges ? "Save & Approve" : "Approve"}
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 h-12 gap-2 border-expense/30 text-expense hover:bg-expense/5 hover:border-expense/50"
+                onClick={() => setShowRejectDialog(true)}
+                disabled={anyLoading}
+              >
+                <X className="h-4 w-4" />
+                Reject
+              </Button>
+            </div>
           </div>
         )}
 
         {isRejected && (
-          <Button
-            className="w-full h-12 gap-2"
-            onClick={handleResubmit}
-            loading={isResubmitting}
-            disabled={anyLoading && !isResubmitting}
-          >
-            <RotateCcw className="h-4 w-4" />
-            {hasChanges ? "Save & Re-submit" : "Re-submit for Review"}
-          </Button>
+          <div className="space-y-3">
+            <h3 className="text-[11px] font-medium text-text-secondary uppercase tracking-wider mb-4">
+              Resubmit
+            </h3>
+            <Button
+              className="w-full h-12 gap-2"
+              onClick={handleResubmit}
+              loading={isResubmitting}
+              disabled={anyLoading && !isResubmitting}
+            >
+              <RotateCcw className="h-4 w-4" />
+              {hasChanges ? "Save & Re-submit" : "Re-submit for Review"}
+            </Button>
+          </div>
         )}
 
-        <div className="flex justify-center pt-2">
+        <div className="flex justify-center mt-4 pt-3 border-t border-border-light/50">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-expense hover:text-expense-light transition-colors">
-                <Trash2 className="h-4 w-4" />
-                Delete Transaction
+              <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-disabled hover:text-expense transition-colors cursor-pointer rounded-lg hover:bg-expense/5">
+                <Trash2 className="h-3 w-3" />
+                Delete transaction
               </button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -554,7 +570,7 @@ export function PendingTransactionDetail({
             </AlertDialogContent>
           </AlertDialog>
         </div>
-      </div>
+      </GlassCard>
 
       {/* ── Dialogs ──────────────────────────────────────────────────── */}
       <RejectDialog
