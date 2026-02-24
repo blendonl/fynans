@@ -18,7 +18,7 @@ class PaddleOCREngine:
             f"Initializing PaddleOCR: det={config.TEXT_DETECTION_MODEL}, "
             f"rec={config.TEXT_RECOGNITION_MODEL}, device={device}"
         )
-        self._ocr = PaddleOCR(
+        ocr_kwargs = dict(
             text_detection_model_name=config.TEXT_DETECTION_MODEL,
             text_recognition_model_name=config.TEXT_RECOGNITION_MODEL,
             use_doc_orientation_classify=config.USE_DOC_ORIENTATION,
@@ -33,6 +33,13 @@ class PaddleOCREngine:
             text_rec_score_thresh=config.REC_SCORE_THRESH,
             device=device,
         )
+
+        # Disable oneDNN on CPU to avoid PaddlePaddle >=3.3.0 PIR regression
+        # https://github.com/PaddlePaddle/Paddle/issues/77340
+        if not config.USE_GPU:
+            ocr_kwargs["enable_mkldnn"] = False
+
+        self._ocr = PaddleOCR(**ocr_kwargs)
 
     def name(self) -> str:
         return "paddleocr"
