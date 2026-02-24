@@ -36,3 +36,4 @@ export type { UpdatePaymentMethodRequestDto as UpdatePaymentMethodInput } from '
 
 export type { Transaction, TransactionItem, TransactionFilters, TransactionType, TransactionScope } from './transaction';
 export type { CurrentItem, ExpenseItem } from './expense';
+export type { CategoryData } from './dashboard';

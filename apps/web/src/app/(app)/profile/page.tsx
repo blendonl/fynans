@@ -5,7 +5,7 @@ import { Moon, Sun, Monitor, LogOut, Users, ChevronRight, Bell, Settings2 } from
 import { useTheme } from "next-themes";
 import { useAuth } from "@/providers/auth-provider";
 import { useFamilies } from "@/hooks/use-families";
-import { useNotifications } from "@/hooks/use-notifications";
+import { useUnreadCount } from "@/hooks/use-unread-count";
 import { PaymentMethodsSection } from "@/components/profile/payment-methods-section";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +17,7 @@ export default function ProfilePage() {
   const { theme, setTheme } = useTheme();
   const { pendingInvitations } = useFamilies();
   const pendingInvitationCount = pendingInvitations.length;
-  const { unreadCount } = useNotifications();
+  const { unreadCount } = useUnreadCount();
 
   const themes = [
     { value: "light", label: "Light", icon: Sun },

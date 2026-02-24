@@ -117,7 +117,11 @@ export default function PendingTransactionDetailPage({
       }
       await approveMutation.mutateAsync(id);
       router.push("/transactions?tab=pending");
-    } catch { /* handled by mutation onError */ } finally {
+    } catch (err) {
+      if (!(err instanceof Error && approveMutation.error)) {
+        toast.error(err instanceof Error ? err.message : "Failed to approve expense");
+      }
+    } finally {
       setIsSaving(false);
     }
   };
@@ -141,7 +145,11 @@ export default function PendingTransactionDetailPage({
       }
       await resubmitMutation.mutateAsync({ id });
       router.push("/transactions?tab=pending");
-    } catch { /* handled by mutation onError */ } finally {
+    } catch (err) {
+      if (!(err instanceof Error && resubmitMutation.error)) {
+        toast.error(err instanceof Error ? err.message : "Failed to re-submit expense");
+      }
+    } finally {
       setIsSaving(false);
     }
   };

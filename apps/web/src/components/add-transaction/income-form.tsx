@@ -1,12 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { formatCurrency } from "@/utils/currency";
 import type { Category } from "@/types";
-import { transactionControllerCreate } from "@/api/generated/endpoints/transaction/transaction";
 import { useCategories } from "@/hooks/use-categories";
+import { useIncomeSubmission } from "@/hooks/use-income-submission";
 import { useAiCategorySuggestion } from "@/hooks/use-ai-category-suggestion";
 import { useAutoAcceptSuggestion } from "@/hooks/use-auto-accept-suggestion";
 import { useCreateDialog } from "@/hooks/use-create-dialog";
@@ -31,6 +28,7 @@ interface IncomeFormProps {
 export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: IncomeFormProps) {
   const { incomeCategories, isLoading: categoriesLoading, createCategory } = useCategories();
   const { paymentMethods, isLoading: paymentMethodsLoading } = usePaymentMethods();
+  const { submitMutation, saveForReviewMutation } = useIncomeSubmission({ onSuccess, onSaveForReview });
 
   const ai = useAiCategorySuggestion();
 
@@ -56,41 +54,14 @@ export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: Inco
   );
   useAutoAcceptSuggestion(ai.incomeSuggestion, selectedCategory, incomeCategories, handleAutoAccept);
 
-  const buildIncomePayload = (pending?: boolean) => ({
-    type: "INCOME" as const,
-    value: parseFloat(amount),
-    description: note,
+  const getFormArgs = () => ({
+    amount,
+    note,
     categoryId: selectedCategory?.id,
     recordedAt: new Date(recordedAt).toISOString(),
-    familyId: scope === "FAMILY" ? familyId : undefined,
-    paymentMethodId: selectedPaymentMethodId || undefined,
-    ...(pending ? { pending: true } : {}),
-  });
-
-  const submitMutation = useMutation({
-    mutationFn: async () => {
-      await transactionControllerCreate(buildIncomePayload() as unknown as Parameters<typeof transactionControllerCreate>[0]);
-    },
-    onSuccess: () => {
-      toast.success(`Income created: ${formatCurrency(parseFloat(amount))}`);
-      onSuccess();
-    },
-    onError: (err: Error) => {
-      toast.error(err.message || "Failed to create income");
-    },
-  });
-
-  const saveForReviewMutation = useMutation({
-    mutationFn: async () => {
-      await transactionControllerCreate(buildIncomePayload(true) as unknown as Parameters<typeof transactionControllerCreate>[0]);
-    },
-    onSuccess: () => {
-      toast.success(`Income saved for review: ${formatCurrency(parseFloat(amount))}`);
-      onSaveForReview?.();
-    },
-    onError: (err: Error) => {
-      toast.error(err.message || "Failed to save income for review");
-    },
+    scope,
+    familyId,
+    paymentMethodId: selectedPaymentMethodId,
   });
 
   const canSubmit = selectedCategory && amount && parseFloat(amount) > 0;
@@ -152,8 +123,8 @@ export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: Inco
             isSubmitting={submitMutation.isPending}
             isSavingForReview={saveForReviewMutation.isPending}
             validationMessage={validationMessage()}
-            onSubmit={() => submitMutation.mutate()}
-            onSaveForReview={() => saveForReviewMutation.mutate()}
+            onSubmit={() => submitMutation.mutate(getFormArgs())}
+            onSaveForReview={() => saveForReviewMutation.mutate(getFormArgs())}
           />
         </div>
       </div>

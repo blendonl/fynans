@@ -2,6 +2,7 @@
 
 import { GlassCard } from "@/components/glass/glass-card";
 import { formatCurrency } from "@/utils/currency";
+import type { CategoryData } from "@/types";
 
 const COLORS = [
   "var(--primary)",
@@ -20,7 +21,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 const GAP_DEGREES = 3;
 
 interface CategoryBreakdownProps {
-  expensesByCategory: { categoryId: string; categoryName: string; total: number }[];
+  expensesByCategory: CategoryData[];
 }
 
 export function CategoryBreakdown({ expensesByCategory }: CategoryBreakdownProps) {

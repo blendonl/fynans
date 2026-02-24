@@ -1,6 +1,5 @@
 import { getToken } from '@/lib/auth';
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_BASE_URL } from '@/lib/env';
 
 export const customInstance = async <T>(
   url: string,
@@ -28,7 +27,7 @@ export const customInstance = async <T>(
     requestHeaders['Authorization'] = `Bearer ${token}`;
   }
 
-  const fullUrl = `${BASE_URL}${url}`;
+  const fullUrl = `${API_BASE_URL}${url}`;
 
   const response = await fetch(fullUrl, {
     ...init,

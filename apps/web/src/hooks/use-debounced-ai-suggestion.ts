@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { aiControllerSuggestCategory } from "@/api/generated/endpoints/ai/ai";
 
 interface AiSuggestion {
@@ -59,6 +59,13 @@ export function useDebouncedAiSuggestion(config: AiSuggestionConfig) {
   );
 
   const dismiss = useCallback(() => setSuggestion(null), []);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(timerRef.current);
+      abortRef.current?.abort();
+    };
+  }, []);
 
   return { suggestion, isLoading, trigger, dismiss };
 }

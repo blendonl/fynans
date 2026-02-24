@@ -1,112 +1,29 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  familyControllerFindAll,
-  familyControllerCreate,
   familyControllerFindOne,
-  familyControllerInviteMember,
-  familyControllerGetPendingInvitations,
   familyControllerGetFamilyPendingInvitations,
-  familyControllerAcceptInvitation,
-  familyControllerDeclineInvitation,
   familyControllerCancelInvitation,
-  familyControllerRemoveMember,
-  familyControllerLeaveFamily,
 } from "@/api/generated/endpoints/family/family";
+import { useFamilyList } from "@/hooks/use-family-list";
+import { useFamilyMutations } from "@/hooks/use-family-mutations";
+import { useFamilyInvitations } from "@/hooks/use-family-invitations";
+import { queryKeys } from "@/lib/query-keys";
 
 export function usePendingInvitations() {
-  const query = useQuery({
-    queryKey: ["family-invitations-pending"],
-    queryFn: async () => {
-      const res = await familyControllerGetPendingInvitations();
-      return res.data;
-    },
-  });
-
-  return {
-    pendingInvitations: query.data || [],
-    isLoading: query.isLoading,
-  };
+  const { pendingInvitations, isLoading } = useFamilyInvitations();
+  return { pendingInvitations, isLoading };
 }
 
+/** Backward-compatible composite hook. */
 export function useFamilies() {
-  const queryClient = useQueryClient();
-
-  const familiesQuery = useQuery({
-    queryKey: ["families"],
-    queryFn: async () => {
-      const res = await familyControllerFindAll();
-      return res.data;
-    },
-  });
-
-  const pendingInvitationsQuery = useQuery({
-    queryKey: ["family-invitations-pending"],
-    queryFn: async () => {
-      const res = await familyControllerGetPendingInvitations();
-      return res.data;
-    },
-  });
-
-  const createFamily = useMutation({
-    mutationFn: async (name: string) => {
-      const res = await familyControllerCreate({ name });
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["families"] });
-    },
-  });
-
-  const inviteMember = useMutation({
-    mutationFn: async ({ familyId, email }: { familyId: string; email: string }) => {
-      await familyControllerInviteMember(familyId, { inviteeEmail: email });
-    },
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["family-sent-invitations", variables.familyId] });
-    },
-  });
-
-  const removeMember = useMutation({
-    mutationFn: async ({ familyId, userId }: { familyId: string; userId: string }) => {
-      await familyControllerRemoveMember(familyId, userId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["families"] });
-    },
-  });
-
-  const leaveFamily = useMutation({
-    mutationFn: async (familyId: string) => {
-      await familyControllerLeaveFamily(familyId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["families"] });
-    },
-  });
-
-  const acceptInvitation = useMutation({
-    mutationFn: async (invitationId: string) => {
-      await familyControllerAcceptInvitation(invitationId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["families"] });
-      queryClient.invalidateQueries({ queryKey: ["family-invitations-pending"] });
-    },
-  });
-
-  const declineInvitation = useMutation({
-    mutationFn: async (invitationId: string) => {
-      await familyControllerDeclineInvitation(invitationId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["family-invitations-pending"] });
-    },
-  });
+  const { families, isLoading } = useFamilyList();
+  const { createFamily, inviteMember, removeMember, leaveFamily } = useFamilyMutations();
+  const { pendingInvitations, acceptInvitation, declineInvitation } = useFamilyInvitations();
 
   return {
-    families: familiesQuery.data || [],
-    pendingInvitations: pendingInvitationsQuery.data || [],
-    isLoading: familiesQuery.isLoading,
+    families,
+    pendingInvitations,
+    isLoading,
     createFamily,
     inviteMember,
     removeMember,
@@ -118,7 +35,7 @@ export function useFamilies() {
 
 export function useFamilyDetail(familyId: string) {
   return useQuery({
-    queryKey: ["family", familyId],
+    queryKey: queryKeys.families.detail(familyId),
     queryFn: async () => {
       const res = await familyControllerFindOne(familyId);
       return res.data;
@@ -131,7 +48,7 @@ export function useFamilySentInvitations(familyId: string) {
   const queryClient = useQueryClient();
 
   const sentInvitationsQuery = useQuery({
-    queryKey: ["family-sent-invitations", familyId],
+    queryKey: queryKeys.families.sentInvitations(familyId),
     queryFn: async () => {
       const res = await familyControllerGetFamilyPendingInvitations(familyId);
       return res.data;
@@ -144,7 +61,9 @@ export function useFamilySentInvitations(familyId: string) {
       await familyControllerCancelInvitation(invitationId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["family-sent-invitations", familyId] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.families.sentInvitations(familyId),
+      });
     },
   });
 
