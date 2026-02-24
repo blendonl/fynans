@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
 import { type ITransactionRepository } from '../../../../transaction/core/domain/repositories/transaction.repository.interface';
-import { FamilyService } from '../../../../family/core/application/services/family.service';
 import { PaymentMethodService } from '../../../../payment-method/core/application/services/payment-method.service';
+import { ExpenseAuthService } from '../services/expense-auth.service';
 import { NotifyFamilyMembersService } from '~common/services/notify-family-members.service';
 import { CreateNotificationUseCase } from '../../../../notification/core/application/use-cases/create-notification.use-case';
 import { FamilyBalanceService } from '../../../../family/core/application/services/family-balance.service';
@@ -15,7 +15,6 @@ import {
 } from '../../../../notification/core/domain/value-objects/notification-type.vo';
 import {
   DomainNotFoundException,
-  DomainForbiddenException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
 
@@ -26,7 +25,7 @@ export class ApprovePendingExpenseUseCase {
     private readonly expenseRepository: IExpenseRepository,
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
-    private readonly familyService: FamilyService,
+    private readonly expenseAuthService: ExpenseAuthService,
     private readonly familyBalanceService: FamilyBalanceService,
     private readonly paymentMethodService: PaymentMethodService,
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
@@ -44,19 +43,8 @@ export class ApprovePendingExpenseUseCase {
       throw new DomainValidationException('Only pending expenses can be approved');
     }
 
-    // Auth check: personal = creator only, family = any member
-    if (transaction.familyId) {
-      const member = await this.familyService.findMember(transaction.familyId, userId);
-      if (!member) {
-        throw new DomainForbiddenException('Not a member of this family');
-      }
-    } else {
-      if (transaction.userId !== userId) {
-        throw new DomainForbiddenException('Access denied');
-      }
-    }
+    await this.expenseAuthService.verifyTransactionAccess(transaction, userId);
 
-    // Update status to CONFIRMED
     const updatedTransaction = await this.transactionRepository.updateStatus(
       transaction.id,
       TransactionStatus.CONFIRMED,
@@ -70,7 +58,6 @@ export class ApprovePendingExpenseUseCase {
         updatedTransaction,
       );
 
-      // Send FAMILY_EXPENSE_CREATED notification
       await this.notifyFamilyMembersService.notify({
         familyId: transaction.familyId,
         actorUserId: userId,
@@ -82,12 +69,10 @@ export class ApprovePendingExpenseUseCase {
       });
     }
 
-    // Recalculate payment method balance
     if (transaction.paymentMethodId) {
       await this.paymentMethodService.recalculateBalance(transaction.paymentMethodId);
     }
 
-    // Notify creator if approver is different
     if (userId !== transaction.userId) {
       await this.createNotificationUseCase.execute({
         userId: transaction.userId,
