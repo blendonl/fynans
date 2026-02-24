@@ -71,6 +71,7 @@ export const ModelName = {
   DeviceToken: 'DeviceToken',
   WebPushSubscription: 'WebPushSubscription',
   PaymentMethod: 'PaymentMethod',
+  Receipt: 'Receipt',
   User: 'User',
   Store: 'Store',
   Item: 'Item',
@@ -382,6 +383,23 @@ export const PaymentMethodScalarFieldEnum = {
 } as const
 
 export type PaymentMethodScalarFieldEnum = (typeof PaymentMethodScalarFieldEnum)[keyof typeof PaymentMethodScalarFieldEnum]
+
+
+export const ReceiptScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  familyId: 'familyId',
+  expenseId: 'expenseId',
+  fileName: 'fileName',
+  originalName: 'originalName',
+  mimeType: 'mimeType',
+  fileSize: 'fileSize',
+  storageKey: 'storageKey',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReceiptScalarFieldEnum = (typeof ReceiptScalarFieldEnum)[keyof typeof ReceiptScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {

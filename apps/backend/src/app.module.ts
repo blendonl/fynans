@@ -27,6 +27,7 @@ import { StoreItemDiscountRestModule } from './feature/store-item-discount/rest/
 import { NotificationModule } from './feature/notification/notification.module';
 import { BasketRestModule } from './feature/basket/rest/basket-rest.module';
 import { PaymentMethodRestModule } from './feature/payment-method/rest/payment-method-rest.module';
+import { StorageModule } from './common/storage/storage.module';
 import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
 
 @Module({
@@ -43,6 +44,7 @@ import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
       }),
     }),
     PrismaModule,
+    StorageModule,
     AuthCoreModule,
     AuthRestModule,
     UserRestModule,

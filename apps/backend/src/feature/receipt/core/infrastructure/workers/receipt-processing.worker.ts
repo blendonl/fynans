@@ -10,6 +10,8 @@ import { ConfigService } from '@nestjs/config';
 interface ReceiptJobData {
   imageBase64: string;
   userId?: string;
+  receiptId?: string;
+  familyId?: string;
 }
 
 @Processor('receipt-processing')
