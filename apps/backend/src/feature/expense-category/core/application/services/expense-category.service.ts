@@ -10,6 +10,7 @@ import { UpdateExpenseCategoryDto } from '../dto/update-expense-category.dto';
 import { ExpenseCategory } from '../../domain/entities/expense-category.entity';
 import { IExpenseCategoryRepository, PaginatedResult } from '../../domain/repositories/expense-category.repository.interface';
 import { Pagination } from '~common/dto/pagination.dto';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 @Injectable()
 export class ExpenseCategoryService {
@@ -28,6 +29,12 @@ export class ExpenseCategoryService {
     dto: CreateExpenseCategoryDto,
     userId: string,
   ): Promise<ExpenseCategory> {
+    if (!dto.name || dto.name.trim() === '') {
+      throw new DomainValidationException('Category name is required');
+    }
+    if (!userId || userId.trim() === '') {
+      throw new DomainValidationException('User ID is required');
+    }
     return this.createExpenseCategoryUseCase.execute(dto, userId);
   }
 
@@ -52,6 +59,9 @@ export class ExpenseCategoryService {
     id: string,
     dto: UpdateExpenseCategoryDto,
   ): Promise<ExpenseCategory> {
+    if (!id || id.trim() === '') {
+      throw new DomainValidationException('Category ID is required');
+    }
     return this.updateExpenseCategoryUseCase.execute(id, dto);
   }
 
