@@ -1,10 +1,7 @@
 import { ExpenseCategory } from '../entities/expense-category.entity';
-import { Pagination } from '~common/dto/pagination.dto';
+import { Pagination, PaginatedResult } from '~common/dto/pagination.dto';
 
-export interface PaginatedResult<T> {
-  data: T[];
-  total: number;
-}
+export { PaginatedResult };
 
 export interface CreateExpenseCategoryData {
   name: string;
@@ -39,4 +36,5 @@ export interface IExpenseCategoryRepository {
     data: UpdateExpenseCategoryData,
   ): Promise<ExpenseCategory>;
   delete(id: string): Promise<void>;
+  countExpensesByCategory(categoryId: string): Promise<number>;
 }

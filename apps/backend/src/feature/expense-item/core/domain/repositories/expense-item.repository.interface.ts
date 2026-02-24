@@ -1,18 +1,29 @@
 import { ExpenseItem } from '../entities/expense-item.entity';
-import { Pagination } from '~common/dto/pagination.dto';
+import { Pagination, PaginatedResult } from '~common/dto/pagination.dto';
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
-export interface PaginatedResult<T> {
-  data: T[];
-  total: number;
+export { PaginatedResult };
+
+export interface CreateExpenseItemData {
+  itemId: string;
+  expenseId: string;
+  price: Decimal | number | string;
+  discount: Decimal | number | string;
+  quantity: Decimal | number;
+}
+
+export interface UpdateExpenseItemData {
+  categoryId?: string;
+  price?: Decimal;
+  discount?: Decimal;
 }
 
 export interface IExpenseItemRepository {
-  create(data: Partial<ExpenseItem>): Promise<ExpenseItem>;
+  create(data: CreateExpenseItemData): Promise<ExpenseItem>;
   findById(id: string): Promise<ExpenseItem | null>;
   findByExpenseId(expenseId: string): Promise<ExpenseItem[]>;
   findAll(pagination?: Pagination): Promise<PaginatedResult<ExpenseItem>>;
-  update(id: string, data: Partial<ExpenseItem>): Promise<ExpenseItem>;
+  update(id: string, data: UpdateExpenseItemData): Promise<ExpenseItem>;
   delete(id: string): Promise<void>;
-  deleteByExpenseId(expenseId: string): Promise<void>;
   calculateExpenseTotal(expenseId: string): Promise<number>;
 }
