@@ -45,14 +45,6 @@ const envSchema = z.object({
   PADDLEOCR_SERVICE_URL: z.string().optional(),
   PADDLEOCR_TIMEOUT: z.string().optional(),
   OCR_ENGINE: z.string().optional(),
-  OLLAMA_SERVICE_URL: z.string().optional(),
-  OLLAMA_MODEL: z.string().optional(),
-  OLLAMA_VISION_MODEL: z.string().optional(),
-  OLLAMA_TIMEOUT: z.string().optional(),
-  OLLAMA_KEEP_ALIVE: z.string().optional(),
-  VISION_PARSER: z.string().optional(),
-  DONUT_SERVICE_URL: z.string().optional(),
-  DONUT_TIMEOUT: z.string().optional(),
 
   // MinIO / S3-compatible storage (optional - defaults provided)
   MINIO_ENDPOINT: z.string().optional().default('http://localhost:9000'),
@@ -63,6 +55,12 @@ const envSchema = z.object({
 
   // Copilot category suggestions
   COPILOT_CATEGORY_MODEL: z.string().optional(),
+  COPILOT_API_ENDPOINT: z.string().optional(),
+
+  // Copilot auth tokens
+  COPILOT_ACCESS_TOKEN: z.string().optional(),
+  COPILOT_REFRESH_TOKEN: z.string().optional(),
+  COPILOT_TOKEN_EXPIRES: z.string().optional(),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
