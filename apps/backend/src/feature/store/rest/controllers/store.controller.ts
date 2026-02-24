@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -9,6 +9,8 @@ import {
 import { StoreService } from '../../core/application/services/store.service';
 import { StoreResponseDto } from '../dto/store-response.dto';
 import { QueryStoreDto } from '../dto/query-store.dto';
+import { UpdateStoreRequestDto } from '../dto/update-store-request.dto';
+import { UpdateStoreDto } from '../../core/application/dto/update-store.dto';
 import { Pagination } from '~common/dto/pagination.dto';
 import { CreateStoreDto } from '~feature/store/core';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
@@ -78,5 +80,25 @@ export class StoreController {
   async findOne(@Param('id') id: string) {
     const store = await this.storeService.findById(id);
     return StoreResponseDto.fromEntity(store);
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Update a store' })
+  @ApiResponse({ status: 200, type: StoreResponseDto })
+  async update(
+    @Param('id') id: string,
+    @Body() updateDto: UpdateStoreRequestDto,
+  ) {
+    const coreDto = new UpdateStoreDto(updateDto.name, updateDto.location);
+    const store = await this.storeService.update(id, coreDto);
+    return StoreResponseDto.fromEntity(store);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a store' })
+  @ApiResponse({ status: 204, description: 'Store deleted successfully' })
+  async delete(@Param('id') id: string) {
+    await this.storeService.delete(id);
   }
 }

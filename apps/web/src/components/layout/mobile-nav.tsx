@@ -8,6 +8,7 @@ import {
   PlusCircle,
   ShoppingCart,
   Bell,
+  Settings2,
 } from "lucide-react";
 import { useNotifications } from "@/hooks/use-notifications";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { href: "/add", label: "Add", icon: PlusCircle },
   { href: "/basket", label: "Basket", icon: ShoppingCart },
   { href: "/notifications", label: "Alerts", icon: Bell },
+  { href: "/manage", label: "Manage", icon: Settings2 },
 ];
 
 export function MobileNav() {
