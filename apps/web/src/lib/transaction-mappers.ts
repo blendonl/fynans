@@ -75,3 +75,52 @@ export function sortTransactionsByDate(transactions: Transaction[]): Transaction
     return dateB - dateA;
   });
 }
+
+export interface MonthGroup {
+  key: string;
+  monthLabel: string;
+  total: number;
+  income: number;
+  expenses: number;
+  matchedItemsTotal: number;
+  transactions: Transaction[];
+}
+
+export function groupByMonth(transactions: Transaction[]): MonthGroup[] {
+  const groups: Record<string, Transaction[]> = {};
+
+  transactions.forEach((transaction) => {
+    if (transaction.transaction.recordedAt) {
+      const date = new Date(transaction.transaction.recordedAt);
+      const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+
+      if (!groups[monthKey]) {
+        groups[monthKey] = [];
+      }
+      groups[monthKey].push(transaction);
+    }
+  });
+
+  return Object.entries(groups).map(([key, items]) => {
+    const date = new Date(items[0].transaction.recordedAt!);
+    const monthLabel = date.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
+    const income = items
+      .filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + t.transaction.value, 0);
+    const expenses = items
+      .filter((t) => t.type === "expense")
+      .reduce((sum, t) => sum + t.transaction.value, 0);
+    const matchedItemsTotal = items.reduce((sum, t) => {
+      if (!t.matchedItems?.length) return sum;
+      return sum + t.matchedItems.reduce(
+        (itemSum, item) => itemSum + (item.price - (item.discount || 0)) * item.quantity,
+        0,
+      );
+    }, 0);
+    const total = income - expenses;
+    return { key, monthLabel, total, income, expenses, matchedItemsTotal, transactions: items };
+  });
+}

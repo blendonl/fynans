@@ -24,8 +24,8 @@ export function getPresetRange(preset: DatePresetKey): DateRange | null {
 export function calculatePreviousPeriod(dateFrom: Date, dateTo: Date): DateRange {
   const days = differenceInDays(dateTo, dateFrom);
   return {
-    dateFrom: subDays(dateFrom, days),
-    dateTo: subDays(dateTo, days),
+    dateFrom: startOfDay(subDays(dateFrom, days)),
+    dateTo: endOfDay(subDays(dateFrom, 1)),
   };
 }
 

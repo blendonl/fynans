@@ -1,75 +1,35 @@
 import { useQuery, useMutation, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { customInstance } from "@/api/custom-instance";
-import type { ExpenseResponse, Family } from "@/types";
+import {
+  expenseControllerFindAll,
+  expenseControllerFindOne,
+  expenseControllerApprove,
+  expenseControllerReject,
+  expenseControllerResubmit,
+  expenseControllerUpdatePending,
+  expenseControllerRemove,
+} from "@/api/generated/endpoints/expense/expense";
+import type { ExpenseControllerFindAllParams } from "@/api/generated/model/expenseControllerFindAllParams";
+import type { RejectExpenseRequestDto } from "@/api/generated/model/rejectExpenseRequestDto";
+import type { ResubmitExpenseRequestDto } from "@/api/generated/model/resubmitExpenseRequestDto";
+import type { UpdatePendingExpenseRequestDto } from "@/api/generated/model/updatePendingExpenseRequestDto";
+import type { Family } from "@/types";
 import { mapExpenseToTransaction, sortTransactionsByDate } from "@/lib/transaction-mappers";
+import { queryKeys, DEFAULT_PAGE_SIZE } from "@/lib/query-keys";
 
 type TransactionStatus = "CONFIRMED" | "PENDING" | "REJECTED";
 
-interface PaginatedResponse {
-  data: ExpenseResponse[];
-  total: number;
-  page: number;
-  limit: number;
-}
+// ── Query key factory ────────────────────────────────────────────────
 
-const PAGE_SIZE = 20;
-
-async function fetchExpenses(params: Record<string, string | number>) {
-  const query = new URLSearchParams();
-  for (const [k, v] of Object.entries(params)) {
-    if (v !== undefined && v !== null && v !== "") query.set(k, String(v));
-  }
-  const url = `/expenses?${query.toString()}`;
-  const res = await customInstance<{ data: PaginatedResponse; status: number; headers: Headers }>(url, { method: "GET" });
-  return res.data;
-}
-
-async function approveExpense(id: string) {
-  return customInstance(`/expenses/${id}/approve`, { method: "POST" });
-}
-
-async function rejectExpense(id: string, rejectionReason: string) {
-  return customInstance(`/expenses/${id}/reject`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ rejectionReason }),
-  });
-}
-
-async function resubmitExpense(id: string, data?: Record<string, unknown>) {
-  return customInstance(`/expenses/${id}/resubmit`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data ?? {}),
-  });
-}
-
-async function updatePendingExpense(id: string, data: Record<string, unknown>) {
-  return customInstance(`/expenses/${id}/pending`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-}
-
-async function deleteExpense(id: string) {
-  return customInstance(`/expenses/${id}`, { method: "DELETE" });
-}
-
-export const pendingKeys = {
-  all: ["pending-transactions"] as const,
-  count: () => [...pendingKeys.all, "count"] as const,
-  list: (status: TransactionStatus) => [...pendingKeys.all, "list", status] as const,
-  detail: (id: string) => [...pendingKeys.all, "detail", id] as const,
-};
+export const pendingKeys = queryKeys.pending;
 
 export function usePendingTransactionCount() {
   return useQuery({
     queryKey: pendingKeys.count(),
     queryFn: async () => {
-      const res = await fetchExpenses({ status: "PENDING", page: 1, limit: 1 });
-      return res.total;
+      const params: ExpenseControllerFindAllParams = { status: "PENDING", page: 1, limit: 1 };
+      const res = await expenseControllerFindAll(params);
+      return res.data.total;
     },
     staleTime: 30_000,
   });
@@ -79,9 +39,15 @@ export function usePendingExpenses(status: TransactionStatus = "PENDING", _famil
   return useInfiniteQuery({
     queryKey: pendingKeys.list(status),
     queryFn: async ({ pageParam = 1 }) => {
-      const res = await fetchExpenses({ status, page: pageParam, limit: PAGE_SIZE });
+      const params: ExpenseControllerFindAllParams = {
+        status: status as ExpenseControllerFindAllParams["status"],
+        page: pageParam,
+        limit: DEFAULT_PAGE_SIZE,
+      };
+      const res = await expenseControllerFindAll(params);
+      const { data: expenses, total } = res.data;
 
-      const transactions = res.data.map((expense) => {
+      const transactions = expenses.map((expense) => {
         const tx = mapExpenseToTransaction(expense);
         return {
           ...tx,
@@ -92,8 +58,8 @@ export function usePendingExpenses(status: TransactionStatus = "PENDING", _famil
 
       return {
         transactions: sortTransactionsByDate(transactions),
-        total: res.total,
-        hasMore: pageParam * PAGE_SIZE < res.total,
+        total,
+        hasMore: pageParam * DEFAULT_PAGE_SIZE < total,
       };
     },
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
@@ -107,7 +73,7 @@ export function usePendingExpense(id: string) {
   return useQuery({
     queryKey: pendingKeys.detail(id),
     queryFn: async () => {
-      const res = await customInstance<{ data: ExpenseResponse; status: number; headers: Headers }>(`/expenses/${id}`, { method: "GET" });
+      const res = await expenseControllerFindOne(id);
       return res.data;
     },
     enabled: !!id,
@@ -117,11 +83,11 @@ export function usePendingExpense(id: string) {
 export function useApprovePendingExpense() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => approveExpense(id),
+    mutationFn: (id: string) => expenseControllerApprove(id),
     onSuccess: () => {
       toast.success("Expense approved");
       queryClient.invalidateQueries({ queryKey: pendingKeys.all });
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
       queryClient.invalidateQueries({ queryKey: ["transactions-infinite"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard-transaction-stats"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard-expense-stats"] });
@@ -136,8 +102,10 @@ export function useApprovePendingExpense() {
 export function useRejectPendingExpense() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, rejectionReason }: { id: string; rejectionReason: string }) =>
-      rejectExpense(id, rejectionReason),
+    mutationFn: ({ id, rejectionReason }: { id: string; rejectionReason: string }) => {
+      const dto: RejectExpenseRequestDto = { rejectionReason };
+      return expenseControllerReject(id, dto);
+    },
     onSuccess: () => {
       toast.success("Expense rejected");
       queryClient.invalidateQueries({ queryKey: pendingKeys.all });
@@ -152,7 +120,7 @@ export function useResubmitExpense() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data?: Record<string, unknown> }) =>
-      resubmitExpense(id, data),
+      expenseControllerResubmit(id, (data ?? {}) as ResubmitExpenseRequestDto),
     onSuccess: () => {
       toast.success("Expense re-submitted for review");
       queryClient.invalidateQueries({ queryKey: pendingKeys.all });
@@ -167,7 +135,7 @@ export function useUpdatePendingExpense() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) =>
-      updatePendingExpense(id, data),
+      expenseControllerUpdatePending(id, data as UpdatePendingExpenseRequestDto),
     onSuccess: () => {
       toast.success("Pending expense updated");
       queryClient.invalidateQueries({ queryKey: pendingKeys.all });
@@ -181,11 +149,11 @@ export function useUpdatePendingExpense() {
 export function useDeletePendingExpense() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteExpense(id),
+    mutationFn: (id: string) => expenseControllerRemove(id),
     onSuccess: () => {
       toast.success("Expense deleted");
       queryClient.invalidateQueries({ queryKey: pendingKeys.all });
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
       queryClient.invalidateQueries({ queryKey: ["transactions-infinite"] });
     },
     onError: (err: Error) => {
