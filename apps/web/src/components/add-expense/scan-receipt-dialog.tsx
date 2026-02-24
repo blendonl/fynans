@@ -15,10 +15,6 @@ import { useReceiptScan, type ProcessedReceiptResponse, type ReceiptScanOptions 
 import { GuidedCameraOverlay } from "@/components/receipt-capture/guided-camera-overlay";
 import { ReceiptCropOverlay } from "@/components/receipt-capture/receipt-crop-overlay";
 
-const hasGetUserMedia =
-  typeof navigator !== "undefined" &&
-  !!navigator.mediaDevices?.getUserMedia;
-
 interface ScanReceiptDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -87,11 +83,6 @@ export function ScanReceiptDialog({ open, onOpenChange, onResult, onImageCapture
     onOpenChange(isOpen);
   };
 
-  // When guided capture is active, remove the Dialog from the tree entirely.
-  // Radix Dialog's modal DismissableLayer sets pointer-events:none on body and
-  // intercepts all outside pointer events. Even with open={false}, the Presence
-  // exit animation keeps the DismissableLayer mounted briefly. Removing the
-  // Dialog completely ensures zero Radix interference with the camera overlay.
   if (showGuidedCapture && open) {
     return (
       <GuidedCameraOverlay
@@ -101,7 +92,6 @@ export function ScanReceiptDialog({ open, onOpenChange, onResult, onImageCapture
     );
   }
 
-  // Show crop overlay after any capture method produces a file
   if (pendingCropFile && open) {
     return (
       <ReceiptCropOverlay

@@ -1,7 +1,5 @@
 import type { DetectedCorners, QualityAssessment } from "./receipt-image-processing";
 
-// --- Requests (main thread → worker) ----------------------------------------
-
 export interface AnalyzeFrameRequest {
   type: "analyzeFrame";
   id: string;
@@ -22,8 +20,6 @@ export interface PerspectiveTransformRequest {
 }
 
 export type WorkerRequest = AnalyzeFrameRequest | PerspectiveTransformRequest;
-
-// --- Responses (worker → main thread) ----------------------------------------
 
 export interface ReadyResponse {
   type: "ready";

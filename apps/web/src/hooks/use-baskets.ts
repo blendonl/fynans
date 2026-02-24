@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { Basket } from "@/types";
 import { basketControllerListBaskets } from "@/api/generated/endpoints/basket/basket";
 
 export function useBaskets() {

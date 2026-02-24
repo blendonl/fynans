@@ -15,8 +15,6 @@ interface PaginatedResponse {
 
 const PAGE_SIZE = 20;
 
-// ── API helpers ──────────────────────────────────────────────────────
-
 async function fetchExpenses(params: Record<string, string | number>) {
   const query = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
@@ -59,16 +57,12 @@ async function deleteExpense(id: string) {
   return customInstance(`/expenses/${id}`, { method: "DELETE" });
 }
 
-// ── Query key factory ────────────────────────────────────────────────
-
 export const pendingKeys = {
   all: ["pending-transactions"] as const,
   count: () => [...pendingKeys.all, "count"] as const,
   list: (status: TransactionStatus) => [...pendingKeys.all, "list", status] as const,
   detail: (id: string) => [...pendingKeys.all, "detail", id] as const,
 };
-
-// ── Hooks ────────────────────────────────────────────────────────────
 
 export function usePendingTransactionCount() {
   return useQuery({
@@ -81,7 +75,7 @@ export function usePendingTransactionCount() {
   });
 }
 
-export function usePendingExpenses(status: TransactionStatus = "PENDING", families: Family[] = []) {
+export function usePendingExpenses(status: TransactionStatus = "PENDING", _families: Family[] = []) {
   return useInfiniteQuery({
     queryKey: pendingKeys.list(status),
     queryFn: async ({ pageParam = 1 }) => {

@@ -17,7 +17,7 @@ interface ExpenseTrendChartProps {
   data: ExpenseTrendPoint[];
 }
 
-function CrosshairCursor({ points, width, height }: Record<string, unknown>) {
+function CrosshairCursor({ points, width: _width, height }: Record<string, unknown>) {
   if (!points || !(points as { x: number; y: number }[]).length) return null;
   const { x, y } = (points as { x: number; y: number }[])[0];
   return (

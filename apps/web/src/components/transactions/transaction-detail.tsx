@@ -50,7 +50,6 @@ export function TransactionDetail({ transaction }: TransactionDetailProps) {
       </GlassCard>
 
       <div className="lg:grid lg:grid-cols-12 lg:gap-6 space-y-6 lg:space-y-0">
-        {/* Left column — Details + Receipts (40%) */}
         <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-6 lg:self-start">
           <TransactionDetailsCard
             data={{
@@ -66,7 +65,6 @@ export function TransactionDetail({ transaction }: TransactionDetailProps) {
           <ReceiptGallery images={receiptImages} />
         </div>
 
-        {/* Right column — Items (60%) */}
         <div className="lg:col-span-7 space-y-6">
           {transaction.items && (
             <TransactionItemsList items={transaction.items} />

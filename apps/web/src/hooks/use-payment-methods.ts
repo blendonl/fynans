@@ -8,7 +8,6 @@ import {
   getPaymentMethodControllerFindAllQueryKey,
 } from "@/api/generated/endpoints/payment-method/payment-method";
 import type {
-  PaymentMethodResponseDto,
   CreatePaymentMethodRequestDto,
   UpdatePaymentMethodRequestDto,
 } from "@/api/generated/model";

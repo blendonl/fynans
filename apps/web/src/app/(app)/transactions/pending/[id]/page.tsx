@@ -43,22 +43,13 @@ import {
 } from "@/components/transactions/pending-transaction-detail";
 import { RejectDialog } from "@/components/transactions/reject-dialog";
 
-/**
- * Syncs local item changes to the API using a delete-all + recreate strategy.
- *
- * NOTE: This is not atomic — if a create fails mid-loop, previously deleted
- * items are lost and only some new items will exist. A backend batch endpoint
- * would be needed for true atomicity.
- */
 async function syncExpenseItems(itemsSync: ItemsSync) {
-  // Delete all original items
   await Promise.all(
     itemsSync.originalIds.map((itemId) =>
       expenseItemControllerRemove(itemId),
     ),
   );
 
-  // Create current items (requires a storeId)
   if (itemsSync.storeId && itemsSync.items.length > 0) {
     for (const item of itemsSync.items) {
       await expenseItemControllerCreate(
@@ -100,13 +91,10 @@ export default function PendingTransactionDetailPage({
   const updateMutation = useUpdatePendingExpense();
   const deleteMutation = useDeletePendingExpense();
 
-  // Local loading state that covers the full async flow (sync + update + action)
   const [isSaving, setIsSaving] = useState(false);
 
-  // Key to force remount after save so refs/state reset from fresh data
   const [resetKey, setResetKey] = useState(0);
 
-  // Header bar state - actions exposed from the detail component
   const actionsRef = useRef<PendingTransactionActions | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -129,9 +117,7 @@ export default function PendingTransactionDetailPage({
       }
       await approveMutation.mutateAsync(id);
       router.push("/transactions?tab=pending");
-    } catch {
-      // Error toasts handled by each mutation's onError
-    } finally {
+    } catch { /* handled by mutation onError */ } finally {
       setIsSaving(false);
     }
   };
@@ -150,15 +136,12 @@ export default function PendingTransactionDetailPage({
     setIsSaving(true);
     try {
       if (itemsSync) await syncExpenseItems(itemsSync);
-      // Persist note/storeId via update first (resubmit DTO doesn't support them)
       if (changes && Object.keys(changes).length > 0) {
         await updateMutation.mutateAsync({ id, data: changes });
       }
       await resubmitMutation.mutateAsync({ id });
       router.push("/transactions?tab=pending");
-    } catch {
-      // Error toasts handled by each mutation's onError
-    } finally {
+    } catch { /* handled by mutation onError */ } finally {
       setIsSaving(false);
     }
   };
@@ -176,7 +159,6 @@ export default function PendingTransactionDetailPage({
         toast.success("Pending expense updated");
         queryClient.invalidateQueries({ queryKey: pendingKeys.all });
       }
-      // Refetch detail so the component remounts with fresh data
       await queryClient.refetchQueries({
         queryKey: pendingKeys.detail(id),
       });

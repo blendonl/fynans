@@ -104,7 +104,6 @@ export function useExpenseSubmission({
       });
       const res = await expenseControllerCreate(payload as unknown as Parameters<typeof expenseControllerCreate>[0]);
 
-      // Re-link receipt to the new expense before deleting the pending one
       if (receiptIdToLink) {
         const newExpenseId = (res as unknown as { data: { id: string } }).data?.id;
         if (newExpenseId) {
@@ -114,20 +113,15 @@ export function useExpenseSubmission({
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ expenseId: newExpenseId }),
             });
-          } catch {
-            // Non-critical - receipt link failed but expense was created
-          }
+          } catch { /* non-critical */ }
         }
       }
 
-      // Clean up auto-created pending expense from receipt scan
       if (pendingIdToCleanup) {
         try {
           await customInstance(`/expenses/${pendingIdToCleanup}`, { method: "DELETE" });
           onCleanupPending?.();
-        } catch {
-          // Ignore cleanup failures
-        }
+        } catch { /* non-critical */ }
       }
     },
     onSuccess: () => {

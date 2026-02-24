@@ -20,10 +20,6 @@ export interface FrameAnalysis {
   quality: QualityAssessment;
 }
 
-/**
- * Simple bounding-box crop using only the Canvas API (no OpenCV needed).
- * Falls back to this when OpenCV hasn't loaded yet.
- */
 export async function simpleCropFromCanvas(
   canvas: HTMLCanvasElement,
   corners: DetectedCorners,

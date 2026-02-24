@@ -55,7 +55,6 @@ export function ReceiptCropOverlay({
 
   const { ready: workerReady, analyzeFrame, perspectiveTransform } = useOpenCVWorker();
 
-  // Read --primary CSS variable once
   useEffect(() => {
     const v = getComputedStyle(document.documentElement)
       .getPropertyValue("--primary")
@@ -63,7 +62,6 @@ export function ReceiptCropOverlay({
     if (v) primaryRef.current = v;
   }, []);
 
-  // --- Load image ---
   useEffect(() => {
     let cancelled = false;
     let rafId = 0;
@@ -76,12 +74,10 @@ export function ReceiptCropOverlay({
       const w = Math.round(img.width * scale);
       const h = Math.round(img.height * scale);
 
-      // Show image + default corners immediately (no heavy work)
       setDisplayUrl(url);
       setImgDims({ w, h });
       setCorners(defaultCorners(w, h));
 
-      // Defer heavy canvas creation so the UI paints first
       rafId = requestAnimationFrame(() => {
         if (cancelled) return;
         const c = document.createElement("canvas");
@@ -108,7 +104,6 @@ export function ReceiptCropOverlay({
     };
   }, [imageFile]);
 
-  // --- Edge detection via worker (runs when both worker and sourceCanvas are ready) ---
   useEffect(() => {
     if (!workerReady || !sourceCanvas || sourceCanvas.width <= 0) return;
     let cancelled = false;
@@ -151,9 +146,7 @@ export function ReceiptCropOverlay({
           detectedCornersRef.current = scaled;
           setCorners(scaled);
         }
-      } catch {
-        /* keep default corners */
-      }
+      } catch { /* non-critical */ }
     };
 
     run();
@@ -162,7 +155,6 @@ export function ReceiptCropOverlay({
     };
   }, [workerReady, sourceCanvas, analyzeFrame]);
 
-  // --- Layout: where the <img> renders on screen (centered, contained) ---
   const getDrawRect = useCallback(
     (vw: number, vh: number) => {
       if (!imgDims) return null;
@@ -212,7 +204,6 @@ export function ReceiptCropOverlay({
     [getDrawRect, imgDims],
   );
 
-  // --- Draw overlay only (NOT the image — just dim mask, outline, circles) ---
   const drawOverlay = useCallback(() => {
     const canvas = overlayRef.current;
     if (!canvas || !corners || !imgDims) return;
@@ -233,7 +224,6 @@ export function ReceiptCropOverlay({
     const sc = CORNER_KEYS.map((k) => imgToScreen(corners[k], vw, vh));
     const primary = primaryRef.current;
 
-    // Dim area outside crop (even-odd fill)
     ctx.fillStyle = "rgba(0,0,0,0.5)";
     ctx.beginPath();
     ctx.rect(0, 0, vw, vh);
@@ -244,7 +234,6 @@ export function ReceiptCropOverlay({
     ctx.closePath();
     ctx.fill("evenodd");
 
-    // Crop outline
     ctx.strokeStyle = primary;
     ctx.lineWidth = 2;
     ctx.lineJoin = "round";
@@ -254,7 +243,6 @@ export function ReceiptCropOverlay({
     ctx.closePath();
     ctx.stroke();
 
-    // Corner circles
     for (let i = 0; i < sc.length; i++) {
       const pt = sc[i];
       const isActive = activeCorner === CORNER_KEYS[i];
@@ -279,7 +267,6 @@ export function ReceiptCropOverlay({
     return () => window.removeEventListener("resize", h);
   }, [drawOverlay]);
 
-  // --- Pointer handling on the overlay canvas ---
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
       const c = cornersRef.current;
@@ -323,11 +310,9 @@ export function ReceiptCropOverlay({
     setActiveCorner(null);
   }, []);
 
-  // --- Confirm crop ---
   const handleConfirm = useCallback(async () => {
     if (!sourceCanvas || !corners) return;
 
-    // Validate that the crop area isn't too small
     const widthTop = distance(corners.topLeft, corners.topRight);
     const widthBottom = distance(corners.bottomLeft, corners.bottomRight);
     const heightLeft = distance(corners.topLeft, corners.bottomLeft);
@@ -349,7 +334,6 @@ export function ReceiptCropOverlay({
             perspectiveTransform,
           );
         } catch {
-          // Fall back to simple crop on worker error
           croppedFile = await simpleCropFromCanvas(sourceCanvas, corners);
         }
       } else {
@@ -372,7 +356,6 @@ export function ReceiptCropOverlay({
 
   return createPortal(
     <div className="fixed inset-0 z-50 bg-black touch-none select-none" style={{ pointerEvents: "auto" }}>
-      {/* Native <img> for display — browser decodes off main thread */}
       {displayUrl && (
         <img
           src={displayUrl}
@@ -382,7 +365,6 @@ export function ReceiptCropOverlay({
         />
       )}
 
-      {/* Lightweight overlay canvas: dim mask + crop lines + circles + touch */}
       <canvas
         ref={overlayRef}
         className="absolute inset-0"
@@ -393,7 +375,6 @@ export function ReceiptCropOverlay({
         onPointerCancel={handlePointerUp}
       />
 
-      {/* Loading overlay */}
       {(!isReady || isProcessing) && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80">
           <Loader2 className="h-8 w-8 animate-spin text-white" />
@@ -403,7 +384,6 @@ export function ReceiptCropOverlay({
         </div>
       )}
 
-      {/* Top bar */}
       <div className="pointer-events-none absolute left-0 right-0 top-0 z-30 flex items-center justify-between p-4">
         <button
           onClick={onClose}
@@ -430,7 +410,6 @@ export function ReceiptCropOverlay({
         </button>
       </div>
 
-      {/* Confirm button */}
       <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-30 flex items-center justify-center pb-10 pt-6">
         <button
           onClick={handleConfirm}

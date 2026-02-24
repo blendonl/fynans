@@ -1,9 +1,3 @@
-/**
- * Re-export generated API types with shorter names for UI convenience.
- * Also re-export local UI-only types.
- */
-
-// Generated API types with convenient aliases
 export type { ExpenseCategoryResponseDto as Category } from '@/api/generated/model';
 export type { IncomeCategoryResponseDto as IncomeCategory } from '@/api/generated/model';
 export type { StoreResponseDto as Store } from '@/api/generated/model';
@@ -18,7 +12,6 @@ export type { ItemWithStoresResponseDto as ItemWithPrices } from '@/api/generate
 export type { NotificationResponseDto as Notification } from '@/api/generated/model';
 export type { MeResponseDto as User } from '@/api/generated/model';
 
-// API response types
 export type { ExpenseResponseDto as ExpenseResponse } from '@/api/generated/model';
 export type { IncomeResponseDto as IncomeResponse } from '@/api/generated/model';
 export type { TransactionResponseDto as TransactionResponse } from '@/api/generated/model';
@@ -30,19 +23,16 @@ export type { ExpenseCategoryResponseDto as ExpenseCategoryResponse } from '@/ap
 export type { IncomeCategoryResponseDto as IncomeCategoryResponse } from '@/api/generated/model';
 export type { StoreResponseDto as StoreResponse } from '@/api/generated/model';
 
-// Paginated response (generic-like, using intersection with actual DTOs)
 export type {
   PaginatedExpenseResponseDto,
   PaginatedIncomeResponseDto,
   PaginatedTransactionResponseDto,
 } from '@/api/generated/model';
 
-// Payment method types
 export type { PaymentMethodResponseDto as PaymentMethod } from '@/api/generated/model';
 export type { PaymentMethodResponseDtoType as PaymentMethodType } from '@/api/generated/model';
 export type { CreatePaymentMethodRequestDto as CreatePaymentMethodInput } from '@/api/generated/model';
 export type { UpdatePaymentMethodRequestDto as UpdatePaymentMethodInput } from '@/api/generated/model';
 
-// Local UI-only types
 export type { Transaction, TransactionItem, TransactionFilters, TransactionType, TransactionScope } from './transaction';
 export type { CurrentItem, ExpenseItem } from './expense';

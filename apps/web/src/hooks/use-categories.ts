@@ -2,7 +2,6 @@ import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tansta
 import { expenseCategoryControllerFindAll, expenseCategoryControllerCreate } from "@/api/generated/endpoints/expense-category/expense-category";
 import { storeItemCategoryControllerFindAll, storeItemCategoryControllerCreate } from "@/api/generated/endpoints/store-item-category/store-item-category";
 import { incomeCategoryControllerFindAll } from "@/api/generated/endpoints/income-category/income-category";
-import type { Category } from "@/types";
 
 const EXPENSE_CATEGORY_PAGE_SIZE = 10;
 

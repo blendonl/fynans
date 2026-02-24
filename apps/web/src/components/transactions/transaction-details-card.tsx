@@ -9,7 +9,6 @@ import { DateTimePicker } from "@/components/add-transaction/date-time-picker";
 import type { Category, Store as StoreType, PaymentMethod } from "@/types";
 
 interface TransactionDetailsCardEditableProps {
-  // Category selector
   categories: Category[];
   selectedCategory: Category | null;
   onCategorySelect: (cat: Category) => void;
@@ -22,7 +21,6 @@ interface TransactionDetailsCardEditableProps {
     hasMore: boolean;
     isLoadingMore: boolean;
   };
-  // Store selector (only for expenses)
   stores?: StoreType[];
   selectedStore?: StoreType | null;
   onStoreSelect?: (s: StoreType) => void;
@@ -35,15 +33,12 @@ interface TransactionDetailsCardEditableProps {
     hasMore: boolean;
     isLoadingMore: boolean;
   };
-  // Note
   note: string;
   onNoteChange: (v: string) => void;
-  // Payment method
   paymentMethods: PaymentMethod[];
   selectedPaymentMethodId: string | null;
   onPaymentMethodSelect: (id: string | null) => void;
   paymentMethodsLoading: boolean;
-  // Date/time
   recordedAt: string;
   onRecordedAtChange: (v: string) => void;
 }
@@ -152,7 +147,6 @@ export function TransactionDetailsCard({
     );
   }
 
-  // Read-only mode
   return (
     <GlassCard className="p-5 sm:p-6">
       <h3 className="text-[11px] font-medium text-text-secondary uppercase tracking-wider mb-4">

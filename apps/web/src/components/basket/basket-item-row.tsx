@@ -57,7 +57,6 @@ export function BasketItemRow({
           : "border-border-light hover:border-border"
       )}
     >
-      {/* Checkbox */}
       <button
         type="button"
         onClick={() => onToggle(item.id)}
@@ -71,7 +70,6 @@ export function BasketItemRow({
         {isChecked && <Check className="h-3 w-3 text-white" />}
       </button>
 
-      {/* Name + category */}
       <div className="flex-1 min-w-0">
         <p
           className={cn(
@@ -88,7 +86,6 @@ export function BasketItemRow({
         )}
       </div>
 
-      {/* Quantity (inline edit) */}
       <div className="shrink-0">
         {editingQty ? (
           <input
@@ -123,7 +120,6 @@ export function BasketItemRow({
         )}
       </div>
 
-      {/* Price (inline edit) */}
       <div className="shrink-0">
         {editingPrice ? (
           <input
@@ -160,7 +156,6 @@ export function BasketItemRow({
         )}
       </div>
 
-      {/* Remove button */}
       <button
         type="button"
         onClick={() => onRemove(item.id)}

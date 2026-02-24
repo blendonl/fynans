@@ -165,19 +165,3 @@ export function groupByMonth(transactions: Transaction[]): MonthGroup[] {
   });
 }
 
-export function getStats(transactions: Transaction[]) {
-  const totalExpenses = transactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + t.transaction.value, 0);
-
-  const totalIncome = transactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + t.transaction.value, 0);
-
-  return {
-    totalExpenses,
-    totalIncome,
-    net: totalIncome - totalExpenses,
-    count: transactions.length,
-  };
-}

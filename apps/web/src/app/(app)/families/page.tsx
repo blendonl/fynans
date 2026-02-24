@@ -39,7 +39,6 @@ export default function FamiliesPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <PageHeader
         label="Shared finances"
         title="Families"
@@ -54,7 +53,6 @@ export default function FamiliesPage() {
         </Link>
       </PageHeader>
 
-      {/* Pending Invitations */}
       {pendingInvitations.length > 0 && (
         <div className="dash-animate-in dash-delay-1">
           <div className="relative overflow-hidden rounded-2xl border border-[var(--primary)]/15 bg-gradient-to-br from-[var(--primary-muted)] to-transparent p-4">
@@ -110,7 +108,6 @@ export default function FamiliesPage() {
         </div>
       )}
 
-      {/* Family List */}
       {isLoading ? (
         <div className="space-y-3 dash-animate-in dash-delay-2">
           {[...Array(3)].map((_, i) => (

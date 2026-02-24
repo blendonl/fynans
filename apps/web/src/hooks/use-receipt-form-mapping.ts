@@ -44,7 +44,6 @@ export function useReceiptFormMapping({
       setIsItemized(true);
       setHasScannedReceipt(true);
 
-      // Auto-select expense category from receipt AI suggestion
       let autoSelectedCategory = selectedCategory;
       if (data.suggestedExpenseCategory && !selectedCategory) {
         autoSelectedCategory = {

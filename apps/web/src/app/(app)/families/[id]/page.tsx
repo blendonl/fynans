@@ -102,7 +102,6 @@ export default function FamilyDetailPage({
 
   return (
     <div className="space-y-6">
-      {/* Back */}
       <div className="dash-animate-in">
         <button
           onClick={() => router.back()}
@@ -113,7 +112,6 @@ export default function FamilyDetailPage({
         </button>
       </div>
 
-      {/* Hero */}
       <div className="dash-animate-in dash-delay-1 relative overflow-hidden rounded-2xl border border-border-light bg-surface p-6">
         <div
           className="absolute top-0 right-0 w-32 h-32 opacity-[0.04] pointer-events-none"
@@ -132,7 +130,6 @@ export default function FamilyDetailPage({
         </div>
       </div>
 
-      {/* Members */}
       <div className="dash-animate-in dash-delay-2 space-y-3">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-sm font-semibold text-text">
@@ -220,7 +217,6 @@ export default function FamilyDetailPage({
         </div>
       </div>
 
-      {/* Pending Invitations */}
       {sentInvitations.length > 0 && (
         <div className="dash-animate-in dash-delay-3 space-y-3">
           <h2 className="text-sm font-semibold text-text px-1">
@@ -258,7 +254,6 @@ export default function FamilyDetailPage({
         </div>
       )}
 
-      {/* Leave Family */}
       <div className="dash-animate-in dash-delay-4 pt-4">
         <button
           onClick={() => {
@@ -272,7 +267,6 @@ export default function FamilyDetailPage({
         </button>
       </div>
 
-      {/* Invite Dialog */}
       <Dialog open={showInvite} onOpenChange={setShowInvite}>
         <DialogContent>
           <DialogHeader>

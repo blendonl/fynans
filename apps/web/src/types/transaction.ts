@@ -1,4 +1,3 @@
-/** UI-assembled transaction type (not a direct API response) */
 export interface Transaction {
   id: string;
   type: "expense" | "income";

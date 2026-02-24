@@ -29,8 +29,6 @@ import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/ui/page-header";
 import type { Notification } from "@/types";
 
-// --- Notification type icon & color mapping ---
-
 type NotificationMeta = {
   icon: typeof Bell;
   color: string;
@@ -105,8 +103,6 @@ function getNotificationMeta(type: string): NotificationMeta {
   return NOTIFICATION_META[type] || DEFAULT_META;
 }
 
-// --- Relative time formatting ---
-
 function formatRelativeTime(dateStr: string): string {
   const now = new Date();
   const date = new Date(dateStr);
@@ -126,8 +122,6 @@ function formatRelativeTime(dateStr: string): string {
     day: "numeric",
   });
 }
-
-// --- Date grouping ---
 
 type DateGroup = "today" | "yesterday" | "earlier";
 
@@ -167,8 +161,6 @@ function groupNotifications(
     .map((g) => ({ group: g, label: GROUP_LABELS[g], items: groups[g] }));
 }
 
-// --- Priority badge ---
-
 function PriorityBadge({ priority }: { priority?: string }) {
   if (!priority || priority === "LOW" || priority === "MEDIUM") return null;
 
@@ -184,8 +176,6 @@ function PriorityBadge({ priority }: { priority?: string }) {
     </Badge>
   );
 }
-
-// --- Notification row ---
 
 function NotificationRow({
   notification,
@@ -219,12 +209,10 @@ function NotificationRow({
         isUnread ? "bg-primary/[0.05]" : ""
       )}
     >
-      {/* Unread accent */}
       {isUnread && (
         <div className="absolute left-0 top-2.5 bottom-2.5 w-[3px] rounded-r-full bg-primary" />
       )}
 
-      {/* Type icon */}
       <div
         className={cn(
           "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
@@ -234,7 +222,6 @@ function NotificationRow({
         <Icon className={cn("h-[18px] w-[18px]", meta.color)} />
       </div>
 
-      {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <p
@@ -260,7 +247,6 @@ function NotificationRow({
         </p>
       </div>
 
-      {/* Actions (visible on hover or focus) */}
       <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
         {isUnread && (
           <Button
@@ -290,15 +276,12 @@ function NotificationRow({
         </Button>
       </div>
 
-      {/* Navigate chevron */}
       {notification.actionUrl && (
         <ChevronRight className="h-4 w-4 shrink-0 self-center text-text-disabled group-hover:text-text-secondary transition-colors" />
       )}
     </div>
   );
 }
-
-// --- Main page ---
 
 export default function NotificationsPage() {
   const [filter, setFilter] = useState<"all" | "unread">("all");
@@ -336,7 +319,6 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <PageHeader
         label="Updates"
         title="Notifications"
@@ -356,7 +338,6 @@ export default function NotificationsPage() {
         )}
       </PageHeader>
 
-      {/* Filter tabs */}
       <div className="dash-animate-in dash-delay-1">
         <Tabs
           value={filter}
@@ -383,7 +364,6 @@ export default function NotificationsPage() {
         </Tabs>
       </div>
 
-      {/* Content */}
       {isLoading ? (
         <div className="space-y-2 dash-animate-in dash-delay-2">
           {[...Array(6)].map((_, i) => (

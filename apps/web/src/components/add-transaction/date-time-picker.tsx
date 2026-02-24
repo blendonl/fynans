@@ -34,10 +34,6 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-/* ------------------------------------------------------------------ */
-/*  Types & helpers                                                    */
-/* ------------------------------------------------------------------ */
-
 interface DateTimePickerProps {
   value: string;
   onChange: (value: string) => void;
@@ -77,10 +73,6 @@ function to24Hour(hour12: number, isPM: boolean) {
   return isPM ? hour12 + 12 : hour12;
 }
 
-/* ------------------------------------------------------------------ */
-/*  TimeSpinner                                                        */
-/* ------------------------------------------------------------------ */
-
 interface SpinnerProps {
   value: number;
   onChange: (v: number) => void;
@@ -116,10 +108,6 @@ function TimeSpinner({ value, onChange, min, max, pad = 2 }: SpinnerProps) {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  DateTimePicker                                                     */
-/* ------------------------------------------------------------------ */
-
 export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
   const [open, setOpen] = useState(false);
 
@@ -132,15 +120,11 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
     startOfMonth(selectedDate),
   );
 
-  // Reset viewMonth to selected date's month whenever the popover opens
   useEffect(() => {
     if (open) setViewMonth(startOfMonth(selectedDate));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const friendly = useMemo(() => formatFriendly(value), [value]);
-
-  /* ---------- Calendar grid ---------- */
 
   const calendarDays = useMemo(() => {
     const mStart = startOfMonth(viewMonth);
@@ -151,13 +135,9 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
     });
   }, [viewMonth]);
 
-  /* ---------- Time values ---------- */
-
   const h24 = getHours(selectedDate);
   const mins = getMinutes(selectedDate);
   const { hour12, isPM } = to12Hour(h24);
-
-  /* ---------- Handlers ---------- */
 
   const commit = useCallback(
     (d: Date) => onChange(toLocalString(d)),
@@ -192,11 +172,8 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
     commit(setHours(new Date(selectedDate), to24Hour(hour12, !isPM)));
   }, [selectedDate, hour12, isPM, commit]);
 
-  /* ---------- Render ---------- */
-
   return (
     <div className="space-y-2">
-      {/* Quick-select chips */}
       <div className="flex gap-2">
         <button
           type="button"
@@ -224,7 +201,6 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
         </button>
       </div>
 
-      {/* Popover trigger */}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
@@ -241,7 +217,6 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
           sideOffset={6}
           className="w-[280px] p-0 overflow-hidden"
         >
-          {/* ---- Month navigation ---- */}
           <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
             <button
               type="button"
@@ -262,7 +237,6 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
             </button>
           </div>
 
-          {/* ---- Weekday headers ---- */}
           <div className="grid grid-cols-7 px-2.5">
             {WEEKDAYS.map((d) => (
               <div
@@ -274,7 +248,6 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
             ))}
           </div>
 
-          {/* ---- Day grid ---- */}
           <div className="grid grid-cols-7 px-2.5 pb-2.5 gap-y-0.5">
             {calendarDays.map((day, i) => {
               const selected = isSameDay(day, selectedDate);
@@ -303,7 +276,6 @@ export function DateTimePicker({ value, onChange }: DateTimePickerProps) {
             })}
           </div>
 
-          {/* ---- Time picker ---- */}
           <div className="border-t border-border px-4 py-2.5 flex items-center gap-3">
             <Clock className="h-3.5 w-3.5 text-text-secondary shrink-0" />
 
