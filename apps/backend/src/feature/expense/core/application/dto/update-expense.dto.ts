@@ -2,7 +2,7 @@ export class UpdateExpenseDto {
   categoryId?: string;
   storeId?: string;
   amount?: number;
-  description?: string;
+  note?: string;
   recordedAt?: Date;
   paymentMethodId?: string | null;
 
@@ -10,14 +10,14 @@ export class UpdateExpenseDto {
     categoryId?: string;
     storeId?: string;
     amount?: number;
-    description?: string;
+    note?: string;
     recordedAt?: Date;
     paymentMethodId?: string | null;
   }) {
     this.categoryId = data.categoryId;
     this.storeId = data.storeId;
     this.amount = data.amount;
-    this.description = data.description;
+    this.note = data.note;
     this.recordedAt = data.recordedAt;
     this.paymentMethodId = data.paymentMethodId;
   }

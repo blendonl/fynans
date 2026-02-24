@@ -41,7 +41,7 @@ export class UpdateExpenseRequestDto {
       categoryId: this.categoryId,
       storeId: this.storeId,
       amount: this.amount,
-      description: this.note,
+      note: this.note,
       recordedAt: this.recordedAt ? new Date(this.recordedAt) : undefined,
       paymentMethodId: this.paymentMethodId,
     });

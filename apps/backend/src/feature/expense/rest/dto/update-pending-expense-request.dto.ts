@@ -1,4 +1,4 @@
-import { IsUUID, IsNumber, IsDateString, IsString, IsOptional, Min } from 'class-validator';
+import { IsUUID, IsNumber, IsDateString, IsOptional, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { UpdatePendingExpenseDto } from '../../core/application/dto/update-pending-expense.dto';
 
@@ -17,10 +17,6 @@ export class UpdatePendingExpenseRequestDto {
   @Type(() => Number)
   amount?: number;
 
-  @IsString()
-  @IsOptional()
-  note?: string;
-
   @IsDateString()
   @IsOptional()
   recordedAt?: string;
@@ -34,7 +30,6 @@ export class UpdatePendingExpenseRequestDto {
       categoryId: this.categoryId,
       storeId: this.storeId,
       amount: this.amount,
-      note: this.note,
       recordedAt: this.recordedAt ? new Date(this.recordedAt) : undefined,
       paymentMethodId: this.paymentMethodId,
     });
