@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { TesseractOcrService } from './infrastructure/services/tesseract-ocr.service';
 import { PaddleOcrHttpService } from './infrastructure/services/paddleocr-http.service';
-import { OllamaModule } from './ollama.module';
+import { CopilotCompletionService } from '~feature/ai/core/infrastructure/services/copilot-completion.service';
 import { ReceiptJobQueueService } from './infrastructure/services/receipt-job-queue.service';
 import { ReceiptProcessingWorker } from './infrastructure/workers/receipt-processing.worker';
 import { ProcessReceiptUseCase } from './application/use-cases/process-receipt.use-case';
@@ -31,7 +31,6 @@ import { CopilotTokenService } from '~common/services/copilot-token.service';
 @Module({
   imports: [
     ConfigModule,
-    OllamaModule,
     StoreCoreModule,
     ItemCoreModule,
     StoreItemCategoryCoreModule,
@@ -40,6 +39,10 @@ import { CopilotTokenService } from '~common/services/copilot-token.service';
     BullModule.registerQueue({ name: 'receipt-processing' }),
   ],
   providers: [
+    {
+      provide: 'LlmService',
+      useClass: CopilotCompletionService,
+    },
     {
       provide: 'OcrService',
       useFactory: (configService: ConfigService): IOcrService => {
@@ -66,7 +69,7 @@ import { CopilotTokenService } from '~common/services/copilot-token.service';
         nameNormalizer: ItemNameNormalizerService,
         tokenService: CopilotTokenService,
       ): OpencodeReceiptParser | undefined => {
-        const enabled = config.get<string>('OPENCODE_ENABLED', 'true') === 'true';
+        const enabled = config.get<string>('COPILOT_ENABLED', 'true') === 'true';
         if (!enabled) return undefined;
         return new OpencodeReceiptParser(config, postProcessor, nameNormalizer, tokenService);
       },

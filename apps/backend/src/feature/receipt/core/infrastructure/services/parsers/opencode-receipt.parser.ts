@@ -20,9 +20,10 @@ const SYSTEM_PROMPT =
   'You are a receipt data extraction tool. Return ONLY valid JSON. No explanation, no reasoning, no markdown fences.';
 
 export class OpencodeReceiptParser implements IReceiptParser {
-  readonly name = 'opencode';
+  readonly name = 'copilot';
   private readonly logger = new Logger(OpencodeReceiptParser.name);
   private readonly model: string;
+  private readonly fallbackModel: string;
   private readonly timeout: number;
   private readonly apiEndpoint: string;
 
@@ -32,16 +33,16 @@ export class OpencodeReceiptParser implements IReceiptParser {
     private readonly nameNormalizer: ItemNameNormalizerService | undefined,
     private readonly tokenService: CopilotTokenService,
   ) {
-    const rawModel = this.configService.get<string>(
-      'OPENCODE_MODEL',
-      'github-copilot/claude-sonnet-4.6',
+    this.model = this.configService.get<string>(
+      'COPILOT_MODEL',
+      'claude-sonnet-4-20250514',
     );
-    // Strip provider prefix for the API call (e.g., "github-copilot/claude-sonnet-4.6" → "claude-sonnet-4.6")
-    this.model = rawModel.includes('/')
-      ? rawModel.split('/').slice(1).join('/')
-      : rawModel;
+    this.fallbackModel = this.configService.get<string>(
+      'COPILOT_FALLBACK_MODEL',
+      'gpt-4o',
+    );
     this.timeout = parseInt(
-      this.configService.get<string>('OPENCODE_TIMEOUT', '30000'),
+      this.configService.get<string>('COPILOT_TIMEOUT', '30000'),
       10,
     );
     this.apiEndpoint = this.configService.get<string>(
@@ -183,18 +184,26 @@ export class OpencodeReceiptParser implements IReceiptParser {
 
   private async callCopilotApi(prompt: string): Promise<string> {
     try {
-      return await this.doApiCall(prompt);
+      return await this.doApiCall(prompt, this.model);
     } catch (err) {
-      if (err instanceof Error && err.message.includes('401')) {
-        this.logger.warn('Copilot API returned 401, refreshing token and retrying...');
-        await this.tokenService.refreshIfUnauthorized();
-        return this.doApiCall(prompt);
+      if (err instanceof Error) {
+        if (err.message.includes('401')) {
+          this.logger.warn('Copilot API returned 401, refreshing token and retrying...');
+          await this.tokenService.refreshIfUnauthorized();
+          return this.doApiCall(prompt, this.model);
+        }
+        if (err.message.includes('429') && this.fallbackModel !== this.model) {
+          this.logger.warn(
+            `Copilot API returned 429 for model ${this.model}, falling back to ${this.fallbackModel}`,
+          );
+          return this.doApiCall(prompt, this.fallbackModel);
+        }
       }
       throw err;
     }
   }
 
-  private async doApiCall(prompt: string): Promise<string> {
+  private async doApiCall(prompt: string, model: string): Promise<string> {
     const token = await this.tokenService.getToken();
 
     const controller = new AbortController();
@@ -202,7 +211,7 @@ export class OpencodeReceiptParser implements IReceiptParser {
 
     const apiStart = Date.now();
     this.logger.log(
-      `[TIMING] Calling Copilot API: model=${this.model}, endpoint=${this.apiEndpoint}`,
+      `[TIMING] Calling Copilot API: model=${model}, endpoint=${this.apiEndpoint}`,
     );
 
     try {
@@ -214,7 +223,7 @@ export class OpencodeReceiptParser implements IReceiptParser {
           'Copilot-Integration-Id': 'vscode-chat',
         },
         body: JSON.stringify({
-          model: this.model,
+          model,
           messages: [
             { role: 'system', content: SYSTEM_PROMPT },
             { role: 'user', content: prompt },
@@ -244,7 +253,7 @@ export class OpencodeReceiptParser implements IReceiptParser {
 
       const usage = data.usage;
       this.logger.log(
-        `[TIMING] Copilot API completed in ${Date.now() - apiStart}ms` +
+        `[TIMING] Copilot API completed in ${Date.now() - apiStart}ms (model=${model})` +
           (usage
             ? ` — tokens: input=${usage.prompt_tokens}, output=${usage.completion_tokens}`
             : ''),

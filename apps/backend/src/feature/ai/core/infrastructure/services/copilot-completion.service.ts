@@ -1,14 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-  IOllamaService,
-  OllamaCompletionOptions,
-  OllamaCompletionResult,
-} from '~feature/receipt/core/application/interfaces/ollama.interface';
+  ILlmService,
+  LlmCompletionOptions,
+  LlmCompletionResult,
+} from '~feature/receipt/core/application/interfaces/llm.interface';
 import { CopilotTokenService } from '~common/services/copilot-token.service';
 
 @Injectable()
-export class CopilotCompletionService implements IOllamaService {
+export class CopilotCompletionService implements ILlmService {
   private readonly logger = new Logger(CopilotCompletionService.name);
   private readonly model: string;
   private readonly timeout: number;
@@ -18,7 +18,7 @@ export class CopilotCompletionService implements IOllamaService {
     private readonly configService: ConfigService,
     private readonly tokenService: CopilotTokenService,
   ) {
-    this.model = this.configService.get<string>('COPILOT_CATEGORY_MODEL', 'gpt-4o');
+    this.model = this.configService.get<string>('COPILOT_FALLBACK_MODEL', 'gpt-4o');
     this.timeout = 15_000;
     this.apiEndpoint = this.configService.get<string>(
       'COPILOT_API_ENDPOINT',
@@ -28,8 +28,8 @@ export class CopilotCompletionService implements IOllamaService {
 
   async generateCompletion(
     prompt: string,
-    options?: OllamaCompletionOptions,
-  ): Promise<OllamaCompletionResult> {
+    options?: LlmCompletionOptions,
+  ): Promise<LlmCompletionResult> {
     return this.callWithRetry(prompt, options);
   }
 
@@ -39,8 +39,8 @@ export class CopilotCompletionService implements IOllamaService {
 
   private async callWithRetry(
     prompt: string,
-    options?: OllamaCompletionOptions,
-  ): Promise<OllamaCompletionResult> {
+    options?: LlmCompletionOptions,
+  ): Promise<LlmCompletionResult> {
     try {
       return await this.doCall(prompt, options);
     } catch (err) {
@@ -55,8 +55,8 @@ export class CopilotCompletionService implements IOllamaService {
 
   private async doCall(
     prompt: string,
-    options?: OllamaCompletionOptions,
-  ): Promise<OllamaCompletionResult> {
+    options?: LlmCompletionOptions,
+  ): Promise<LlmCompletionResult> {
     const token = await this.tokenService.getToken();
 
     const controller = new AbortController();

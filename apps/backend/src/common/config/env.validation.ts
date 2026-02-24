@@ -53,14 +53,15 @@ const envSchema = z.object({
   MINIO_BUCKET: z.string().optional().default('fynans'),
   MINIO_REGION: z.string().optional().default('us-east-1'),
 
-  // Copilot category suggestions
-  COPILOT_CATEGORY_MODEL: z.string().optional(),
-  COPILOT_API_ENDPOINT: z.string().optional(),
-
-  // Copilot auth tokens
+  // GitHub Copilot API
   COPILOT_ACCESS_TOKEN: z.string().optional(),
   COPILOT_REFRESH_TOKEN: z.string().optional(),
   COPILOT_TOKEN_EXPIRES: z.string().optional(),
+  COPILOT_MODEL: z.string().optional(),
+  COPILOT_FALLBACK_MODEL: z.string().optional(),
+  COPILOT_TIMEOUT: z.string().optional(),
+  COPILOT_API_ENDPOINT: z.string().optional(),
+  COPILOT_ENABLED: z.string().optional(),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
