@@ -110,7 +110,6 @@ export function ExpenseItemsForm({
 
   const selectedItemCategory = itemCategories.find((c) => c.id === currentItem.categoryId) || null;
 
-  // Auto-fill item category from AI suggestion
   const lastAutoFilledRef = useRef<string | null>(null);
   useEffect(() => {
     if (

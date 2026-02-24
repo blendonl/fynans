@@ -28,7 +28,6 @@ import { AmountHero } from "@/components/add-transaction/amount-hero";
 import { TransactionDetailsCard } from "./transaction-details-card";
 import { ReceiptGallery } from "./receipt-gallery";
 
-/** Runtime expense shape including fields not yet in the OpenAPI spec */
 export interface PendingExpenseData {
   id: string;
   categoryId: string;
@@ -65,7 +64,6 @@ export interface PendingExpenseData {
   receiptImages: string[];
 }
 
-/** Data needed by the page to sync item changes with the API */
 export interface ItemsSync {
   originalIds: string[];
   items: ExpenseItem[];
@@ -73,7 +71,6 @@ export interface ItemsSync {
   expenseId: string;
 }
 
-/** Actions exposed to the parent page for header bar buttons */
 export interface PendingTransactionActions {
   hasChanges: boolean;
   handleApprove: () => void;
@@ -111,7 +108,6 @@ export function PendingTransactionDetail({
 }: PendingTransactionDetailProps) {
   const { user } = useAuth();
 
-  // ── Data hooks for selectors ──────────────────────────────────────────
   const {
     categories,
     itemCategories,
@@ -138,7 +134,6 @@ export function PendingTransactionDetail({
   const itemCategoryDialog = useCreateDialog();
   const [, setCategorySearch] = useState("");
 
-  // ── Edit state (initialized from expense) ─────────────────────────────
   const initialRecordedAt = useMemo(
     () =>
       format(
@@ -161,7 +156,6 @@ export function PendingTransactionDetail({
     string | null
   >(expense.transaction.paymentMethodId || null);
 
-  // ── Items editing ─────────────────────────────────────────────────────
   const expenseItems = useExpenseItems();
   const originalItemIdsRef = useRef(expense.items.map((i) => i.id));
   const originalItemsJsonRef = useRef(
@@ -176,7 +170,6 @@ export function PendingTransactionDetail({
     ),
   );
 
-  // Initialize items from expense data on mount
   useEffect(() => {
     if (expense.items.length > 0) {
       const mapped: ExpenseItem[] = expense.items.map((item) => ({
@@ -189,7 +182,6 @@ export function PendingTransactionDetail({
       }));
       expenseItems.setItems(mapped);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const hasItemChanges = useMemo(() => {
@@ -205,14 +197,12 @@ export function PendingTransactionDetail({
     return current !== originalItemsJsonRef.current;
   }, [expenseItems.items]);
 
-  // ── Derived state ─────────────────────────────────────────────────────
   const isPending = expense.status === "PENDING";
   const isRejected = expense.status === "REJECTED";
   const isCreator = user?.id === expense.transaction.userId;
   const anyLoading =
     isApproving || isRejecting || isResubmitting || isUpdating;
 
-  // ── Change tracking (fields) ──────────────────────────────────────────
   const hasFieldChanges = useMemo(() => {
     const parsedAmount = parseFloat(amount);
     return (
@@ -292,7 +282,6 @@ export function PendingTransactionDetail({
     [expenseItems.items, selectedStore?.id, expense.storeId, expense.id],
   );
 
-  // ── Handlers ──────────────────────────────────────────────────────────
   const handleSave = () => {
     if (hasChanges) {
       const sync = hasItemChanges ? buildItemsSync() : undefined;
@@ -310,14 +299,12 @@ export function PendingTransactionDetail({
     onResubmit(hasFieldChanges ? buildChanges() : undefined, sync);
   }, [hasItemChanges, hasFieldChanges, buildItemsSync, buildChanges, onResubmit]);
 
-  // Expose actions to parent page for header bar buttons
   useEffect(() => {
     onActionsReady?.({ hasChanges, handleApprove, handleResubmit });
   }, [hasChanges, onActionsReady, handleApprove, handleResubmit]);
 
   return (
     <div className="space-y-5">
-      {/* ── Status + Amount hero ─────────────────────────────────────── */}
       <GlassCard variant="strong" className="p-6 sm:p-8">
         <div className="flex justify-center mb-2">
           {isPending && (
@@ -336,7 +323,6 @@ export function PendingTransactionDetail({
 
         <AmountHero value={amount} onChange={setAmount} type="expense" />
 
-        {/* Submitted by line */}
         <div className="flex items-center justify-center gap-2 mt-3 text-xs text-text-secondary">
           <User className="h-3 w-3" />
           <span>
@@ -349,7 +335,6 @@ export function PendingTransactionDetail({
         </div>
       </GlassCard>
 
-      {/* ── Rejection reason ─────────────────────────────────────────── */}
       {isRejected && expense.rejectionReason && (
         <GlassCard className="p-5 sm:p-6 border-expense/20">
           <h3 className="text-[11px] font-medium text-expense uppercase tracking-wider mb-2">
@@ -359,7 +344,6 @@ export function PendingTransactionDetail({
         </GlassCard>
       )}
 
-      {/* ── Unsaved changes indicator ────────────────────────────────── */}
       {hasChanges && (
         <div className="flex items-center justify-between px-4 py-2.5 rounded-2xl bg-primary/8 border border-primary/15 animate-in fade-in duration-200">
           <div className="flex items-center gap-2 text-xs font-medium text-primary">
@@ -380,7 +364,6 @@ export function PendingTransactionDetail({
       )}
 
       <div className="lg:grid lg:grid-cols-12 lg:gap-6 space-y-5 lg:space-y-0">
-        {/* Left column — Details + Receipts (40%) */}
         <div className="lg:col-span-5 space-y-5 lg:sticky lg:top-6 lg:self-start">
           <TransactionDetailsCard
             data={{
@@ -423,7 +406,6 @@ export function PendingTransactionDetail({
           <ReceiptGallery images={expense.receiptImages || []} />
         </div>
 
-        {/* Right column — Items (60%) */}
         <div className="lg:col-span-7 space-y-5">
           {(expenseItems.items.length > 0 || expense.items.length > 0) && (
             <GlassCard className="p-5 sm:p-6">
@@ -455,7 +437,6 @@ export function PendingTransactionDetail({
         </div>
       </div>
 
-      {/* ── Dialogs ──────────────────────────────────────────────────── */}
       <AddStoreDialog
         open={storeDialog.open}
         onOpenChange={storeDialog.setOpen}

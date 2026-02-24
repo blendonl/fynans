@@ -14,6 +14,8 @@ import {
   incomeControllerFindOne,
   incomeControllerUpdate,
 } from "@/api/generated/endpoints/income/income";
+import type { UpdateExpenseRequestDto } from "@/api/generated/model/updateExpenseRequestDto";
+import type { UpdateIncomeRequestDto } from "@/api/generated/model/updateIncomeRequestDto";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/glass/glass-card";
 import { AmountHero } from "@/components/add-transaction/amount-hero";
@@ -54,7 +56,6 @@ export default function EditTransactionPage({
   const type = (searchParams.get("type") || "expense") as "expense" | "income";
   const isExpense = type === "expense";
 
-  // ── Fetch transaction data ────────────────────────────────────────────
   const { data: txData, isLoading } = useQuery({
     queryKey: ["transaction", id, type, "edit"],
     queryFn: async () => {
@@ -66,10 +67,10 @@ export default function EditTransactionPage({
       return {
         id: data.id as string,
         type,
-        categoryId: (data as any).categoryId as string,
+        categoryId: data.categoryId as string,
         category: data.category as { id: string; name: string },
         store: data.store as TransactionData["store"],
-        storeId: (data as any).storeId as string | null | undefined,
+        storeId: data.storeId as string | null | undefined,
         transaction: {
           id: (tx?.id as string) || "",
           value: (tx?.value as number) || 0,
@@ -81,7 +82,6 @@ export default function EditTransactionPage({
     },
   });
 
-  // ── Data hooks ────────────────────────────────────────────────────────
   const [categorySearch, setCategorySearch] = useState("");
   const {
     categories: expenseCategories,
@@ -111,7 +111,6 @@ export default function EditTransactionPage({
   const storeDialog = useCreateDialog();
   const categoryDialog = useCreateDialog();
 
-  // ── Edit state (initialized once data loads) ──────────────────────────
   const [amount, setAmount] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null,
@@ -123,7 +122,6 @@ export default function EditTransactionPage({
     string | null | undefined
   >(undefined);
 
-  // Initialize form state from fetched data (only once)
   const [initialized, setInitialized] = useState(false);
   if (txData && !initialized) {
     setAmount(String(txData.transaction.value));
@@ -144,7 +142,6 @@ export default function EditTransactionPage({
     setInitialized(true);
   }
 
-  // ── Change tracking ───────────────────────────────────────────────────
   const initialRecordedAt = useMemo(() => {
     if (!txData?.transaction.recordedAt) return "";
     return format(
@@ -179,7 +176,6 @@ export default function EditTransactionPage({
     isExpense,
   ]);
 
-  // ── Save mutation ─────────────────────────────────────────────────────
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!txData) return;
@@ -207,7 +203,7 @@ export default function EditTransactionPage({
         ) {
           body.paymentMethodId = selectedPaymentMethodId || null;
         }
-        await expenseControllerUpdate(id, body as any);
+        await expenseControllerUpdate(id, body as UpdateExpenseRequestDto);
       } else {
         const body: Record<string, unknown> = {};
         const parsedAmount = parseFloat(amount || "0");
@@ -226,7 +222,7 @@ export default function EditTransactionPage({
         ) {
           body.paymentMethodId = selectedPaymentMethodId || null;
         }
-        await incomeControllerUpdate(id, body as any);
+        await incomeControllerUpdate(id, body as UpdateIncomeRequestDto);
       }
     },
     onSuccess: () => {
@@ -242,7 +238,6 @@ export default function EditTransactionPage({
     },
   });
 
-  // ── Loading / Not found states ────────────────────────────────────────
   if (isLoading || !initialized) {
     return (
       <div className="space-y-6">
@@ -263,7 +258,6 @@ export default function EditTransactionPage({
 
   return (
     <div className="space-y-6 dash-animate-in">
-      {/* ── Header bar ─────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <Button
           variant="ghost"
@@ -283,7 +277,6 @@ export default function EditTransactionPage({
         </Button>
       </div>
 
-      {/* ── Amount hero ──────────────────────────────────────────────── */}
       <GlassCard variant="strong" className="p-6 sm:p-8">
         <AmountHero
           value={amount || "0"}
@@ -292,7 +285,6 @@ export default function EditTransactionPage({
         />
       </GlassCard>
 
-      {/* ── Editable fields ──────────────────────────────────────────── */}
       <TransactionDetailsCard
         data={{
           category: txData.category,
@@ -341,7 +333,6 @@ export default function EditTransactionPage({
         }}
       />
 
-      {/* ── Dialogs ──────────────────────────────────────────────────── */}
       {isExpense && (
         <AddStoreDialog
           open={storeDialog.open}

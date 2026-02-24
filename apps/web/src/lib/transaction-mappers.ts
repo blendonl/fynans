@@ -6,11 +6,6 @@ import type {
   TransactionResponse,
 } from "@/types";
 
-/**
- * Runtime transaction responses include `familyId` and `description`,
- * but these are not yet in the OpenAPI spec. Extend the generated type
- * so the mapper can access them safely.
- */
 interface TransactionWithExtras extends TransactionResponse {
   familyId?: string | null;
   description?: string;

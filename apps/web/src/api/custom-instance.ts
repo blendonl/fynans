@@ -9,7 +9,6 @@ export const customInstance = async <T>(
   const token = getToken();
   const requestHeaders: Record<string, string> = {};
 
-  // Copy headers from init
   if (init.headers) {
     const h = init.headers;
     if (h instanceof Headers) {

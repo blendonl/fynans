@@ -17,7 +17,6 @@ export function ReceiptGuideOverlay({
   displayWidth,
   displayHeight,
 }: ReceiptGuideOverlayProps) {
-  // Scale from processing canvas coordinates to display coordinates
   const scaleX = videoWidth > 0 ? displayWidth / videoWidth : 1;
   const scaleY = videoHeight > 0 ? displayHeight / videoHeight : 1;
 
@@ -65,7 +64,6 @@ export function ReceiptGuideOverlay({
     );
   }
 
-  // Default guide: subtle rounded rectangle in receipt aspect ratio (~3:4)
   const guideWidth = displayWidth * 0.75;
   const guideHeight = guideWidth * (4 / 3);
   const guideX = (displayWidth - guideWidth) / 2;
@@ -91,7 +89,6 @@ export function ReceiptGuideOverlay({
         strokeDasharray="12 8"
         opacity="0.5"
       />
-      {/* Corner brackets for extra visual guidance */}
       {[
         { x: guideX, y: guideY, dx: 24, dy: 24 },
         { x: guideX + guideWidth, y: guideY, dx: -24, dy: 24 },

@@ -33,7 +33,6 @@ export function GuidedCameraOverlay({
 
   const { ready: workerReady, analyzeFrame } = useOpenCVWorker();
 
-  // Track viewport size
   useEffect(() => {
     const update = () =>
       setDisplaySize({ w: window.innerWidth, h: window.innerHeight });
@@ -46,7 +45,6 @@ export function GuidedCameraOverlay({
     };
   }, []);
 
-  // Start camera on mount, clean up on unmount
   useEffect(() => {
     let cancelled = false;
 
@@ -56,7 +54,6 @@ export function GuidedCameraOverlay({
           video: { facingMode: "environment", width: { ideal: RECEIPT_CAPTURE_IDEAL_WIDTH }, height: { ideal: RECEIPT_CAPTURE_IDEAL_HEIGHT } },
           audio: false,
         }).catch(() =>
-          // Fallback without facingMode for desktop / browsers that reject it
           navigator.mediaDevices.getUserMedia({
             video: { width: { ideal: RECEIPT_CAPTURE_IDEAL_WIDTH }, height: { ideal: RECEIPT_CAPTURE_IDEAL_HEIGHT } },
             audio: false,
@@ -74,7 +71,6 @@ export function GuidedCameraOverlay({
 
         video.srcObject = stream;
 
-        // Wait for metadata so videoWidth/Height are set
         await new Promise<void>((resolve, reject) => {
           if (video.readyState >= 1) { resolve(); return; }
           const onMeta = () => { cleanup(); resolve(); };
@@ -120,7 +116,6 @@ export function GuidedCameraOverlay({
     };
   }, []);
 
-  // Real-time edge detection via OpenCV worker
   useEffect(() => {
     if (!ready || !workerReady) return;
 
@@ -156,7 +151,6 @@ export function GuidedCameraOverlay({
 
         if (!cancelled) {
           if (analysis.corners) {
-            // Scale corners back to video dimensions
             const inv = 1 / scale;
             setDetectedCorners({
               topLeft: { x: analysis.corners.topLeft.x * inv, y: analysis.corners.topLeft.y * inv },
@@ -168,16 +162,13 @@ export function GuidedCameraOverlay({
             setDetectedCorners(null);
           }
         }
-      } catch {
-        // Silently ignore analysis errors — keep showing previous corners or none
-      }
+      } catch { /* non-critical */ }
 
       if (!cancelled) {
         timerId = setTimeout(analyze, ANALYSIS_INTERVAL_MS);
       }
     };
 
-    // Start the analysis loop
     timerId = setTimeout(analyze, 200);
 
     return () => {
@@ -215,7 +206,6 @@ export function GuidedCameraOverlay({
     }
   }, [capturing, onCapture]);
 
-  // Fix stale Radix pointer-events on mount
   useEffect(() => {
     if (document.body.style.pointerEvents === "none") {
       document.body.style.pointerEvents = "";
@@ -235,7 +225,6 @@ export function GuidedCameraOverlay({
         className="absolute inset-0 h-full w-full object-cover"
       />
 
-      {/* Loading state */}
       {!ready && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/30 border-t-white" />
@@ -243,7 +232,6 @@ export function GuidedCameraOverlay({
         </div>
       )}
 
-      {/* Guide overlay with real-time edge detection */}
       {ready && (
         <ReceiptGuideOverlay
           corners={detectedCorners}
@@ -254,7 +242,6 @@ export function GuidedCameraOverlay({
         />
       )}
 
-      {/* Close button */}
       <div className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between p-4">
         <button
           onClick={onClose}
@@ -267,7 +254,6 @@ export function GuidedCameraOverlay({
         </button>
       </div>
 
-      {/* Capture button */}
       <div className="absolute bottom-0 left-0 right-0 z-30 flex items-center justify-center pb-10 pt-6">
         <CaptureButton
           onCapture={handleCapture}

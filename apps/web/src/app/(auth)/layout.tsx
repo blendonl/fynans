@@ -5,10 +5,8 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden p-4 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
-      {/* Base gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-[var(--gradient-start)] to-[var(--gradient-end)]" />
 
-      {/* Radial vignette for depth */}
       <div
         className="absolute inset-0"
         style={{
@@ -17,11 +15,9 @@ export default function AuthLayout({
         }}
       />
 
-      {/* Animated gradient orbs */}
       <div className="auth-orb auth-orb-gold" />
       <div className="auth-orb auth-orb-teal" />
 
-      {/* Decorative bar chart motifs (brand element) */}
       <svg
         className="absolute bottom-[12%] left-[6%] w-16 h-20 text-white/[0.06] auth-bars"
         viewBox="0 0 64 80"
@@ -54,7 +50,6 @@ export default function AuthLayout({
         <rect x="28" y="0" width="10" height="64" rx="2" fill="currentColor" />
       </svg>
 
-      {/* Content */}
       <div className="w-full max-w-md relative z-10">{children}</div>
     </div>
   );

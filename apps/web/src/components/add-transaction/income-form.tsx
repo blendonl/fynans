@@ -42,7 +42,6 @@ export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: Inco
 
   const categoryDialog = useCreateDialog();
 
-  // Trigger AI income category suggestion when note changes
   const prevNoteRef = useRef<string>("");
   useEffect(() => {
     if (note !== prevNoteRef.current) {
@@ -106,7 +105,6 @@ export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: Inco
   return (
     <div>
       <div className="flex flex-col lg:flex-row lg:gap-8">
-        {/* Left panel — Amount */}
         <div className="lg:w-72 lg:shrink-0 lg:sticky lg:top-6 lg:self-start">
           <AmountHero
             value={amount}
@@ -116,9 +114,7 @@ export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: Inco
           />
         </div>
 
-        {/* Right panel — Form fields */}
         <div className="space-y-5 mt-5 lg:mt-0 flex-1 min-w-0">
-          {/* Note first */}
           <Input
             placeholder="Add a note (optional)"
             value={note}
@@ -126,7 +122,6 @@ export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: Inco
             className="min-h-12"
           />
 
-          {/* Category after note — AI can suggest based on note */}
           <CategorySelector
             categories={incomeCategories}
             selectedCategory={selectedCategory}
@@ -141,7 +136,6 @@ export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: Inco
             isSuggestionLoading={ai.isIncomeLoading}
           />
 
-          {/* Payment method */}
           <PaymentMethodSelector
             paymentMethods={paymentMethods}
             selectedId={selectedPaymentMethodId}
@@ -164,7 +158,6 @@ export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: Inco
         </div>
       </div>
 
-      {/* Dialog */}
       <AddCategoryDialog
         open={categoryDialog.open}
         onOpenChange={categoryDialog.setOpen}

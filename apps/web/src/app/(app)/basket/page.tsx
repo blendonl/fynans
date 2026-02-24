@@ -24,7 +24,6 @@ export default function BasketPage() {
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
-  // Active basket from URL or first basket
   const activeIdFromUrl = searchParams.get("basket");
   const activeBasket = useMemo(() => {
     if (activeIdFromUrl) {
@@ -37,7 +36,6 @@ export default function BasketPage() {
     activeBasket?.id ?? null
   );
 
-  // Subscribe to family room for real-time updates
   useBasketWebSocket(
     activeBasket?.scope === "FAMILY" ? activeBasket.familyId : null
   );
@@ -152,7 +150,6 @@ export default function BasketPage() {
         className="dash-animate-in"
       />
 
-      {/* Tab bar */}
       <div className="dash-animate-in dash-delay-1">
         <BasketTabBar
           baskets={baskets}
@@ -161,12 +158,10 @@ export default function BasketPage() {
         />
       </div>
 
-      {/* Add item input */}
       <div className="dash-animate-in dash-delay-2">
         <BasketAddItemInput onAdd={handleAddItem} />
       </div>
 
-      {/* Items list */}
       <div className="dash-animate-in dash-delay-3">
         <BasketItemList
           items={activeBasket?.items ?? []}
@@ -178,13 +173,11 @@ export default function BasketPage() {
         />
       </div>
 
-      {/* Checkout bar */}
       <BasketCheckoutBar
         checkedItems={checkedItems}
         onCheckout={() => setCheckoutOpen(true)}
       />
 
-      {/* Checkout dialog */}
       <BasketCheckoutDialog
         open={checkoutOpen}
         onOpenChange={setCheckoutOpen}

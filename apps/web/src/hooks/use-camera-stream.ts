@@ -86,18 +86,14 @@ export function useCameraStream(active: boolean): UseCameraStreamReturn {
       } catch (err) {
         if (cancelled) return;
 
-        // AbortError from play() is transient (e.g. autoplay conflict) - retry once
         if (err instanceof DOMException && err.name === "AbortError" && streamRef.current) {
           try {
             await attachStream(streamRef.current);
             setIsLoading(false);
             return;
-          } catch {
-            // Fall through to error handling
-          }
+          } catch { /* non-critical */ }
         }
 
-        // Retry without facingMode on OverconstrainedError
         if (err instanceof OverconstrainedError) {
           try {
             const fallbackStream =
@@ -115,9 +111,7 @@ export function useCameraStream(active: boolean): UseCameraStreamReturn {
 
             setIsLoading(false);
             return;
-          } catch {
-            // Fall through to error handling
-          }
+          } catch { /* non-critical */ }
         }
 
         const message =
@@ -140,13 +134,11 @@ export function useCameraStream(active: boolean): UseCameraStreamReturn {
     };
   }, [active, isSupported, stopStream]);
 
-  // Pause/resume on visibility change
   useEffect(() => {
     if (!active) return;
 
     const handleVisibility = () => {
       if (document.hidden) {
-        // Pause video to save resources
         videoRef.current?.pause();
       } else if (videoRef.current && streamRef.current) {
         videoRef.current.play().catch(() => {});

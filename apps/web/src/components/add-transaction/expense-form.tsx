@@ -11,7 +11,6 @@ import { useExpenseItems } from "@/hooks/use-expense-items";
 import { useExpenseAiSuggestions } from "@/hooks/use-expense-ai-suggestions";
 import { useReceiptFormMapping } from "@/hooks/use-receipt-form-mapping";
 import { useExpenseSubmission } from "@/hooks/use-expense-submission";
-import { useDeletePendingExpense } from "@/hooks/use-pending-transactions";
 import { usePaymentMethods } from "@/hooks/use-payment-methods";
 import { useAutoSelectPaymentMethod } from "@/hooks/use-auto-select-payment-method";
 import { useCreateDialog } from "@/hooks/use-create-dialog";
@@ -68,7 +67,6 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
   const [hasScannedReceipt, setHasScannedReceipt] = useState(false);
   const [pendingIdFromScan, setPendingIdFromScan] = useState<string | null>(null);
   const [receiptIdFromScan, setReceiptIdFromScan] = useState<string | null>(null);
-  const deletePendingMutation = useDeletePendingExpense();
   const [, setCategorySearch] = useState("");
 
   const storeDialog = useCreateDialog();
@@ -86,13 +84,11 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
     setSelectedCategory,
   });
 
-  // Find the "General" fallback category
   const generalCategory = useMemo(
     () => categories.find((c) => c.name.toLowerCase() === "general") ?? null,
     [categories],
   );
 
-  // Default to "General" category when no AI suggestion available
   useEffect(() => {
     if (isItemized) return;
     if (simpleNote.trim().length === 0 && !selectedCategory && generalCategory) {
@@ -100,7 +96,6 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
     }
   }, [isItemized, simpleNote, selectedCategory, generalCategory]);
 
-  // Default to "General" category in itemized mode when no AI suggestion
   useEffect(() => {
     if (!isItemized) return;
     if (!selectedCategory && generalCategory && !ai.isExpenseLoading) {
@@ -164,7 +159,6 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
   return (
     <div>
       <div className="flex flex-col lg:flex-row lg:gap-8">
-        {/* Left panel — Amount & Receipt scan */}
         <div className="space-y-5 lg:w-72 lg:shrink-0 lg:sticky lg:top-6 lg:self-start">
           {!isItemized ? (
             <AmountHero
@@ -189,11 +183,9 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
           />
         </div>
 
-        {/* Right panel — Form fields */}
         <div className="space-y-5 mt-5 lg:mt-0 flex-1 min-w-0">
           <FormProgress steps={progressSteps} />
 
-          {/* Simple mode: Note + toggle */}
           {!isItemized && (
             <div className="space-y-4 field-slide-down">
               <div className="space-y-2">
@@ -214,7 +206,6 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
             </div>
           )}
 
-          {/* Itemized mode: Store → Items */}
           {isItemized && (
             <div className="space-y-4 field-slide-down">
               <StoreSelector
@@ -274,9 +265,7 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
             </div>
           )}
 
-          {/* Review section: Category + Payment Method + DateTime + Submit */}
           <div className="space-y-5 border-t border-border pt-5">
-            {/* Editable category selector */}
             <CategorySelector
               categories={categories}
               selectedCategory={selectedCategory}
@@ -291,7 +280,6 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
               isSuggestionLoading={isSuggestionLoading}
             />
 
-            {/* Payment method */}
             <PaymentMethodSelector
               paymentMethods={paymentMethods}
               selectedId={selectedPaymentMethodId}
@@ -315,7 +303,6 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
         </div>
       </div>
 
-      {/* Dialogs */}
       <AddStoreDialog
         open={storeDialog.open}
         onOpenChange={storeDialog.setOpen}

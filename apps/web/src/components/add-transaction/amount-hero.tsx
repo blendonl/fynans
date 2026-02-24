@@ -50,7 +50,6 @@ export function AmountHero({ value, onChange, type, readOnly = false, sublabel, 
             "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
             type === "expense" ? "text-expense" : "text-income",
             readOnly && "cursor-default",
-            // Dynamic width based on content
             value ? "w-auto min-w-[3ch] max-w-[10ch]" : "w-[4ch]"
           )}
           style={{ width: value ? `${Math.max(3, Math.min(10, value.length + 1))}ch` : undefined }}

@@ -118,7 +118,6 @@ export default function TransactionsPage() {
         className="dash-animate-in"
       />
 
-      {/* Tab bar */}
       <div className="dash-animate-in dash-delay-1">
         <div className="flex rounded-2xl bg-surface-variant p-1 gap-1">
           {tabs.map((tab) => (
@@ -144,7 +143,6 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      {/* Confirmed tab content */}
       {activeTab === "confirmed" && (
         <>
           <div className="dash-animate-in dash-delay-1">
@@ -182,14 +180,12 @@ export default function TransactionsPage() {
         </>
       )}
 
-      {/* Pending tab content */}
       {activeTab === "pending" && (
         <div className="dash-animate-in dash-delay-2">
           <PendingTransactionList status="PENDING" />
         </div>
       )}
 
-      {/* Rejected tab content */}
       {activeTab === "rejected" && (
         <div className="dash-animate-in dash-delay-2">
           <PendingTransactionList status="REJECTED" />

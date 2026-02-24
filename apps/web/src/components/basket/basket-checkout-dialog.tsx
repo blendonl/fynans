@@ -60,13 +60,11 @@ export function BasketCheckoutDialog({
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [lineItems, setLineItems] = useState<CheckoutLineItem[]>([]);
 
-  // AI state — all managed via direct API calls, no hooks
   const [expenseCategoryLoading, setExpenseCategoryLoading] = useState(false);
   const [itemCategoryMap, setItemCategoryMap] = useState<Record<string, ItemCategorySuggestion>>({});
   const [itemCategoryLoading, setItemCategoryLoading] = useState(false);
   const abortRef = useRef<AbortController | undefined>(undefined);
 
-  // Initialize line items and trigger AI when dialog opens
   useEffect(() => {
     if (!open) {
       abortRef.current?.abort();
@@ -86,7 +84,6 @@ export function BasketCheckoutDialog({
     setSelectedCategory(null);
     setItemCategoryMap({});
 
-    // Pre-populate category names for items that already have a category
     const existingMap: Record<string, ItemCategorySuggestion> = {};
     for (const item of checkedItems) {
       if (item.categoryId && item.categoryName) {
@@ -101,12 +98,10 @@ export function BasketCheckoutDialog({
     const names = checkedItems.map((i) => i.name);
     if (names.length === 0) return;
 
-    // Abort any previous AI calls
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
 
-    // --- Expense-level AI category (direct call) ---
     setExpenseCategoryLoading(true);
     aiControllerSuggestCategory(
       { type: "expense", itemNames: names } as Parameters<typeof aiControllerSuggestCategory>[0],
@@ -124,16 +119,13 @@ export function BasketCheckoutDialog({
           toast.info(`Category auto-suggested: ${catName}`);
         }
       })
-      .catch(() => {
-        // AI failed — user can pick manually
-      })
+      .catch(() => {})
       .finally(() => {
         if (!controller.signal.aborted) {
           setExpenseCategoryLoading(false);
         }
       });
 
-    // --- Per-item AI category suggestions (only for items without a category) ---
     const newItems = checkedItems.filter((item) => !item.categoryId);
     if (newItems.length > 0) {
       setItemCategoryLoading(true);
@@ -162,7 +154,6 @@ export function BasketCheckoutDialog({
           }
         }
         setItemCategoryMap((prev) => ({ ...prev, ...map }));
-        // Auto-apply per-item categories to line items
         setLineItems((prev) =>
           prev.map((li) => {
             const suggestion = map[li.id];
@@ -175,7 +166,7 @@ export function BasketCheckoutDialog({
       });
     }
 
-  }, [open]); // Only re-run when dialog opens/closes
+  }, [open]);
 
   const {
     categories,
@@ -198,7 +189,6 @@ export function BasketCheckoutDialog({
 
   const { priceMap } = useStoreItemPrices(selectedStore?.id ?? null);
 
-  // Auto-fill prices when store changes
   useEffect(() => {
     if (!selectedStore || priceMap.size === 0) return;
     setLineItems((prev) =>
@@ -240,7 +230,6 @@ export function BasketCheckoutDialog({
     });
   };
 
-  // Resolve item category name from suggestion map or loaded categories
   const getItemCategoryName = (li: CheckoutLineItem): string | null => {
     if (!li.categoryId) return null;
     const suggestion = itemCategoryMap[li.id];
@@ -263,7 +252,6 @@ export function BasketCheckoutDialog({
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          {/* Store selector */}
           <StoreSelector
             stores={stores}
             selectedStore={selectedStore}
@@ -284,7 +272,6 @@ export function BasketCheckoutDialog({
             isLoadingMore={isFetchingNextStore}
           />
 
-          {/* Editable items */}
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-text">Items</label>
@@ -315,7 +302,6 @@ export function BasketCheckoutDialog({
                       )}
                     </div>
 
-                    {/* Quantity */}
                     <div className="shrink-0 flex items-center gap-1">
                       <span className="text-[11px] text-text-disabled">qty</span>
                       <input
@@ -332,7 +318,6 @@ export function BasketCheckoutDialog({
                       />
                     </div>
 
-                    {/* Price */}
                     <div className="shrink-0 flex items-center gap-1">
                       <span className="text-[11px] text-text-disabled">$</span>
                       <input
@@ -375,7 +360,6 @@ export function BasketCheckoutDialog({
             </p>
           )}
 
-          {/* AI category indicator / Category selector */}
           {selectedCategory && (
             <div
               className={cn(

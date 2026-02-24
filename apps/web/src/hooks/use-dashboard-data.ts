@@ -1,8 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type {
-  TransactionStatisticsResponse,
-  ExpenseTrendResponse,
-} from "@/types";
+import type { TransactionStatisticsResponse } from "@/types";
 import { transactionControllerGetStatistics } from "@/api/generated/endpoints/transaction/transaction";
 import { expenseControllerGetStatistics, expenseControllerGetTrends } from "@/api/generated/endpoints/expense/expense";
 import { expenseControllerFindAll } from "@/api/generated/endpoints/expense/expense";

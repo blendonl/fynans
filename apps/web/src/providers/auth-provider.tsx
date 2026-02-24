@@ -81,18 +81,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         setUser(session.user);
       }
-    } catch {
-      // Session fetch failed - user will still be redirected and can retry
-    }
+    } catch { /* non-critical */ }
     router.push("/");
   }, [router]);
 
   const logout = useCallback(async () => {
     try {
       await authControllerLogout();
-    } catch {
-      // ignore
-    }
+    } catch { /* non-critical */ }
     removeToken();
     setTokenState(null);
     setUser(null);

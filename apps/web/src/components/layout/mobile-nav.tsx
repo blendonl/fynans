@@ -17,9 +17,7 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { href: "/", label: "Home", icon: LayoutDashboard },
   { href: "/transactions", label: "Txns", icon: ArrowLeftRight },
-  // FAB goes here (index 2)
   { href: "/basket", label: "Basket", icon: ShoppingCart },
-  // Profile goes last (custom render)
 ];
 
 export function MobileNav() {
@@ -38,7 +36,6 @@ export function MobileNav() {
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-glass-border-outer bg-glass-bg-strong backdrop-blur-lg pb-[env(safe-area-inset-bottom)]">
       <div className="flex items-center justify-around py-2">
-        {/* Home */}
         {NAV_ITEMS.slice(0, 2).map((item) => {
           const isActive =
             item.href === "/"
@@ -64,7 +61,6 @@ export function MobileNav() {
           );
         })}
 
-        {/* Center FAB — Add */}
         <Link
           href="/add"
           className={cn(
@@ -75,7 +71,6 @@ export function MobileNav() {
           <Plus className="h-7 w-7 text-white" strokeWidth={2.5} />
         </Link>
 
-        {/* Basket */}
         {NAV_ITEMS.slice(2).map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
@@ -93,7 +88,6 @@ export function MobileNav() {
           );
         })}
 
-        {/* Profile */}
         <Link
           href="/profile"
           className={cn(

@@ -227,7 +227,6 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
         "unread-count",
       ]);
 
-      // Check if the notification being deleted is unread
       const isUnread = previousAll?.pages
         .flatMap((p) => p.data)
         .find((n) => n.id === id && !n.isRead);

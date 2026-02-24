@@ -21,7 +21,6 @@ class OpenCVWorkerBridge {
 
     this.readyPromise = new Promise<void>((resolve, reject) => {
       try {
-        // Reflect.construct avoids Turbopack TP1001 — no `new Worker(...)` in the AST
         this.worker = Reflect.construct(Worker, [
           "/opencv-worker.js",
         ]) as Worker;
@@ -45,13 +44,11 @@ class OpenCVWorkerBridge {
 
         if (msg.type === "ready") {
           clearTimeout(timeout);
-          // Replace with permanent handler
           this.worker!.onmessage = this.handleMessage;
           resolve();
           return;
         }
 
-        // Handle messages that arrive before "ready" swap (shouldn't happen, but safe)
         this.handleMessage(e);
       };
 
