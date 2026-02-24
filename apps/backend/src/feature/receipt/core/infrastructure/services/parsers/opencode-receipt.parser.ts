@@ -1,6 +1,8 @@
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { spawn } from 'child_process';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
+import { homedir } from 'os';
 import {
   IReceiptParser,
   ReceiptParsingContext,
@@ -16,21 +18,46 @@ import { buildReceiptPrompt } from './receipt-prompt.builder';
 import { ReceiptPostProcessor } from '../receipt-post-processor';
 import { ItemNameNormalizerService } from './item-name-normalizer.service';
 
+const SYSTEM_PROMPT =
+  'You are a receipt data extraction tool. Return ONLY valid JSON. No explanation, no reasoning, no markdown fences.';
+
+interface CopilotAuthData {
+  'github-copilot'?: {
+    type: string;
+    access: string;
+    refresh: string;
+    expires: number;
+  };
+}
+
 export class OpencodeReceiptParser implements IReceiptParser {
   readonly name = 'opencode';
   private readonly logger = new Logger(OpencodeReceiptParser.name);
-  private readonly model?: string;
+  private readonly model: string;
   private readonly timeout: number;
+  private readonly apiEndpoint: string;
+  private cachedToken: string | null = null;
 
   constructor(
     private readonly configService: ConfigService,
     private readonly postProcessor: ReceiptPostProcessor,
     private readonly nameNormalizer?: ItemNameNormalizerService,
   ) {
-    this.model = this.configService.get<string>('OPENCODE_MODEL');
+    const rawModel = this.configService.get<string>(
+      'OPENCODE_MODEL',
+      'github-copilot/claude-sonnet-4.6',
+    );
+    // Strip provider prefix for the API call (e.g., "github-copilot/claude-sonnet-4.6" → "claude-sonnet-4.6")
+    this.model = rawModel.includes('/')
+      ? rawModel.split('/').slice(1).join('/')
+      : rawModel;
     this.timeout = parseInt(
-      this.configService.get<string>('OPENCODE_TIMEOUT', '120000'),
+      this.configService.get<string>('OPENCODE_TIMEOUT', '30000'),
       10,
+    );
+    this.apiEndpoint = this.configService.get<string>(
+      'COPILOT_API_ENDPOINT',
+      'https://api.githubcopilot.com/chat/completions',
     );
   }
 
@@ -43,46 +70,46 @@ export class OpencodeReceiptParser implements IReceiptParser {
     tracker?.startStage('llm-parse');
     const startTime = Date.now();
     this.logger.log(
-      `[TIMING] Starting opencode parse, OCR text: ${text.length} chars`,
+      `[TIMING] Starting parse, OCR text: ${text.length} chars`,
     );
 
-    const promptStart = Date.now();
     const prompt = buildReceiptPrompt(text);
     this.logger.log(
-      `[TIMING] Prompt built in ${Date.now() - promptStart}ms, prompt size: ${prompt.length} chars`,
+      `[TIMING] Prompt size: ${prompt.length} chars`,
     );
 
-    const attempt1Start = Date.now();
-    let result = await this.attemptParse(prompt, 1);
-    this.logger.log(
-      `[TIMING] Attempt 1 completed in ${Date.now() - attempt1Start}ms — items: ${result.items.length}`,
-    );
+    const tickCb = tracker?.tokenCallback('llm-parse', 8);
+    let ticks = 0;
+    const progressTimer = tickCb
+      ? setInterval(() => tickCb(++ticks), 1000)
+      : undefined;
 
-    // Single retry if no items were extracted
-    if (!result.items.length) {
-      this.logger.warn(
-        '[TIMING] No items from attempt 1, starting retry...',
-      );
-      const retryPrompt = `The previous attempt returned no items. Common reasons:
-1. OCR text may be very noisy — look for ANY recognizable item names with prices nearby
-2. Prices may be in unusual formats (glued with E suffix, encoded, or on separate lines)
-3. The receipt may use an uncommon layout
-Look at the raw text character by character and identify any items with prices.
-
-${prompt}`;
-      const attempt2Start = Date.now();
-      const retryResult = await this.attemptParse(retryPrompt, 2);
+    let result: Awaited<ReturnType<typeof this.attemptParse>>;
+    try {
+      result = await this.attemptParse(prompt, 1);
       this.logger.log(
-        `[TIMING] Attempt 2 (retry) completed in ${Date.now() - attempt2Start}ms — items: ${retryResult.items.length}`,
+        `[TIMING] Attempt 1 completed in ${Date.now() - startTime}ms — items: ${result.items.length}`,
       );
-      if (retryResult.items.length) {
-        result = retryResult;
+
+      if (!result.items.length) {
+        this.logger.warn(
+          '[TIMING] No items from attempt 1, starting retry...',
+        );
+        const retryPrompt = `The previous attempt returned no items. Look carefully for ANY item names with prices.\n\n${prompt}`;
+        const retryResult = await this.attemptParse(retryPrompt, 2);
+        this.logger.log(
+          `[TIMING] Attempt 2 completed in ${Date.now() - startTime}ms — items: ${retryResult.items.length}`,
+        );
+        if (retryResult.items.length) {
+          result = retryResult;
+        }
       }
+    } finally {
+      if (progressTimer) clearInterval(progressTimer);
     }
 
-    const totalMs = Date.now() - startTime;
     this.logger.log(
-      `[TIMING] Opencode total parse time: ${totalMs}ms`,
+      `[TIMING] Total parse time: ${Date.now() - startTime}ms`,
     );
     tracker?.completeStage('llm-parse');
 
@@ -100,25 +127,22 @@ ${prompt}`;
   }
 
   private async attemptParse(prompt: string, attemptNum: number) {
-    const cliStart = Date.now();
-    const responseText = await this.runOpencode(prompt);
-    const cliMs = Date.now() - cliStart;
+    const apiStart = Date.now();
+    const responseText = await this.callCopilotApi(prompt);
     this.logger.log(
-      `[TIMING] Attempt ${attemptNum} — opencode CLI returned in ${cliMs}ms, response: ${responseText.length} chars`,
+      `[TIMING] Attempt ${attemptNum} — API returned in ${Date.now() - apiStart}ms, response: ${responseText.length} chars`,
     );
     this.logger.debug(
-      `Opencode raw text: ${responseText.substring(0, 2000)}`,
+      `Raw response: ${responseText.substring(0, 2000)}`,
     );
 
     const parseStart = Date.now();
     const processed = this.parseJsonResponse(responseText);
-    const parseMs = Date.now() - parseStart;
-
     this.logger.log(
-      `[TIMING] Attempt ${attemptNum} — JSON parsing + post-processing: ${parseMs}ms | store="${processed.storeName}", items=${processed.items.length}, ` +
+      `[TIMING] Attempt ${attemptNum} — JSON parsing: ${Date.now() - parseStart}ms | store="${processed.storeName}", items=${processed.items.length}, ` +
         `total=${processed.totalAmount}, date="${processed.date ?? 'none'}", time="${processed.time ?? 'none'}"`,
     );
-    // Optional second pass: normalize OCR-garbled item names
+
     if (this.nameNormalizer?.isEnabled() && processed.items.length) {
       processed.items = await this.nameNormalizer.normalizeItemNames(
         processed.items,
@@ -127,7 +151,7 @@ ${prompt}`;
 
     if (processed.items.length) {
       this.logger.debug(
-        `Opencode parsed items: ${JSON.stringify(processed.items.map((i) => ({ name: i.name, price: i.price, qty: i.quantity, category: i.suggestedItemCategory, size: i.size })))}`,
+        `Parsed items: ${JSON.stringify(processed.items.map((i) => ({ name: i.name, price: i.price, qty: i.quantity, category: i.suggestedItemCategory, size: i.size })))}`,
       );
     }
 
@@ -168,147 +192,94 @@ ${prompt}`;
     };
   }
 
-  private runOpencode(prompt: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const args = ['run', '--format', 'json'];
-      if (this.model) {
-        args.push('-m', this.model);
-      }
-      args.push('--', prompt);
+  private async callCopilotApi(prompt: string): Promise<string> {
+    const token = await this.getAuthToken();
 
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeout);
+
+    const apiStart = Date.now();
+    this.logger.log(
+      `[TIMING] Calling Copilot API: model=${this.model}, endpoint=${this.apiEndpoint}`,
+    );
+
+    try {
+      const response = await fetch(this.apiEndpoint, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Copilot-Integration-Id': 'vscode-chat',
+        },
+        body: JSON.stringify({
+          model: this.model,
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'user', content: prompt },
+          ],
+          max_tokens: 4000,
+          temperature: 0,
+        }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(
+          `Copilot API error ${response.status}: ${body.substring(0, 200)}`,
+        );
+      }
+
+      const data = (await response.json()) as {
+        choices: Array<{ message: { content: string } }>;
+        usage?: { prompt_tokens: number; completion_tokens: number };
+      };
+
+      const content = data.choices?.[0]?.message?.content;
+      if (!content) {
+        throw new Error('Copilot API returned empty content');
+      }
+
+      const usage = data.usage;
       this.logger.log(
-        `[TIMING] Spawning opencode CLI: model=${this.model ?? 'default'}, prompt: ${prompt.length} chars, args: [${args.slice(0, -1).join(', ')}, <prompt>]`,
+        `[TIMING] Copilot API completed in ${Date.now() - apiStart}ms` +
+          (usage
+            ? ` — tokens: input=${usage.prompt_tokens}, output=${usage.completion_tokens}`
+            : ''),
       );
 
-      const controller = new AbortController();
-      const timer = setTimeout(() => {
-        controller.abort();
-        reject(new Error(`Opencode CLI timed out after ${this.timeout}ms`));
-      }, this.timeout);
-
-      const spawnStart = Date.now();
-      const child = spawn('opencode', args, {
-        signal: controller.signal,
-        stdio: ['ignore', 'pipe', 'pipe'],
-      });
-
-      let firstByteTime: number | null = null;
-      let lastByteTime: number | null = null;
-      let totalStdoutBytes = 0;
-      const stdoutChunks: Buffer[] = [];
-      const stderrChunks: Buffer[] = [];
-
-      child.on('spawn', () => {
-        this.logger.log(
-          `[TIMING] opencode process spawned in ${Date.now() - spawnStart}ms (pid: ${child.pid})`,
-        );
-      });
-
-      child.stdout.on('data', (chunk: Buffer) => {
-        const now = Date.now();
-        if (firstByteTime === null) {
-          firstByteTime = now;
-          this.logger.log(
-            `[TIMING] First stdout byte after ${now - spawnStart}ms`,
-          );
-        }
-        lastByteTime = now;
-        totalStdoutBytes += chunk.length;
-        stdoutChunks.push(chunk);
-      });
-
-      child.stderr.on('data', (chunk: Buffer) => stderrChunks.push(chunk));
-
-      child.on('error', (err) => {
-        clearTimeout(timer);
-        this.logger.error(
-          `[TIMING] opencode spawn error after ${Date.now() - spawnStart}ms: ${err.message}`,
-        );
-        if (err.name === 'AbortError') return; // timeout already rejected
-        reject(
-          new Error(`Opencode CLI spawn error: ${err.message}`),
-        );
-      });
-
-      child.on('close', (code) => {
-        clearTimeout(timer);
-        const closeTime = Date.now();
-        const totalMs = closeTime - spawnStart;
-        const streamingMs = firstByteTime && lastByteTime ? lastByteTime - firstByteTime : 0;
-
-        this.logger.log(
-          `[TIMING] opencode process exited (code ${code}) — total: ${totalMs}ms, ` +
-            `time-to-first-byte: ${firstByteTime ? firstByteTime - spawnStart : 'N/A'}ms, ` +
-            `streaming duration: ${streamingMs}ms, ` +
-            `stdout: ${totalStdoutBytes} bytes, chunks: ${stdoutChunks.length}`,
-        );
-
-        const stdout = Buffer.concat(stdoutChunks).toString('utf-8');
-        const stderr = Buffer.concat(stderrChunks).toString('utf-8');
-
-        if (stderr.trim()) {
-          this.logger.warn(
-            `[TIMING] opencode stderr: ${stderr.substring(0, 500)}`,
-          );
-        }
-
-        if (code !== 0) {
-          this.logger.error(
-            `Opencode CLI exited with code ${code}: ${stderr.substring(0, 500)}`,
-          );
-          reject(
-            new Error(
-              `Opencode CLI exited with code ${code}: ${stderr.substring(0, 200)}`,
-            ),
-          );
-          return;
-        }
-
-        try {
-          const extractStart = Date.now();
-          const text = this.extractTextFromJsonEvents(stdout);
-          this.logger.log(
-            `[TIMING] JSON event extraction: ${Date.now() - extractStart}ms, ` +
-              `extracted text: ${text?.length ?? 0} chars from ${stdout.split('\n').filter(l => l.trim()).length} events`,
-          );
-          if (!text) {
-            reject(new Error('Opencode CLI returned empty response'));
-            return;
-          }
-          resolve(text);
-        } catch (err) {
-          reject(
-            new Error(
-              `Failed to parse opencode output: ${err instanceof Error ? err.message : String(err)}`,
-            ),
-          );
-        }
-      });
-    });
+      return content;
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
-  private extractTextFromJsonEvents(stdout: string): string {
-    const parts: string[] = [];
+  private async getAuthToken(): Promise<string> {
+    if (this.cachedToken) return this.cachedToken;
 
-    // Each line is a JSON event
-    for (const line of stdout.split('\n')) {
-      const trimmed = line.trim();
-      if (!trimmed) continue;
+    const authPath = join(
+      homedir(),
+      '.local',
+      'share',
+      'opencode',
+      'auth.json',
+    );
 
-      try {
-        const event = JSON.parse(trimmed);
-        if (event.type === 'text' && event.text) {
-          parts.push(event.text);
-        }
-        // Also handle nested part structure: { type: "content", part: { type: "text", text: "..." } }
-        if (event.part?.type === 'text' && event.part?.text) {
-          parts.push(event.part.text);
-        }
-      } catch {
-        // Skip non-JSON lines
+    try {
+      const raw = await readFile(authPath, 'utf-8');
+      const auth = JSON.parse(raw) as CopilotAuthData;
+      const token = auth['github-copilot']?.access;
+      if (!token) {
+        throw new Error(
+          'No github-copilot access token found in auth.json',
+        );
       }
+      this.cachedToken = token;
+      return token;
+    } catch (err) {
+      throw new Error(
+        `Failed to read Copilot auth token: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
-
-    return parts.join('');
   }
 }
