@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { CreateExpenseItemUseCase } from '../use-cases/create-expense-item.use-case';
 import { GetExpenseItemByIdUseCase } from '../use-cases/get-expense-item-by-id.use-case';
 import { ListExpenseItemsUseCase } from '../use-cases/list-expense-items.use-case';
@@ -27,6 +28,15 @@ export class ExpenseItemService {
     storeId: string,
     userId: string,
   ): Promise<ExpenseItem> {
+    if (!dto.expenseId || dto.expenseId.trim() === '') {
+      throw new DomainValidationException('Expense ID is required');
+    }
+    if (!storeId || storeId.trim() === '') {
+      throw new DomainValidationException('Store ID is required');
+    }
+    if (dto.itemPrice < 0) {
+      throw new DomainValidationException('Item price must be non-negative');
+    }
     return this.createExpenseItemUseCase.execute(dto, storeId, userId);
   }
 
@@ -42,6 +52,9 @@ export class ExpenseItemService {
   }
 
   async update(id: string, dto: UpdateExpenseItemDto): Promise<ExpenseItem> {
+    if (!id || id.trim() === '') {
+      throw new DomainValidationException('Expense item ID is required');
+    }
     return this.updateExpenseItemUseCase.execute(id, dto);
   }
 
