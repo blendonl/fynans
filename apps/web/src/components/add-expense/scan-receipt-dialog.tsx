@@ -23,10 +23,11 @@ interface ScanReceiptDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onResult: (data: ProcessedReceiptResponse) => void;
+  onImageCaptured?: (url: string) => void;
   scanOptions?: ReceiptScanOptions;
 }
 
-export function ScanReceiptDialog({ open, onOpenChange, onResult, scanOptions }: ScanReceiptDialogProps) {
+export function ScanReceiptDialog({ open, onOpenChange, onResult, onImageCaptured, scanOptions }: ScanReceiptDialogProps) {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const [showGuidedCapture, setShowGuidedCapture] = useState(false);
@@ -42,12 +43,15 @@ export function ScanReceiptDialog({ open, onOpenChange, onResult, scanOptions }:
       toast.error("File size must be under 100MB");
       return;
     }
+    const imageUrl = URL.createObjectURL(file);
+    onImageCaptured?.(imageUrl);
     scan(file, {
       onSuccess: (data) => {
         onResult(data);
         onOpenChange(false);
       },
       onError: (err) => {
+        URL.revokeObjectURL(imageUrl);
         toast.error(err.message || "Failed to process receipt");
       },
     });

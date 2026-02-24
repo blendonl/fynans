@@ -21,6 +21,7 @@ export interface ProcessedReceiptResponse {
   isLowConfidence: boolean;
   suggestedExpenseCategory?: { id: string; name: string };
   pendingExpenseId?: string;
+  receiptId?: string;
 }
 
 export interface ReceiptScanOptions {
@@ -135,17 +136,19 @@ export function useReceiptScan(scanOptions?: ReceiptScanOptions) {
       if (scanOptions?.familyId) formData.append("familyId", scanOptions.familyId);
       if (scanOptions?.paymentMethodId) formData.append("paymentMethodId", scanOptions.paymentMethodId);
 
-      const res = await customInstance<{ data: { jobId: string }; status: number; headers: Headers }>(
+      const res = await customInstance<{ data: { jobId: string; receiptId?: string }; status: number; headers: Headers }>(
         "/receipts/process",
         { method: "POST", body: formData },
       );
-      const { jobId } = res.data;
+      const { jobId, receiptId } = res.data;
 
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), STREAM_TIMEOUT);
 
       try {
-        return await streamResult(jobId, handleProgress, controller.signal);
+        const result = await streamResult(jobId, handleProgress, controller.signal);
+        if (receiptId) result.receiptId = receiptId;
+        return result;
       } finally {
         clearTimeout(timeout);
       }

@@ -67,6 +67,7 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
   const [recordedAt, setRecordedAt] = useState(localNow);
   const [hasScannedReceipt, setHasScannedReceipt] = useState(false);
   const [pendingIdFromScan, setPendingIdFromScan] = useState<string | null>(null);
+  const [receiptIdFromScan, setReceiptIdFromScan] = useState<string | null>(null);
   const deletePendingMutation = useDeletePendingExpense();
   const [, setCategorySearch] = useState("");
 
@@ -117,6 +118,7 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
     setItems: expenseItems.setItems,
     queryClient,
     onPendingCreated: (id) => setPendingIdFromScan(id),
+    onReceiptIdCaptured: (id) => setReceiptIdFromScan(id),
   });
 
   const receiptScanOptions = useMemo(() => ({
@@ -140,6 +142,7 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
     onSuccess,
     onSaveForReview,
     pendingIdToCleanup: pendingIdFromScan,
+    receiptIdToLink: receiptIdFromScan,
     onCleanupPending: () => setPendingIdFromScan(null),
   });
 
