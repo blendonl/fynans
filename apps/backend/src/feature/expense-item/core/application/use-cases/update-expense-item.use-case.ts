@@ -1,9 +1,8 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { type IExpenseItemRepository } from '../../domain/repositories/expense-item.repository.interface';
 import { type IStoreItemCategoryRepository } from '../../../../store-item-category/core/domain/repositories/store-item-category.repository.interface';
 import { UpdateExpenseItemDto } from '../dto/update-expense-item.dto';
@@ -23,7 +22,7 @@ export class UpdateExpenseItemUseCase {
     const item = await this.expenseItemRepository.findById(id);
 
     if (!item) {
-      throw new NotFoundException('Expense item not found');
+      throw new DomainNotFoundException('Expense item not found');
     }
 
     await this.validate(dto);
@@ -32,27 +31,26 @@ export class UpdateExpenseItemUseCase {
       categoryId: dto.categoryId,
       price: dto.price !== undefined ? new Decimal(dto.price) : undefined,
       discount: dto.discount !== undefined ? new Decimal(dto.discount) : undefined,
-    } as Partial<ExpenseItem>);
+    });
 
     return updated;
   }
 
   private async validate(dto: UpdateExpenseItemDto): Promise<void> {
     if (dto.price !== undefined && dto.price < 0) {
-      throw new BadRequestException('Price must be non-negative');
+      throw new DomainValidationException('Price must be non-negative');
     }
 
     if (dto.discount !== undefined && dto.discount < 0) {
-      throw new BadRequestException('Discount must be non-negative');
+      throw new DomainValidationException('Discount must be non-negative');
     }
 
-    // Validate category exists if changed
     if (dto.categoryId) {
       const category = await this.storeItemCategoryRepository.findById(
         dto.categoryId,
       );
       if (!category) {
-        throw new NotFoundException('Store item category not found');
+        throw new DomainNotFoundException('Store item category not found');
       }
     }
   }
