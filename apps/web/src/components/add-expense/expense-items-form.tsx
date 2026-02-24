@@ -63,6 +63,7 @@ interface ExpenseItemsFormProps {
   onQuantityChange: (index: number, quantity: number) => void;
   onCreateNewItemCategory: (name: string) => void;
   isLoadingCategories: boolean;
+  borderless?: boolean;
   onItemNameChange?: (name: string) => void;
   itemCategoryAiSuggestion?: { categoryId: string; categoryName: string } | null;
   isItemCategoryAiLoading?: boolean;
@@ -87,6 +88,7 @@ export function ExpenseItemsForm({
   onQuantityChange,
   onCreateNewItemCategory,
   isLoadingCategories,
+  borderless,
   onItemNameChange,
   itemCategoryAiSuggestion,
   isItemCategoryAiLoading,
@@ -296,7 +298,7 @@ export function ExpenseItemsForm({
   return (
     <div className="space-y-3">
       <Label>Items{items.length > 0 && ` (${items.length})`}</Label>
-      <div className={items.length > 0 ? "border border-border rounded-2xl p-3 sm:p-4 space-y-3" : "space-y-3"}>
+      <div className={items.length > 0 && !borderless ? "border border-border rounded-2xl p-3 sm:p-4 space-y-3" : "space-y-3"}>
         {items.map((item, i) => {
           const isItemEditing = editingIndex === i;
           return (
