@@ -1,13 +1,10 @@
 import { Expense } from '../entities/expense.entity';
-import { Pagination } from '~common/dto/pagination.dto';
+import { Pagination, PaginatedResult } from '~common/dto/pagination.dto';
 import { TransactionScope } from '../../../../transaction/core/domain/entities/transaction.entity';
 import { TransactionStatus } from '../../../../transaction/core/domain/value-objects/transaction-status.vo';
 import { ExpenseTrendPoint } from '../../application/dto/expense-trends.dto';
 
-export interface PaginatedResult<T> {
-  data: T[];
-  total: number;
-}
+export { PaginatedResult };
 
 export interface ExpenseFilters {
   userId?: string;
@@ -31,15 +28,28 @@ export interface ExpenseStatistics {
   expensesByStore: { storeId: string; total: number }[];
 }
 
+export interface CreateExpenseData {
+  id: string;
+  transactionId: string;
+  categoryId: string;
+  storeId?: string | null;
+}
+
+export interface UpdateExpenseData {
+  categoryId?: string;
+  storeId?: string | null;
+  description?: string;
+}
+
 export interface IExpenseRepository {
-  create(data: Partial<Expense>): Promise<Expense>;
+  create(data: CreateExpenseData): Promise<Expense>;
   findById(id: string): Promise<Expense | null>;
   findByTransactionId(transactionId: string): Promise<Expense | null>;
   findAll(
     filters?: ExpenseFilters,
     pagination?: Pagination,
   ): Promise<PaginatedResult<Expense>>;
-  update(id: string, data: Partial<Expense>): Promise<Expense>;
+  update(id: string, data: UpdateExpenseData): Promise<Expense>;
   delete(id: string): Promise<void>;
   verifyOwnership(expenseId: string, userId: string): Promise<boolean>;
   getStatistics(
