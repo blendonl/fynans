@@ -2,9 +2,10 @@
 
 import { GlassCard } from "@/components/glass/glass-card";
 import { formatCurrency } from "@/utils/currency";
+import type { CategoryData } from "@/types";
 
 interface TopExpensesProps {
-  expensesByCategory: { categoryId: string; categoryName: string; total: number }[];
+  expensesByCategory: CategoryData[];
 }
 
 export function TopExpenses({ expensesByCategory }: TopExpensesProps) {

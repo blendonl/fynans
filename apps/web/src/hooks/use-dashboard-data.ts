@@ -1,16 +1,16 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type {
-  TransactionStatisticsResponse,
-  ExpenseTrendResponse,
-} from "@/types";
+import type { TransactionStatisticsResponse } from "@/types";
 import { transactionControllerGetStatistics } from "@/api/generated/endpoints/transaction/transaction";
 import { expenseControllerGetStatistics, expenseControllerGetTrends } from "@/api/generated/endpoints/expense/expense";
 import { expenseControllerFindAll } from "@/api/generated/endpoints/expense/expense";
 import { incomeControllerFindAll } from "@/api/generated/endpoints/income/income";
 import { formatDateForAPI, getChartGranularity } from "@/lib/date-utils";
 import { mapExpenseToTransaction, mapIncomeToTransaction, sortTransactionsByDate } from "@/lib/transaction-mappers";
+import { queryKeys } from "@/lib/query-keys";
 
 const DASHBOARD_RECENT_LIMIT = 5;
+const DASHBOARD_STALE_TIME = 60_000;
 
 export type { ExpenseTrendResponse as ExpenseTrendPoint } from "@/types";
 
@@ -52,24 +52,25 @@ export function useDashboardData({
   previousDateFrom,
   previousDateTo,
 }: DashboardDataParams) {
-  const dateFromStr = formatDateForAPI(dateFrom);
-  const dateToStr = formatDateForAPI(dateTo);
-  const prevFromStr = formatDateForAPI(previousDateFrom);
-  const prevToStr = formatDateForAPI(previousDateTo);
-  const granularity = getChartGranularity(dateFrom, dateTo);
+  const dateFromStr = useMemo(() => formatDateForAPI(dateFrom), [dateFrom]);
+  const dateToStr = useMemo(() => formatDateForAPI(dateTo), [dateTo]);
+  const prevFromStr = useMemo(() => formatDateForAPI(previousDateFrom), [previousDateFrom]);
+  const prevToStr = useMemo(() => formatDateForAPI(previousDateTo), [previousDateTo]);
+  const granularity = useMemo(() => getChartGranularity(dateFrom, dateTo), [dateFrom, dateTo]);
 
-  const dateParams = { dateFrom: dateFromStr, dateTo: dateToStr };
+  const dateParams = useMemo(() => ({ dateFrom: dateFromStr, dateTo: dateToStr }), [dateFromStr, dateToStr]);
 
   const statsQuery = useQuery({
-    queryKey: ["dashboard-transaction-stats", dateFromStr, dateToStr],
+    queryKey: queryKeys.dashboard.txStats(dateFromStr, dateToStr),
     queryFn: async () => {
       const res = await transactionControllerGetStatistics(dateParams);
       return res.data;
     },
+    staleTime: DASHBOARD_STALE_TIME,
   });
 
   const prevStatsQuery = useQuery({
-    queryKey: ["dashboard-transaction-stats", prevFromStr, prevToStr],
+    queryKey: queryKeys.dashboard.txStats(prevFromStr, prevToStr),
     queryFn: async () => {
       const res = await transactionControllerGetStatistics({
         dateFrom: prevFromStr,
@@ -77,18 +78,20 @@ export function useDashboardData({
       });
       return res.data;
     },
+    staleTime: DASHBOARD_STALE_TIME,
   });
 
   const expenseStatsQuery = useQuery({
-    queryKey: ["dashboard-expense-stats", dateFromStr, dateToStr],
+    queryKey: queryKeys.dashboard.expenseStats(dateFromStr, dateToStr),
     queryFn: async () => {
       const res = await expenseControllerGetStatistics(dateParams);
       return res.data;
     },
+    staleTime: DASHBOARD_STALE_TIME,
   });
 
   const prevExpenseStatsQuery = useQuery({
-    queryKey: ["dashboard-expense-stats", prevFromStr, prevToStr],
+    queryKey: queryKeys.dashboard.expenseStats(prevFromStr, prevToStr),
     queryFn: async () => {
       const res = await expenseControllerGetStatistics({
         dateFrom: prevFromStr,
@@ -96,10 +99,11 @@ export function useDashboardData({
       });
       return res.data;
     },
+    staleTime: DASHBOARD_STALE_TIME,
   });
 
   const trendsQuery = useQuery({
-    queryKey: ["dashboard-expense-trends", dateFromStr, dateToStr, granularity],
+    queryKey: queryKeys.dashboard.trends(dateFromStr, dateToStr, granularity),
     queryFn: async () => {
       const res = await expenseControllerGetTrends({
         ...dateParams,
@@ -107,23 +111,25 @@ export function useDashboardData({
       });
       return res.data;
     },
+    staleTime: DASHBOARD_STALE_TIME,
   });
 
   const recentQuery = useQuery({
-    queryKey: ["dashboard-recent", dateFromStr, dateToStr],
+    queryKey: queryKeys.dashboard.recent(dateFromStr, dateToStr),
     queryFn: async () => {
       const limit = DASHBOARD_RECENT_LIMIT;
       const [expensesRes, incomesRes] = await Promise.all([
-        expenseControllerFindAll({ limit, ...dateParams }).then((r) => r.data),
-        incomeControllerFindAll({ limit, ...dateParams }).then((r) => r.data),
+        expenseControllerFindAll({ limit, ...dateParams }).then((r: { data: { data: unknown[] } }) => r.data),
+        incomeControllerFindAll({ limit, ...dateParams }).then((r: { data: { data: unknown[] } }) => r.data),
       ]);
 
-      const expenses = (expensesRes.data || []).map((e) => mapExpenseToTransaction(e));
-      const incomes = (incomesRes.data || []).map((i) => mapIncomeToTransaction(i));
+      const expenses = (expensesRes.data || []).map((e: unknown) => mapExpenseToTransaction(e as Parameters<typeof mapExpenseToTransaction>[0]));
+      const incomes = (incomesRes.data || []).map((i: unknown) => mapIncomeToTransaction(i as Parameters<typeof mapIncomeToTransaction>[0]));
 
       return sortTransactionsByDate([...expenses, ...incomes])
         .slice(0, DASHBOARD_RECENT_LIMIT);
     },
+    staleTime: DASHBOARD_STALE_TIME,
   });
 
   const txStats = statsQuery.data;

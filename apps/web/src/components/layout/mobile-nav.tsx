@@ -9,7 +9,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
-import { useNotifications } from "@/hooks/use-notifications";
+import { useUnreadCount } from "@/hooks/use-unread-count";
 import { usePendingInvitations } from "@/hooks/use-families";
 import { usePendingTransactionCount } from "@/hooks/use-pending-transactions";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,7 @@ const NAV_ITEMS = [
 export function MobileNav() {
   const pathname = usePathname();
   const { user } = useAuth();
-  const { unreadCount } = useNotifications();
+  const { unreadCount } = useUnreadCount();
   const { pendingInvitations } = usePendingInvitations();
   const { data: pendingCount } = usePendingTransactionCount();
 
@@ -36,7 +36,7 @@ export function MobileNav() {
   const initials = `${user?.firstName?.[0] ?? ""}${user?.lastName?.[0] ?? ""}`;
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-glass-border-outer bg-glass-bg-strong backdrop-blur-lg pb-[env(safe-area-inset-bottom)]">
+    <nav aria-label="Main navigation" className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-glass-border-outer bg-glass-bg-strong backdrop-blur-lg pb-[env(safe-area-inset-bottom)]">
       <div className="flex items-center justify-around py-2">
         {/* Home */}
         {NAV_ITEMS.slice(0, 2).map((item) => {
@@ -67,6 +67,7 @@ export function MobileNav() {
         {/* Center FAB — Add */}
         <Link
           href="/add"
+          aria-label="Add transaction"
           className={cn(
             "relative -mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-variant shadow-lg fab-enter active:scale-90 transition-transform",
             isAddActive && "fab-glow"

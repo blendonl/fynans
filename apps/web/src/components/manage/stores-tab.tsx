@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { useManageStores } from "@/hooks/use-manage-stores";
+import { useStoresList } from "@/hooks/use-stores";
 import { ManageListContainer } from "./manage-list-container";
 import { ManageEntityRow } from "./manage-entity-row";
 
@@ -10,7 +10,7 @@ export function StoresTab() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 300);
   const { stores, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useManageStores(debouncedSearch);
+    useStoresList(debouncedSearch);
 
   return (
     <ManageListContainer

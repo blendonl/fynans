@@ -14,7 +14,7 @@ import {
   ChevronsUpDown,
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
-import { useNotifications } from "@/hooks/use-notifications";
+import { useUnreadCount } from "@/hooks/use-unread-count";
 import { usePendingTransactionCount } from "@/hooks/use-pending-transactions";
 import { usePendingInvitations } from "@/hooks/use-families";
 import { cn } from "@/lib/utils";
@@ -40,13 +40,13 @@ const NAV_ITEMS = [
 export function AppSidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const { unreadCount } = useNotifications();
+  const { unreadCount } = useUnreadCount();
   const { data: pendingTxCount } = usePendingTransactionCount();
   const { pendingInvitations } = usePendingInvitations();
   const pendingInvitationCount = pendingInvitations.length;
 
   return (
-    <aside className="hidden lg:flex w-64 flex-col border-r border-sidebar-border bg-sidebar-background/80 backdrop-blur-xl">
+    <aside aria-label="Sidebar navigation" className="hidden lg:flex w-64 flex-col border-r border-sidebar-border bg-sidebar-background/80 backdrop-blur-xl">
       <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
         <Link href="/" className="flex items-center gap-2">
           <FynansLogo className="h-8 w-8" />

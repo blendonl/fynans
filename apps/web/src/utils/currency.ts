@@ -1,9 +1,10 @@
-export function formatCurrency(amount: number): string {
-  return `$${amount.toFixed(2)}`;
-}
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
 
-export function getCurrencyIcon(): string {
-  return "currency-usd";
+export function formatCurrency(amount: number): string {
+  return currencyFormatter.format(amount);
 }
 
 export function formatQuantity(quantity: number): string {

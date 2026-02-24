@@ -120,11 +120,13 @@ export default function TransactionsPage() {
 
       {/* Tab bar */}
       <div className="dash-animate-in dash-delay-1">
-        <div className="flex rounded-2xl bg-surface-variant p-1 gap-1">
+        <div role="tablist" className="flex rounded-2xl bg-surface-variant p-1 gap-1">
           {tabs.map((tab) => (
             <button
               key={tab.value}
               type="button"
+              role="tab"
+              aria-selected={activeTab === tab.value}
               onClick={() => handleTabChange(tab.value)}
               className={cn(
                 "relative flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer flex items-center justify-center gap-2",
@@ -146,7 +148,7 @@ export default function TransactionsPage() {
 
       {/* Confirmed tab content */}
       {activeTab === "confirmed" && (
-        <>
+        <div role="tabpanel" className="space-y-8">
           <div className="dash-animate-in dash-delay-1">
             <TransactionsSummary
               totalIncome={stats.totalIncome}
@@ -179,19 +181,19 @@ export default function TransactionsPage() {
               searchQuery={debouncedSearch || undefined}
             />
           </div>
-        </>
+        </div>
       )}
 
       {/* Pending tab content */}
       {activeTab === "pending" && (
-        <div className="dash-animate-in dash-delay-2">
+        <div role="tabpanel" className="dash-animate-in dash-delay-2">
           <PendingTransactionList status="PENDING" />
         </div>
       )}
 
       {/* Rejected tab content */}
       {activeTab === "rejected" && (
-        <div className="dash-animate-in dash-delay-2">
+        <div role="tabpanel" className="dash-animate-in dash-delay-2">
           <PendingTransactionList status="REJECTED" />
         </div>
       )}

@@ -12,33 +12,18 @@ import {
   Legend,
 } from "recharts";
 import { GlassCard } from "@/components/glass/glass-card";
-import { formatCurrency } from "@/utils/currency";
-
-interface CategoryData {
-  categoryId: string;
-  categoryName: string;
-  total: number;
-}
+import type { CategoryData } from "@/types";
+import { ChartTooltip, formatYAxisTick } from "./chart-utils";
 
 interface CategoryComparisonChartProps {
   current: CategoryData[];
   previous: CategoryData[];
 }
 
-function CustomTooltip({ active, payload, label }: Record<string, unknown>) {
-  if (!active || !payload || !(payload as unknown[]).length) return null;
-  const entries = payload as { value: number; dataKey: string; color: string }[];
-  return (
-    <div className="rounded-xl border border-glass-border-outer bg-glass-bg-strong backdrop-blur-lg p-3 shadow-md space-y-1 animate-in fade-in duration-100">
-      <p className="text-[11px] font-medium text-text-secondary">{label as string}</p>
-      {entries.map((e) => (
-        <p key={e.dataKey} className="text-xs font-mono" style={{ color: e.color }}>
-          {e.dataKey === "current" ? "Current" : "Previous"}: {formatCurrency(e.value)}
-        </p>
-      ))}
-    </div>
-  );
-}
+const COMPARISON_LABELS: Record<string, string> = {
+  current: "Current period",
+  previous: "Previous period",
+};
 
 export function CategoryComparisonChart({
   current,
@@ -82,21 +67,17 @@ export function CategoryComparisonChart({
               tick={{ fontSize: 10, fill: "var(--text-secondary)" }}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v: number) =>
-                v >= 1000 ? `${(v / 1000).toFixed(v % 1000 === 0 ? 0 : 1)}K` : formatCurrency(v)
-              }
+              tickFormatter={formatYAxisTick}
             />
             <Tooltip
-              content={<CustomTooltip />}
+              content={<ChartTooltip labelFormatter={(key) => COMPARISON_LABELS[key] ?? key} />}
               cursor={false}
               isAnimationActive={false}
               trigger="hover"
             />
             <Legend
               wrapperStyle={{ fontSize: 11 }}
-              formatter={(value: string) =>
-                value === "current" ? "Current period" : "Previous period"
-              }
+              formatter={(value: string) => COMPARISON_LABELS[value] ?? value}
             />
             <Bar dataKey="current" fill="var(--primary)" radius={[4, 4, 0, 0]} />
             <Bar

@@ -1,18 +1,17 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { expenseCategoryControllerFindAll } from "@/api/generated/endpoints/expense-category/expense-category";
 import { storeItemCategoryControllerFindAll } from "@/api/generated/endpoints/store-item-category/store-item-category";
 import { incomeCategoryControllerFindAll } from "@/api/generated/endpoints/income-category/income-category";
-
-const PAGE_SIZE = 20;
+import { usePaginatedQuery } from "@/hooks/use-paginated-query";
+import { queryKeys, DEFAULT_PAGE_SIZE } from "@/lib/query-keys";
 
 export function useManageExpenseCategories(search: string) {
-  const query = useInfiniteQuery({
-    queryKey: ["expense-categories", search],
-    queryFn: async ({ pageParam = 1 }) => {
+  const { data, ...rest } = usePaginatedQuery({
+    queryKey: queryKeys.categories.expense(search),
+    queryFn: async ({ page, limit }) => {
       const response = await expenseCategoryControllerFindAll({
         search,
-        page: pageParam,
-        limit: PAGE_SIZE,
+        page,
+        limit,
       } as Parameters<typeof expenseCategoryControllerFindAll>[0]);
       return {
         ...response.data,
@@ -22,70 +21,41 @@ export function useManageExpenseCategories(search: string) {
         })),
       };
     },
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      (lastPageParam as number) * PAGE_SIZE < (lastPage.total ?? 0)
-        ? (lastPageParam as number) + 1
-        : undefined,
-    initialPageParam: 1,
+    pageSize: DEFAULT_PAGE_SIZE,
   });
 
-  return {
-    categories: query.data?.pages.flatMap((p) => p.data) ?? [],
-    isLoading: query.isLoading,
-    fetchNextPage: query.fetchNextPage,
-    hasNextPage: !!query.hasNextPage,
-    isFetchingNextPage: query.isFetchingNextPage,
-  };
+  return { categories: data, ...rest };
 }
 
 export function useManageItemCategories(search: string) {
-  const query = useInfiniteQuery({
-    queryKey: ["expense-item-categories", search],
-    queryFn: async ({ pageParam = 1 }) => {
+  const { data, ...rest } = usePaginatedQuery({
+    queryKey: queryKeys.categories.item(search),
+    queryFn: async ({ page, limit }) => {
       const response = await storeItemCategoryControllerFindAll({
-        page: pageParam,
-        limit: PAGE_SIZE,
-      } as Parameters<typeof storeItemCategoryControllerFindAll>[0]);
+        search,
+        page,
+        limit,
+      } as unknown as Parameters<typeof storeItemCategoryControllerFindAll>[0]);
       return response.data;
     },
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      (lastPageParam as number) * PAGE_SIZE < (lastPage.total ?? 0)
-        ? (lastPageParam as number) + 1
-        : undefined,
-    initialPageParam: 1,
+    pageSize: DEFAULT_PAGE_SIZE,
   });
 
-  return {
-    categories: query.data?.pages.flatMap((p) => p.data) ?? [],
-    isLoading: query.isLoading,
-    fetchNextPage: query.fetchNextPage,
-    hasNextPage: !!query.hasNextPage,
-    isFetchingNextPage: query.isFetchingNextPage,
-  };
+  return { categories: data, ...rest };
 }
 
 export function useManageIncomeCategories(search: string) {
-  const query = useInfiniteQuery({
-    queryKey: ["income-categories", search],
-    queryFn: async ({ pageParam = 1 }) => {
+  const { data, ...rest } = usePaginatedQuery({
+    queryKey: queryKeys.categories.income(search),
+    queryFn: async ({ page, limit }) => {
       const response = await incomeCategoryControllerFindAll({
-        page: pageParam,
-        limit: PAGE_SIZE,
+        page,
+        limit,
       } as Parameters<typeof incomeCategoryControllerFindAll>[0]);
       return response.data;
     },
-    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      (lastPageParam as number) * PAGE_SIZE < (lastPage.total ?? 0)
-        ? (lastPageParam as number) + 1
-        : undefined,
-    initialPageParam: 1,
+    pageSize: DEFAULT_PAGE_SIZE,
   });
 
-  return {
-    categories: query.data?.pages.flatMap((p) => p.data) ?? [],
-    isLoading: query.isLoading,
-    fetchNextPage: query.fetchNextPage,
-    hasNextPage: !!query.hasNextPage,
-    isFetchingNextPage: query.isFetchingNextPage,
-  };
+  return { categories: data, ...rest };
 }
