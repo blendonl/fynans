@@ -3,6 +3,7 @@ import {
   IsNotEmpty,
   IsString,
   IsNumber,
+  IsBoolean,
   Min,
   IsOptional,
   ValidateNested,
@@ -13,6 +14,7 @@ import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { CreateExpenseDto } from '../../core/application/dto/create-expense.dto';
 import { CreateExpenseItemDto } from '../../../expense-item/core/application/dto/create-expense-item.dto';
+import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 
 export class CreateExpenseItemRequestDto {
   @IsUUID()
@@ -93,6 +95,11 @@ export class CreateExpenseRequestDto {
   @IsUUID()
   paymentMethodId?: string;
 
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  pending?: boolean;
+
   toCoreDto(userId: string): CreateExpenseDto {
     return new CreateExpenseDto({
       userId,
@@ -117,6 +124,7 @@ export class CreateExpenseRequestDto {
           }),
       ),
       recordedAt: this.recordedAt ? new Date(this.recordedAt) : undefined,
+      status: this.pending ? TransactionStatus.PENDING : undefined,
     });
   }
 }

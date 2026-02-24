@@ -82,6 +82,9 @@ export class ProcessedReceiptResponseDto {
   @ApiPropertyOptional({ type: () => SuggestedExpenseCategoryDto })
   suggestedExpenseCategory?: SuggestedExpenseCategoryDto;
 
+  @ApiPropertyOptional()
+  pendingExpenseId?: string;
+
   static fromData(data: EnrichedReceiptDataDto): ProcessedReceiptResponseDto {
     const dto = new ProcessedReceiptResponseDto();
     dto.store = data.store;
@@ -109,6 +112,7 @@ export class ProcessedReceiptResponseDto {
         name: data.suggestedExpenseCategoryName,
       };
     }
+    dto.pendingExpenseId = data.pendingExpenseId;
     return dto;
   }
 }

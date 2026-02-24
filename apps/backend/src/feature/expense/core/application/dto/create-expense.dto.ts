@@ -1,4 +1,5 @@
 import { CreateExpenseItemDto } from '../../../../expense-item/core/application/dto/create-expense-item.dto';
+import { TransactionStatus } from '../../../../transaction/core/domain/value-objects/transaction-status.vo';
 
 export class CreateExpenseDto {
   userId: string;
@@ -13,6 +14,7 @@ export class CreateExpenseDto {
   scope?: 'PERSONAL' | 'FAMILY';
   recordedAt?: Date;
   paymentMethodId?: string;
+  status?: TransactionStatus;
 
   constructor(data: {
     userId: string;
@@ -26,6 +28,7 @@ export class CreateExpenseDto {
     familyId?: string;
     recordedAt?: Date;
     paymentMethodId?: string;
+    status?: TransactionStatus;
   }) {
     this.userId = data.userId;
     this.categoryId = data.categoryId;
@@ -38,5 +41,6 @@ export class CreateExpenseDto {
     this.familyId = data.familyId;
     this.recordedAt = data.recordedAt;
     this.paymentMethodId = data.paymentMethodId;
+    this.status = data.status;
   }
 }

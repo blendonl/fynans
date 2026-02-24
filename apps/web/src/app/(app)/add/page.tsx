@@ -27,6 +27,11 @@ export default function AddTransactionPage() {
     router.push("/transactions");
   };
 
+  const onSaveForReview = () => {
+    queryClient.invalidateQueries({ queryKey: ["pending-transactions"] });
+    router.push("/transactions?tab=pending");
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -47,9 +52,9 @@ export default function AddTransactionPage() {
 
       <div className="rounded-3xl bg-surface border border-border-light p-5 sm:p-6 lg:p-8 shadow-sm dash-animate-in dash-delay-2">
         {tab === "expense" ? (
-          <ExpenseForm onSuccess={onSuccess} scope={scope} familyId={familyId} />
+          <ExpenseForm onSuccess={onSuccess} onSaveForReview={onSaveForReview} scope={scope} familyId={familyId} />
         ) : (
-          <IncomeForm onSuccess={onSuccess} scope={scope} familyId={familyId} />
+          <IncomeForm onSuccess={onSuccess} onSaveForReview={onSaveForReview} scope={scope} familyId={familyId} />
         )}
       </div>
     </div>

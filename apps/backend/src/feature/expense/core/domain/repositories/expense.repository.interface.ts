@@ -1,6 +1,7 @@
 import { Expense } from '../entities/expense.entity';
 import { Pagination } from '~common/dto/pagination.dto';
 import { TransactionScope } from '../../../../transaction/core/domain/entities/transaction.entity';
+import { TransactionStatus } from '../../../../transaction/core/domain/value-objects/transaction-status.vo';
 import { ExpenseTrendPoint } from '../../application/dto/expense-trends.dto';
 
 export interface PaginatedResult<T> {
@@ -14,6 +15,7 @@ export interface ExpenseFilters {
   storeId?: string;
   familyId?: string;
   scope?: TransactionScope;
+  status?: TransactionStatus;
   dateFrom?: Date;
   dateTo?: Date;
   valueMin?: number;

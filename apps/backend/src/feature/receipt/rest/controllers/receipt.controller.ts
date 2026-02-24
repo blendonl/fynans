@@ -106,6 +106,7 @@ export class ReceiptController {
     @UploadedFile() file: Express.Multer.File,
     @Body() body: ProcessReceiptBodyDto,
     @CurrentUser() user: User,
+    @Req() req: Request,
   ) {
     if (!file) {
       throw new BadRequestException('No image file provided');
@@ -127,10 +128,19 @@ export class ReceiptController {
       );
     }
 
-    const jobId = await this.receiptJobQueue.addJob(file.buffer, user.id, {
-      receiptId,
-      familyId: body.familyId,
-    });
+    const jobId = await this.receiptJobQueue.addJob(
+      file.buffer,
+      user.id,
+      {
+        autoCreatePending: body.autoCreatePending === 'true' || body.autoCreatePending === true,
+        familyId: body.familyId || undefined,
+        paymentMethodId: body.paymentMethodId || undefined,
+      },
+      {
+        receiptId,
+        familyId: body.familyId,
+      },
+    );
 
     return { jobId, status: 'processing', receiptId };
   }

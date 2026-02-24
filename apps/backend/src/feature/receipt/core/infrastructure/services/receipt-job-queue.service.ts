@@ -7,6 +7,7 @@ import {
   ReceiptJobStatus,
   ReceiptJobResult,
   ReceiptJobMeta,
+  ReceiptJobOptions,
 } from '../../application/interfaces/receipt-job-queue.interface';
 
 @Injectable()
@@ -25,14 +26,16 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
     };
   }
 
-  async addJob(imageBuffer: Buffer, userId?: string, meta?: ReceiptJobMeta): Promise<string> {
+  async addJob(imageBuffer: Buffer, userId?: string, options?: ReceiptJobOptions, meta?: ReceiptJobMeta): Promise<string> {
     const job = await this.queue.add(
       'process-receipt',
       {
         imageBase64: imageBuffer.toString('base64'),
         userId,
         receiptId: meta?.receiptId,
-        familyId: meta?.familyId,
+        familyId: options?.familyId ?? meta?.familyId,
+        autoCreatePending: options?.autoCreatePending,
+        paymentMethodId: options?.paymentMethodId,
       },
       {
         attempts: 3,

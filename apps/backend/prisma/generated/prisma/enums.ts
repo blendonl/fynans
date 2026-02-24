@@ -49,7 +49,10 @@ export const NotificationType = {
   TRANSACTION_MILESTONE_SPENDING_LIMIT: 'TRANSACTION_MILESTONE_SPENDING_LIMIT',
   RECEIPT_PROCESSING_COMPLETE: 'RECEIPT_PROCESSING_COMPLETE',
   BASKET_ITEM_ADDED: 'BASKET_ITEM_ADDED',
-  BASKET_ITEMS_BOUGHT: 'BASKET_ITEMS_BOUGHT'
+  BASKET_ITEMS_BOUGHT: 'BASKET_ITEMS_BOUGHT',
+  TRANSACTION_PENDING_CREATED: 'TRANSACTION_PENDING_CREATED',
+  TRANSACTION_APPROVED: 'TRANSACTION_APPROVED',
+  TRANSACTION_REJECTED: 'TRANSACTION_REJECTED'
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
@@ -88,6 +91,15 @@ export const TransactionType = {
 } as const
 
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType]
+
+
+export const TransactionStatus = {
+  CONFIRMED: 'CONFIRMED',
+  PENDING: 'PENDING',
+  REJECTED: 'REJECTED'
+} as const
+
+export type TransactionStatus = (typeof TransactionStatus)[keyof typeof TransactionStatus]
 
 
 export const TransactionScope = {
