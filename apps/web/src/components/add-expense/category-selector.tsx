@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import type { Category } from "@/types";
 import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+
 import { AiSuggestionBadge } from "./ai-suggestion-badge";
 
 interface CategorySelectorProps {
@@ -53,32 +53,25 @@ export function CategorySelector({
   return (
     <div className="space-y-2">
       <Label>Category</Label>
-      <div
-        className={cn(
-          "transition-all duration-200",
-          selectedCategory && "border-l-2 border-l-primary pl-3 rounded-l-none"
-        )}
-      >
-        <Combobox
-          options={options}
-          value={selectedCategory?.id ?? null}
-          displayValue={selectedCategory?.name}
-          onChange={(id) => {
-            const cat = categories.find((c) => c.id === id);
-            if (cat) onSelect(cat);
-          }}
-          onClear={onClear}
-          onSearchChange={onSearch}
-          onCreateNew={onCreateNew}
-          onLoadMore={onLoadMore}
-          hasMore={hasMore}
-          isLoadingMore={isLoadingMore}
-          placeholder="Type or select a category"
-          isLoading={isLoading}
-          showAllOnFocus
-          className="min-h-12 rounded-2xl"
-        />
-      </div>
+      <Combobox
+        options={options}
+        value={selectedCategory?.id ?? null}
+        displayValue={selectedCategory?.name}
+        onChange={(id) => {
+          const cat = categories.find((c) => c.id === id);
+          if (cat) onSelect(cat);
+        }}
+        onClear={onClear}
+        onSearchChange={onSearch}
+        onCreateNew={onCreateNew}
+        onLoadMore={onLoadMore}
+        hasMore={hasMore}
+        isLoadingMore={isLoadingMore}
+        placeholder="Type or select a category"
+        isLoading={isLoading}
+        showAllOnFocus
+        className="min-h-12 rounded-2xl"
+      />
       {(aiSuggestion || isSuggestionLoading) && onAcceptSuggestion && onDismissSuggestion && (
         <AiSuggestionBadge
           suggestion={aiSuggestion ?? null}
