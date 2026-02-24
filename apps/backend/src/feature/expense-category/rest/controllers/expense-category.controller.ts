@@ -15,7 +15,6 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
-  ApiProperty,
 } from '@nestjs/swagger';
 import { ExpenseCategoryService } from '../../core/application/services/expense-category.service';
 import { CreateExpenseCategoryRequestDto } from '../dto/create-expense-category-request.dto';
@@ -26,28 +25,8 @@ import { UpdateExpenseCategoryDto } from '../../core/application/dto/update-expe
 import { Pagination } from '~common/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
-
-export class ExpenseCategoryTreeNodeDto {
-  @ApiProperty({ type: () => ExpenseCategoryResponseDto })
-  category: ExpenseCategoryResponseDto;
-
-  @ApiProperty({ type: () => [ExpenseCategoryTreeNodeDto] })
-  children: ExpenseCategoryTreeNodeDto[];
-}
-
-export class PaginatedExpenseCategoryResponseDto {
-  @ApiProperty({ type: () => [ExpenseCategoryResponseDto] })
-  data: ExpenseCategoryResponseDto[];
-
-  @ApiProperty()
-  total: number;
-
-  @ApiProperty()
-  page: number;
-
-  @ApiProperty()
-  limit: number;
-}
+import { PaginatedExpenseCategoryResponseDto } from '../dto/paginated-expense-category-response.dto';
+import { ExpenseCategoryTreeNodeDto } from '../dto/expense-category-tree-node.dto';
 
 @ApiTags('Expense Category')
 @ApiBearerAuth('bearer')

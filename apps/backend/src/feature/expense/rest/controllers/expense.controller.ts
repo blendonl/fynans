@@ -17,7 +17,6 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
-  ApiProperty,
 } from '@nestjs/swagger';
 import { ExpenseService } from '../../core/application/services/expense.service';
 import { CreateExpenseRequestDto } from '../dto/create-expense-request.dto';
@@ -35,70 +34,9 @@ import { Pagination } from '~common/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 import { QueryExpenseTrendsDto } from '../dto/query-expense-trends.dto';
-
-export class PaginatedExpenseResponseDto {
-  @ApiProperty({ type: () => [ExpenseResponseDto] })
-  data: ExpenseResponseDto[];
-
-  @ApiProperty()
-  total: number;
-
-  @ApiProperty()
-  page: number;
-
-  @ApiProperty()
-  limit: number;
-}
-
-export class ExpenseByCategoryDto {
-  @ApiProperty()
-  categoryId: string;
-
-  @ApiProperty()
-  categoryName: string;
-
-  @ApiProperty()
-  total: number;
-}
-
-export class ExpenseByStoreDto {
-  @ApiProperty()
-  storeId: string;
-
-  @ApiProperty()
-  total: number;
-}
-
-export class ExpenseStatisticsResponseDto {
-  @ApiProperty()
-  totalExpenses: number;
-
-  @ApiProperty()
-  expenseCount: number;
-
-  @ApiProperty()
-  averageExpense: number;
-
-  @ApiProperty({ type: () => [ExpenseByCategoryDto] })
-  expensesByCategory: ExpenseByCategoryDto[];
-
-  @ApiProperty({ type: () => [ExpenseByStoreDto] })
-  expensesByStore: ExpenseByStoreDto[];
-}
-
-export class ExpenseTrendPointResponseDto {
-  @ApiProperty()
-  date: string;
-
-  @ApiProperty()
-  total: number;
-
-  @ApiProperty()
-  count: number;
-
-  @ApiProperty()
-  showLabel: boolean;
-}
+import { PaginatedExpenseResponseDto } from '../dto/paginated-expense-response.dto';
+import { ExpenseStatisticsResponseDto } from '../dto/expense-statistics-response.dto';
+import { ExpenseTrendPointResponseDto } from '../dto/expense-trend-point-response.dto';
 
 @ApiTags('Expense')
 @ApiBearerAuth('bearer')
