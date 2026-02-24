@@ -3,20 +3,13 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { format } from "date-fns";
 import {
-  Check,
-  X,
-  RotateCcw,
-  Trash2,
   Clock,
   XCircle,
   Save,
   Pencil,
   User,
-  Tag,
-  StickyNote,
   ShoppingBasket,
 } from "lucide-react";
-import { formatCurrency } from "@/utils/currency";
 import { useAuth } from "@/hooks/use-auth";
 import { useCategories } from "@/hooks/use-categories";
 import { useStores } from "@/hooks/use-stores";
@@ -26,30 +19,13 @@ import { useCreateDialog } from "@/hooks/use-create-dialog";
 import type { Category, Store as StoreType, ExpenseItem } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { GlassCard } from "@/components/glass/glass-card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { CategorySelector } from "@/components/add-expense/category-selector";
-import { StoreSelector } from "@/components/add-expense/store-selector";
 import { ExpenseItemsForm } from "@/components/add-expense/expense-items-form";
 import { AddStoreDialog } from "@/components/add-expense/add-store-dialog";
 import { AddCategoryDialog } from "@/components/add-expense/add-category-dialog";
 import { AddItemCategoryDialog } from "@/components/add-expense/add-item-category-dialog";
-import { PaymentMethodSelector } from "@/components/add-transaction/payment-method-selector";
-import { DateTimePicker } from "@/components/add-transaction/date-time-picker";
 import { AmountHero } from "@/components/add-transaction/amount-hero";
-import { RejectDialog } from "./reject-dialog";
+import { TransactionDetailsCard } from "./transaction-details-card";
 import { ReceiptGallery } from "./receipt-gallery";
 
 /** Runtime expense shape including fields not yet in the OpenAPI spec */
@@ -97,41 +73,43 @@ export interface ItemsSync {
   expenseId: string;
 }
 
+/** Actions exposed to the parent page for header bar buttons */
+export interface PendingTransactionActions {
+  hasChanges: boolean;
+  handleApprove: () => void;
+  handleResubmit: () => void;
+}
+
 interface PendingTransactionDetailProps {
   expense: PendingExpenseData;
   onApprove: (
     changes?: Record<string, unknown>,
     itemsSync?: ItemsSync,
   ) => void;
-  onReject: (reason: string) => void;
   onResubmit: (
     changes?: Record<string, unknown>,
     itemsSync?: ItemsSync,
   ) => void;
   onUpdate: (changes: Record<string, unknown>, itemsSync?: ItemsSync) => void;
-  onDelete: () => void;
+  onActionsReady?: (actions: PendingTransactionActions) => void;
   isApproving: boolean;
   isRejecting: boolean;
   isResubmitting: boolean;
   isUpdating: boolean;
-  isDeleting: boolean;
 }
 
 export function PendingTransactionDetail({
   expense,
   onApprove,
-  onReject,
   onResubmit,
   onUpdate,
-  onDelete,
+  onActionsReady,
   isApproving,
   isRejecting,
   isResubmitting,
   isUpdating,
-  isDeleting,
 }: PendingTransactionDetailProps) {
   const { user } = useAuth();
-  const [showRejectDialog, setShowRejectDialog] = useState(false);
 
   // ── Data hooks for selectors ──────────────────────────────────────────
   const {
@@ -232,7 +210,7 @@ export function PendingTransactionDetail({
   const isRejected = expense.status === "REJECTED";
   const isCreator = user?.id === expense.transaction.userId;
   const anyLoading =
-    isApproving || isRejecting || isResubmitting || isUpdating || isDeleting;
+    isApproving || isRejecting || isResubmitting || isUpdating;
 
   // ── Change tracking (fields) ──────────────────────────────────────────
   const hasFieldChanges = useMemo(() => {
@@ -322,15 +300,20 @@ export function PendingTransactionDetail({
     }
   };
 
-  const handleApprove = () => {
+  const handleApprove = useCallback(() => {
     const sync = hasItemChanges ? buildItemsSync() : undefined;
     onApprove(hasFieldChanges ? buildChanges() : undefined, sync);
-  };
+  }, [hasItemChanges, hasFieldChanges, buildItemsSync, buildChanges, onApprove]);
 
-  const handleResubmit = () => {
+  const handleResubmit = useCallback(() => {
     const sync = hasItemChanges ? buildItemsSync() : undefined;
     onResubmit(hasFieldChanges ? buildChanges() : undefined, sync);
-  };
+  }, [hasItemChanges, hasFieldChanges, buildItemsSync, buildChanges, onResubmit]);
+
+  // Expose actions to parent page for header bar buttons
+  useEffect(() => {
+    onActionsReady?.({ hasChanges, handleApprove, handleResubmit });
+  }, [hasChanges, onActionsReady, handleApprove, handleResubmit]);
 
   return (
     <div className="space-y-5">
@@ -396,193 +379,83 @@ export function PendingTransactionDetail({
         </div>
       )}
 
-      {/* ── Editable details ─────────────────────────────────────────── */}
-      <GlassCard className="p-5 sm:p-6">
-        <h3 className="text-[11px] font-medium text-text-secondary uppercase tracking-wider mb-5 flex items-center gap-2">
-          <Tag className="h-3 w-3" />
-          Transaction Details
-        </h3>
-
-        <div className="space-y-5">
-          <CategorySelector
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onSelect={setSelectedCategory}
-            onClear={() => setSelectedCategory(null)}
-            onSearch={setCategorySearch}
-            onCreateNew={(name) => categoryDialog.show(name)}
-            isLoading={categoriesLoading}
+      <div className="lg:grid lg:grid-cols-12 lg:gap-6 space-y-5 lg:space-y-0">
+        {/* Left column — Details + Receipts (40%) */}
+        <div className="lg:col-span-5 space-y-5 lg:sticky lg:top-6 lg:self-start">
+          <TransactionDetailsCard
+            data={{
+              category: expense.category,
+              store: expense.store,
+              scope: expense.transaction.scope,
+            }}
+            type="expense"
+            editable={{
+              categories,
+              selectedCategory,
+              onCategorySelect: setSelectedCategory,
+              onCategoryClear: () => setSelectedCategory(null),
+              onCategorySearch: setCategorySearch,
+              onCategoryCreateNew: (name) => categoryDialog.show(name),
+              categoriesLoading,
+              stores,
+              selectedStore,
+              onStoreSelect: setSelectedStore,
+              onStoreClear: () => setSelectedStore(null),
+              onStoreSearch: setStoreSearch,
+              onStoreCreateNew: (name) => storeDialog.show(name),
+              storesLoading,
+              storePagination: {
+                onLoadMore: () => fetchNextStorePage(),
+                hasMore: hasNextStorePage,
+                isLoadingMore: isFetchingNextStorePage,
+              },
+              note,
+              onNoteChange: setNote,
+              paymentMethods,
+              selectedPaymentMethodId,
+              onPaymentMethodSelect: setSelectedPaymentMethodId,
+              paymentMethodsLoading,
+              recordedAt,
+              onRecordedAtChange: setRecordedAt,
+            }}
           />
 
-          <StoreSelector
-            stores={stores}
-            selectedStore={selectedStore}
-            onSelect={setSelectedStore}
-            onClear={() => setSelectedStore(null)}
-            onSearch={setStoreSearch}
-            onCreateNew={(name) => storeDialog.show(name)}
-            isLoading={storesLoading}
-            onLoadMore={() => fetchNextStorePage()}
-            hasMore={hasNextStorePage}
-            isLoadingMore={isFetchingNextStorePage}
-          />
-
-          <div className="space-y-2">
-            <Label className="flex items-center gap-1.5">
-              <StickyNote className="h-3 w-3 text-text-disabled" />
-              Note
-            </Label>
-            <Input
-              placeholder="Add a note (optional)"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="min-h-12"
-            />
-          </div>
-
-          <div className="border-t border-border-light/50 pt-4 space-y-5">
-            <PaymentMethodSelector
-              paymentMethods={paymentMethods}
-              selectedId={selectedPaymentMethodId}
-              onSelect={setSelectedPaymentMethodId}
-              isLoading={paymentMethodsLoading}
-            />
-
-            <DateTimePicker value={recordedAt} onChange={setRecordedAt} />
-          </div>
-
-          {/* Read-only: Scope */}
-          <div className="border-t border-border-light/50 pt-4">
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-              <div>
-                <p className="text-[11px] text-text-disabled uppercase tracking-wide">
-                  Scope
-                </p>
-                <p className="text-sm font-medium text-text mt-0.5">
-                  {expense.transaction.scope}
-                </p>
-              </div>
-            </div>
-          </div>
+          <ReceiptGallery images={expense.receiptImages || []} />
         </div>
-      </GlassCard>
 
-      {/* ── Items (editable) ─────────────────────────────────────────── */}
-      {(expenseItems.items.length > 0 || expense.items.length > 0) && (
-        <GlassCard className="p-5 sm:p-6">
-          <h3 className="text-[11px] font-medium text-text-secondary uppercase tracking-wider mb-4 flex items-center gap-2">
-            <ShoppingBasket className="h-3.5 w-3.5" />
-            Items
-          </h3>
-          <ExpenseItemsForm
-            items={expenseItems.items}
-            currentItem={expenseItems.currentItem}
-            itemCategories={itemCategories}
-            editingIndex={expenseItems.editingIndex}
-            itemErrors={expenseItems.itemErrors}
-            storeId={selectedStore?.id}
-            onCurrentItemChange={expenseItems.setCurrentItem}
-            onAddItem={expenseItems.handleAddItem}
-            onEditItem={expenseItems.handleEditItem}
-            onCancelEdit={expenseItems.cancelEdit}
-            onRemoveItem={expenseItems.handleRemoveItem}
-            onInsertItem={expenseItems.handleInsertItem}
-            onQuickAddItem={expenseItems.handleQuickAddItem}
-            onQuantityChange={expenseItems.handleUpdateQuantity}
-            onCreateNewItemCategory={(name) => itemCategoryDialog.show(name)}
-            isLoadingCategories={categoriesLoading}
-            borderless
-          />
-        </GlassCard>
-      )}
-
-      <ReceiptGallery images={expense.receiptImages || []} />
-
-      {/* ── Review Decision ───────────────────────────────────────────── */}
-      <GlassCard variant="strong" className="p-5 sm:p-6">
-        {isPending && (
-          <div className="space-y-3">
-            <h3 className="text-[11px] font-medium text-text-secondary uppercase tracking-wider mb-4">
-              Review Decision
-            </h3>
-            <div className="flex gap-3">
-              <Button
-                className="flex-1 h-12 gap-2"
-                onClick={handleApprove}
-                loading={isApproving}
-                disabled={anyLoading && !isApproving}
-              >
-                <Check className="h-4 w-4" />
-                {hasChanges ? "Save & Approve" : "Approve"}
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-1 h-12 gap-2 border-expense/30 text-expense hover:bg-expense/5 hover:border-expense/50"
-                onClick={() => setShowRejectDialog(true)}
-                disabled={anyLoading}
-              >
-                <X className="h-4 w-4" />
-                Reject
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {isRejected && (
-          <div className="space-y-3">
-            <h3 className="text-[11px] font-medium text-text-secondary uppercase tracking-wider mb-4">
-              Resubmit
-            </h3>
-            <Button
-              className="w-full h-12 gap-2"
-              onClick={handleResubmit}
-              loading={isResubmitting}
-              disabled={anyLoading && !isResubmitting}
-            >
-              <RotateCcw className="h-4 w-4" />
-              {hasChanges ? "Save & Re-submit" : "Re-submit for Review"}
-            </Button>
-          </div>
-        )}
-
-        <div className="flex justify-center mt-4 pt-3 border-t border-border-light/50">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-disabled hover:text-expense transition-colors cursor-pointer rounded-lg hover:bg-expense/5">
-                <Trash2 className="h-3 w-3" />
-                Delete transaction
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete this transaction?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  this transaction.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={onDelete} disabled={isDeleting}>
-                  {isDeleting ? "Deleting..." : "Delete"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+        {/* Right column — Items (60%) */}
+        <div className="lg:col-span-7 space-y-5">
+          {(expenseItems.items.length > 0 || expense.items.length > 0) && (
+            <GlassCard className="p-5 sm:p-6">
+              <h3 className="text-[11px] font-medium text-text-secondary uppercase tracking-wider mb-4 flex items-center gap-2">
+                <ShoppingBasket className="h-3.5 w-3.5" />
+                Items
+              </h3>
+              <ExpenseItemsForm
+                items={expenseItems.items}
+                currentItem={expenseItems.currentItem}
+                itemCategories={itemCategories}
+                editingIndex={expenseItems.editingIndex}
+                itemErrors={expenseItems.itemErrors}
+                storeId={selectedStore?.id}
+                onCurrentItemChange={expenseItems.setCurrentItem}
+                onAddItem={expenseItems.handleAddItem}
+                onEditItem={expenseItems.handleEditItem}
+                onCancelEdit={expenseItems.cancelEdit}
+                onRemoveItem={expenseItems.handleRemoveItem}
+                onInsertItem={expenseItems.handleInsertItem}
+                onQuickAddItem={expenseItems.handleQuickAddItem}
+                onQuantityChange={expenseItems.handleUpdateQuantity}
+                onCreateNewItemCategory={(name) => itemCategoryDialog.show(name)}
+                isLoadingCategories={categoriesLoading}
+                borderless
+              />
+            </GlassCard>
+          )}
         </div>
-      </GlassCard>
+      </div>
 
       {/* ── Dialogs ──────────────────────────────────────────────────── */}
-      <RejectDialog
-        open={showRejectDialog}
-        onOpenChange={setShowRejectDialog}
-        onConfirm={(reason) => {
-          onReject(reason);
-          setShowRejectDialog(false);
-        }}
-        isLoading={isRejecting}
-      />
-
       <AddStoreDialog
         open={storeDialog.open}
         onOpenChange={storeDialog.setOpen}

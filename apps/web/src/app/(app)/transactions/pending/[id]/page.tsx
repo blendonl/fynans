@@ -1,9 +1,9 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check, X, RotateCcw, MoreHorizontal, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   usePendingExpense,
@@ -20,10 +20,28 @@ import {
 } from "@/api/generated/endpoints/expense-items/expense-items";
 import { Button } from "@/components/ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   PendingTransactionDetail,
   type PendingExpenseData,
+  type PendingTransactionActions,
   type ItemsSync,
 } from "@/components/transactions/pending-transaction-detail";
+import { RejectDialog } from "@/components/transactions/reject-dialog";
 
 /**
  * Syncs local item changes to the API using a delete-all + recreate strategy.
@@ -87,6 +105,17 @@ export default function PendingTransactionDetailPage({
 
   // Key to force remount after save so refs/state reset from fresh data
   const [resetKey, setResetKey] = useState(0);
+
+  // Header bar state - actions exposed from the detail component
+  const actionsRef = useRef<PendingTransactionActions | null>(null);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+
+  const handleActionsReady = useCallback((actions: PendingTransactionActions) => {
+    actionsRef.current = actions;
+    setHasChanges(actions.hasChanges);
+  }, []);
 
   const handleApprove = async (
     changes?: Record<string, unknown>,
@@ -185,29 +214,112 @@ export default function PendingTransactionDetailPage({
     );
   }
 
+  const isPending = (expense as unknown as PendingExpenseData).status === "PENDING";
+  const isRejected = (expense as unknown as PendingExpenseData).status === "REJECTED";
+  const anyLoading =
+    isSaving || approveMutation.isPending || rejectMutation.isPending ||
+    resubmitMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
+
   return (
     <div className="space-y-6 dash-animate-in">
-      <Button
-        variant="ghost"
-        onClick={() => router.back()}
-        className="text-text-secondary"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Transactions
-      </Button>
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" onClick={() => router.back()} className="text-text-secondary">
+          <ArrowLeft className="h-4 w-4" />
+          <span className="hidden sm:inline ml-2">Back to Transactions</span>
+        </Button>
+        <div className="flex items-center gap-2">
+          {isPending && (
+            <>
+              <Button
+                onClick={() => actionsRef.current?.handleApprove()}
+                loading={isSaving || approveMutation.isPending}
+                disabled={anyLoading && !(isSaving || approveMutation.isPending)}
+              >
+                <Check className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">
+                  {hasChanges ? "Save & Approve" : "Approve"}
+                </span>
+              </Button>
+              <Button
+                variant="outline"
+                className="border-expense/30 text-expense hover:bg-expense/5 hover:border-expense/50"
+                onClick={() => setShowRejectDialog(true)}
+                disabled={anyLoading}
+              >
+                <X className="h-4 w-4" />
+                <span className="hidden sm:inline ml-2">Reject</span>
+              </Button>
+            </>
+          )}
+          {isRejected && (
+            <Button
+              onClick={() => actionsRef.current?.handleResubmit()}
+              loading={isSaving || resubmitMutation.isPending}
+              disabled={anyLoading && !(isSaving || resubmitMutation.isPending)}
+            >
+              <RotateCcw className="h-4 w-4" />
+              <span className="hidden sm:inline ml-2">
+                {hasChanges ? "Save & Re-submit" : "Re-submit"}
+              </span>
+            </Button>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                className="text-expense"
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Transaction
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this transaction?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this transaction.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={deleteMutation.isPending}>
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <RejectDialog
+        open={showRejectDialog}
+        onOpenChange={setShowRejectDialog}
+        onConfirm={(reason) => {
+          handleReject(reason);
+          setShowRejectDialog(false);
+        }}
+        isLoading={rejectMutation.isPending}
+      />
+
       <PendingTransactionDetail
         key={resetKey}
         expense={expense as unknown as PendingExpenseData}
         onApprove={handleApprove}
-        onReject={handleReject}
         onResubmit={handleResubmit}
         onUpdate={handleUpdate}
-        onDelete={handleDelete}
+        onActionsReady={handleActionsReady}
         isApproving={isSaving || approveMutation.isPending}
         isRejecting={rejectMutation.isPending}
         isResubmitting={isSaving || resubmitMutation.isPending}
         isUpdating={isSaving || updateMutation.isPending}
-        isDeleting={deleteMutation.isPending}
       />
     </div>
   );
