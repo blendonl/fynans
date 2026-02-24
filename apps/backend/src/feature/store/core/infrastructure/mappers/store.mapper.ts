@@ -11,14 +11,4 @@ export class StoreMapper {
       updatedAt: prismaStore.updatedAt,
     });
   }
-
-  static toPersistence(store: Store) {
-    return {
-      id: store.id,
-      name: store.name,
-      location: store.location,
-      createdAt: store.createdAt,
-      updatedAt: store.updatedAt,
-    };
-  }
 }

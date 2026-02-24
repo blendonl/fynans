@@ -67,7 +67,6 @@ export class Notification {
     }
   }
 
-  // Getters
   get id(): string {
     return this.props.id;
   }
@@ -138,23 +137,6 @@ export class Notification {
 
   get updatedAt(): Date {
     return this.props.updatedAt;
-  }
-
-  // Business logic methods
-  markAsRead(): void {
-    if (!this.props.isRead) {
-      this.props.isRead = true;
-      this.props.readAt = new Date();
-      this.props.updatedAt = new Date();
-    }
-  }
-
-  markAsInteracted(): void {
-    if (!this.props.isInteracted) {
-      this.props.isInteracted = true;
-      this.props.interactedAt = new Date();
-      this.props.updatedAt = new Date();
-    }
   }
 
   isExpired(expiryDays: number = 30): boolean {

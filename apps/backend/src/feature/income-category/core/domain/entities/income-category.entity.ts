@@ -1,4 +1,4 @@
-export interface IncomeCategoryProps {
+interface IncomeCategoryProps {
   id: string;
   parentId: string | null;
   name: string;

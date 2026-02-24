@@ -12,13 +12,11 @@ export class DeleteItemUseCase {
   ) {}
 
   async execute(id: string): Promise<void> {
-    // Check if item exists
     const item = await this.itemRepository.findById(id);
     if (!item) {
       throw new DomainNotFoundException(`Item with ID ${id} not found`);
     }
 
-    // Check if item is referenced by StoreItems
     const storeItemCount = await this.prisma.storeItem.count({
       where: { itemId: id },
     });

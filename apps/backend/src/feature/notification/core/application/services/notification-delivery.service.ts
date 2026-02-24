@@ -17,12 +17,10 @@ export class NotificationDeliveryService {
   ) {}
 
   async deliver(notification: Notification): Promise<void> {
-    // Get user preferences
     const preferences = await this.preferenceService.getOrCreateDefaults(
       notification.userId,
     );
 
-    // Check quiet hours
     let deliveryMethods = notification.deliveryMethods;
     if (this.preferenceService.isInQuietHours(preferences)) {
       // Skip PUSH and TOAST during quiet hours, but allow IN_APP
@@ -38,13 +36,11 @@ export class NotificationDeliveryService {
       }
     }
 
-    // Check per-type preferences
     const allowedMethods = this.preferenceService.getAllowedDeliveryMethods(
       preferences,
       notification.type,
     );
 
-    // Deliver via allowed methods
     for (const method of deliveryMethods) {
       if (!allowedMethods.includes(method)) continue;
 
@@ -74,7 +70,6 @@ export class NotificationDeliveryService {
       },
     };
 
-    // Expo (mobile)
     try {
       await this.pushNotificationService.sendToUser(
         notification.userId,
@@ -84,7 +79,6 @@ export class NotificationDeliveryService {
       console.error('Error delivering Expo push:', error);
     }
 
-    // Web Push
     try {
       await this.webPushNotificationService.sendToUser(
         notification.userId,
@@ -96,7 +90,6 @@ export class NotificationDeliveryService {
   }
 
   private async deliverInApp(notification: Notification): Promise<void> {
-    // Emit via WebSocket
     this.notificationGateway.emitToUser(
       notification.userId,
       'notification:new',
@@ -105,7 +98,6 @@ export class NotificationDeliveryService {
   }
 
   private async deliverToast(notification: Notification): Promise<void> {
-    // Emit via WebSocket with toast flag
     this.notificationGateway.emitToUser(
       notification.userId,
       'notification:toast',

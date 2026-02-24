@@ -4,7 +4,7 @@ import { ILlmService } from '../../../application/interfaces/llm.interface';
 import { extractJson } from './receipt-parser.utils';
 import { buildItemNameNormalizationPrompt } from './receipt-prompt.builder';
 
-export interface NormalizationResult {
+interface NormalizationResult {
   original: string;
   corrected: string;
 }

@@ -52,14 +52,6 @@ export class StoreItemCategory {
     return this.props.updatedAt;
   }
 
-  isRoot(): boolean {
-    return this.props.parentId === null;
-  }
-
-  isChildOf(parentId: string): boolean {
-    return this.props.parentId === parentId;
-  }
-
   toJSON() {
     return {
       id: this.props.id,

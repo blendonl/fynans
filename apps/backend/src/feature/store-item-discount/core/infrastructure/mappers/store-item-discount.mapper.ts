@@ -15,16 +15,4 @@ export class StoreItemDiscountMapper {
       updatedAt: prismaDiscount.updatedAt,
     });
   }
-
-  static toPersistence(discount: StoreItemDiscount) {
-    return {
-      id: discount.id,
-      storeItemId: discount.storeItemId,
-      discount: discount.discount,
-      startedAt: discount.startedAt,
-      endedAt: discount.endedAt,
-      createdAt: discount.createdAt,
-      updatedAt: discount.updatedAt,
-    };
-  }
 }

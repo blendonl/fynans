@@ -18,7 +18,6 @@ export class CreateFamilyUseCase {
       throw new DomainValidationException('Family name is required');
     }
 
-    // Create family
     const family = await this.familyRepository.create({
       id: uuid(),
       name: dto.name.trim(),
@@ -27,7 +26,6 @@ export class CreateFamilyUseCase {
       updatedAt: new Date(),
     });
 
-    // Add creator as OWNER
     await this.familyRepository.addMember({
       id: uuid(),
       familyId: family.id,

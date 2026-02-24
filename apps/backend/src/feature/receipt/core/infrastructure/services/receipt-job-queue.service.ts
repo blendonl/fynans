@@ -100,7 +100,6 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
     onEvent: (event: ReceiptJobResult) => void,
     signal?: AbortSignal,
   ): Promise<void> {
-    // Check if job already finished before subscribing
     const current = await this.getJobResult(jobId);
     if (current.status === 'completed' || current.status === 'failed') {
       onEvent(current);
@@ -111,7 +110,6 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
       return;
     }
 
-    // Emit current state as initial event
     onEvent(current);
 
     const queueEvents = new QueueEvents('receipt-processing', {
@@ -135,7 +133,6 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
         queueEvents.on('progress', ({ jobId: jId, data }) => {
           if (jId !== jobId) return;
 
-          // Handle structured progress objects (partial results)
           if (data && typeof data === 'object' && 'type' in data && (data as any).type === 'partial-result') {
             const structured = data as { type: string; percent: number; data: unknown };
             onEvent({

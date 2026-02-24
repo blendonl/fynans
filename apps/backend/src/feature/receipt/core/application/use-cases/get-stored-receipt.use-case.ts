@@ -8,7 +8,7 @@ import { IStoredReceiptRepository } from '../../domain/repositories/stored-recei
 import { IStorageProvider } from '~common/storage/storage-provider.interface';
 import { StoredReceipt } from '../../domain/entities/stored-receipt.entity';
 
-export interface GetStoredReceiptResult {
+interface GetStoredReceiptResult {
   receipt: StoredReceipt;
   downloadUrl: string;
 }

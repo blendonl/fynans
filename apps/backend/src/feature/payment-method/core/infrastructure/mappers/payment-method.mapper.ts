@@ -16,18 +16,4 @@ export class PaymentMethodMapper {
       updatedAt: prismaPaymentMethod.updatedAt,
     });
   }
-
-  static toPersistence(paymentMethod: PaymentMethod) {
-    return {
-      id: paymentMethod.id,
-      userId: paymentMethod.userId,
-      name: paymentMethod.name,
-      type: paymentMethod.type,
-      color: paymentMethod.color,
-      initialBalance: paymentMethod.initialBalance,
-      currentBalance: paymentMethod.currentBalance,
-      createdAt: paymentMethod.createdAt,
-      updatedAt: paymentMethod.updatedAt,
-    };
-  }
 }

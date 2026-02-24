@@ -15,7 +15,6 @@ export class UpdateItemUseCase {
   ) {}
 
   async execute(id: string, dto: UpdateItemDto): Promise<Item> {
-    // Check if item exists
     const existingItem = await this.itemRepository.findById(id);
     if (!existingItem) {
       throw new DomainNotFoundException(`Item with ID ${id} not found`);
@@ -45,7 +44,6 @@ export class UpdateItemUseCase {
       }
     }
 
-    // Validate category exists if changing
     if (dto.categoryId) {
       const category = await this.categoryRepository.findById(dto.categoryId);
       if (!category) {

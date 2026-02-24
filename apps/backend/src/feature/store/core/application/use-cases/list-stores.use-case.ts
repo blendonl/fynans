@@ -3,7 +3,7 @@ import { type IStoreRepository } from '../../domain/repositories/store.repositor
 import { Store } from '../../domain/entities/store.entity';
 import { Pagination } from '~common/dto/pagination.dto';
 
-export interface StoreFilters {
+interface StoreFilters {
   search?: string;
 }
 

@@ -47,7 +47,6 @@ export class NotificationPreferenceService {
   ): DeliveryMethod[] {
     const allowed: DeliveryMethod[] = [];
 
-    // Check global settings
     if (preference.enablePushNotifications) {
       allowed.push(DeliveryMethod.PUSH);
     }
@@ -58,7 +57,6 @@ export class NotificationPreferenceService {
       allowed.push(DeliveryMethod.TOAST);
     }
 
-    // Check per-type preferences
     const typePrefs = preference.typePreferences[type];
     if (typePrefs) {
       return allowed.filter((method) => {

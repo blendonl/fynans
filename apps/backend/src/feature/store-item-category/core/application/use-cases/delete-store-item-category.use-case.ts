@@ -28,7 +28,6 @@ export class DeleteStoreItemCategoryUseCase {
   }
 
   private async validate(id: string): Promise<void> {
-    // Check if category has children
     const children = await this.storeItemCategoryRepository.findChildren(id);
     if (children.length > 0) {
       throw new BadRequestException(
@@ -36,7 +35,6 @@ export class DeleteStoreItemCategoryUseCase {
       );
     }
 
-    // Check if category is used by any items
     const itemCount = await this.prisma.item.count({
       where: { categoryId: id },
     });

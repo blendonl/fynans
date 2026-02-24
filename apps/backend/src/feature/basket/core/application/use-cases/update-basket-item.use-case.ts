@@ -41,7 +41,6 @@ export class UpdateBasketItemUseCase {
       throw new DomainNotFoundException('Basket not found');
     }
 
-    // Authorization check
     if (basket.scope === BasketScope.PERSONAL) {
       if (basket.userId !== userId) {
         throw new DomainForbiddenException('Not authorized');

@@ -92,40 +92,6 @@ export class PrismaIncomeRepository implements IIncomeRepository {
     return income ? IncomeMapper.toDomain(income) : null;
   }
 
-  async findByStoreId(
-    storeId: string,
-    pagination?: Pagination,
-  ): Promise<PaginatedResult<Income>> {
-    const [incomes, total] = await Promise.all([
-      this.prisma.income.findMany({
-        where: { storeId },
-        include: {
-          transaction: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                },
-              },
-            },
-          },
-          category: true,
-        },
-        orderBy: { transaction: { recordedAt: 'desc' } },
-        skip: pagination?.skip,
-        take: pagination?.take,
-      }),
-      this.prisma.income.count({ where: { storeId } }),
-    ]);
-
-    return {
-      data: incomes.map(IncomeMapper.toDomain),
-      total,
-    };
-  }
-
   async findAll(
     filters?: IncomeFiltersInterface,
     pagination?: Pagination,

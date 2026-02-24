@@ -32,7 +32,6 @@ export class CheckoutBasketItemsUseCase {
       throw new DomainNotFoundException('Basket not found');
     }
 
-    // Authorization check
     if (basket.scope === BasketScope.PERSONAL) {
       if (basket.userId !== dto.userId) {
         throw new DomainForbiddenException('Not authorized');
@@ -47,13 +46,11 @@ export class CheckoutBasketItemsUseCase {
       }
     }
 
-    // Fetch the items to checkout
     const items = await this.basketRepository.findItemsByIds(dto.itemIds);
     if (items.length === 0) {
       throw new DomainValidationException('No items found');
     }
 
-    // Validate all items belong to this basket
     const invalidItems = items.filter((item) => item.basketId !== dto.basketId);
     if (invalidItems.length > 0) {
       throw new DomainValidationException('Some items do not belong to this basket');
@@ -73,7 +70,6 @@ export class CheckoutBasketItemsUseCase {
           categoryId: override.categoryId,
         });
       }
-      // Persist the overrides to the basket items
       await Promise.all(
         dto.itemOverrides.map((o) =>
           this.basketRepository.updateItem(o.id, {
@@ -84,7 +80,6 @@ export class CheckoutBasketItemsUseCase {
       );
     }
 
-    // Validate all items have prices
     const itemsWithoutPrice = items.filter(
       (item) => item.price === null || item.price === undefined,
     );
@@ -94,7 +89,6 @@ export class CheckoutBasketItemsUseCase {
       );
     }
 
-    // Calculate total value
     const totalValue = items.reduce((sum, item) => {
       return sum + (item.price! * item.quantity);
     }, 0);
@@ -122,10 +116,8 @@ export class CheckoutBasketItemsUseCase {
       }),
     );
 
-    // Remove checked items from basket
     await this.basketRepository.removeItemsByIds(dto.itemIds);
 
-    // Send notification to family members about the purchase
     if (basket.scope === BasketScope.FAMILY && basket.familyId) {
       await this.notifyFamilyMembersService.notify({
         familyId: basket.familyId,

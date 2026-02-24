@@ -51,7 +51,6 @@ export class NotificationGateway
     }
     this.userSockets.get(userId)!.add(client.id);
 
-    // Join user-specific room
     client.join(`user:${userId}`);
 
     console.log(`Client connected: ${client.id} (User: ${userId})`);
@@ -86,19 +85,8 @@ export class NotificationGateway
     client.leave(`family:${data.familyId}`);
   }
 
-  // Emit notification to specific user
   emitToUser(userId: string, event: string, data: any) {
     this.server.to(`user:${userId}`).emit(event, data);
-  }
-
-  // Emit notification to family members
-  emitToFamily(familyId: string, event: string, data: any) {
-    this.server.to(`family:${familyId}`).emit(event, data);
-  }
-
-  // Broadcast notification
-  broadcastNotification(notification: any) {
-    this.emitToUser(notification.userId, 'notification:new', notification);
   }
 
   private extractToken(client: Socket): string | undefined {

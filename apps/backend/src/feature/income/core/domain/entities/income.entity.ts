@@ -1,7 +1,7 @@
 import { Transaction } from '~feature/transaction/core';
 import { IncomeCategory } from '~feature/income-category/core';
 
-export interface IncomeProps {
+interface IncomeProps {
   id: string;
   transactionId: string;
   storeId: string;

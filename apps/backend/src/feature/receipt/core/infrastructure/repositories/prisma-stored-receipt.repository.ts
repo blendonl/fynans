@@ -101,7 +101,6 @@ export class PrismaStoredReceiptRepository implements IStoredReceiptRepository {
 
     if (!receipt) return false;
 
-    // Direct ownership
     if (receipt.userId === userId) return true;
 
     // Family membership check for family-scoped receipts

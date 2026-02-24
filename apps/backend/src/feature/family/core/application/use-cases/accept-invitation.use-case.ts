@@ -32,18 +32,15 @@ export class AcceptInvitationUseCase {
   ) {}
 
   async execute(invitationId: string, userId: string): Promise<FamilyMember> {
-    // Find invitation
     const invitation = await this.invitationRepository.findById(invitationId);
     if (!invitation) {
       throw new NotFoundException('Invitation not found');
     }
 
-    // Validate invitation
     if (!invitation.canBeAccepted()) {
       throw new BadRequestException('Invitation expired or already processed');
     }
 
-    // Add user to family
     const member = await this.familyRepository.addMember({
       id: uuid(),
       familyId: invitation.familyId,
@@ -55,7 +52,6 @@ export class AcceptInvitationUseCase {
       updatedAt: new Date(),
     });
 
-    // Update invitation status
     await this.invitationRepository.update(invitation.id, {
       status: FamilyInvitationStatus.ACCEPTED,
       inviteeId: userId,
@@ -68,11 +64,9 @@ export class AcceptInvitationUseCase {
       updatedAt: new Date(),
     });
 
-    // Get family and user details for notifications
     const family = await this.familyRepository.findById(invitation.familyId);
     const invitee = await this.userService.findById(userId);
 
-    // Notify inviter that invitation was accepted
     await this.createNotificationUseCase.execute({
       userId: invitation.inviterId,
       type: NotificationType.FAMILY_INVITATION_ACCEPTED,
@@ -88,7 +82,6 @@ export class AcceptInvitationUseCase {
       invitationId: invitation.id,
     });
 
-    // Notify all family members that someone joined
     const allMembers = await this.familyRepository.findMembers(
       invitation.familyId,
     );

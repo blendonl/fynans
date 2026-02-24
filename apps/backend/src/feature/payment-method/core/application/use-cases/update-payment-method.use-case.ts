@@ -59,7 +59,6 @@ export class UpdatePaymentMethodUseCase {
 
     const updated = await this.paymentMethodRepository.update(id, updateData);
 
-    // If initial balance changed, recalculate current balance
     if (dto.initialBalance !== undefined) {
       return this.paymentMethodRepository.recalculateBalance(id);
     }

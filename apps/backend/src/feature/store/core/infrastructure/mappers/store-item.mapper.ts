@@ -23,16 +23,4 @@ export class StoreItemMapper {
         : undefined,
     });
   }
-
-  static toPersistence(storeItem: StoreItem) {
-    return {
-      id: storeItem.id,
-      storeId: storeItem.storeId,
-      itemId: storeItem.itemId,
-      price: storeItem.price,
-      isDiscounted: storeItem.isDiscounted,
-      createdAt: storeItem.createdAt,
-      updatedAt: storeItem.updatedAt,
-    };
-  }
 }

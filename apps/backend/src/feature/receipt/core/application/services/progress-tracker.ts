@@ -1,4 +1,4 @@
-export type ProgressReporter = (percent: number) => void | Promise<void>;
+type ProgressReporter = (percent: number) => void | Promise<void>;
 
 interface Stage {
   name: string;

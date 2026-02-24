@@ -1,7 +1,6 @@
 import {
   Injectable,
   Inject,
-  NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
 import { IFamilyInvitationRepository } from '../../domain/repositories/family-invitation.repository.interface';

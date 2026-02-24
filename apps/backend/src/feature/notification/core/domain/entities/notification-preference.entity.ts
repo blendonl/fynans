@@ -38,7 +38,6 @@ export class NotificationPreference {
     }
   }
 
-  // Getters
   get id(): string {
     return this.props.id;
   }

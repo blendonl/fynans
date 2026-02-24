@@ -48,11 +48,9 @@ export class DeclineInvitationUseCase {
       updatedAt: new Date(),
     });
 
-    // Get family and decliner details for notification
     const family = await this.familyRepository.findById(invitation.familyId);
     const decliner = await this.userService.findById(userId);
 
-    // Notify inviter that invitation was declined
     await this.createNotificationUseCase.execute({
       userId: invitation.inviterId,
       type: NotificationType.FAMILY_INVITATION_DECLINED,

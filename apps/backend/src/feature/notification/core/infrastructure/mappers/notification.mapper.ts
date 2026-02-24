@@ -31,27 +31,4 @@ export class NotificationMapper {
       updatedAt: prismaNotification.updatedAt,
     });
   }
-
-  static toPersistence(notification: Notification) {
-    return {
-      id: notification.id,
-      userId: notification.userId,
-      type: notification.type,
-      priority: notification.priority,
-      title: notification.title,
-      message: notification.message,
-      data: notification.data,
-      deliveryMethods: notification.deliveryMethods,
-      isRead: notification.isRead,
-      readAt: notification.readAt,
-      isInteracted: notification.isInteracted,
-      interactedAt: notification.interactedAt,
-      actionUrl: notification.actionUrl,
-      familyId: notification.familyId,
-      transactionId: notification.transactionId,
-      invitationId: notification.invitationId,
-      createdAt: notification.createdAt,
-      updatedAt: notification.updatedAt,
-    };
-  }
 }

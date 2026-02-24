@@ -21,20 +21,4 @@ export class NotificationPreferenceMapper {
       updatedAt: prismaPreference.updatedAt,
     });
   }
-
-  static toPersistence(preference: NotificationPreference) {
-    return {
-      id: preference.id,
-      userId: preference.userId,
-      enablePushNotifications: preference.enablePushNotifications,
-      enableInAppNotifications: preference.enableInAppNotifications,
-      enableToastNotifications: preference.enableToastNotifications,
-      quietHoursEnabled: preference.quietHoursEnabled,
-      quietHoursStart: preference.quietHoursStart,
-      quietHoursEnd: preference.quietHoursEnd,
-      typePreferences: preference.typePreferences,
-      createdAt: preference.createdAt,
-      updatedAt: preference.updatedAt,
-    };
-  }
 }

@@ -93,12 +93,10 @@ export function extractJson(
 export function repairTruncatedJson(json: string): Record<string, unknown> {
   let repaired = json;
 
-  // Remove trailing partial values (e.g., truncated strings or numbers)
   repaired = repaired.replace(/,\s*"[^"]*$/, '');
   repaired = repaired.replace(/,\s*\{[^}]*$/, '');
   repaired = repaired.replace(/,\s*$/, '');
 
-  // Count and close unclosed brackets
   const opens = { '{': 0, '[': 0 };
   let inString = false;
   let escape = false;

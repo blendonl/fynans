@@ -21,7 +21,6 @@ export class UpdateNotificationPreferencesUseCase {
   ) {}
 
   async execute(dto: UpdateNotificationPreferencesDto): Promise<NotificationPreference> {
-    // Ensure preferences exist first
     await this.preferenceRepository.getOrCreateDefaults(dto.userId);
 
     return await this.preferenceRepository.update(dto.userId, dto);

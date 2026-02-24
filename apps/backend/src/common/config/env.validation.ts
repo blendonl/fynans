@@ -64,7 +64,7 @@ const envSchema = z.object({
   COPILOT_ENABLED: z.string().optional(),
 });
 
-export type EnvConfig = z.infer<typeof envSchema>;
+type EnvConfig = z.infer<typeof envSchema>;
 
 export function validateEnv(): EnvConfig {
   const result = envSchema.safeParse(process.env);

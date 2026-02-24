@@ -76,10 +76,8 @@ export class InviteMemberUseCase {
       updatedAt: new Date(),
     });
 
-    // Get family and inviter details for notification
     const family = await this.familyRepository.findById(dto.familyId);
 
-    // Emit notification to inviter (invitation sent)
     await this.createNotificationUseCase.execute({
       userId: inviterId,
       type: NotificationType.FAMILY_INVITATION_SENT,

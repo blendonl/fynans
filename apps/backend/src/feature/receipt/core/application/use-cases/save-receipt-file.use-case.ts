@@ -4,7 +4,7 @@ import { IStoredReceiptRepository } from '../../domain/repositories/stored-recei
 import { IStorageProvider } from '~common/storage/storage-provider.interface';
 import { StoredReceipt } from '../../domain/entities/stored-receipt.entity';
 
-export interface SaveReceiptFileInput {
+interface SaveReceiptFileInput {
   buffer: Buffer;
   originalName: string;
   mimeType: string;
