@@ -5,6 +5,7 @@ import { StoreItemCategoryCoreModule } from '~feature/store-item-category/core/s
 import { IncomeCategoryCoreModule } from '~feature/income-category/core/income-category-core.module';
 import { AiCategoryService } from './application/services/ai-category.service';
 import { CopilotCompletionService } from './infrastructure/services/copilot-completion.service';
+import { CopilotTokenService } from '~common/services/copilot-token.service';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CopilotCompletionService } from './infrastructure/services/copilot-comp
     IncomeCategoryCoreModule,
   ],
   providers: [
+    CopilotTokenService,
     {
       provide: 'OllamaService',
       useClass: CopilotCompletionService,
