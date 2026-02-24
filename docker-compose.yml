@@ -69,72 +69,6 @@ services:
       MINIO_BUCKET: ${MINIO_BUCKET:-fynans}
     restart: "no"
 
-  ollama:
-    image: ollama/ollama:latest
-    profiles: [ollama]
-    volumes:
-      - ollama-models:/root/.ollama
-    ports:
-      - "${OLLAMA_PORT:-11434}:11434"
-    environment:
-      - OLLAMA_HOST=0.0.0.0:11434
-      - OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE:-30m}
-    healthcheck:
-      test: ["CMD", "ollama", "list"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
-    restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-
-  ollama-init:
-    image: ollama/ollama:latest
-    profiles: [ollama]
-    depends_on:
-      ollama:
-        condition: service_healthy
-    entrypoint:
-      [
-        "/bin/sh",
-        "-c",
-        "ollama pull ${OLLAMA_VISION_MODEL:-qwen2.5vl:3b} && ollama pull ${OLLAMA_MODEL:-qwen2.5:3b}",
-      ]
-    environment:
-      - OLLAMA_HOST=ollama:11434
-    restart: "no"
-
-  donut:
-    build:
-      context: ./apps/backend/docker/donut-service
-      dockerfile: Dockerfile
-    profiles: [donut]
-    volumes:
-      - donut-models:/root/.cache/huggingface
-    ports:
-      - "${DONUT_PORT:-8001}:8001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 180s
-    shm_size: 2G
-    restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-
   backend:
     build:
       context: .
@@ -162,13 +96,6 @@ services:
       PADDLEOCR_SERVICE_URL: ${PADDLEOCR_SERVICE_URL:-http://paddleocr:8000}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      OLLAMA_SERVICE_URL: ${OLLAMA_SERVICE_URL:-http://ollama:11434}
-      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
-      OLLAMA_VISION_MODEL: ${OLLAMA_VISION_MODEL:-qwen2.5vl:3b}
-      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-30m}
-      VISION_PARSER: ${VISION_PARSER:-}
-      DONUT_SERVICE_URL: ${DONUT_SERVICE_URL:-http://donut:8001}
-      DONUT_TIMEOUT: ${DONUT_TIMEOUT:-120000}
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
@@ -223,6 +150,4 @@ volumes:
   paddleocr-models:
   paddlex-models:
   redis-data:
-  ollama-models:
-  donut-models:
   minio-data:
