@@ -122,7 +122,9 @@ export class ReceiptPostProcessor {
     // Use pre-extracted size from LLM if available, otherwise extract from name
     let size: ItemSize | undefined = item.size;
     if (size) {
-      // LLM already extracted size — still clean it from the name if present
+      // Normalize unit (e.g., "gr" → "g") and clean size from name
+      const rawUnit = size.unit.toLowerCase();
+      size = { ...size, unit: UNIT_MAP[rawUnit] || rawUnit };
       name = name.replace(SIZE_REGEX, '').trim();
     } else {
       const extracted = this.extractSize(name);
@@ -225,7 +227,7 @@ export class ReceiptPostProcessor {
 
   private cleanStoreName(name?: string): string {
     if (!name) return '';
-    return name.trim().replace(/\s+/g, ' ');
+    return name.trim().replace(/["""'']/g, '').replace(/\s+/g, ' ').trim();
   }
 
   static validateDate(date?: string | null): string | undefined {

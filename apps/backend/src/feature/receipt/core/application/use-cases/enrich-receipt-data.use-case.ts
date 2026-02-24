@@ -83,6 +83,7 @@ export class EnrichReceiptDataUseCase {
 
           if (dbItem) {
             itemId = dbItem.id;
+            resolvedName = dbItem.name;
             categoryId = dbItem.categoryId;
 
             // Find or create ItemSize if size info exists
