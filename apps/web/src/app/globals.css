@@ -403,6 +403,26 @@ body {
   animation: auth-orb-drift 30s ease-in-out infinite;
 }
 
+/* --- FAB (center add button) --- */
+
+@keyframes fab-pulse {
+  0%, 100% { box-shadow: 0 4px 14px var(--primary-muted); }
+  50% { box-shadow: 0 4px 24px var(--primary-muted), 0 0 40px var(--primary-muted); }
+}
+
+@keyframes fab-entrance {
+  from { opacity: 0; transform: scale(0.6) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.fab-glow {
+  animation: fab-pulse 3s ease-in-out infinite;
+}
+
+.fab-enter {
+  animation: fab-entrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 /* --- Add Transaction page --- */
 
 @keyframes amount-scale-in {
