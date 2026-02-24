@@ -9,11 +9,12 @@ COPY apps/web/package.json ./apps/web/
 RUN corepack enable && yarn workspaces focus @fynans/web
 
 COPY apps/web ./apps/web
+COPY apps/backend/openapi.json ./apps/backend/openapi.json
 
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
-RUN yarn workspace @fynans/web build
+RUN yarn workspace @fynans/web api:generate && yarn workspace @fynans/web build
 
 FROM node:20-alpine AS production
 
