@@ -1,8 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import {
-  type IExpenseRepository,
-  ExpenseStatistics as ExpenseStatsInterface,
-} from '../../domain/repositories/expense.repository.interface';
+import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
 import { ExpenseFilters } from '../dto/expense-filters.dto';
 import { ExpenseStatistics } from '../dto/expense-statistics.dto';
 

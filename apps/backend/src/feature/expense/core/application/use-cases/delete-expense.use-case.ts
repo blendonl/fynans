@@ -25,7 +25,6 @@ export class DeleteExpenseUseCase {
       throw new DomainForbiddenException('Access denied');
     }
 
-    // Read paymentMethodId before deletion
     const transaction = await this.prisma.transaction.findUnique({
       where: { id: expense.transactionId },
       select: { paymentMethodId: true },
@@ -34,17 +33,14 @@ export class DeleteExpenseUseCase {
 
     // Use Prisma transaction to delete atomically
     await this.prisma.$transaction(async (tx) => {
-      // 1. Delete all ExpenseItems
       await tx.expenseItem.deleteMany({
         where: { expenseId: id },
       });
 
-      // 2. Delete Expense
       await tx.expense.delete({
         where: { id },
       });
 
-      // 3. Delete Transaction
       await tx.transaction.delete({
         where: { id: expense.transactionId },
       });
