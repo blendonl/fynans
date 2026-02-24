@@ -1,11 +1,11 @@
 import { LlmReceiptParser } from './llm-receipt.parser';
-import { IOllamaService } from '../../../application/interfaces/ollama.interface';
+import { ILlmService } from '../../../application/interfaces/llm.interface';
 import { ReceiptParsingContext } from '../../../application/services/receipt-parser.service';
 import { ReceiptPostProcessor } from '../receipt-post-processor';
 
 describe('LlmReceiptParser', () => {
   let parser: LlmReceiptParser;
-  let ollamaService: jest.Mocked<IOllamaService>;
+  let llmService: jest.Mocked<ILlmService>;
   let postProcessor: ReceiptPostProcessor;
 
   const defaultContext: ReceiptParsingContext = {
@@ -27,13 +27,13 @@ describe('LlmReceiptParser', () => {
   });
 
   beforeEach(() => {
-    ollamaService = {
+    llmService = {
       healthCheck: jest.fn().mockResolvedValue(true),
       generateCompletion: jest.fn(),
     };
     postProcessor = new ReceiptPostProcessor();
 
-    parser = new LlmReceiptParser(ollamaService, postProcessor);
+    parser = new LlmReceiptParser(llmService, postProcessor);
   });
 
   it('should be defined', () => {
@@ -42,20 +42,20 @@ describe('LlmReceiptParser', () => {
   });
 
   describe('parse', () => {
-    it('should throw when Ollama service is unhealthy', async () => {
-      ollamaService.healthCheck.mockResolvedValue(false);
+    it('should throw when LLM service is unhealthy', async () => {
+      llmService.healthCheck.mockResolvedValue(false);
 
       const text = 'This is a long enough receipt text for parsing';
 
       await expect(parser.parse(text, defaultContext)).rejects.toThrow(
-        'Ollama service is not available',
+        'LLM service is not available',
       );
-      expect(ollamaService.healthCheck).toHaveBeenCalledTimes(1);
-      expect(ollamaService.generateCompletion).not.toHaveBeenCalled();
+      expect(llmService.healthCheck).toHaveBeenCalledTimes(1);
+      expect(llmService.generateCompletion).not.toHaveBeenCalled();
     });
 
     it('should successfully parse a well-formed JSON response', async () => {
-      ollamaService.generateCompletion.mockResolvedValue({
+      llmService.generateCompletion.mockResolvedValue({
         response: validJsonResponse,
       });
 
@@ -75,25 +75,25 @@ describe('LlmReceiptParser', () => {
       expect(result.date).toBe('15/02/2026');
       expect(result.time).toBe('14:30');
       expect(result.parserUsed).toBe('llm');
-      expect(ollamaService.generateCompletion).toHaveBeenCalledTimes(1);
+      expect(llmService.generateCompletion).toHaveBeenCalledTimes(1);
     });
 
-    it('should request JSON format from Ollama', async () => {
-      ollamaService.generateCompletion.mockResolvedValue({
+    it('should request JSON format from LLM service', async () => {
+      llmService.generateCompletion.mockResolvedValue({
         response: validJsonResponse,
       });
 
       const text = 'This is a long enough receipt text for parsing';
       await parser.parse(text, defaultContext);
 
-      expect(ollamaService.generateCompletion).toHaveBeenCalledWith(
+      expect(llmService.generateCompletion).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({ format: 'json' }),
       );
     });
 
     it('should filter out items with negative price', async () => {
-      ollamaService.generateCompletion.mockResolvedValue({
+      llmService.generateCompletion.mockResolvedValue({
         response: JSON.stringify({
           storeName: 'Test Store',
           items: [
@@ -111,19 +111,19 @@ describe('LlmReceiptParser', () => {
     });
 
     it('should retry when first attempt returns no items', async () => {
-      ollamaService.generateCompletion
+      llmService.generateCompletion
         .mockResolvedValueOnce({ response: '{}' })
         .mockResolvedValueOnce({ response: validJsonResponse });
 
       const text = 'This is a long enough receipt text for parsing';
       const result = await parser.parse(text, defaultContext);
 
-      expect(ollamaService.generateCompletion).toHaveBeenCalledTimes(2);
+      expect(llmService.generateCompletion).toHaveBeenCalledTimes(2);
       expect(result.items).toHaveLength(2);
     });
 
     it('should parse date and time into recordedAt', async () => {
-      ollamaService.generateCompletion.mockResolvedValue({
+      llmService.generateCompletion.mockResolvedValue({
         response: validJsonResponse,
       });
 
@@ -139,7 +139,7 @@ describe('LlmReceiptParser', () => {
     });
 
     it('should return undefined recordedAt when date is not present', async () => {
-      ollamaService.generateCompletion.mockResolvedValue({
+      llmService.generateCompletion.mockResolvedValue({
         response: JSON.stringify({
           storeName: 'Test Store',
           items: [
@@ -155,7 +155,7 @@ describe('LlmReceiptParser', () => {
     });
 
     it('should default item quantity to 1 when not specified', async () => {
-      ollamaService.generateCompletion.mockResolvedValue({
+      llmService.generateCompletion.mockResolvedValue({
         response: JSON.stringify({
           storeName: 'Test Store',
           total: 5.00,
@@ -172,7 +172,7 @@ describe('LlmReceiptParser', () => {
     });
 
     it('should parse expense category suggestion', async () => {
-      ollamaService.generateCompletion.mockResolvedValue({
+      llmService.generateCompletion.mockResolvedValue({
         response: validJsonResponse,
       });
 
@@ -183,7 +183,7 @@ describe('LlmReceiptParser', () => {
     });
 
     it('should extract item sizes from JSON response', async () => {
-      ollamaService.generateCompletion.mockResolvedValue({
+      llmService.generateCompletion.mockResolvedValue({
         response: JSON.stringify({
           storeName: 'Test Store',
           items: [
@@ -202,7 +202,7 @@ describe('LlmReceiptParser', () => {
     });
 
     it('should handle malformed JSON gracefully', async () => {
-      ollamaService.generateCompletion.mockResolvedValue({
+      llmService.generateCompletion.mockResolvedValue({
         response: 'This is not JSON at all',
       });
 
@@ -214,7 +214,7 @@ describe('LlmReceiptParser', () => {
     });
 
     it('should handle JSON with _reasoning field (silently discarded)', async () => {
-      ollamaService.generateCompletion.mockResolvedValue({
+      llmService.generateCompletion.mockResolvedValue({
         response: JSON.stringify({
           _reasoning: 'Some chain-of-thought reasoning here',
           storeName: 'Test Store',

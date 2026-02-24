@@ -17,7 +17,7 @@ import { CopilotTokenService } from '~common/services/copilot-token.service';
   providers: [
     CopilotTokenService,
     {
-      provide: 'OllamaService',
+      provide: 'LlmService',
       useClass: CopilotCompletionService,
     },
     AiCategoryService,

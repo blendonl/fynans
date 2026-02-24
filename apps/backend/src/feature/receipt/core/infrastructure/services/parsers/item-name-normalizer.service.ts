@@ -1,6 +1,6 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IOllamaService } from '../../../application/interfaces/ollama.interface';
+import { ILlmService } from '../../../application/interfaces/llm.interface';
 import { extractJson } from './receipt-parser.utils';
 import { buildItemNameNormalizationPrompt } from './receipt-prompt.builder';
 
@@ -15,8 +15,8 @@ export class ItemNameNormalizerService {
   private readonly enabled: boolean;
 
   constructor(
-    @Inject('OllamaService')
-    private readonly ollamaService: IOllamaService,
+    @Inject('LlmService')
+    private readonly llmService: ILlmService,
     configService: ConfigService,
   ) {
     this.enabled =
@@ -38,7 +38,7 @@ export class ItemNameNormalizerService {
         items.map((i) => ({ name: i.name, category: i.suggestedItemCategory })),
       );
 
-      const completion = await this.ollamaService.generateCompletion(prompt, {
+      const completion = await this.llmService.generateCompletion(prompt, {
         format: 'json',
       });
 

@@ -1,11 +1,10 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Inject, Logger, Optional } from '@nestjs/common';
+import { Logger, Optional } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { ProcessReceiptUseCase } from '../../application/use-cases/process-receipt.use-case';
 import { EnrichReceiptDataUseCase } from '../../application/use-cases/enrich-receipt-data.use-case';
 import { EnrichedReceiptDataDto } from '../../application/dto/enriched-receipt-data.dto';
 import { ProgressTracker } from '../../application/services/progress-tracker';
-import { ConfigService } from '@nestjs/config';
 import { ExpenseService } from '~feature/expense/core/application/services/expense.service';
 import { CreateExpenseDto } from '~feature/expense/core/application/dto/create-expense.dto';
 import { CreateExpenseItemDto } from '~feature/expense-item/core/application/dto/create-expense-item.dto';
@@ -23,18 +22,12 @@ interface ReceiptJobData {
 @Processor('receipt-processing')
 export class ReceiptProcessingWorker extends WorkerHost {
   private readonly logger = new Logger(ReceiptProcessingWorker.name);
-  private readonly useVision: boolean;
-
   constructor(
     private readonly processReceiptUseCase: ProcessReceiptUseCase,
     private readonly enrichReceiptDataUseCase: EnrichReceiptDataUseCase,
-    private readonly configService: ConfigService,
     @Optional() private readonly expenseService?: ExpenseService,
   ) {
     super();
-    this.useVision =
-      this.configService.get<string>('VISION_PARSER') === 'donut' ||
-      !!this.configService.get<string>('OLLAMA_VISION_MODEL');
   }
 
   async process(job: Job<ReceiptJobData>): Promise<EnrichedReceiptDataDto> {
@@ -43,16 +36,11 @@ export class ReceiptProcessingWorker extends WorkerHost {
     const imageBuffer = Buffer.from(job.data.imageBase64, 'base64');
     const userId = job.data.userId;
 
-    const stages = this.useVision
-      ? [
-          { name: 'vision-parse', weight: 90 },
-          { name: 'enrich', weight: 10 },
-        ]
-      : [
-          { name: 'ocr', weight: 10 },
-          { name: 'llm-parse', weight: 85 },
-          { name: 'enrich', weight: 5 },
-        ];
+    const stages = [
+      { name: 'ocr', weight: 10 },
+      { name: 'llm-parse', weight: 85 },
+      { name: 'enrich', weight: 5 },
+    ];
 
     const tracker = new ProgressTracker(stages, (percent) =>
       job.updateProgress(percent),
@@ -62,7 +50,7 @@ export class ReceiptProcessingWorker extends WorkerHost {
       imageBuffer,
       userId,
       tracker,
-      { skipOcr: this.useVision },
+      { skipOcr: false },
     );
 
     // Phase 1: Resolve store and items (fast)
