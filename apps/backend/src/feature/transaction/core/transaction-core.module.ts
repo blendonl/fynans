@@ -31,6 +31,6 @@ import { PrismaTransactionRepository } from './infrastructure/repositories/prism
     GetTransactionStatisticsUseCase,
     TransactionService,
   ],
-  exports: [TransactionService],
+  exports: [TransactionService, 'TransactionRepository'],
 })
 export class TransactionCoreModule {}

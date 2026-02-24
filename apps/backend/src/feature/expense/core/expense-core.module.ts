@@ -6,6 +6,7 @@ import { ExpenseCategoryCoreModule } from '../../expense-category/core/expense-c
 import { ExpenseItemCoreModule } from '../../expense-item/core/expense-item-core.module';
 import { FamilyCoreModule } from '../../family/core/family-core.module';
 import { NotifyFamilyMembersModule } from '~common/services/notify-family-members.module';
+import { NotificationModule } from '../../notification/notification.module';
 import { PaymentMethodCoreModule } from '../../payment-method/core/payment-method-core.module';
 import { PrismaExpenseRepository } from './infrastructure/repositories/prisma-expense.repository';
 import { CreateExpenseUseCase } from './application/use-cases/create-expense.use-case';
@@ -16,6 +17,10 @@ import { DeleteExpenseUseCase } from './application/use-cases/delete-expense.use
 import { GetExpenseStatisticsUseCase } from './application/use-cases/get-expense-statistics.use-case';
 import { GetExpenseTrendsUseCase } from './application/use-cases/get-expense-trends.use-case';
 import { AddItemToExpenseUseCase } from './application/use-cases/add-item-to-expense.use-case';
+import { ApprovePendingExpenseUseCase } from './application/use-cases/approve-pending-expense.use-case';
+import { RejectPendingExpenseUseCase } from './application/use-cases/reject-pending-expense.use-case';
+import { ResubmitRejectedExpenseUseCase } from './application/use-cases/resubmit-rejected-expense.use-case';
+import { UpdatePendingExpenseUseCase } from './application/use-cases/update-pending-expense.use-case';
 import { ExpenseService } from './application/services/expense.service';
 
 @Module({
@@ -27,6 +32,7 @@ import { ExpenseService } from './application/services/expense.service';
     ExpenseItemCoreModule,
     FamilyCoreModule,
     NotifyFamilyMembersModule,
+    forwardRef(() => NotificationModule),
     PaymentMethodCoreModule,
   ],
   providers: [
@@ -42,6 +48,10 @@ import { ExpenseService } from './application/services/expense.service';
     GetExpenseStatisticsUseCase,
     GetExpenseTrendsUseCase,
     AddItemToExpenseUseCase,
+    ApprovePendingExpenseUseCase,
+    RejectPendingExpenseUseCase,
+    ResubmitRejectedExpenseUseCase,
+    UpdatePendingExpenseUseCase,
     ExpenseService,
   ],
   exports: [ExpenseService],

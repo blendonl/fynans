@@ -11,6 +11,7 @@ import { CreateStoreDto } from '../../../../store/core/application/dto/create-st
 import { CreateExpenseItemDto } from '../../../../expense-item/core/application/dto/create-expense-item.dto';
 import { Expense } from '../../domain/entities/expense.entity';
 import { TransactionType } from '../../../../transaction/core/domain/value-objects/transaction-type.vo';
+import { TransactionStatus } from '../../../../transaction/core/domain/value-objects/transaction-status.vo';
 import { NotificationType } from '../../../../notification/core/domain/value-objects/notification-type.vo';
 import { PaymentMethodService } from '../../../../payment-method/core/application/services/payment-method.service';
 import {
@@ -69,6 +70,9 @@ export class CreateExpenseUseCase {
       return sum + (itemPrice * (item.quantity ?? 1) - discount);
     }, 0);
 
+    const status = dto.status ?? TransactionStatus.CONFIRMED;
+    const isPending = status === TransactionStatus.PENDING;
+
     const transaction = await this.transactionService.create(
       new CreateTransactionDto(
         dto.userId,
@@ -77,6 +81,7 @@ export class CreateExpenseUseCase {
         dto.recordedAt,
         dto.familyId,
         dto.paymentMethodId,
+        status,
       ),
     );
 
@@ -108,18 +113,32 @@ export class CreateExpenseUseCase {
     }
 
     if (dto.familyId) {
-      await this.notifyFamilyMembersService.notify({
-        familyId: dto.familyId,
-        actorUserId: dto.userId,
-        type: NotificationType.FAMILY_EXPENSE_CREATED,
-        data: {
-          expenseId: expense.id,
-          amount: totalValue.toFixed(2),
-        },
-      });
+      if (isPending) {
+        // Notify family that a pending expense was created (for review)
+        await this.notifyFamilyMembersService.notify({
+          familyId: dto.familyId,
+          actorUserId: dto.userId,
+          type: NotificationType.TRANSACTION_PENDING_CREATED,
+          data: {
+            expenseId: expense.id,
+            amount: totalValue.toFixed(2),
+          },
+        });
+      } else {
+        await this.notifyFamilyMembersService.notify({
+          familyId: dto.familyId,
+          actorUserId: dto.userId,
+          type: NotificationType.FAMILY_EXPENSE_CREATED,
+          data: {
+            expenseId: expense.id,
+            amount: totalValue.toFixed(2),
+          },
+        });
+      }
     }
 
-    if (dto.paymentMethodId) {
+    // Only recalculate balance for confirmed transactions
+    if (dto.paymentMethodId && !isPending) {
       await this.paymentMethodService.recalculateBalance(dto.paymentMethodId);
     }
 

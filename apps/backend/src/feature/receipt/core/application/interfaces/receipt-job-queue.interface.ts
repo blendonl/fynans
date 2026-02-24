@@ -13,8 +13,14 @@ export interface ReceiptJobResult<T = unknown> {
   isPartial?: boolean;
 }
 
+export interface ReceiptJobOptions {
+  autoCreatePending?: boolean;
+  familyId?: string;
+  paymentMethodId?: string;
+}
+
 export interface IReceiptJobQueue {
-  addJob(imageBuffer: Buffer, userId?: string): Promise<string>;
+  addJob(imageBuffer: Buffer, userId?: string, options?: ReceiptJobOptions): Promise<string>;
   getJobStatus(jobId: string): Promise<ReceiptJobStatus>;
   getJobResult(jobId: string): Promise<ReceiptJobResult>;
   streamJobProgress(

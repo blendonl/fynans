@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { getToken } from "@/lib/auth";
-import { receiptControllerProcessReceipt } from "@/api/generated/endpoints/receipt/receipt";
+import { customInstance } from "@/api/custom-instance";
 
 export interface ProcessedReceiptResponse {
   store: { id?: string; name: string; location: string } | null;
@@ -20,6 +20,13 @@ export interface ProcessedReceiptResponse {
   confidence: number;
   isLowConfidence: boolean;
   suggestedExpenseCategory?: { id: string; name: string };
+  pendingExpenseId?: string;
+}
+
+export interface ReceiptScanOptions {
+  autoCreatePending?: boolean;
+  familyId?: string;
+  paymentMethodId?: string;
 }
 
 interface JobStreamEvent {
@@ -108,7 +115,7 @@ async function streamResult(
   throw new Error("Stream ended without result");
 }
 
-export function useReceiptScan() {
+export function useReceiptScan(scanOptions?: ReceiptScanOptions) {
   const [progress, setProgress] = useState(0);
   const [step, setStep] = useState("");
 
@@ -121,7 +128,17 @@ export function useReceiptScan() {
     mutationFn: async (file: File) => {
       setProgress(0);
       setStep("Uploading...");
-      const res = await receiptControllerProcessReceipt({ file } as unknown as Parameters<typeof receiptControllerProcessReceipt>[0]);
+
+      const formData = new FormData();
+      formData.append("file", file);
+      if (scanOptions?.autoCreatePending) formData.append("autoCreatePending", "true");
+      if (scanOptions?.familyId) formData.append("familyId", scanOptions.familyId);
+      if (scanOptions?.paymentMethodId) formData.append("paymentMethodId", scanOptions.paymentMethodId);
+
+      const res = await customInstance<{ data: { jobId: string }; status: number; headers: Headers }>(
+        "/receipts/process",
+        { method: "POST", body: formData },
+      );
       const { jobId } = res.data;
 
       const controller = new AbortController();

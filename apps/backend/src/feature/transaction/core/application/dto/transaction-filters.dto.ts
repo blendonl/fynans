@@ -1,9 +1,11 @@
 import { TransactionType } from '../../domain/value-objects/transaction-type.vo';
+import { TransactionStatus } from '../../domain/value-objects/transaction-status.vo';
 import { TransactionScope } from '../../domain/entities/transaction.entity';
 
 export class TransactionFilters {
   userId?: string;
   type?: TransactionType;
+  status?: TransactionStatus;
   familyId?: string;
   scope?: TransactionScope;
   dateFrom?: Date;
@@ -14,6 +16,7 @@ export class TransactionFilters {
   constructor(data?: Partial<TransactionFilters>) {
     this.userId = data?.userId;
     this.type = data?.type;
+    this.status = data?.status;
     this.familyId = data?.familyId;
     this.scope = data?.scope;
     this.dateFrom = data?.dateFrom;

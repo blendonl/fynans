@@ -1,5 +1,6 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { TransactionType } from '../value-objects/transaction-type.vo';
+import { TransactionStatus } from '../value-objects/transaction-status.vo';
 
 export enum TransactionScope {
   PERSONAL = 'PERSONAL',
@@ -19,8 +20,10 @@ export interface TransactionProps {
   familyId?: string;
   scope: TransactionScope;
   type: TransactionType;
+  status: TransactionStatus;
   value: Decimal;
   paymentMethodId?: string;
+  rejectionReason?: string;
   recordedAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -93,8 +96,39 @@ export class Transaction {
     return this.props.paymentMethodId;
   }
 
+  get status(): TransactionStatus {
+    return this.props.status;
+  }
+
+  get rejectionReason(): string | undefined {
+    return this.props.rejectionReason;
+  }
+
   get user(): TransactionUser {
     return this.props.user;
+  }
+
+  isPending(): boolean {
+    return this.props.status === TransactionStatus.PENDING;
+  }
+
+  isConfirmed(): boolean {
+    return this.props.status === TransactionStatus.CONFIRMED;
+  }
+
+  isRejected(): boolean {
+    return this.props.status === TransactionStatus.REJECTED;
+  }
+
+  canBeModified(): boolean {
+    return this.props.status === TransactionStatus.PENDING;
+  }
+
+  canBeDeleted(): boolean {
+    return (
+      this.props.status === TransactionStatus.PENDING ||
+      this.props.status === TransactionStatus.REJECTED
+    );
   }
 
   isExpense(): boolean {
@@ -120,8 +154,10 @@ export class Transaction {
       familyId: this.familyId,
       scope: this.scope,
       type: this.type,
+      status: this.status,
       value: this.value.toNumber(),
       paymentMethodId: this.paymentMethodId,
+      rejectionReason: this.rejectionReason,
       recordedAt: this.recordedAt,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,

@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -20,6 +21,9 @@ import {
 import { ExpenseService } from '../../core/application/services/expense.service';
 import { CreateExpenseRequestDto } from '../dto/create-expense-request.dto';
 import { UpdateExpenseRequestDto } from '../dto/update-expense-request.dto';
+import { RejectExpenseRequestDto } from '../dto/reject-expense-request.dto';
+import { ResubmitExpenseRequestDto } from '../dto/resubmit-expense-request.dto';
+import { UpdatePendingExpenseRequestDto } from '../dto/update-pending-expense-request.dto';
 import { QueryExpenseDto } from '../dto/query-expense.dto';
 import { ExpenseResponseDto } from '../dto/expense-response.dto';
 import { ExpenseFilters } from '../../core/application/dto/expense-filters.dto';
@@ -115,7 +119,10 @@ export class ExpenseController {
   @ApiOperation({ summary: 'List all expenses with pagination and filters' })
   @ApiResponse({ status: 200, type: PaginatedExpenseResponseDto })
   async findAll(@Query() query: QueryExpenseDto, @CurrentUser() user: User) {
-    const filters = new ExpenseFilters(BaseFilters.fromQuery(query, user.id));
+    const filters = new ExpenseFilters({
+      ...BaseFilters.fromQuery(query, user.id),
+      status: query.status,
+    });
     const pagination = new Pagination(query.page, query.limit);
 
     const result = await this.expenseService.findAll(
@@ -190,6 +197,65 @@ export class ExpenseController {
     @CurrentUser() user: User,
   ) {
     const expense = await this.expenseService.update(id, user.id, updateDto.toCoreDto());
+    return ExpenseResponseDto.fromEntity(expense);
+  }
+
+  @Post(':id/approve')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Approve a pending expense' })
+  @ApiResponse({ status: 200, type: ExpenseResponseDto })
+  async approve(@Param('id') id: string, @CurrentUser() user: User) {
+    const expense = await this.expenseService.approvePending(id, user.id);
+    return ExpenseResponseDto.fromEntity(expense);
+  }
+
+  @Post(':id/reject')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reject a pending expense' })
+  @ApiResponse({ status: 200, type: ExpenseResponseDto })
+  async reject(
+    @Param('id') id: string,
+    @Body() dto: RejectExpenseRequestDto,
+    @CurrentUser() user: User,
+  ) {
+    const expense = await this.expenseService.rejectPending(
+      id,
+      user.id,
+      dto.rejectionReason,
+    );
+    return ExpenseResponseDto.fromEntity(expense);
+  }
+
+  @Post(':id/resubmit')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Re-submit a rejected expense for review' })
+  @ApiResponse({ status: 200, type: ExpenseResponseDto })
+  async resubmit(
+    @Param('id') id: string,
+    @Body() dto: ResubmitExpenseRequestDto,
+    @CurrentUser() user: User,
+  ) {
+    const expense = await this.expenseService.resubmitRejected(
+      id,
+      user.id,
+      dto.toCoreDto(),
+    );
+    return ExpenseResponseDto.fromEntity(expense);
+  }
+
+  @Patch(':id/pending')
+  @ApiOperation({ summary: 'Update a pending expense' })
+  @ApiResponse({ status: 200, type: ExpenseResponseDto })
+  async updatePending(
+    @Param('id') id: string,
+    @Body() dto: UpdatePendingExpenseRequestDto,
+    @CurrentUser() user: User,
+  ) {
+    const expense = await this.expenseService.updatePending(
+      id,
+      user.id,
+      dto.toCoreDto(),
+    );
     return ExpenseResponseDto.fromEntity(expense);
   }
 

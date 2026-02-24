@@ -5,6 +5,7 @@ import {
   Sse,
   Param,
   Req,
+  Body,
   UseInterceptors,
   UploadedFile,
   BadRequestException,
@@ -101,12 +102,18 @@ export class ReceiptController {
   async processReceipt(
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser() user: User,
+    @Req() req: Request,
   ) {
     if (!file) {
       throw new BadRequestException('No image file provided');
     }
 
-    const jobId = await this.receiptJobQueue.addJob(file.buffer, user.id);
+    const body = req.body || {};
+    const jobId = await this.receiptJobQueue.addJob(file.buffer, user.id, {
+      autoCreatePending: body.autoCreatePending === 'true' || body.autoCreatePending === true,
+      familyId: body.familyId || undefined,
+      paymentMethodId: body.paymentMethodId || undefined,
+    });
 
     return { jobId, status: 'processing' };
   }

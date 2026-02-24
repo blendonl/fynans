@@ -9,7 +9,10 @@ import {
 import { PaymentMethod } from '../../domain/entities/payment-method.entity';
 import { PaymentMethodMapper } from '../mappers/payment-method.mapper';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
-import { TransactionType as PrismaTransactionType } from 'prisma/generated/prisma/client';
+import {
+  TransactionType as PrismaTransactionType,
+  TransactionStatus as PrismaTransactionStatus,
+} from 'prisma/generated/prisma/client';
 
 @Injectable()
 export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
@@ -111,7 +114,7 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
 
       const groupResult = await tx.transaction.groupBy({
         by: ['type'],
-        where: { paymentMethodId: id },
+        where: { paymentMethodId: id, status: PrismaTransactionStatus.CONFIRMED },
         _sum: { value: true },
       });
 

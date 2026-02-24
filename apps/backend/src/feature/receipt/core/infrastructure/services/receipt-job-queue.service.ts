@@ -6,6 +6,7 @@ import {
   IReceiptJobQueue,
   ReceiptJobStatus,
   ReceiptJobResult,
+  ReceiptJobOptions,
 } from '../../application/interfaces/receipt-job-queue.interface';
 
 @Injectable()
@@ -24,12 +25,15 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
     };
   }
 
-  async addJob(imageBuffer: Buffer, userId?: string): Promise<string> {
+  async addJob(imageBuffer: Buffer, userId?: string, options?: ReceiptJobOptions): Promise<string> {
     const job = await this.queue.add(
       'process-receipt',
       {
         imageBase64: imageBuffer.toString('base64'),
         userId,
+        autoCreatePending: options?.autoCreatePending,
+        familyId: options?.familyId,
+        paymentMethodId: options?.paymentMethodId,
       },
       {
         attempts: 3,

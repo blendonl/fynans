@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
 import { useNotifications } from "@/hooks/use-notifications";
+import { usePendingTransactionCount } from "@/hooks/use-pending-transactions";
 import { usePendingInvitations } from "@/hooks/use-families";
 import { cn } from "@/lib/utils";
 import { FynansLogo } from "@/components/icons/fynans-logo";
@@ -38,6 +39,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const { unreadCount } = useNotifications();
+  const { data: pendingTxCount } = usePendingTransactionCount();
   const { pendingInvitations } = usePendingInvitations();
   const pendingInvitationCount = pendingInvitations.length;
 
@@ -74,6 +76,11 @@ export function AppSidebar() {
                 {item.href === "/notifications" && unreadCount > 0 && (
                   <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-error px-1.5 text-[11px] font-semibold text-white">
                     {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+                {item.href === "/transactions" && (pendingTxCount ?? 0) > 0 && (
+                  <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-warning px-1.5 text-[11px] font-semibold text-white">
+                    {pendingTxCount! > 99 ? "99+" : pendingTxCount}
                   </span>
                 )}
               </Link>

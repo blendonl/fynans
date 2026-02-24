@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { TesseractOcrService } from './infrastructure/services/tesseract-ocr.service';
@@ -19,6 +19,7 @@ import { AutoCreateCategoriesUseCase } from './application/use-cases/auto-create
 import { ReceiptPostProcessor } from './infrastructure/services/receipt-post-processor';
 import { OpencodeReceiptParser } from './infrastructure/services/parsers/opencode-receipt.parser';
 import { ItemNameNormalizerService } from './infrastructure/services/parsers/item-name-normalizer.service';
+import { ExpenseCoreModule } from '~feature/expense/core/expense-core.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ItemNameNormalizerService } from './infrastructure/services/parsers/ite
     ItemCoreModule,
     StoreItemCategoryCoreModule,
     ExpenseCategoryCoreModule,
+    forwardRef(() => ExpenseCoreModule),
     BullModule.registerQueue({ name: 'receipt-processing' }),
   ],
   providers: [

@@ -14,6 +14,7 @@ interface UseReceiptFormMappingOptions {
   setHasScannedReceipt: (val: boolean) => void;
   setItems: (items: ExpenseItem[]) => void;
   queryClient: QueryClient;
+  onPendingCreated?: (pendingExpenseId: string) => void;
 }
 
 export function useReceiptFormMapping({
@@ -25,6 +26,7 @@ export function useReceiptFormMapping({
   setHasScannedReceipt,
   setItems,
   queryClient,
+  onPendingCreated,
 }: UseReceiptFormMappingOptions) {
   const handleReceiptResult = useCallback(
     (data: ProcessedReceiptResponse) => {
@@ -83,8 +85,20 @@ export function useReceiptFormMapping({
       toast.success(
         `Found ${data.items.length} item${data.items.length !== 1 ? "s" : ""}${storeName ? ` from ${storeName}` : ""}`,
       );
+
+      if (data.pendingExpenseId) {
+        onPendingCreated?.(data.pendingExpenseId);
+        toast.info("Receipt saved to pending for review", {
+          action: {
+            label: "Review",
+            onClick: () => {
+              window.location.href = `/transactions?tab=pending`;
+            },
+          },
+        });
+      }
     },
-    [selectedCategory, setSelectedCategory, setSelectedStore, setRecordedAt, setIsItemized, setHasScannedReceipt, setItems, queryClient],
+    [selectedCategory, setSelectedCategory, setSelectedStore, setRecordedAt, setIsItemized, setHasScannedReceipt, setItems, queryClient, onPendingCreated],
   );
 
   return { handleReceiptResult };
