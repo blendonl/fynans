@@ -47,7 +47,7 @@ export function ReceiptGallery({ images }: ReceiptGalleryProps) {
           className={
             images.length === 1
               ? "flex justify-center"
-              : "grid grid-cols-2 md:grid-cols-3 gap-4"
+              : "grid grid-cols-2 gap-4"
           }
         >
           {images.map((url, i) => (

@@ -1,12 +1,28 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil, MoreHorizontal, Trash2 } from "lucide-react";
 import { expenseControllerFindOne, expenseControllerRemove } from "@/api/generated/endpoints/expense/expense";
 import { incomeControllerFindOne, incomeControllerRemove } from "@/api/generated/endpoints/income/income";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { TransactionDetail } from "@/components/transactions/transaction-detail";
 import type { Transaction } from "@/types";
 
@@ -16,6 +32,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const type = searchParams.get("type") || "expense";
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const { data: transaction, isLoading } = useQuery({
     queryKey: ["transaction", id, type],
@@ -38,6 +55,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
           recordedAt: tx?.recordedAt as string | undefined,
           description: tx?.description as string | undefined,
           user: tx?.user as { id: string; firstName: string; lastName: string; image?: string | null },
+          paymentMethodId: tx?.paymentMethodId as string | undefined,
         },
         items: data.items as Transaction["items"],
         receiptImages: (data.receiptImages as string[]) || [],
@@ -79,15 +97,59 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
 
   return (
     <div className="space-y-6 dash-animate-in">
-      <Button variant="ghost" onClick={() => router.back()} className="text-text-secondary">
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Transactions
-      </Button>
-      <TransactionDetail
-        transaction={transaction}
-        onDelete={() => deleteMutation.mutate()}
-        isDeleting={deleteMutation.isPending}
-      />
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" onClick={() => router.back()} className="text-text-secondary">
+          <ArrowLeft className="h-4 w-4" />
+          <span className="hidden sm:inline ml-2">Back to Transactions</span>
+        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/transactions/${id}/edit?type=${type}`)}
+          >
+            <Pencil className="h-4 w-4" />
+            <span className="hidden sm:inline ml-2">Edit</span>
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                className="text-expense"
+                onClick={() => setShowDeleteDialog(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Transaction
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete transaction?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this transaction.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteMutation.mutate()}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <TransactionDetail transaction={transaction} />
     </div>
   );
 }
