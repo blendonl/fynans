@@ -325,6 +325,15 @@
             }
           },
           {
+            "name": "paymentMethodId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
             "name": "dateFrom",
             "required": false,
             "in": "query",
@@ -461,6 +470,15 @@
             }
           },
           {
+            "name": "paymentMethodId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
             "name": "dateFrom",
             "required": false,
             "in": "query",
@@ -532,6 +550,151 @@
           }
         ],
         "summary": "Get transaction statistics",
+        "tags": [
+          "Transaction"
+        ]
+      }
+    },
+    "/transactions/statistics/comparison": {
+      "get": {
+        "operationId": "TransactionController_getStatisticsComparison",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EXPENSE",
+                "INCOME"
+              ]
+            }
+          },
+          {
+            "name": "familyId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PERSONAL",
+                "FAMILY"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CONFIRMED",
+                "PENDING",
+                "REJECTED"
+              ]
+            }
+          },
+          {
+            "name": "paymentMethodId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "valueMin",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "valueMax",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionStatisticsComparisonResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get transaction statistics with period comparison",
         "tags": [
           "Transaction"
         ]
@@ -1810,6 +1973,15 @@
             }
           },
           {
+            "name": "paymentMethodId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
             "name": "page",
             "required": false,
             "in": "query",
@@ -1943,6 +2115,15 @@
             "in": "query",
             "schema": {
               "type": "number"
+            }
+          },
+          {
+            "name": "paymentMethodId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
             }
           },
           {
@@ -2922,6 +3103,19 @@
         "operationId": "IncomeController_findAll",
         "parameters": [
           {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CONFIRMED",
+                "PENDING",
+                "REJECTED"
+              ]
+            }
+          },
+          {
             "name": "search",
             "required": false,
             "in": "query",
@@ -2998,6 +3192,15 @@
             "in": "query",
             "schema": {
               "type": "number"
+            }
+          },
+          {
+            "name": "paymentMethodId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
             }
           },
           {
@@ -4739,6 +4942,33 @@
         ]
       }
     },
+    "/payment-methods/balance": {
+      "get": {
+        "operationId": "PaymentMethodController_getBalance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BalanceResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get unified balance with payment method breakdown and family balances",
+        "tags": [
+          "PaymentMethod"
+        ]
+      }
+    },
     "/payment-methods/balance-summary": {
       "get": {
         "operationId": "PaymentMethodController_getBalanceSummary",
@@ -5224,6 +5454,82 @@
           "totalExpense",
           "balance",
           "count"
+        ]
+      },
+      "PeriodStatisticsResponseDto": {
+        "type": "object",
+        "properties": {
+          "totalIncome": {
+            "type": "number"
+          },
+          "totalExpense": {
+            "type": "number"
+          },
+          "balance": {
+            "type": "number"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "totalIncome",
+          "totalExpense",
+          "balance",
+          "count"
+        ]
+      },
+      "DeltaComparisonResponseDto": {
+        "type": "object",
+        "properties": {
+          "delta": {
+            "type": "number"
+          },
+          "percentage": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "delta",
+          "percentage"
+        ]
+      },
+      "StatisticsComparisonResponseDto": {
+        "type": "object",
+        "properties": {
+          "income": {
+            "$ref": "#/components/schemas/DeltaComparisonResponseDto"
+          },
+          "expense": {
+            "$ref": "#/components/schemas/DeltaComparisonResponseDto"
+          },
+          "net": {
+            "$ref": "#/components/schemas/DeltaComparisonResponseDto"
+          }
+        },
+        "required": [
+          "income",
+          "expense",
+          "net"
+        ]
+      },
+      "TransactionStatisticsComparisonResponseDto": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "$ref": "#/components/schemas/PeriodStatisticsResponseDto"
+          },
+          "previous": {
+            "$ref": "#/components/schemas/PeriodStatisticsResponseDto"
+          },
+          "comparison": {
+            "$ref": "#/components/schemas/StatisticsComparisonResponseDto"
+          }
+        },
+        "required": [
+          "current",
+          "previous",
+          "comparison"
         ]
       },
       "UpdateTransactionRequestDto": {
@@ -6078,9 +6384,6 @@
               "$ref": "#/components/schemas/ExpenseItemResponseDto"
             }
           },
-          "name": {
-            "type": "string"
-          },
           "status": {
             "type": "string"
           },
@@ -6112,7 +6415,6 @@
           "category",
           "store",
           "items",
-          "name",
           "status",
           "receiptImages",
           "createdAt",
@@ -6245,6 +6547,21 @@
           "storeId": {
             "type": "string",
             "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "note": {
+            "type": "string"
+          },
+          "recordedAt": {
+            "type": "string"
+          },
+          "paymentMethodId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
           }
         }
       },
@@ -6295,9 +6612,6 @@
           "amount": {
             "type": "number",
             "minimum": 0
-          },
-          "note": {
-            "type": "string"
           },
           "recordedAt": {
             "type": "string"
@@ -6644,6 +6958,18 @@
         "properties": {
           "categoryId": {
             "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "recordedAt": {
+            "type": "string"
+          },
+          "paymentMethodId": {
+            "type": "string",
+            "nullable": true,
             "format": "uuid"
           }
         }
@@ -7740,6 +8066,85 @@
           "currentBalance",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "PaymentMethodBalanceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "currentBalance": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "color",
+          "currentBalance"
+        ]
+      },
+      "FamilyBalanceDto": {
+        "type": "object",
+        "properties": {
+          "familyId": {
+            "type": "string"
+          },
+          "familyName": {
+            "type": "string"
+          },
+          "totalBalance": {
+            "type": "number"
+          },
+          "userContribution": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "familyId",
+          "familyName",
+          "totalBalance",
+          "userContribution"
+        ]
+      },
+      "BalanceResponseDto": {
+        "type": "object",
+        "properties": {
+          "totalBalance": {
+            "type": "number"
+          },
+          "personalBalance": {
+            "type": "number"
+          },
+          "paymentMethods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentMethodBalanceDto"
+            }
+          },
+          "families": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FamilyBalanceDto"
+            }
+          }
+        },
+        "required": [
+          "totalBalance",
+          "personalBalance",
+          "paymentMethods",
+          "families"
         ]
       },
       "UpdatePaymentMethodRequestDto": {
