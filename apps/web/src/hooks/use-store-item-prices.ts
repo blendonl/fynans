@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { storeItemControllerFindAll } from "@/api/generated/endpoints/store-item/store-item";
+import { nestedStoreItemControllerFindAll } from "@/api/generated/endpoints/store-item/store-item";
 
 export function useStoreItemPrices(storeId: string | null) {
   const query = useQuery({
     queryKey: ["store-item-prices", storeId],
     queryFn: async () => {
-      const response = await storeItemControllerFindAll(storeId!, {});
+      const response = await nestedStoreItemControllerFindAll(storeId!, {});
       return response.data.data;
     },
     enabled: !!storeId,

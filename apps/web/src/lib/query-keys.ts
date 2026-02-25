@@ -53,11 +53,16 @@ export const queryKeys = {
     all: ["items"] as const,
     list: (search: string) => ["items", search] as const,
     withPrices: (search: string) => ["items-with-prices", search] as const,
+    byCategory: (categoryId: string) =>
+      ["items", "category", categoryId] as const,
   },
 
   storeItems: {
+    all: ["store-items"] as const,
     list: (storeId: string | undefined, search: string) =>
       ["store-items", storeId, search] as const,
+    forStore: (storeId: string) => ["store-items", "store", storeId] as const,
+    forItem: (itemId: string) => ["store-items", "item", itemId] as const,
   },
 
   families: {

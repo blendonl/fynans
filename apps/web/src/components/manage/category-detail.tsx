@@ -7,6 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -17,12 +24,29 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { LinkedItemsList } from "./linked-items-list";
+
+const NO_PARENT = "__none__";
 
 interface CategoryDetailProps {
-  category: { id: string; name: string; parentId?: string | null; isConnectedToStore?: boolean };
+  category: {
+    id: string;
+    name: string;
+    parentId?: string | null;
+    isConnectedToStore?: boolean;
+  };
   entityType: "expense" | "item" | "income";
-  onUpdate: (data: { name?: string }) => void;
+  allCategories?: Array<{ id: string; name: string }>;
+  categoryItems?: Array<{ id: string; name: string }>;
+  isLoadingItems?: boolean;
+  onUpdate: (data: {
+    name?: string;
+    parentId?: string | null;
+    isConnectedToStore?: boolean;
+  }) => void;
   isUpdating: boolean;
+  onReassignItem?: (itemId: string, newCategoryId: string) => void;
+  isReassigning?: boolean;
   onDelete: () => void;
   isDeleting: boolean;
 }
@@ -30,13 +54,32 @@ interface CategoryDetailProps {
 export function CategoryDetail({
   category,
   entityType,
+  allCategories,
+  categoryItems,
+  isLoadingItems,
   onUpdate,
   isUpdating,
+  onReassignItem,
+  isReassigning,
   onDelete,
   isDeleting,
 }: CategoryDetailProps) {
   const [name, setName] = useState(category.name);
-  const isDirty = name !== category.name;
+  const [parentId, setParentId] = useState<string>(
+    category.parentId ?? NO_PARENT
+  );
+  const [isConnectedToStore, setIsConnectedToStore] = useState(
+    category.isConnectedToStore ?? false
+  );
+
+  const effectiveParentId = parentId === NO_PARENT ? null : parentId;
+  const originalParentId = category.parentId ?? null;
+
+  const isDirty =
+    name !== category.name ||
+    effectiveParentId !== originalParentId ||
+    (entityType === "expense" &&
+      isConnectedToStore !== (category.isConnectedToStore ?? false));
 
   const typeLabel =
     entityType === "expense"
@@ -44,6 +87,27 @@ export function CategoryDetail({
       : entityType === "item"
         ? "Item Category"
         : "Income Category";
+
+  const parentOptions = (allCategories ?? []).filter(
+    (c) => c.id !== category.id
+  );
+
+  const handleSave = () => {
+    const data: {
+      name?: string;
+      parentId?: string | null;
+      isConnectedToStore?: boolean;
+    } = {};
+    if (name !== category.name) data.name = name;
+    if (effectiveParentId !== originalParentId)
+      data.parentId = effectiveParentId;
+    if (
+      entityType === "expense" &&
+      isConnectedToStore !== (category.isConnectedToStore ?? false)
+    )
+      data.isConnectedToStore = isConnectedToStore;
+    onUpdate(data);
+  };
 
   return (
     <div className="space-y-6">
@@ -64,13 +128,40 @@ export function CategoryDetail({
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
-            {category.parentId && (
-              <p className="text-xs text-text-secondary">
-                Parent ID: {category.parentId}
-              </p>
+            {allCategories && parentOptions.length > 0 && (
+              <div className="space-y-2">
+                <Label htmlFor="category-parent">Parent Category</Label>
+                <Select value={parentId} onValueChange={setParentId}>
+                  <SelectTrigger id="category-parent">
+                    <SelectValue placeholder="No parent" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_PARENT}>None</SelectItem>
+                    {parentOptions.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {entityType === "expense" && (
+              <div className="flex items-center gap-3">
+                <Label htmlFor="connected-to-store">
+                  Requires store selection
+                </Label>
+                <input
+                  id="connected-to-store"
+                  type="checkbox"
+                  checked={isConnectedToStore}
+                  onChange={(e) => setIsConnectedToStore(e.target.checked)}
+                  className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                />
+              </div>
             )}
             <Button
-              onClick={() => onUpdate({ name })}
+              onClick={handleSave}
               loading={isUpdating}
               disabled={!isDirty || !name.trim()}
             >
@@ -80,21 +171,40 @@ export function CategoryDetail({
         </div>
       </GlassCard>
 
+      {entityType !== "income" &&
+        categoryItems !== undefined &&
+        onReassignItem && (
+          <LinkedItemsList
+            items={categoryItems}
+            isLoading={isLoadingItems ?? false}
+            currentCategoryId={category.id}
+            allCategories={allCategories ?? []}
+            onReassign={onReassignItem}
+            isReassigning={isReassigning ?? false}
+          />
+        )}
+
       <GlassCard>
         <div className="p-6">
           <h3 className="text-sm font-semibold text-error mb-2">Danger Zone</h3>
           <p className="text-sm text-text-secondary mb-4">
-            Deleting this category cannot be undone. It will fail if it still has subcategories or is referenced by other records.
+            Deleting this category cannot be undone. It will fail if it still has
+            subcategories or is referenced by other records.
           </p>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm">Delete {typeLabel}</Button>
+              <Button variant="destructive" size="sm">
+                Delete {typeLabel}
+              </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete &quot;{category.name}&quot;?</AlertDialogTitle>
+                <AlertDialogTitle>
+                  Delete &quot;{category.name}&quot;?
+                </AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete this {typeLabel.toLowerCase()}.
+                  This action cannot be undone. This will permanently delete this{" "}
+                  {typeLabel.toLowerCase()}.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
