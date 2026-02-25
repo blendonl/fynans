@@ -2,11 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { CreateOrFindStoreItemUseCase } from '../use-cases/create-or-find-store-item.use-case';
 import { GetStoreItemByIdUseCase } from '../use-cases/get-store-item-by-id.use-case';
 import { ListStoreItemsUseCase, StoreItemFilters } from '../use-cases/list-store-items.use-case';
+import { UpdateStoreItemUseCase } from '../use-cases/update-store-item.use-case';
+import { DeleteStoreItemUseCase } from '../use-cases/delete-store-item.use-case';
 import {
   SearchItemsWithPricesUseCase,
   type ItemWithPricesResult,
 } from '../use-cases/search-items-with-prices.use-case';
 import { CreateStoreItemDto } from '../dto/create-store-item.dto';
+import { UpdateStoreItemDto } from '../dto/update-store-item.dto';
 import { StoreItem } from '../../domain/entities/store-item.entity';
 import { Pagination } from '~common/dto/pagination.dto';
 
@@ -16,6 +19,8 @@ export class StoreItemService {
     private readonly createOrFindStoreItemUseCase: CreateOrFindStoreItemUseCase,
     private readonly getStoreItemByIdUseCase: GetStoreItemByIdUseCase,
     private readonly listStoreItemsUseCase: ListStoreItemsUseCase,
+    private readonly updateStoreItemUseCase: UpdateStoreItemUseCase,
+    private readonly deleteStoreItemUseCase: DeleteStoreItemUseCase,
     private readonly searchItemsWithPricesUseCase: SearchItemsWithPricesUseCase,
   ) {}
 
@@ -33,6 +38,14 @@ export class StoreItemService {
     pagination: Pagination,
   ): Promise<{ data: StoreItem[]; total: number }> {
     return this.listStoreItemsUseCase.execute(userId, filters, pagination);
+  }
+
+  async update(id: string, dto: UpdateStoreItemDto): Promise<StoreItem> {
+    return this.updateStoreItemUseCase.execute(id, dto);
+  }
+
+  async delete(id: string): Promise<void> {
+    return this.deleteStoreItemUseCase.execute(id);
   }
 
   async searchWithPrices(
