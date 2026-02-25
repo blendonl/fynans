@@ -6,6 +6,7 @@ import { GlassCard } from "@/components/glass/glass-card";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useDashboardFilter } from "@/providers/dashboard-filter-provider";
+import { usePaymentMethods } from "@/hooks/use-payment-methods";
 import { DATE_PRESET_LABELS, formatDateForAPI, type DatePresetKey } from "@/lib/date-utils";
 
 const PRESETS: { key: Exclude<DatePresetKey, "custom">; label: string }[] = [
@@ -14,8 +15,18 @@ const PRESETS: { key: Exclude<DatePresetKey, "custom">; label: string }[] = [
   { key: "6m", label: DATE_PRESET_LABELS["6m"] },
 ];
 
+const SCOPE_OPTIONS = [
+  { value: undefined, label: "All" },
+  { value: "personal", label: "Personal" },
+  { value: "family", label: "Family" },
+] as const;
+
 export function DashboardDateFilter() {
-  const { activePreset, applyPreset, setCustomRange, dateRange } = useDashboardFilter();
+  const {
+    activePreset, applyPreset, setCustomRange, dateRange,
+    paymentMethodId, scope, setPaymentMethodId, setScope,
+  } = useDashboardFilter();
+  const { paymentMethods } = usePaymentMethods();
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
   const [open, setOpen] = useState(false);
@@ -97,6 +108,54 @@ export function DashboardDateFilter() {
           </PopoverContent>
         </Popover>
       </div>
+
+      {(paymentMethods.length > 0) && (
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none mt-2 pt-2 border-t border-border-light">
+          {SCOPE_OPTIONS.map((opt) => (
+            <button
+              key={opt.label}
+              onClick={() => setScope(opt.value)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
+                scope === opt.value
+                  ? "bg-primary text-white"
+                  : "bg-surface-variant/60 text-text-secondary hover:text-text hover:bg-surface-variant"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+
+          <div className="w-px h-5 bg-border-light flex-shrink-0" />
+
+          <button
+            onClick={() => setPaymentMethodId(undefined)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
+              !paymentMethodId
+                ? "bg-primary text-white"
+                : "bg-surface-variant/60 text-text-secondary hover:text-text hover:bg-surface-variant"
+            }`}
+          >
+            All methods
+          </button>
+          {paymentMethods.map((pm) => (
+            <button
+              key={pm.id}
+              onClick={() => setPaymentMethodId(paymentMethodId === pm.id ? undefined : pm.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
+                paymentMethodId === pm.id
+                  ? "bg-primary text-white"
+                  : "bg-surface-variant/60 text-text-secondary hover:text-text hover:bg-surface-variant"
+              }`}
+            >
+              <span
+                className="h-2 w-2 rounded-full flex-shrink-0"
+                style={{ backgroundColor: pm.color }}
+              />
+              {pm.name}
+            </button>
+          ))}
+        </div>
+      )}
     </GlassCard>
   );
 }

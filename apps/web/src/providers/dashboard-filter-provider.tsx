@@ -7,15 +7,17 @@ import {
   type DatePresetKey,
   type DateRange,
   getPresetRange,
-  calculatePreviousPeriod,
 } from "@/lib/date-utils";
 
 interface DashboardFilterState {
   dateRange: DateRange;
-  previousRange: DateRange;
   activePreset: DatePresetKey;
+  paymentMethodId: string | undefined;
+  scope: string | undefined;
   applyPreset: (preset: DatePresetKey) => void;
   setCustomRange: (dateFrom: Date, dateTo: Date) => void;
+  setPaymentMethodId: (id: string | undefined) => void;
+  setScope: (scope: string | undefined) => void;
 }
 
 const DashboardFilterContext = createContext<DashboardFilterState | null>(null);
@@ -25,11 +27,8 @@ export function DashboardFilterProvider({ children }: { children: ReactNode }) {
   const [dateRange, setDateRange] = useState<DateRange>(
     () => getPresetRange("30d")!,
   );
-
-  const previousRange = useMemo(
-    () => calculatePreviousPeriod(dateRange.dateFrom, dateRange.dateTo),
-    [dateRange],
-  );
+  const [paymentMethodId, setPaymentMethodId] = useState<string | undefined>(undefined);
+  const [scope, setScope] = useState<string | undefined>(undefined);
 
   const applyPreset = useCallback((preset: DatePresetKey) => {
     if (preset === "custom") {
@@ -49,8 +48,13 @@ export function DashboardFilterProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ dateRange, previousRange, activePreset, applyPreset, setCustomRange }),
-    [dateRange, previousRange, activePreset, applyPreset, setCustomRange],
+    () => ({
+      dateRange, activePreset,
+      paymentMethodId, scope,
+      applyPreset, setCustomRange,
+      setPaymentMethodId, setScope,
+    }),
+    [dateRange, activePreset, paymentMethodId, scope, applyPreset, setCustomRange],
   );
 
   return (

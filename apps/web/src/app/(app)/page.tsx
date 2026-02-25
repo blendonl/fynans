@@ -1,6 +1,7 @@
 "use client";
 
 import { useDashboardData } from "@/hooks/use-dashboard-data";
+import { useBalance } from "@/hooks/use-balance";
 import { DashboardFilterProvider, useDashboardFilter } from "@/providers/dashboard-filter-provider";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { DashboardDateFilter } from "@/components/dashboard/dashboard-date-filter";
@@ -14,7 +15,8 @@ import { QuickActions } from "@/components/dashboard/quick-actions";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 
 function DashboardContent() {
-  const { dateRange, previousRange } = useDashboardFilter();
+  const { dateRange, paymentMethodId, scope } = useDashboardFilter();
+  const { data: balanceData } = useBalance();
   const {
     stats,
     comparison,
@@ -26,8 +28,8 @@ function DashboardContent() {
   } = useDashboardData({
     dateFrom: dateRange.dateFrom,
     dateTo: dateRange.dateTo,
-    previousDateFrom: previousRange.dateFrom,
-    previousDateTo: previousRange.dateTo,
+    paymentMethodId,
+    scope,
   });
 
   if (isLoading) return <DashboardSkeleton />;
@@ -41,7 +43,7 @@ function DashboardContent() {
       </div>
 
       <div className="dash-animate-in dash-delay-1">
-        <BalanceHero {...stats} comparison={comparison} />
+        <BalanceHero {...stats} comparison={comparison} balanceData={balanceData} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 dash-animate-in dash-delay-2">
