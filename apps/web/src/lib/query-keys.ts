@@ -15,8 +15,8 @@ export const queryKeys = {
   },
 
   dashboard: {
-    txStats: (dateFrom: string, dateTo: string) =>
-      ["dashboard-transaction-stats", dateFrom, dateTo] as const,
+    comparison: (dateFrom: string, dateTo: string) =>
+      ["dashboard-comparison", dateFrom, dateTo] as const,
     expenseStats: (dateFrom: string, dateTo: string) =>
       ["dashboard-expense-stats", dateFrom, dateTo] as const,
     trends: (dateFrom: string, dateTo: string, granularity: string) =>
@@ -74,5 +74,9 @@ export const queryKeys = {
 
   paymentMethods: {
     all: ["payment-methods"] as const,
+  },
+
+  balance: {
+    all: ["balance"] as const,
   },
 };

@@ -26,6 +26,7 @@ export function mapExpenseToTransaction(expense: ExpenseResponse, family?: Famil
       value: tx?.value || 0,
       recordedAt: tx?.recordedAt,
       description: tx?.description,
+      paymentMethodId: tx?.paymentMethodId,
       user: tx?.user || { id: "", firstName: "", lastName: "" },
     },
     items: expense.items?.map((item) => ({
@@ -62,6 +63,7 @@ export function mapIncomeToTransaction(income: IncomeResponse, family?: Family):
       value: tx?.value || 0,
       recordedAt: tx?.recordedAt || income.createdAt,
       description: tx?.description,
+      paymentMethodId: tx?.paymentMethodId,
       user: tx?.user || { id: "", firstName: "", lastName: "" },
     },
     receiptImages: [],
