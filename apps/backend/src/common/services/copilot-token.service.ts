@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 export class CopilotTokenService {
   private readonly logger = new Logger(CopilotTokenService.name);
   private accessToken: string;
-  private readonly refreshToken: string;
+  private refreshToken: string;
   private expiresAt: number; // unix ms
 
   private static readonly COPILOT_CLIENT_ID = 'Iv1.b507a08c87ecfe98';
@@ -86,6 +86,9 @@ export class CopilotTokenService {
     }
 
     this.accessToken = data.access_token;
+    if (data.refresh_token) {
+      this.refreshToken = data.refresh_token;
+    }
     this.expiresAt = data.expires_in
       ? Date.now() + data.expires_in * 1000
       : Date.now() + 30 * 60 * 1000;
