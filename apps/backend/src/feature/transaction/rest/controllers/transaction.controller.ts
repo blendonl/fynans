@@ -22,6 +22,7 @@ import { CreateTransactionRequestDto } from '../dto/create-transaction-request.d
 import { UpdateTransactionRequestDto } from '../dto/update-transaction-request.dto';
 import { QueryTransactionDto } from '../dto/query-transaction.dto';
 import { TransactionResponseDto } from '../dto/transaction-response.dto';
+import { TransactionStatisticsComparisonResponseDto } from '../dto/transaction-statistics-comparison-response.dto';
 import { TransactionFilters } from '../../core/application/dto/transaction-filters.dto';
 import { Pagination } from '~common/dto/pagination.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
@@ -98,6 +99,7 @@ export class TransactionController {
       dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
       valueMin: query.valueMin,
       valueMax: query.valueMax,
+      paymentMethodId: query.paymentMethodId,
     });
 
     const pagination = new Pagination(query.page, query.limit);
@@ -119,7 +121,7 @@ export class TransactionController {
     @CurrentUser() user: User,
   ) {
     const filters = new TransactionFilters({
-      userId: user.id,
+      userId: query.familyId ? undefined : user.id,
       type: query.type,
       familyId: query.familyId,
       scope: query.scope,
@@ -127,9 +129,32 @@ export class TransactionController {
       dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
       valueMin: query.valueMin,
       valueMax: query.valueMax,
+      paymentMethodId: query.paymentMethodId,
     });
 
     return this.transactionService.getStatistics(user.id, filters);
+  }
+
+  @Get('statistics/comparison')
+  @ApiOperation({ summary: 'Get transaction statistics with period comparison' })
+  @ApiResponse({ status: 200, type: TransactionStatisticsComparisonResponseDto })
+  async getStatisticsComparison(
+    @Query() query: QueryTransactionDto,
+    @CurrentUser() user: User,
+  ) {
+    const filters = new TransactionFilters({
+      userId: query.familyId ? undefined : user.id,
+      type: query.type,
+      familyId: query.familyId,
+      scope: query.scope,
+      dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
+      dateTo: query.dateTo ? new Date(query.dateTo) : undefined,
+      valueMin: query.valueMin,
+      valueMax: query.valueMax,
+      paymentMethodId: query.paymentMethodId,
+    });
+
+    return this.transactionService.getStatisticsComparison(user.id, filters);
   }
 
   @Get(':id')
