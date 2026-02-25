@@ -35,7 +35,7 @@ export default function ExpenseCategoryDetailPage({
   });
 
   const { data: allCategoriesRes } = useQuery({
-    queryKey: queryKeys.categories.expense(),
+    queryKey: ["expense-categories-all"],
     queryFn: async () => {
       const res = await expenseCategoryControllerFindAll({ limit: 200 } as Parameters<typeof expenseCategoryControllerFindAll>[0]);
       return res.data;
@@ -74,6 +74,7 @@ export default function ExpenseCategoryDetailPage({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expense-category", id] });
       queryClient.invalidateQueries({ queryKey: ["expense-categories"] });
+      queryClient.invalidateQueries({ queryKey: ["expense-categories-all"] });
       toast.success("Category updated");
     },
     onError: (error: Error) => {
@@ -87,6 +88,7 @@ export default function ExpenseCategoryDetailPage({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expense-categories"] });
+      queryClient.invalidateQueries({ queryKey: ["expense-categories-all"] });
       toast.success("Category deleted");
       router.push("/manage");
     },
