@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatCurrency } from "@/utils/currency";
 import type { Category, Store, ExpenseItem } from "@/types";
-import { expenseControllerCreate } from "@/api/generated/endpoints/expense/expense";
+import { expenseControllerCreate, expenseControllerUpdatePending } from "@/api/generated/endpoints/expense/expense";
 import { customInstance } from "@/api/custom-instance";
 
 interface SubmitArgs {
@@ -162,6 +162,17 @@ export function useExpenseSubmission({
 
   const saveForReviewMutation = useMutation({
     mutationFn: async (args: SubmitArgs) => {
+      if (args.pendingIdToCleanup) {
+        await expenseControllerUpdatePending(args.pendingIdToCleanup, {
+          categoryId: args.selectedCategory?.id,
+          storeId: args.selectedStore?.id ?? null,
+          amount: args.isItemized ? args.itemsTotal : parseFloat(args.simpleAmount),
+          recordedAt: new Date(args.recordedAt).toISOString(),
+          paymentMethodId: args.paymentMethodId ?? null,
+        });
+        return args;
+      }
+
       const payload = buildPayload({
         isItemized: args.isItemized,
         items: args.items,
