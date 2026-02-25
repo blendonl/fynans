@@ -39,8 +39,11 @@ export const queryKeys = {
   },
 
   categories: {
+    expenseAll: ["expense-categories"] as const,
     expense: (search?: string) => ["expense-categories", search] as const,
+    itemAll: ["expense-item-categories"] as const,
     item: (search?: string) => ["expense-item-categories", search] as const,
+    incomeAll: ["income-categories"] as const,
     income: (search?: string) => ["income-categories", search] as const,
   },
 

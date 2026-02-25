@@ -35,7 +35,7 @@ export function useExpenseCategories(search?: string) {
       return { id: cat.id, name: cat.name, isConnectedToStore: Boolean(cat.isConnectedToStore) };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.categories.expense() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.expenseAll });
     },
   });
 

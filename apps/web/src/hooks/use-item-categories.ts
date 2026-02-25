@@ -26,7 +26,7 @@ export function useItemCategories() {
       return { id: cat.id, name: cat.name };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.categories.item() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.itemAll });
     },
   });
 
