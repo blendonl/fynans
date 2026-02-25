@@ -10,8 +10,8 @@ import {
   storeControllerUpdate,
   storeControllerDelete,
 } from "@/api/generated/endpoints/store/store";
-import { nestedStoreItemControllerFindAll } from "@/api/generated/endpoints/store-item/store-item";
-import { storeItemControllerDelete } from "@/api/generated/endpoints/store-item/store-item";
+import { nestedStoreItemControllerFindAll, storeItemControllerDelete, storeItemControllerUpdate } from "@/api/generated/endpoints/store-item/store-item";
+import { storeItemDiscountControllerCreate, storeItemDiscountControllerEnd, storeItemDiscountControllerGetActive } from "@/api/generated/endpoints/store-item-discount/store-item-discount";
 import { Button } from "@/components/ui/button";
 import { StoreDetail } from "@/components/manage/store-detail";
 import { queryKeys } from "@/lib/query-keys";
@@ -42,6 +42,38 @@ export default function StoreDetailPage({
   });
 
   const storeItems = storeItemsRes?.data ?? [];
+  const storeItemIds = storeItems.map((si) => si.id);
+
+  const discountQueries = useQuery({
+    queryKey: ["store-discounts", id, storeItemIds],
+    queryFn: async () => {
+      const results: Record<string, { id: string; discount: number }> = {};
+      await Promise.all(
+        storeItemIds.map(async (storeItemId) => {
+          try {
+            const res = await storeItemDiscountControllerGetActive(storeItemId);
+            if (res.data?.isActive) {
+              results[storeItemId] = {
+                id: res.data.id,
+                discount: res.data.discount,
+              };
+            }
+          } catch {
+            // no active discount
+          }
+        })
+      );
+      return results;
+    },
+    enabled: storeItemIds.length > 0,
+  });
+
+  const activeDiscounts = discountQueries.data ?? {};
+
+  const invalidateStoreItems = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.storeItems.forStore(id) });
+    queryClient.invalidateQueries({ queryKey: queryKeys.storeItems.all });
+  };
 
   const updateMutation = useMutation({
     mutationFn: async (data: { name?: string; location?: string }) => {
@@ -76,14 +108,54 @@ export default function StoreDetailPage({
       await storeItemControllerDelete(storeItemId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.storeItems.forStore(id),
-      });
-      queryClient.invalidateQueries({ queryKey: queryKeys.storeItems.all });
+      invalidateStoreItems();
       toast.success("Item removed from store");
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to remove item");
+    },
+  });
+
+  const updateStoreItemMutation = useMutation({
+    mutationFn: async ({ storeItemId, data }: { storeItemId: string; data: { price?: number; isDiscounted?: boolean } }) => {
+      await storeItemControllerUpdate(storeItemId, data);
+    },
+    onSuccess: () => {
+      invalidateStoreItems();
+      toast.success("Store item updated");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to update store item");
+    },
+  });
+
+  const createDiscountMutation = useMutation({
+    mutationFn: async ({ storeItemId, discount }: { storeItemId: string; discount: number }) => {
+      await storeItemDiscountControllerCreate(storeItemId, { discount });
+      await storeItemControllerUpdate(storeItemId, { isDiscounted: true });
+    },
+    onSuccess: () => {
+      invalidateStoreItems();
+      queryClient.invalidateQueries({ queryKey: ["store-discounts", id] });
+      toast.success("Discount added");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to add discount");
+    },
+  });
+
+  const endDiscountMutation = useMutation({
+    mutationFn: async ({ storeItemId, discountId }: { storeItemId: string; discountId: string }) => {
+      await storeItemDiscountControllerEnd(storeItemId, discountId);
+      await storeItemControllerUpdate(storeItemId, { isDiscounted: false });
+    },
+    onSuccess: () => {
+      invalidateStoreItems();
+      queryClient.invalidateQueries({ queryKey: ["store-discounts", id] });
+      toast.success("Discount ended");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to end discount");
     },
   });
 
@@ -130,6 +202,19 @@ export default function StoreDetailPage({
             ? (deleteStoreItemMutation.variables as string)
             : null
         }
+        onUpdateStoreItem={(storeItemId, data) =>
+          updateStoreItemMutation.mutate({ storeItemId, data })
+        }
+        isUpdatingStoreItem={updateStoreItemMutation.isPending}
+        onCreateDiscount={(storeItemId, discount) =>
+          createDiscountMutation.mutate({ storeItemId, discount })
+        }
+        isCreatingDiscount={createDiscountMutation.isPending}
+        onEndDiscount={(storeItemId, discountId) =>
+          endDiscountMutation.mutate({ storeItemId, discountId })
+        }
+        isEndingDiscount={endDiscountMutation.isPending}
+        activeDiscounts={activeDiscounts}
       />
     </div>
   );
