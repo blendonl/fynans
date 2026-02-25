@@ -10,6 +10,7 @@ import { ListTransactionsUseCase } from './application/use-cases/list-transactio
 import { UpdateTransactionUseCase } from './application/use-cases/update-transaction.use-case';
 import { DeleteTransactionUseCase } from './application/use-cases/delete-transaction.use-case';
 import { GetTransactionStatisticsUseCase } from './application/use-cases/get-transaction-statistics.use-case';
+import { GetTransactionStatisticsComparisonUseCase } from './application/use-cases/get-transaction-statistics-comparison.use-case';
 
 import { PrismaTransactionRepository } from './infrastructure/repositories/prisma-transaction.repository';
 
@@ -29,6 +30,7 @@ import { PrismaTransactionRepository } from './infrastructure/repositories/prism
     UpdateTransactionUseCase,
     DeleteTransactionUseCase,
     GetTransactionStatisticsUseCase,
+    GetTransactionStatisticsComparisonUseCase,
     TransactionService,
   ],
   exports: [TransactionService, 'TransactionRepository'],
