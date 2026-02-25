@@ -5,6 +5,7 @@ import { PrismaItemRepository } from './infrastructure/repositories/prisma-item.
 import { PrismaItemSizeRepository } from './infrastructure/repositories/prisma-item-size.repository';
 import { CreateItemUseCase } from './application/use-cases/create-item.use-case';
 import { GetItemByIdUseCase } from './application/use-cases/get-item-by-id.use-case';
+import { GetItemByIdWithDetailUseCase } from './application/use-cases/get-item-by-id-with-detail.use-case';
 import { ListItemsUseCase } from './application/use-cases/list-items.use-case';
 import { FindItemByNameUseCase } from './application/use-cases/find-item-by-name.use-case';
 import { UpdateItemUseCase } from './application/use-cases/update-item.use-case';
@@ -25,6 +26,7 @@ import { ItemService } from './application/services/item.service';
     },
     CreateItemUseCase,
     GetItemByIdUseCase,
+    GetItemByIdWithDetailUseCase,
     ListItemsUseCase,
     FindItemByNameUseCase,
     UpdateItemUseCase,

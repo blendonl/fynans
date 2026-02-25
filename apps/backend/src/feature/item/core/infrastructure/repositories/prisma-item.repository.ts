@@ -4,6 +4,7 @@ import {
   IItemRepository,
   PaginatedResult,
   ItemWithStoresRow,
+  ItemDetailResult,
 } from '../../domain/repositories/item.repository.interface';
 import { Item } from '../../domain/entities/item.entity';
 import { Pagination } from '~common/dto/pagination.dto';
@@ -234,6 +235,38 @@ export class PrismaItemRepository implements IItemRepository {
       total: Number(rows[0]?.total ?? 0),
       page: pagination?.page ?? 1,
       limit: pagination?.limit ?? 10,
+    };
+  }
+
+  async findByIdWithDetail(id: string): Promise<ItemDetailResult | null> {
+    const item = await this.prisma.item.findUnique({
+      where: { id },
+      include: {
+        category: true,
+        stores: {
+          include: { store: true },
+          orderBy: { createdAt: 'desc' },
+        },
+        sizes: true,
+      },
+    });
+
+    if (!item) return null;
+
+    return {
+      item: ItemMapper.toDomain(item),
+      category: {
+        id: item.category.id,
+        name: item.category.name,
+      },
+      stores: item.stores.map((si) => ({
+        storeItemId: si.id,
+        storeId: si.store.id,
+        storeName: si.store.name,
+        storeLocation: si.store.location,
+        price: si.price.toNumber(),
+        isDiscounted: si.isDiscounted,
+      })),
     };
   }
 

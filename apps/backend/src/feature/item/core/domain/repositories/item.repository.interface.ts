@@ -16,6 +16,19 @@ export interface ItemWithStoresRow {
   stores: ItemStorePrice[];
 }
 
+export interface ItemDetailResult {
+  item: Item;
+  category: { id: string; name: string };
+  stores: {
+    storeItemId: string;
+    storeId: string;
+    storeName: string;
+    storeLocation: string;
+    price: number;
+    isDiscounted: boolean;
+  }[];
+}
+
 export interface IItemRepository {
   create(data: Partial<Item>): Promise<Item>;
   findById(id: string): Promise<Item | null>;
@@ -41,6 +54,7 @@ export interface IItemRepository {
     search?: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<ItemWithStoresRow>>;
+  findByIdWithDetail(id: string): Promise<ItemDetailResult | null>;
   update(id: string, data: Partial<Item>): Promise<Item>;
   delete(id: string): Promise<void>;
 }

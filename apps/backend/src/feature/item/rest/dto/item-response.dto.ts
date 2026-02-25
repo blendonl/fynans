@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Item } from '../../core/domain/entities/item.entity';
+import { type ItemDetailResult } from '../../core/domain/repositories/item.repository.interface';
 
 export class ItemResponseDto {
   @ApiProperty()
@@ -64,6 +65,69 @@ export class PaginatedItemResponseDto {
 
   @ApiProperty()
   limit: number;
+}
+
+export class ItemStoreLinkDto {
+  @ApiProperty()
+  storeItemId: string;
+
+  @ApiProperty()
+  storeId: string;
+
+  @ApiProperty()
+  storeName: string;
+
+  @ApiProperty()
+  storeLocation: string;
+
+  @ApiProperty()
+  price: number;
+
+  @ApiProperty()
+  isDiscounted: boolean;
+}
+
+export class ItemCategoryInfoDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  name: string;
+}
+
+export class ItemDetailResponseDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  categoryId: string;
+
+  @ApiProperty({ type: ItemCategoryInfoDto })
+  category: ItemCategoryInfoDto;
+
+  @ApiProperty({ type: [ItemStoreLinkDto] })
+  stores: ItemStoreLinkDto[];
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+
+  static fromDetail(detail: ItemDetailResult): ItemDetailResponseDto {
+    const dto = new ItemDetailResponseDto();
+    dto.id = detail.item.id;
+    dto.name = detail.item.name;
+    dto.categoryId = detail.item.categoryId;
+    dto.category = detail.category;
+    dto.stores = detail.stores;
+    dto.createdAt = detail.item.createdAt;
+    dto.updatedAt = detail.item.updatedAt;
+    return dto;
+  }
 }
 
 export class PaginatedItemWithStoresResponseDto {
