@@ -29,6 +29,7 @@ export class UpdateExpenseCategoryUseCase {
     const updated = await this.expenseCategoryRepository.update(id, {
       name: dto.name,
       parentId: dto.parentId,
+      isConnectedToStore: dto.isConnectedToStore,
     });
 
     return updated;

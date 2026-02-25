@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsUUID } from 'class-validator';
+import { IsString, IsOptional, IsUUID, IsBoolean } from 'class-validator';
 
 export class UpdateExpenseCategoryRequestDto {
   @IsString()
@@ -8,4 +8,8 @@ export class UpdateExpenseCategoryRequestDto {
   @IsUUID()
   @IsOptional()
   parentId?: string | null;
+
+  @IsBoolean()
+  @IsOptional()
+  isConnectedToStore?: boolean;
 }
