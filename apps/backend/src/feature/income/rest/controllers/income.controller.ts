@@ -64,7 +64,10 @@ export class IncomeController {
   @ApiOperation({ summary: 'List all incomes with pagination and filters' })
   @ApiResponse({ status: 200, type: PaginatedIncomeResponseDto })
   async findAll(@Query() query: QueryIncomeDto, @CurrentUser() user: User) {
-    const filters = new IncomeFilters(BaseFilters.fromQuery(query, user.id));
+    const filters = new IncomeFilters({
+      ...BaseFilters.fromQuery(query, user.id),
+      status: query.status,
+    });
     const pagination = new Pagination(query.page, query.limit);
 
     const result = await this.incomeService.findAll(
