@@ -2777,15 +2777,213 @@
         ]
       }
     },
-    "/stores/{id}/items": {
+    "/store-items": {
+      "post": {
+        "operationId": "StoreItemController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStoreItemRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreItemResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a store item link",
+        "tags": [
+          "Store Item"
+        ]
+      },
       "get": {
         "operationId": "StoreItemController_findAll",
+        "parameters": [
+          {
+            "name": "storeId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedStoreItemResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List store items by storeId or itemId",
+        "tags": [
+          "Store Item"
+        ]
+      }
+    },
+    "/store-items/{id}": {
+      "put": {
+        "operationId": "StoreItemController_update",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
             "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStoreItemRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreItemResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a store item",
+        "tags": [
+          "Store Item"
+        ]
+      },
+      "delete": {
+        "operationId": "StoreItemController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a store item",
+        "tags": [
+          "Store Item"
+        ]
+      }
+    },
+    "/stores/{id}/items": {
+      "get": {
+        "operationId": "NestedStoreItemController_findAll",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "storeId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
               "type": "string"
             }
           },
@@ -4277,7 +4475,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ItemResponseDto"
+                  "$ref": "#/components/schemas/ItemDetailResponseDto"
                 }
               }
             }
@@ -4288,7 +4486,7 @@
             "bearer": []
           }
         ],
-        "summary": "Get an item by ID",
+        "summary": "Get an item by ID with category and store links",
         "tags": [
           "Items"
         ]
@@ -6004,6 +6202,9 @@
             "type": "string",
             "nullable": true,
             "format": "uuid"
+          },
+          "isConnectedToStore": {
+            "type": "boolean"
           }
         }
       },
@@ -6675,6 +6876,35 @@
           }
         }
       },
+      "CreateStoreItemRequestDto": {
+        "type": "object",
+        "properties": {
+          "storeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isDiscounted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "storeId",
+          "name",
+          "price",
+          "categoryId"
+        ]
+      },
       "StoreItemSizeDto": {
         "type": "object",
         "properties": {
@@ -6763,6 +6993,18 @@
           "page",
           "limit"
         ]
+      },
+      "UpdateStoreItemRequestDto": {
+        "type": "object",
+        "properties": {
+          "price": {
+            "type": "number",
+            "minimum": 0
+          },
+          "isDiscounted": {
+            "type": "boolean"
+          }
+        }
       },
       "CreateIncomeCategoryRequestDto": {
         "type": "object",
@@ -7661,6 +7903,92 @@
           "total",
           "page",
           "limit"
+        ]
+      },
+      "ItemCategoryInfoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "ItemStoreLinkDto": {
+        "type": "object",
+        "properties": {
+          "storeItemId": {
+            "type": "string"
+          },
+          "storeId": {
+            "type": "string"
+          },
+          "storeName": {
+            "type": "string"
+          },
+          "storeLocation": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "isDiscounted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "storeItemId",
+          "storeId",
+          "storeName",
+          "storeLocation",
+          "price",
+          "isDiscounted"
+        ]
+      },
+      "ItemDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ItemCategoryInfoDto"
+          },
+          "stores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemStoreLinkDto"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "categoryId",
+          "category",
+          "stores",
+          "createdAt",
+          "updatedAt"
         ]
       },
       "UpdateItemRequestDto": {
