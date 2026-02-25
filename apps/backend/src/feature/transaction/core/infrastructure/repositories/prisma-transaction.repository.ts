@@ -263,6 +263,10 @@ export class PrismaTransactionRepository implements ITransactionRepository {
       }
     }
 
+    if (filters.paymentMethodId) {
+      where.paymentMethodId = filters.paymentMethodId;
+    }
+
     if (filters.valueMin !== undefined || filters.valueMax !== undefined) {
       where.value = {};
       if (filters.valueMin !== undefined) {
