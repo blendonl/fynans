@@ -15,6 +15,7 @@ interface ServerFilters {
   type?: string;
   scope?: string;
   familyId?: string | null;
+  paymentMethodId?: string;
   dateFrom?: string;
   dateTo?: string;
   minAmount?: string;
@@ -36,6 +37,7 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
       filters.type,
       filters.scope,
       filters.familyId,
+      filters.paymentMethodId,
       filters.dateFrom,
       filters.dateTo,
       filters.minAmount,
@@ -54,6 +56,7 @@ export function useInfiniteTransactions(filters: ServerFilters = {}, families: F
       if (filters.minAmount) baseParams.valueMin = filters.minAmount;
       if (filters.maxAmount) baseParams.valueMax = filters.maxAmount;
       if (filters.search) baseParams.search = filters.search;
+      if (filters.paymentMethodId) baseParams.paymentMethodId = filters.paymentMethodId;
 
       const fetchExpenses = filters.type !== "income";
       const fetchIncomes = filters.type !== "expense";
