@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateItemUseCase } from '../use-cases/create-item.use-case';
 import { GetItemByIdUseCase } from '../use-cases/get-item-by-id.use-case';
+import { GetItemByIdWithDetailUseCase } from '../use-cases/get-item-by-id-with-detail.use-case';
 import { ListItemsUseCase } from '../use-cases/list-items.use-case';
 import { FindItemByNameUseCase } from '../use-cases/find-item-by-name.use-case';
 import { UpdateItemUseCase } from '../use-cases/update-item.use-case';
@@ -12,7 +13,10 @@ import {
 import { CreateItemDto } from '../dto/create-item.dto';
 import { UpdateItemDto } from '../dto/update-item.dto';
 import { Item } from '../../domain/entities/item.entity';
-import { PaginatedResult } from '../../domain/repositories/item.repository.interface';
+import {
+  PaginatedResult,
+  type ItemDetailResult,
+} from '../../domain/repositories/item.repository.interface';
 import { Pagination } from '~common/dto/pagination.dto';
 
 @Injectable()
@@ -20,6 +24,7 @@ export class ItemService {
   constructor(
     private readonly createItemUseCase: CreateItemUseCase,
     private readonly getItemByIdUseCase: GetItemByIdUseCase,
+    private readonly getItemByIdWithDetailUseCase: GetItemByIdWithDetailUseCase,
     private readonly listItemsUseCase: ListItemsUseCase,
     private readonly findItemByNameUseCase: FindItemByNameUseCase,
     private readonly updateItemUseCase: UpdateItemUseCase,
@@ -33,6 +38,10 @@ export class ItemService {
 
   async findById(id: string): Promise<Item> {
     return this.getItemByIdUseCase.execute(id);
+  }
+
+  async findByIdWithDetail(id: string): Promise<ItemDetailResult> {
+    return this.getItemByIdWithDetailUseCase.execute(id);
   }
 
   async findAll(

@@ -18,6 +18,7 @@ import { CreateItemRequestDto } from '../dto/create-item-request.dto';
 import { UpdateItemRequestDto } from '../dto/update-item-request.dto';
 import {
   ItemResponseDto,
+  ItemDetailResponseDto,
   PaginatedItemResponseDto,
   PaginatedItemWithStoresResponseDto,
 } from '../dto/item-response.dto';
@@ -99,11 +100,11 @@ export class ItemController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get an item by ID' })
-  @ApiResponse({ status: 200, type: ItemResponseDto })
+  @ApiOperation({ summary: 'Get an item by ID with category and store links' })
+  @ApiResponse({ status: 200, type: ItemDetailResponseDto })
   async findOne(@Param('id') id: string) {
-    const item = await this.itemService.findById(id);
-    return ItemResponseDto.fromEntity(item);
+    const detail = await this.itemService.findByIdWithDetail(id);
+    return ItemDetailResponseDto.fromDetail(detail);
   }
 
   @Put(':id')
