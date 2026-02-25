@@ -1,7 +1,15 @@
-import { IsOptional, IsInt, Min, IsString } from 'class-validator';
+import { IsOptional, IsInt, Min, IsString, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class QueryStoreItemDto {
+  @IsOptional()
+  @IsUUID()
+  storeId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  itemId?: string;
+
   @IsOptional()
   @IsString()
   search?: string;

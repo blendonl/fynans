@@ -88,6 +88,34 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
     };
   }
 
+  async findByItemId(
+    userId: string,
+    itemId: string,
+    pagination?: Pagination,
+  ): Promise<PaginatedResult<StoreItem>> {
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const where = {
+      itemId,
+      users: { some: { userId: { in: visibleUserIds } } },
+    };
+
+    const [items, total] = await Promise.all([
+      this.prisma.storeItem.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: pagination?.skip,
+        take: pagination?.take,
+        include: { ...STORE_ITEM_INCLUDE, store: true },
+      }),
+      this.prisma.storeItem.count({ where }),
+    ]);
+
+    return {
+      data: items.map(StoreItemMapper.toDomain),
+      total,
+    };
+  }
+
   async findAll(
     userId: string,
     pagination?: Pagination,

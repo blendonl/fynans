@@ -25,6 +25,11 @@ export interface IStoreItemRepository {
     search?: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<StoreItem>>;
+  findByItemId(
+    userId: string,
+    itemId: string,
+    pagination?: Pagination,
+  ): Promise<PaginatedResult<StoreItem>>;
   findAll(
     userId: string,
     pagination?: Pagination,

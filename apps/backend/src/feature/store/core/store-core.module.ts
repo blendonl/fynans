@@ -13,6 +13,8 @@ import { ListStoreItemsUseCase } from './application/use-cases/list-store-items.
 import { SearchItemsWithPricesUseCase } from './application/use-cases/search-items-with-prices.use-case';
 import { UpdateStoreUseCase } from './application/use-cases/update-store.use-case';
 import { DeleteStoreUseCase } from './application/use-cases/delete-store.use-case';
+import { UpdateStoreItemUseCase } from './application/use-cases/update-store-item.use-case';
+import { DeleteStoreItemUseCase } from './application/use-cases/delete-store-item.use-case';
 import { FindStoreBySimilarityUseCase } from './application/use-cases/find-store-by-similarity.use-case';
 import { StoreService } from './application/services/store.service';
 import { StoreItemService } from './application/services/store-item.service';
@@ -35,6 +37,8 @@ import { StoreItemService } from './application/services/store-item.service';
     GetStoreItemByIdUseCase,
     ListStoreItemsUseCase,
     SearchItemsWithPricesUseCase,
+    UpdateStoreItemUseCase,
+    DeleteStoreItemUseCase,
     FindStoreBySimilarityUseCase,
     UpdateStoreUseCase,
     DeleteStoreUseCase,

@@ -5,6 +5,7 @@ import { Pagination } from '~common/dto/pagination.dto';
 
 export interface StoreItemFilters {
   storeId?: string;
+  itemId?: string;
   search?: string;
 }
 
@@ -20,6 +21,13 @@ export class ListStoreItemsUseCase {
     filters: StoreItemFilters,
     pagination: Pagination,
   ): Promise<{ data: StoreItem[]; total: number }> {
+    if (filters.itemId) {
+      return this.storeItemRepository.findByItemId(
+        userId,
+        filters.itemId,
+        pagination,
+      );
+    }
     if (filters.storeId) {
       return this.storeItemRepository.findByStoreId(
         userId,
