@@ -113,6 +113,7 @@ export class ExpenseCategoryController {
     const coreDto = new UpdateExpenseCategoryDto({
       name: updateDto.name,
       parentId: updateDto.parentId,
+      isConnectedToStore: updateDto.isConnectedToStore,
     });
 
     const category = await this.expenseCategoryService.update(id, coreDto);
