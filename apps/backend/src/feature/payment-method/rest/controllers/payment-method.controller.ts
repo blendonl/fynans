@@ -19,6 +19,7 @@ import { PaymentMethodService } from '../../core/application/services/payment-me
 import { CreatePaymentMethodRequestDto } from '../dto/create-payment-method-request.dto';
 import { UpdatePaymentMethodRequestDto } from '../dto/update-payment-method-request.dto';
 import { PaymentMethodResponseDto } from '../dto/payment-method-response.dto';
+import { BalanceResponseDto } from '../dto/balance-response.dto';
 import { CreatePaymentMethodDto } from '../../core/application/dto/create-payment-method.dto';
 import { UpdatePaymentMethodDto } from '../../core/application/dto/update-payment-method.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
@@ -58,6 +59,13 @@ export class PaymentMethodController {
   async findAll(@CurrentUser() user: User) {
     const paymentMethods = await this.paymentMethodService.findAll(user.id);
     return PaymentMethodResponseDto.fromEntities(paymentMethods);
+  }
+
+  @Get('balance')
+  @ApiOperation({ summary: 'Get unified balance with payment method breakdown and family balances' })
+  @ApiResponse({ status: 200, type: BalanceResponseDto })
+  async getBalance(@CurrentUser() user: User) {
+    return this.paymentMethodService.getBalance(user.id);
   }
 
   @Get('balance-summary')

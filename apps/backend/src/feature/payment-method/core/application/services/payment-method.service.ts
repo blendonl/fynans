@@ -6,6 +6,7 @@ import { UpdatePaymentMethodUseCase } from '../use-cases/update-payment-method.u
 import { DeletePaymentMethodUseCase } from '../use-cases/delete-payment-method.use-case';
 import { RecalculateBalanceUseCase } from '../use-cases/recalculate-balance.use-case';
 import { GetBalanceSummaryUseCase } from '../use-cases/get-balance-summary.use-case';
+import { GetBalanceUseCase, BalanceResult } from '../use-cases/get-balance.use-case';
 import { CreatePaymentMethodDto } from '../dto/create-payment-method.dto';
 import { UpdatePaymentMethodDto } from '../dto/update-payment-method.dto';
 import { PaymentMethod } from '../../domain/entities/payment-method.entity';
@@ -21,6 +22,7 @@ export class PaymentMethodService {
     private readonly deletePaymentMethodUseCase: DeletePaymentMethodUseCase,
     private readonly recalculateBalanceUseCase: RecalculateBalanceUseCase,
     private readonly getBalanceSummaryUseCase: GetBalanceSummaryUseCase,
+    private readonly getBalanceUseCase: GetBalanceUseCase,
   ) {}
 
   async create(dto: CreatePaymentMethodDto): Promise<PaymentMethod> {
@@ -53,5 +55,9 @@ export class PaymentMethodService {
 
   async getBalanceSummary(userId: string): Promise<BalanceSummaryItem[]> {
     return this.getBalanceSummaryUseCase.execute(userId);
+  }
+
+  async getBalance(userId: string): Promise<BalanceResult> {
+    return this.getBalanceUseCase.execute(userId);
   }
 }
