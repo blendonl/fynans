@@ -6,6 +6,7 @@ import { startOfMonth, subDays, subMonths, startOfYear } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { GlassCard } from "@/components/glass/glass-card";
 import type { Category } from "@/types";
+import type { PaymentMethod } from "@/hooks/use-payment-methods";
 
 interface AdvancedFilters {
   dateFrom: string;
@@ -18,11 +19,14 @@ interface AdvancedFilters {
 interface TransactionFiltersProps {
   typeFilter: string;
   scopeFilter: string;
+  paymentMethodFilter?: string;
   searchQuery: string;
   advancedFilters: AdvancedFilters;
   categories: Category[];
+  paymentMethods?: PaymentMethod[];
   onTypeChange: (value: string) => void;
   onScopeChange: (value: string) => void;
+  onPaymentMethodChange?: (value: string | undefined) => void;
   onSearchChange: (value: string) => void;
   onAdvancedFiltersChange: (filters: AdvancedFilters) => void;
 }
@@ -81,11 +85,14 @@ function PillGroup({ options, value, onChange }: PillGroupProps) {
 export function TransactionFilters({
   typeFilter,
   scopeFilter,
+  paymentMethodFilter,
   searchQuery,
   advancedFilters,
   categories,
+  paymentMethods = [],
   onTypeChange,
   onScopeChange,
+  onPaymentMethodChange,
   onSearchChange,
   onAdvancedFiltersChange,
 }: TransactionFiltersProps) {
@@ -259,6 +266,45 @@ export function TransactionFilters({
                 />
               </div>
             </div>
+
+            {paymentMethods.length > 0 && onPaymentMethodChange && (
+              <div>
+                <label className="text-[11px] font-medium text-text-secondary uppercase tracking-wide mb-2 block">
+                  Payment Method
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    onClick={() => onPaymentMethodChange(undefined)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                      !paymentMethodFilter
+                        ? "bg-primary text-white"
+                        : "bg-surface-variant/60 text-text-secondary hover:text-text"
+                    }`}
+                  >
+                    All
+                  </button>
+                  {paymentMethods.map((pm) => (
+                    <button
+                      key={pm.id}
+                      onClick={() => onPaymentMethodChange(
+                        paymentMethodFilter === pm.id ? undefined : pm.id
+                      )}
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                        paymentMethodFilter === pm.id
+                          ? "bg-primary text-white"
+                          : "bg-surface-variant/60 text-text-secondary hover:text-text"
+                      }`}
+                    >
+                      <span
+                        className="h-2 w-2 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: pm.color }}
+                      />
+                      {pm.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {categories.length > 0 && (
               <div>

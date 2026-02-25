@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Receipt, Plus, Loader2 } from "lucide-react";
 import type { Transaction } from "@/types";
+import type { PaymentMethod } from "@/hooks/use-payment-methods";
 import { groupByMonth } from "@/hooks/use-transactions";
 import { TransactionGroup } from "./transaction-group";
 
@@ -12,6 +13,7 @@ interface TransactionListProps {
   loadMoreRef?: React.RefObject<HTMLDivElement | null>;
   isFetchingNextPage?: boolean;
   searchQuery?: string;
+  paymentMethods?: PaymentMethod[];
 }
 
 function TransactionListSkeleton() {
@@ -50,6 +52,7 @@ export function TransactionList({
   loadMoreRef,
   isFetchingNextPage,
   searchQuery,
+  paymentMethods = [],
 }: TransactionListProps) {
   if (isLoading) {
     return <TransactionListSkeleton />;
@@ -91,6 +94,7 @@ export function TransactionList({
           matchedItemsTotal={group.matchedItemsTotal}
           transactions={group.transactions}
           searchQuery={searchQuery}
+          paymentMethods={paymentMethods}
         />
       ))}
 
