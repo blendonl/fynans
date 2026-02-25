@@ -3,14 +3,16 @@
 import { GlassCard } from "@/components/glass/glass-card";
 import { formatCurrency } from "@/utils/currency";
 import { TrendingUp, TrendingDown, Activity } from "lucide-react";
-import type { ComparisonData } from "@/hooks/use-dashboard-data";
+import type { StatisticsComparisonResponseDto } from "@/api/generated/model";
+import type { BalanceResponseDto } from "@/api/generated/model";
 
 interface BalanceHeroProps {
   net: number;
   totalIncome: number;
   totalExpenses: number;
   count: number;
-  comparison?: ComparisonData | null;
+  comparison?: StatisticsComparisonResponseDto | null;
+  balanceData?: BalanceResponseDto;
 }
 
 function ComparisonBadge({
@@ -67,17 +69,55 @@ export function BalanceHero({
   totalExpenses,
   count,
   comparison,
+  balanceData,
 }: BalanceHeroProps) {
+  const totalBalance = balanceData?.totalBalance;
+  const pmBreakdown = balanceData?.paymentMethods;
+
   return (
     <GlassCard variant="strong" className="p-8 sm:p-10">
       <div className="flex flex-col items-center text-center gap-5">
+        {totalBalance !== undefined && (
+          <>
+            <p className="text-[11px] font-semibold text-text-secondary tracking-[0.2em] uppercase">
+              Total Balance
+            </p>
+            <div>
+              <p
+                className={`text-[2.75rem] sm:text-[3.5rem] font-bold font-mono tracking-tighter leading-none ${
+                  totalBalance >= 0 ? "text-income" : "text-expense"
+                }`}
+              >
+                {formatCurrency(totalBalance)}
+              </p>
+              {pmBreakdown && pmBreakdown.length > 0 && (
+                <div className="mt-3 flex flex-wrap justify-center gap-2">
+                  {pmBreakdown.map((pm) => (
+                    <span
+                      key={pm.id}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-variant/60 text-xs font-medium text-text-secondary"
+                    >
+                      <span
+                        className="h-2 w-2 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: pm.color }}
+                      />
+                      {pm.name}: {formatCurrency(pm.currentBalance)}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="mt-4 mx-auto h-px w-20 bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+            </div>
+          </>
+        )}
+
         <p className="text-[11px] font-semibold text-text-secondary tracking-[0.2em] uppercase">
-          Net Balance
+          {totalBalance !== undefined ? "Period" : "Net Balance"}
         </p>
 
         <div>
           <p
-            className={`text-[2.75rem] sm:text-[3.5rem] font-bold font-mono tracking-tighter leading-none ${
+            className={`${totalBalance !== undefined ? "text-2xl sm:text-3xl" : "text-[2.75rem] sm:text-[3.5rem]"} font-bold font-mono tracking-tighter leading-none ${
               net >= 0 ? "text-income" : "text-expense"
             }`}
           >
@@ -92,7 +132,9 @@ export function BalanceHero({
               />
             </div>
           )}
-          <div className="mt-4 mx-auto h-px w-20 bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+          {!totalBalance && (
+            <div className="mt-4 mx-auto h-px w-20 bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-3 sm:gap-4 w-full max-w-md pt-2">
@@ -119,8 +161,8 @@ export function BalanceHero({
             comparisonBadge={
               comparison && (
                 <ComparisonBadge
-                  delta={comparison.expenses.delta}
-                  percentage={comparison.expenses.percentage}
+                  delta={comparison.expense.delta}
+                  percentage={comparison.expense.percentage}
                   favorable="negative"
                 />
               )

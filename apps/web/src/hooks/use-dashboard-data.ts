@@ -1,88 +1,59 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { TransactionStatisticsResponse } from "@/types";
-import { transactionControllerGetStatistics } from "@/api/generated/endpoints/transaction/transaction";
+import { transactionControllerGetStatisticsComparison } from "@/api/generated/endpoints/transaction/transaction";
 import { expenseControllerGetStatistics, expenseControllerGetTrends } from "@/api/generated/endpoints/expense/expense";
 import { expenseControllerFindAll } from "@/api/generated/endpoints/expense/expense";
 import { incomeControllerFindAll } from "@/api/generated/endpoints/income/income";
-import { formatDateForAPI, getChartGranularity } from "@/lib/date-utils";
+import { formatDateForAPI, getChartGranularity, calculatePreviousPeriod } from "@/lib/date-utils";
 import { mapExpenseToTransaction, mapIncomeToTransaction, sortTransactionsByDate } from "@/lib/transaction-mappers";
 import { queryKeys } from "@/lib/query-keys";
-
 const DASHBOARD_RECENT_LIMIT = 5;
 const DASHBOARD_STALE_TIME = 60_000;
 
 export type { ExpenseTrendResponse as ExpenseTrendPoint } from "@/types";
 
-export interface ComparisonData {
-  expenses: { delta: number; percentage: number };
-  income: { delta: number; percentage: number };
-  net: { delta: number; percentage: number };
-}
-
-function calcComparison(
-  current: TransactionStatisticsResponse | undefined,
-  previous: TransactionStatisticsResponse | undefined,
-): ComparisonData | null {
-  if (!current || !previous) return null;
-
-  function delta(cur: number, prev: number) {
-    const d = cur - prev;
-    const pct = prev !== 0 ? (d / prev) * 100 : cur !== 0 ? 100 : 0;
-    return { delta: d, percentage: Math.round(pct) };
-  }
-
-  return {
-    expenses: delta(current.totalExpense, previous.totalExpense),
-    income: delta(current.totalIncome, previous.totalIncome),
-    net: delta(current.balance, previous.balance),
-  };
-}
-
 interface DashboardDataParams {
   dateFrom: Date;
   dateTo: Date;
-  previousDateFrom: Date;
-  previousDateTo: Date;
+  paymentMethodId?: string;
+  scope?: string;
 }
 
 export function useDashboardData({
   dateFrom,
   dateTo,
-  previousDateFrom,
-  previousDateTo,
+  paymentMethodId,
+  scope,
 }: DashboardDataParams) {
   const dateFromStr = useMemo(() => formatDateForAPI(dateFrom), [dateFrom]);
   const dateToStr = useMemo(() => formatDateForAPI(dateTo), [dateTo]);
-  const prevFromStr = useMemo(() => formatDateForAPI(previousDateFrom), [previousDateFrom]);
-  const prevToStr = useMemo(() => formatDateForAPI(previousDateTo), [previousDateTo]);
   const granularity = useMemo(() => getChartGranularity(dateFrom, dateTo), [dateFrom, dateTo]);
 
-  const dateParams = useMemo(() => ({ dateFrom: dateFromStr, dateTo: dateToStr }), [dateFromStr, dateToStr]);
+  const previousPeriod = useMemo(() => calculatePreviousPeriod(dateFrom, dateTo), [dateFrom, dateTo]);
+  const prevFromStr = useMemo(() => formatDateForAPI(previousPeriod.dateFrom), [previousPeriod]);
+  const prevToStr = useMemo(() => formatDateForAPI(previousPeriod.dateTo), [previousPeriod]);
 
-  const statsQuery = useQuery({
-    queryKey: queryKeys.dashboard.txStats(dateFromStr, dateToStr),
-    queryFn: async () => {
-      const res = await transactionControllerGetStatistics(dateParams);
-      return res.data;
-    },
-    staleTime: DASHBOARD_STALE_TIME,
-  });
+  const extraParams = useMemo(() => {
+    const p: Record<string, string> = {};
+    if (paymentMethodId) p.paymentMethodId = paymentMethodId;
+    if (scope) p.scope = scope.toUpperCase();
+    return p;
+  }, [paymentMethodId, scope]);
 
-  const prevStatsQuery = useQuery({
-    queryKey: queryKeys.dashboard.txStats(prevFromStr, prevToStr),
+  const dateParams = useMemo(() => ({ dateFrom: dateFromStr, dateTo: dateToStr, ...extraParams }), [dateFromStr, dateToStr, extraParams]);
+  const filterKey = useMemo(() => `${paymentMethodId || ""}-${scope || ""}`, [paymentMethodId, scope]);
+
+  const comparisonQuery = useQuery({
+    queryKey: [...queryKeys.dashboard.comparison(dateFromStr, dateToStr), filterKey],
     queryFn: async () => {
-      const res = await transactionControllerGetStatistics({
-        dateFrom: prevFromStr,
-        dateTo: prevToStr,
-      });
+      const res = await transactionControllerGetStatisticsComparison(dateParams);
       return res.data;
     },
     staleTime: DASHBOARD_STALE_TIME,
   });
 
   const expenseStatsQuery = useQuery({
-    queryKey: queryKeys.dashboard.expenseStats(dateFromStr, dateToStr),
+    queryKey: [...queryKeys.dashboard.expenseStats(dateFromStr, dateToStr), filterKey],
     queryFn: async () => {
       const res = await expenseControllerGetStatistics(dateParams);
       return res.data;
@@ -91,11 +62,12 @@ export function useDashboardData({
   });
 
   const prevExpenseStatsQuery = useQuery({
-    queryKey: queryKeys.dashboard.expenseStats(prevFromStr, prevToStr),
+    queryKey: [...queryKeys.dashboard.expenseStats(prevFromStr, prevToStr), filterKey],
     queryFn: async () => {
       const res = await expenseControllerGetStatistics({
         dateFrom: prevFromStr,
         dateTo: prevToStr,
+        ...extraParams,
       });
       return res.data;
     },
@@ -103,7 +75,7 @@ export function useDashboardData({
   });
 
   const trendsQuery = useQuery({
-    queryKey: queryKeys.dashboard.trends(dateFromStr, dateToStr, granularity),
+    queryKey: [...queryKeys.dashboard.trends(dateFromStr, dateToStr, granularity), filterKey],
     queryFn: async () => {
       const res = await expenseControllerGetTrends({
         ...dateParams,
@@ -115,7 +87,7 @@ export function useDashboardData({
   });
 
   const recentQuery = useQuery({
-    queryKey: queryKeys.dashboard.recent(dateFromStr, dateToStr),
+    queryKey: [...queryKeys.dashboard.recent(dateFromStr, dateToStr), filterKey],
     queryFn: async () => {
       const limit = DASHBOARD_RECENT_LIMIT;
       const [expensesRes, incomesRes] = await Promise.all([
@@ -132,16 +104,16 @@ export function useDashboardData({
     staleTime: DASHBOARD_STALE_TIME,
   });
 
-  const txStats = statsQuery.data;
+  const currentStats = comparisonQuery.data?.current;
+  const comparison = comparisonQuery.data?.comparison ?? null;
   const expenseStats = expenseStatsQuery.data;
-  const comparison = calcComparison(statsQuery.data, prevStatsQuery.data);
 
   return {
     stats: {
-      totalExpenses: txStats?.totalExpense ?? 0,
-      totalIncome: txStats?.totalIncome ?? 0,
-      net: txStats?.balance ?? 0,
-      count: txStats?.count ?? 0,
+      totalExpenses: currentStats?.totalExpense ?? 0,
+      totalIncome: currentStats?.totalIncome ?? 0,
+      net: currentStats?.balance ?? 0,
+      count: currentStats?.count ?? 0,
     },
     comparison,
     recentTransactions: recentQuery.data ?? [],
@@ -150,8 +122,7 @@ export function useDashboardData({
     expensesByStore: expenseStats?.expensesByStore ?? [],
     trendData: trendsQuery.data ?? [],
     isLoading:
-      statsQuery.isLoading ||
-      prevStatsQuery.isLoading ||
+      comparisonQuery.isLoading ||
       recentQuery.isLoading ||
       trendsQuery.isLoading,
   };
