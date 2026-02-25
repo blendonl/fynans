@@ -2,10 +2,13 @@
 
 import { useState, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { useInfiniteTransactions } from "@/hooks/use-transactions";
 import { usePendingTransactionCount } from "@/hooks/use-pending-transactions";
 import { useFamilies } from "@/hooks/use-families";
 import { useCategories } from "@/hooks/use-categories";
+import { useBalance } from "@/hooks/use-balance";
+import { usePaymentMethods } from "@/hooks/use-payment-methods";
 import { useIntersectionObserver } from "@/hooks/use-intersection-observer";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { TransactionFilters, type AdvancedFilters } from "@/components/transactions/transaction-filters";
@@ -14,6 +17,7 @@ import { TransactionsSummary } from "@/components/transactions/transactions-summ
 import { PendingTransactionList } from "@/components/transactions/pending-transaction-list";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
+import { transactionControllerGetStatistics } from "@/api/generated/endpoints/transaction/transaction";
 
 const EMPTY_ADVANCED: AdvancedFilters = {
   dateFrom: "",
@@ -33,13 +37,27 @@ export default function TransactionsPage() {
   const [activeTab, setActiveTab] = useState<TabValue>(initialTab);
   const [typeFilter, setTypeFilter] = useState("all");
   const [scopeFilter, setScopeFilter] = useState("all");
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState<string | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>(EMPTY_ADVANCED);
   const { families } = useFamilies();
   const { categories } = useCategories();
+  const { paymentMethods } = usePaymentMethods();
   const { data: pendingCount } = usePendingTransactionCount();
+  const { data: balanceData } = useBalance();
 
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
+
+  const serverFilters = useMemo(() => ({
+    type: typeFilter !== "all" ? typeFilter : undefined,
+    scope: scopeFilter !== "all" ? scopeFilter : undefined,
+    paymentMethodId: paymentMethodFilter,
+    dateFrom: advancedFilters.dateFrom || undefined,
+    dateTo: advancedFilters.dateTo || undefined,
+    minAmount: advancedFilters.minAmount || undefined,
+    maxAmount: advancedFilters.maxAmount || undefined,
+    search: debouncedSearch.trim() || undefined,
+  }), [typeFilter, scopeFilter, paymentMethodFilter, advancedFilters, debouncedSearch]);
 
   const {
     data,
@@ -47,18 +65,34 @@ export default function TransactionsPage() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteTransactions(
-    {
-      type: typeFilter !== "all" ? typeFilter : undefined,
-      scope: scopeFilter !== "all" ? scopeFilter : undefined,
-      dateFrom: advancedFilters.dateFrom || undefined,
-      dateTo: advancedFilters.dateTo || undefined,
-      minAmount: advancedFilters.minAmount || undefined,
-      maxAmount: advancedFilters.maxAmount || undefined,
-      search: debouncedSearch.trim() || undefined,
+  } = useInfiniteTransactions(serverFilters, families);
+
+  // Server-side statistics matching the current filters
+  const statsParams = useMemo(() => {
+    const p: Record<string, string> = {};
+    if (serverFilters.scope) p.scope = serverFilters.scope.toUpperCase();
+    if (serverFilters.dateFrom) p.dateFrom = serverFilters.dateFrom;
+    if (serverFilters.dateTo) p.dateTo = serverFilters.dateTo;
+    if (serverFilters.minAmount) p.valueMin = serverFilters.minAmount;
+    if (serverFilters.maxAmount) p.valueMax = serverFilters.maxAmount;
+    if (paymentMethodFilter) p.paymentMethodId = paymentMethodFilter;
+    return p;
+  }, [serverFilters, paymentMethodFilter]);
+
+  const { data: serverStats } = useQuery({
+    queryKey: ["transactions-page-stats", statsParams],
+    queryFn: async () => {
+      const res = await transactionControllerGetStatistics(statsParams);
+      return res.data;
     },
-    families
-  );
+    staleTime: 30_000,
+  });
+
+  const stats = useMemo(() => ({
+    totalExpenses: serverStats?.totalExpense ?? 0,
+    totalIncome: serverStats?.totalIncome ?? 0,
+    net: serverStats?.balance ?? 0,
+  }), [serverStats]);
 
   const allTransactions = useMemo(
     () => data?.pages.flatMap((page) => page.transactions) ?? [],
@@ -72,26 +106,6 @@ export default function TransactionsPage() {
       return advancedFilters.categories.includes(t.category.id);
     });
   }, [allTransactions, advancedFilters.categories]);
-
-  const stats = useMemo(() => {
-    if (!data?.pages.length) return { totalExpenses: 0, totalIncome: 0, net: 0, matchedItemsTotal: 0 };
-    const totalExpenses = filtered
-      .filter((t) => t.type === "expense")
-      .reduce((sum, t) => sum + t.transaction.value, 0);
-    const totalIncome = filtered
-      .filter((t) => t.type === "income")
-      .reduce((sum, t) => sum + t.transaction.value, 0);
-    const matchedItemsTotal = filtered.reduce((sum, t) => {
-      if (!t.matchedItems?.length) return sum;
-      return sum + t.matchedItems.reduce(
-        (itemSum, item) => itemSum + (item.price - (item.discount || 0)) * item.quantity,
-        0,
-      );
-    }, 0);
-    return { totalExpenses, totalIncome, net: totalIncome - totalExpenses, matchedItemsTotal };
-  }, [data, filtered]);
-
-  const hasItemSearch = filtered.some((t) => t.matchedItems?.length);
 
   const loadMoreRef = useIntersectionObserver(() => fetchNextPage(), {
     enabled: !!hasNextPage && !isFetchingNextPage,
@@ -152,7 +166,7 @@ export default function TransactionsPage() {
               totalIncome={stats.totalIncome}
               totalExpenses={stats.totalExpenses}
               net={stats.net}
-              matchedItemsTotal={hasItemSearch ? stats.matchedItemsTotal : undefined}
+              allTimeBalance={balanceData?.totalBalance}
             />
           </div>
 
@@ -160,11 +174,14 @@ export default function TransactionsPage() {
             <TransactionFilters
               typeFilter={typeFilter}
               scopeFilter={scopeFilter}
+              paymentMethodFilter={paymentMethodFilter}
               searchQuery={searchQuery}
               advancedFilters={advancedFilters}
               categories={categories}
+              paymentMethods={paymentMethods}
               onTypeChange={setTypeFilter}
               onScopeChange={setScopeFilter}
+              onPaymentMethodChange={setPaymentMethodFilter}
               onSearchChange={setSearchQuery}
               onAdvancedFiltersChange={setAdvancedFilters}
             />
@@ -177,6 +194,7 @@ export default function TransactionsPage() {
               loadMoreRef={loadMoreRef}
               isFetchingNextPage={isFetchingNextPage}
               searchQuery={debouncedSearch || undefined}
+              paymentMethods={paymentMethods}
             />
           </div>
         </div>

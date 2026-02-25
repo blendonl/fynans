@@ -2,6 +2,7 @@
 
 import { formatCurrency } from "@/utils/currency";
 import type { Transaction } from "@/types";
+import type { PaymentMethod } from "@/hooks/use-payment-methods";
 import { GlassCard } from "@/components/glass/glass-card";
 import { TransactionRow } from "./transaction-row";
 
@@ -13,6 +14,7 @@ interface TransactionGroupProps {
   matchedItemsTotal: number;
   transactions: Transaction[];
   searchQuery?: string;
+  paymentMethods?: PaymentMethod[];
 }
 
 export function TransactionGroup({
@@ -23,6 +25,7 @@ export function TransactionGroup({
   matchedItemsTotal,
   transactions,
   searchQuery,
+  paymentMethods = [],
 }: TransactionGroupProps) {
   return (
     <div className="space-y-3">
@@ -66,6 +69,7 @@ export function TransactionGroup({
               key={t.id}
               transaction={t}
               searchQuery={searchQuery}
+              paymentMethods={paymentMethods}
               style={{ animationDelay: `${i * 40}ms` }}
             />
           ))}

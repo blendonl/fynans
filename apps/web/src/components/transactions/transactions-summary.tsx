@@ -7,21 +7,36 @@ interface TransactionsSummaryProps {
   totalIncome: number;
   totalExpenses: number;
   net: number;
-  matchedItemsTotal?: number;
+  allTimeBalance?: number;
 }
 
-export function TransactionsSummary({ totalIncome, totalExpenses, net, matchedItemsTotal }: TransactionsSummaryProps) {
+export function TransactionsSummary({ totalIncome, totalExpenses, net, allTimeBalance }: TransactionsSummaryProps) {
   return (
     <GlassCard variant="strong" className="p-5 sm:p-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wide">
-            Net Balance
+          {allTimeBalance !== undefined && (
+            <>
+              <span className="text-[11px] font-medium text-text-secondary uppercase tracking-wide">
+                Total Balance
+              </span>
+              <p
+                className={`text-2xl sm:text-3xl font-bold font-mono tabular-nums mt-0.5 ${
+                  allTimeBalance >= 0 ? "text-income" : "text-expense"
+                }`}
+              >
+                {allTimeBalance >= 0 ? "+" : "−"}
+                {formatCurrency(Math.abs(allTimeBalance))}
+              </p>
+            </>
+          )}
+          <span className={`text-[11px] font-medium text-text-secondary uppercase tracking-wide ${allTimeBalance !== undefined ? "mt-2 block" : ""}`}>
+            {allTimeBalance !== undefined ? "Filtered Period" : "Net Balance"}
           </span>
           <p
-            className={`text-2xl sm:text-3xl font-bold font-mono tabular-nums mt-0.5 ${
+            className={`text-lg font-bold font-mono tabular-nums mt-0.5 ${
               net >= 0 ? "text-income" : "text-expense"
-            }`}
+            } ${allTimeBalance !== undefined ? "text-base" : "text-2xl sm:text-3xl"}`}
           >
             {net >= 0 ? "+" : "−"}
             {formatCurrency(Math.abs(net))}
@@ -29,14 +44,6 @@ export function TransactionsSummary({ totalIncome, totalExpenses, net, matchedIt
         </div>
 
         <div className="flex items-center gap-3">
-          {matchedItemsTotal !== undefined && matchedItemsTotal > 0 && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/8">
-              <span className="h-2 w-2 rounded-full bg-primary" />
-              <span className="text-xs font-semibold font-mono text-primary">
-                {formatCurrency(matchedItemsTotal)}
-              </span>
-            </div>
-          )}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-income/8">
             <span className="h-2 w-2 rounded-full bg-income" />
             <span className="text-xs font-semibold font-mono text-income">

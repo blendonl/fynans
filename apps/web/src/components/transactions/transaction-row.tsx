@@ -1,15 +1,18 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { formatCurrency } from "@/utils/currency";
 import type { Transaction } from "@/types";
+import type { PaymentMethod } from "@/hooks/use-payment-methods";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface TransactionRowProps {
   transaction: Transaction;
   searchQuery?: string;
+  paymentMethods?: PaymentMethod[];
   style?: React.CSSProperties;
 }
 
@@ -31,7 +34,12 @@ function HighlightText({ text, query }: { text: string; query?: string }) {
   );
 }
 
-export function TransactionRow({ transaction, searchQuery, style }: TransactionRowProps) {
+export function TransactionRow({ transaction, searchQuery, paymentMethods = [], style }: TransactionRowProps) {
+  const paymentMethod = useMemo(() => {
+    if (!transaction.transaction.paymentMethodId || paymentMethods.length === 0) return null;
+    return paymentMethods.find((pm) => pm.id === transaction.transaction.paymentMethodId) || null;
+  }, [transaction.transaction.paymentMethodId, paymentMethods]);
+
   const date = transaction.transaction.recordedAt
     ? new Date(transaction.transaction.recordedAt).toLocaleDateString("en-US", {
         month: "short",
@@ -88,6 +96,15 @@ export function TransactionRow({ transaction, searchQuery, style }: TransactionR
               <Badge variant="secondary" className="text-[10px] py-0 flex-shrink-0">
                 Family
               </Badge>
+            )}
+            {paymentMethod && (
+              <span className="flex items-center gap-1 text-[10px] text-text-secondary flex-shrink-0">
+                <span
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{ backgroundColor: paymentMethod.color }}
+                />
+                {paymentMethod.name}
+              </span>
             )}
           </div>
 
