@@ -10,8 +10,10 @@ import {
   itemControllerUpdate,
   itemControllerDelete,
 } from "@/api/generated/endpoints/items/items";
-import { storeItemCategoryControllerFindAll } from "@/api/generated/endpoints/store-item-category/store-item-category";
-import { storeItemControllerDelete } from "@/api/generated/endpoints/store-item/store-item";
+import { storeItemCategoryControllerFindAll, storeItemCategoryControllerCreate } from "@/api/generated/endpoints/store-item-category/store-item-category";
+import { storeItemControllerCreate, storeItemControllerDelete, storeItemControllerUpdate } from "@/api/generated/endpoints/store-item/store-item";
+import { storeControllerFindAll, storeControllerCreate } from "@/api/generated/endpoints/store/store";
+import { storeItemDiscountControllerCreate, storeItemDiscountControllerEnd, storeItemDiscountControllerGetActive } from "@/api/generated/endpoints/store-item-discount/store-item-discount";
 import { Button } from "@/components/ui/button";
 import { ItemDetail } from "@/components/manage/item-detail";
 import { queryKeys } from "@/lib/query-keys";
@@ -43,15 +45,60 @@ export default function ItemDetailPage({
     },
   });
 
+  const { data: storesRes } = useQuery({
+    queryKey: queryKeys.stores.all,
+    queryFn: async () => {
+      const res = await storeControllerFindAll({ limit: 200 });
+      return res.data;
+    },
+  });
+
   const itemCategories = categoriesRes?.data ?? [];
+  const storesList = (storesRes?.data ?? []).map((s) => ({
+    id: s.id,
+    name: s.name,
+    location: s.location,
+  }));
+
+  const storeItemIds = item?.stores.map((s) => s.storeItemId) ?? [];
+
+  const discountQueries = useQuery({
+    queryKey: ["item-discounts", id, storeItemIds],
+    queryFn: async () => {
+      const results: Record<string, { id: string; discount: number }> = {};
+      await Promise.all(
+        storeItemIds.map(async (storeItemId) => {
+          try {
+            const res = await storeItemDiscountControllerGetActive(storeItemId);
+            if (res.data?.isActive) {
+              results[storeItemId] = {
+                id: res.data.id,
+                discount: res.data.discount,
+              };
+            }
+          } catch {
+            // no active discount
+          }
+        })
+      );
+      return results;
+    },
+    enabled: storeItemIds.length > 0,
+  });
+
+  const activeDiscounts = discountQueries.data ?? {};
+
+  const invalidateItem = () => {
+    queryClient.invalidateQueries({ queryKey: ["item", id] });
+    queryClient.invalidateQueries({ queryKey: ["items"] });
+  };
 
   const updateMutation = useMutation({
     mutationFn: async (data: { name: string; categoryId: string }) => {
       await itemControllerUpdate(id, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["item", id] });
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+      invalidateItem();
       toast.success("Item updated");
     },
     onError: (error: Error) => {
@@ -78,12 +125,103 @@ export default function ItemDetailPage({
       await storeItemControllerDelete(storeItemId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["item", id] });
+      invalidateItem();
       queryClient.invalidateQueries({ queryKey: queryKeys.storeItems.all });
       toast.success("Store link removed");
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to remove store link");
+    },
+  });
+
+  const createCategoryMutation = useMutation({
+    mutationFn: async (name: string) => {
+      const res = await storeItemCategoryControllerCreate({ name });
+      return res.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.item() });
+      toast.success("Category created");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create category");
+    },
+  });
+
+  const createStoreLinkMutation = useMutation({
+    mutationFn: async ({ storeId, price }: { storeId: string; price: number }) => {
+      if (!item) throw new Error("Item not loaded");
+      await storeItemControllerCreate({
+        storeId,
+        name: item.name,
+        price,
+        categoryId: item.categoryId,
+      });
+    },
+    onSuccess: () => {
+      invalidateItem();
+      queryClient.invalidateQueries({ queryKey: queryKeys.storeItems.all });
+      toast.success("Store link created");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to link store");
+    },
+  });
+
+  const createStoreMutation = useMutation({
+    mutationFn: async ({ name, location }: { name: string; location: string }) => {
+      const res = await storeControllerCreate({ name, location });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.stores.all });
+      toast.success("Store created");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create store");
+    },
+  });
+
+  const updateStoreItemMutation = useMutation({
+    mutationFn: async ({ storeItemId, data }: { storeItemId: string; data: { price?: number; isDiscounted?: boolean } }) => {
+      await storeItemControllerUpdate(storeItemId, data);
+    },
+    onSuccess: () => {
+      invalidateItem();
+      toast.success("Store item updated");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to update store item");
+    },
+  });
+
+  const createDiscountMutation = useMutation({
+    mutationFn: async ({ storeItemId, discount }: { storeItemId: string; discount: number }) => {
+      await storeItemDiscountControllerCreate(storeItemId, { discount });
+      await storeItemControllerUpdate(storeItemId, { isDiscounted: true });
+    },
+    onSuccess: () => {
+      invalidateItem();
+      queryClient.invalidateQueries({ queryKey: ["item-discounts", id] });
+      toast.success("Discount added");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to add discount");
+    },
+  });
+
+  const endDiscountMutation = useMutation({
+    mutationFn: async ({ storeItemId, discountId }: { storeItemId: string; discountId: string }) => {
+      await storeItemDiscountControllerEnd(storeItemId, discountId);
+      await storeItemControllerUpdate(storeItemId, { isDiscounted: false });
+    },
+    onSuccess: () => {
+      invalidateItem();
+      queryClient.invalidateQueries({ queryKey: ["item-discounts", id] });
+      toast.success("Discount ended");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to end discount");
     },
   });
 
@@ -117,6 +255,7 @@ export default function ItemDetailPage({
       <ItemDetail
         item={item}
         itemCategories={itemCategories}
+        stores={storesList}
         onUpdate={(data) => updateMutation.mutate(data)}
         isUpdating={updateMutation.isPending}
         onDelete={() => deleteMutation.mutate()}
@@ -129,6 +268,29 @@ export default function ItemDetailPage({
             ? (deleteStoreItemMutation.variables as string)
             : null
         }
+        onCreateCategory={(name) => createCategoryMutation.mutate(name)}
+        isCreatingCategory={createCategoryMutation.isPending}
+        onCreateStoreLink={(storeId, price) =>
+          createStoreLinkMutation.mutate({ storeId, price })
+        }
+        isCreatingStoreLink={createStoreLinkMutation.isPending}
+        onCreateStore={(name, location) =>
+          createStoreMutation.mutate({ name, location })
+        }
+        isCreatingStore={createStoreMutation.isPending}
+        onUpdateStoreItem={(storeItemId, data) =>
+          updateStoreItemMutation.mutate({ storeItemId, data })
+        }
+        isUpdatingStoreItem={updateStoreItemMutation.isPending}
+        onCreateDiscount={(storeItemId, discount) =>
+          createDiscountMutation.mutate({ storeItemId, discount })
+        }
+        isCreatingDiscount={createDiscountMutation.isPending}
+        onEndDiscount={(storeItemId, discountId) =>
+          endDiscountMutation.mutate({ storeItemId, discountId })
+        }
+        isEndingDiscount={endDiscountMutation.isPending}
+        activeDiscounts={activeDiscounts}
       />
     </div>
   );
