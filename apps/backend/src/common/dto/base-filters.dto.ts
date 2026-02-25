@@ -6,6 +6,7 @@ export interface BaseFilterData {
   storeId?: string;
   familyId?: string;
   scope?: TransactionScope;
+  paymentMethodId?: string;
   dateFrom?: Date;
   dateTo?: Date;
   valueMin?: number;
@@ -19,6 +20,7 @@ export class BaseFilters implements BaseFilterData {
   storeId?: string;
   familyId?: string;
   scope?: TransactionScope;
+  paymentMethodId?: string;
   dateFrom?: Date;
   dateTo?: Date;
   valueMin?: number;
@@ -31,6 +33,7 @@ export class BaseFilters implements BaseFilterData {
     this.storeId = data.storeId;
     this.familyId = data.familyId;
     this.scope = data.scope;
+    this.paymentMethodId = data.paymentMethodId;
     this.dateFrom = data.dateFrom;
     this.dateTo = data.dateTo;
     this.valueMin = data.valueMin;
@@ -48,6 +51,7 @@ export class BaseFilters implements BaseFilterData {
       storeId?: string;
       familyId?: string;
       scope?: TransactionScope;
+      paymentMethodId?: string;
       dateFrom?: string;
       dateTo?: string;
       valueMin?: number;
@@ -61,6 +65,7 @@ export class BaseFilters implements BaseFilterData {
       userId: query.familyId ? undefined : userId,
       familyId: query.familyId,
       scope: query.scope,
+      paymentMethodId: query.paymentMethodId,
       storeId: query.storeId,
       dateFrom: query.dateFrom ? new Date(query.dateFrom) : undefined,
       dateTo: query.dateTo ? new Date(query.dateTo) : undefined,

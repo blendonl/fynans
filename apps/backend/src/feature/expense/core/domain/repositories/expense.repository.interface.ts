@@ -13,6 +13,7 @@ export interface ExpenseFilters {
   familyId?: string;
   scope?: TransactionScope;
   status?: TransactionStatus;
+  paymentMethodId?: string;
   dateFrom?: Date;
   dateTo?: Date;
   valueMin?: number;

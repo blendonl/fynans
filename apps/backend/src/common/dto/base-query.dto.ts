@@ -41,6 +41,10 @@ export class BaseQueryDto {
   @Type(() => Number)
   valueMax?: number;
 
+  @IsUUID()
+  @IsOptional()
+  paymentMethodId?: string;
+
   @IsNumber()
   @IsOptional()
   @Type(() => Number)

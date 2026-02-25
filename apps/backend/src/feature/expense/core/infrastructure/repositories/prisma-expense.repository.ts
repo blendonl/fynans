@@ -323,6 +323,10 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       where.transaction.scope = filters.scope;
     }
 
+    if (filters.paymentMethodId) {
+      where.transaction.paymentMethodId = filters.paymentMethodId;
+    }
+
     if (filters.valueMin !== undefined || filters.valueMax !== undefined) {
       where.transaction.value = {};
       if (filters.valueMin !== undefined) {

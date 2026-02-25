@@ -34,6 +34,10 @@ export class QueryTransactionDto {
   @IsOptional()
   status?: TransactionStatus;
 
+  @IsUUID()
+  @IsOptional()
+  paymentMethodId?: string;
+
   @IsDateString()
   @IsOptional()
   dateFrom?: string;
