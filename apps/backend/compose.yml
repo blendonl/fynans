@@ -38,30 +38,47 @@ services:
 
   paddleocr:
     build:
-      context: ./docker/paddleocr-service
-      dockerfile: Dockerfile
-    ports:
-      - '8000:8000'
+      context: ./apps/backend/docker/paddleocr-service
+      dockerfile: Dockerfile.cpu
+    restart: unless-stopped
     volumes:
       - paddleocr-models:/root/.paddleocr
       - paddlex-models:/root/.paddlex
     environment:
-      - USE_GPU=true
+      - USE_GPU=false
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
       interval: 10s
       timeout: 10s
       retries: 5
       start_period: 180s
-    shm_size: 2G
-    restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+
+  # paddleocr:
+  #   build:
+  #     context: ./docker/paddleocr-service
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '8000:8000'
+  #   volumes:
+  #     - paddleocr-models:/root/.paddleocr
+  #     - paddlex-models:/root/.paddlex
+  #   environment:
+  #     - USE_GPU=true
+  #   healthcheck:
+  #     test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 5
+  #     start_period: 180s
+  #   shm_size: 2G
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
 
   redis:
     image: redis:7-alpine
