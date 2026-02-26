@@ -1,22 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFamilies } from "@/hooks/use-families";
-import { TransactionTypeTabs } from "@/components/add-transaction/transaction-type-tabs";
-import { ScopeSelector } from "@/components/add-transaction/scope-selector";
-import { ExpenseForm } from "@/components/add-transaction/expense-form";
-import { IncomeForm } from "@/components/add-transaction/income-form";
+import { usePaymentMethods } from "@/hooks/use-payment-methods";
+import { useStickyDefault } from "@/hooks/use-sticky-default";
 import { PageHeader } from "@/components/ui/page-header";
+import { TransactionTypeTabs } from "@/components/add-transaction/transaction-type-tabs";
+import { ScanHero } from "@/components/add-transaction/scan-hero";
+import { ScanQueuePanel } from "@/components/add-transaction/scan-queue-panel";
+import { ManualEntrySection } from "@/components/add-transaction/manual-entry-section";
+import { IncomeForm } from "@/components/add-transaction/income-form";
+import { ScopeSelector } from "@/components/add-transaction/scope-selector";
+import { PaymentMethodSelector } from "@/components/add-transaction/payment-method-selector";
+
+const LS_SCOPE_KEY = "fynans:lastScope";
+const LS_PAYMENT_KEY = "fynans:lastPaymentMethod";
+const LS_TAB_KEY = "fynans:lastTransactionTab";
 
 export default function AddTransactionPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<"expense" | "income">("expense");
-  const [scope, setScope] = useState<"PERSONAL" | "FAMILY">("PERSONAL");
-  const [familyId, setFamilyId] = useState("");
   const { families } = useFamilies();
+  const { paymentMethods, isLoading: paymentMethodsLoading } = usePaymentMethods();
+
+  const [tab, setTab] = useStickyDefault<"expense" | "income">(LS_TAB_KEY, "expense");
+  const [manualExpanded, setManualExpanded] = useState(false);
+
+  const [scope, setScope] = useStickyDefault<"PERSONAL" | "FAMILY">(LS_SCOPE_KEY, "PERSONAL");
+  const [familyId, setFamilyId] = useState("");
+  const [paymentMethodId, setPaymentMethodId] = useStickyDefault<string>(LS_PAYMENT_KEY, "");
+
+  useEffect(() => {
+    if (paymentMethods.length > 0 && !paymentMethodId) {
+      setPaymentMethodId(paymentMethods[0].id);
+    }
+    if (paymentMethodId && paymentMethods.length > 0 && !paymentMethods.find((m) => m.id === paymentMethodId)) {
+      setPaymentMethodId(paymentMethods[0].id);
+    }
+  }, [paymentMethods, paymentMethodId, setPaymentMethodId]);
+
+  useEffect(() => {
+    if (families.length > 0 && !familyId) {
+      setFamilyId(families[0].id);
+    }
+  }, [families, familyId]);
 
   const onSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["transactions"] });
@@ -37,10 +66,12 @@ export default function AddTransactionPage() {
       <PageHeader
         label="New entry"
         title="Add Transaction"
-        description="Record an expense or income to keep your finances up to date."
         className="dash-animate-in"
-      >
-        <TransactionTypeTabs value={tab} onChange={setTab} />
+      />
+
+      <TransactionTypeTabs value={tab} onChange={setTab} />
+
+      <div className="flex flex-row items-start justify-between gap-3 dash-animate-in">
         <ScopeSelector
           scope={scope}
           onScopeChange={setScope}
@@ -48,15 +79,50 @@ export default function AddTransactionPage() {
           onFamilyChange={setFamilyId}
           families={families}
         />
-      </PageHeader>
-
-      <div className="rounded-3xl bg-surface border border-border-light p-5 sm:p-6 lg:p-8 shadow-sm dash-animate-in dash-delay-2">
-        {tab === "expense" ? (
-          <ExpenseForm onSuccess={onSuccess} onSaveForReview={onSaveForReview} scope={scope} familyId={familyId} />
-        ) : (
-          <IncomeForm onSuccess={onSuccess} onSaveForReview={onSaveForReview} scope={scope} familyId={familyId} />
-        )}
+        <PaymentMethodSelector
+          paymentMethods={paymentMethods}
+          selectedId={paymentMethodId}
+          onSelect={(id) => setPaymentMethodId(id ?? "")}
+          isLoading={paymentMethodsLoading}
+          hideLabel
+        />
       </div>
+
+      {tab === "expense" && (
+        <div className="space-y-6 dash-animate-in">
+          <ScanHero
+            paymentMethods={paymentMethods}
+            paymentMethodsLoading={paymentMethodsLoading}
+            scope={scope}
+            familyId={familyId}
+            paymentMethodId={paymentMethodId}
+          />
+
+          <ScanQueuePanel />
+
+          <ManualEntrySection
+            expanded={manualExpanded}
+            onToggle={() => setManualExpanded((v) => !v)}
+            onSuccess={onSuccess}
+            onSaveForReview={onSaveForReview}
+            scope={scope}
+            familyId={familyId}
+            externalPaymentMethodId={paymentMethodId || undefined}
+          />
+        </div>
+      )}
+
+      {tab === "income" && (
+        <div className="dash-animate-in">
+          <IncomeForm
+            onSuccess={onSuccess}
+            onSaveForReview={onSaveForReview}
+            scope={scope}
+            familyId={familyId}
+            externalPaymentMethodId={paymentMethodId || undefined}
+          />
+        </div>
+      )}
     </div>
   );
 }
