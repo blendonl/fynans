@@ -40,6 +40,8 @@ services:
     build:
       context: ./apps/backend/docker/paddleocr-service
       dockerfile: Dockerfile.cpu
+    ports:
+      - '8001:8000'
     restart: unless-stopped
     volumes:
       - paddleocr-models:/root/.paddleocr
