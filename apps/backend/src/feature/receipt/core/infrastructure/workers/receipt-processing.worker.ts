@@ -1,10 +1,11 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Logger, Optional } from '@nestjs/common';
+import { Inject, Logger, Optional } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { ProcessReceiptUseCase } from '../../application/use-cases/process-receipt.use-case';
 import { EnrichReceiptDataUseCase } from '../../application/use-cases/enrich-receipt-data.use-case';
 import { EnrichedReceiptDataDto } from '../../application/dto/enriched-receipt-data.dto';
 import { ProgressTracker } from '../../application/services/progress-tracker';
+import { IStoredReceiptRepository } from '../../domain/repositories/stored-receipt.repository.interface';
 import { ExpenseService } from '~feature/expense/core/application/services/expense.service';
 import { CreateExpenseDto } from '~feature/expense/core/application/dto/create-expense.dto';
 import { CreateExpenseItemDto } from '~feature/expense-item/core/application/dto/create-expense-item.dto';
@@ -26,6 +27,7 @@ export class ReceiptProcessingWorker extends WorkerHost {
     private readonly processReceiptUseCase: ProcessReceiptUseCase,
     private readonly enrichReceiptDataUseCase: EnrichReceiptDataUseCase,
     @Optional() private readonly expenseService?: ExpenseService,
+    @Optional() @Inject('StoredReceiptRepository') private readonly receiptRepo?: IStoredReceiptRepository,
   ) {
     super();
   }
@@ -129,6 +131,16 @@ export class ReceiptProcessingWorker extends WorkerHost {
           );
 
           enrichedResult.pendingExpenseId = expense.id;
+
+          if (job.data.receiptId && this.receiptRepo) {
+            try {
+              await this.receiptRepo.update(job.data.receiptId, { expenseId: expense.id });
+              this.logger.log(`Linked receipt ${job.data.receiptId} to pending expense ${expense.id}`);
+            } catch (linkErr) {
+              this.logger.error(`Failed to link receipt ${job.data.receiptId} to expense ${expense.id}`, linkErr);
+            }
+          }
+
           this.logger.log(`Auto-created pending expense ${expense.id} for receipt job ${job.id}`);
         }
       } catch (err) {
