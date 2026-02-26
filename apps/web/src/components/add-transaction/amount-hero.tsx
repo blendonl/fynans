@@ -10,9 +10,10 @@ interface AmountHeroProps {
   readOnly?: boolean;
   sublabel?: string;
   autoFocus?: boolean;
+  compact?: boolean;
 }
 
-export function AmountHero({ value, onChange, type, readOnly = false, sublabel, autoFocus = false }: AmountHeroProps) {
+export function AmountHero({ value, onChange, type, readOnly = false, sublabel, autoFocus = false, compact = false }: AmountHeroProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -22,7 +23,7 @@ export function AmountHero({ value, onChange, type, readOnly = false, sublabel, 
   }, [autoFocus]);
 
   return (
-    <div className="amount-scale-in flex flex-col items-center py-6 lg:py-10">
+    <div className={cn("amount-scale-in flex flex-col items-center", compact ? "py-3 lg:py-6" : "py-6 lg:py-10")}>
       <div className="flex items-baseline gap-1">
         <span
           className={cn(
