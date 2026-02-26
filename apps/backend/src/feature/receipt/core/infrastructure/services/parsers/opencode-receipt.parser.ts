@@ -186,19 +186,21 @@ export class OpencodeReceiptParser implements IReceiptParser {
     try {
       return await this.doApiCall(prompt, this.model);
     } catch (err) {
-      if (err instanceof Error) {
-        if (err.message.includes('401')) {
-          this.logger.warn('Copilot API returned 401, refreshing token and retrying...');
-          await this.tokenService.refreshIfUnauthorized();
-          return this.doApiCall(prompt, this.model);
-        }
-        if (err.message.includes('429') && this.fallbackModel !== this.model) {
-          this.logger.warn(
-            `Copilot API returned 429 for model ${this.model}, falling back to ${this.fallbackModel}`,
-          );
-          return this.doApiCall(prompt, this.fallbackModel);
-        }
+      const message = err instanceof Error ? err.message : String(err);
+
+      if (message.includes('401')) {
+        this.logger.warn('Copilot API returned 401, refreshing token and retrying...');
+        await this.tokenService.refreshIfUnauthorized();
+        return this.doApiCall(prompt, this.model);
       }
+
+      if (this.fallbackModel !== this.model) {
+        this.logger.warn(
+          `Primary model '${this.model}' failed (${message}), falling back to '${this.fallbackModel}'`,
+        );
+        return this.doApiCall(prompt, this.fallbackModel);
+      }
+
       throw err;
     }
   }
