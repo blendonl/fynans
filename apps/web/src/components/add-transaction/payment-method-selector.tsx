@@ -15,6 +15,7 @@ interface PaymentMethodSelectorProps {
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   isLoading?: boolean;
+  hideLabel?: boolean;
 }
 
 function TypeBadge({ type }: { type: PaymentMethod["type"] }) {
@@ -35,11 +36,12 @@ export function PaymentMethodSelector({
   selectedId,
   onSelect,
   isLoading,
+  hideLabel,
 }: PaymentMethodSelectorProps) {
   if (isLoading) {
     return (
       <div className="space-y-2">
-        <Label>Payment Method</Label>
+        {!hideLabel && <Label>Payment Method</Label>}
         <div className="h-10 rounded-2xl skeleton-shimmer" />
       </div>
     );
@@ -51,7 +53,7 @@ export function PaymentMethodSelector({
     const method = paymentMethods[0];
     return (
       <div className="space-y-2 field-slide-down">
-        <Label>Payment Method</Label>
+        {!hideLabel && <Label>Payment Method</Label>}
         <div className="flex items-center gap-2 h-10 px-3 rounded-2xl border border-border bg-surface text-sm">
           <span
             className="h-2.5 w-2.5 rounded-full shrink-0"
@@ -68,7 +70,7 @@ export function PaymentMethodSelector({
 
   return (
     <div className="space-y-2 field-slide-down">
-      <Label>Payment Method</Label>
+      {!hideLabel && <Label>Payment Method</Label>}
       <Select
         value={selectedId ?? ""}
         onValueChange={onSelect}

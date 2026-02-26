@@ -25,7 +25,6 @@ import { AddCategoryDialog } from "@/components/add-expense/add-category-dialog"
 import { AddItemCategoryDialog } from "@/components/add-expense/add-item-category-dialog";
 import { AmountHero } from "./amount-hero";
 import { DateTimePicker } from "./date-time-picker";
-import { ReceiptScanArea } from "./receipt-scan-area";
 import { PaymentMethodSelector } from "./payment-method-selector";
 import { SubmitButtons } from "./submit-buttons";
 
@@ -34,9 +33,11 @@ interface ExpenseFormProps {
   onSaveForReview?: () => void;
   scope: "PERSONAL" | "FAMILY";
   familyId: string;
+  defaultItemized?: boolean;
+  externalPaymentMethodId?: string;
 }
 
-export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: ExpenseFormProps) {
+export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId, defaultItemized, externalPaymentMethodId }: ExpenseFormProps) {
   const {
     categories,
     itemCategories,
@@ -59,8 +60,10 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
-  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useAutoSelectPaymentMethod(paymentMethods);
-  const [isItemized, setIsItemized] = useState(false);
+  const [autoPaymentMethodId, setAutoPaymentMethodId] = useAutoSelectPaymentMethod(paymentMethods);
+  const selectedPaymentMethodId = externalPaymentMethodId ?? autoPaymentMethodId;
+  const setSelectedPaymentMethodId = setAutoPaymentMethodId;
+  const [isItemized, setIsItemized] = useState(defaultItemized ?? false);
   const [simpleAmount, setSimpleAmount] = useState("");
   const [simpleNote, setSimpleNote] = useState("");
   const [recordedAt, setRecordedAt] = useState(localNow);
@@ -161,14 +164,15 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
 
   return (
     <div>
-      <div className="flex flex-col lg:flex-row lg:gap-8">
-        <div className="space-y-5 lg:w-72 lg:shrink-0 lg:sticky lg:top-6 lg:self-start">
+      <div className="flex flex-col">
+        <div className="space-y-5 flex-1 min-w-0">
           {!isItemized ? (
             <AmountHero
               value={simpleAmount}
               onChange={setSimpleAmount}
               type="expense"
               autoFocus
+              compact
             />
           ) : (
             <AmountHero
@@ -176,17 +180,10 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
               type="expense"
               readOnly
               sublabel={expenseItems.items.length > 0 ? `from ${expenseItems.items.length} item${expenseItems.items.length !== 1 ? "s" : ""}` : undefined}
+              compact
             />
           )}
 
-          <ReceiptScanArea
-            onResult={handleReceiptResult}
-            hasScanned={hasScannedReceipt}
-            scanOptions={receiptScanOptions}
-          />
-        </div>
-
-        <div className="space-y-5 mt-5 lg:mt-0 flex-1 min-w-0">
           <FormProgress steps={progressSteps} />
 
           {!isItemized && (
@@ -269,26 +266,30 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId }: Exp
           )}
 
           <div className="space-y-5 border-t border-border pt-5">
-            <CategorySelector
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onSelect={setSelectedCategory}
-              onClear={() => setSelectedCategory(null)}
-              onSearch={setCategorySearch}
-              onCreateNew={(name) => categoryDialog.show(name)}
-              isLoading={categoriesLoading}
-              aiSuggestion={activeSuggestion}
-              onAcceptSuggestion={isItemized ? ai.dismissExpenseSuggestion : ai.dismissSimpleExpenseSuggestion}
-              onDismissSuggestion={isItemized ? ai.dismissExpenseSuggestion : ai.dismissSimpleExpenseSuggestion}
-              isSuggestionLoading={isSuggestionLoading}
-            />
+            <div className="space-y-5">
+              <CategorySelector
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onSelect={setSelectedCategory}
+                onClear={() => setSelectedCategory(null)}
+                onSearch={setCategorySearch}
+                onCreateNew={(name) => categoryDialog.show(name)}
+                isLoading={categoriesLoading}
+                aiSuggestion={activeSuggestion}
+                onAcceptSuggestion={isItemized ? ai.dismissExpenseSuggestion : ai.dismissSimpleExpenseSuggestion}
+                onDismissSuggestion={isItemized ? ai.dismissExpenseSuggestion : ai.dismissSimpleExpenseSuggestion}
+                isSuggestionLoading={isSuggestionLoading}
+              />
 
-            <PaymentMethodSelector
-              paymentMethods={paymentMethods}
-              selectedId={selectedPaymentMethodId}
-              onSelect={setSelectedPaymentMethodId}
-              isLoading={paymentMethodsLoading}
-            />
+              {!externalPaymentMethodId && (
+                <PaymentMethodSelector
+                  paymentMethods={paymentMethods}
+                  selectedId={selectedPaymentMethodId}
+                  onSelect={setSelectedPaymentMethodId}
+                  isLoading={paymentMethodsLoading}
+                />
+              )}
+            </div>
 
             <DateTimePicker value={recordedAt} onChange={setRecordedAt} />
 

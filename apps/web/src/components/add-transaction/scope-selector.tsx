@@ -15,7 +15,7 @@ interface ScopeSelectorProps {
 
 export function ScopeSelector({ scope, onScopeChange, familyId, onFamilyChange, families }: ScopeSelectorProps) {
   return (
-    <div className="flex gap-2">
+    <div className="space-y-2">
       <div className="flex rounded-2xl bg-surface-variant p-1 gap-1">
         <button
           type="button"
@@ -47,7 +47,7 @@ export function ScopeSelector({ scope, onScopeChange, familyId, onFamilyChange, 
 
       {scope === "FAMILY" && (
         <Select value={familyId} onValueChange={onFamilyChange}>
-          <SelectTrigger className="flex-1 min-w-0">
+          <SelectTrigger>
             <SelectValue placeholder="Select family" />
           </SelectTrigger>
           <SelectContent>

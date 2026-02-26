@@ -23,9 +23,10 @@ interface IncomeFormProps {
   onSaveForReview?: () => void;
   scope: "PERSONAL" | "FAMILY";
   familyId: string;
+  externalPaymentMethodId?: string;
 }
 
-export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: IncomeFormProps) {
+export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId, externalPaymentMethodId }: IncomeFormProps) {
   const { incomeCategories, isLoading: categoriesLoading, createCategory } = useCategories();
   const { paymentMethods, isLoading: paymentMethodsLoading } = usePaymentMethods();
   const { submitMutation, saveForReviewMutation } = useIncomeSubmission({ onSuccess, onSaveForReview });
@@ -33,7 +34,9 @@ export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: Inco
   const ai = useAiCategorySuggestion();
 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useAutoSelectPaymentMethod(paymentMethods);
+  const [autoPaymentMethodId, setAutoPaymentMethodId] = useAutoSelectPaymentMethod(paymentMethods);
+  const selectedPaymentMethodId = externalPaymentMethodId ?? autoPaymentMethodId;
+  const setSelectedPaymentMethodId = setAutoPaymentMethodId;
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [recordedAt, setRecordedAt] = useState(localNow);
@@ -64,10 +67,11 @@ export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: Inco
     paymentMethodId: selectedPaymentMethodId,
   });
 
-  const canSubmit = selectedCategory && amount && parseFloat(amount) > 0;
-  const canSaveForReview = amount && parseFloat(amount) > 0;
+  const canSubmit = selectedPaymentMethodId && selectedCategory && amount && parseFloat(amount) > 0;
+  const canSaveForReview = selectedPaymentMethodId && amount && parseFloat(amount) > 0;
 
   const validationMessage = () => {
+    if (!selectedPaymentMethodId) return "Select a payment method";
     if (!amount || parseFloat(amount) <= 0) return "Enter an amount";
     if (!selectedCategory) return "Select a category to continue";
     return null;
@@ -75,17 +79,15 @@ export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: Inco
 
   return (
     <div>
-      <div className="flex flex-col lg:flex-row lg:gap-8">
-        <div className="lg:w-72 lg:shrink-0 lg:sticky lg:top-6 lg:self-start">
+      <div className="flex flex-col">
+        <div className="space-y-5 flex-1 min-w-0">
           <AmountHero
             value={amount}
             onChange={setAmount}
             type="income"
             autoFocus
           />
-        </div>
 
-        <div className="space-y-5 mt-5 lg:mt-0 flex-1 min-w-0">
           <Input
             placeholder="Add a note (optional)"
             value={note}
@@ -93,26 +95,30 @@ export function IncomeForm({ onSuccess, onSaveForReview, scope, familyId }: Inco
             className="min-h-12"
           />
 
-          <CategorySelector
-            categories={incomeCategories}
-            selectedCategory={selectedCategory}
-            onSelect={setSelectedCategory}
-            onClear={() => setSelectedCategory(null)}
-            onSearch={() => {}}
-            onCreateNew={(name) => categoryDialog.show(name)}
-            isLoading={categoriesLoading}
-            aiSuggestion={ai.incomeSuggestion}
-            onAcceptSuggestion={ai.dismissIncomeSuggestion}
-            onDismissSuggestion={ai.dismissIncomeSuggestion}
-            isSuggestionLoading={ai.isIncomeLoading}
-          />
+          <div className="space-y-5">
+            <CategorySelector
+              categories={incomeCategories}
+              selectedCategory={selectedCategory}
+              onSelect={setSelectedCategory}
+              onClear={() => setSelectedCategory(null)}
+              onSearch={() => {}}
+              onCreateNew={(name) => categoryDialog.show(name)}
+              isLoading={categoriesLoading}
+              aiSuggestion={ai.incomeSuggestion}
+              onAcceptSuggestion={ai.dismissIncomeSuggestion}
+              onDismissSuggestion={ai.dismissIncomeSuggestion}
+              isSuggestionLoading={ai.isIncomeLoading}
+            />
 
-          <PaymentMethodSelector
-            paymentMethods={paymentMethods}
-            selectedId={selectedPaymentMethodId}
-            onSelect={setSelectedPaymentMethodId}
-            isLoading={paymentMethodsLoading}
-          />
+            {!externalPaymentMethodId && (
+              <PaymentMethodSelector
+                paymentMethods={paymentMethods}
+                selectedId={selectedPaymentMethodId}
+                onSelect={setSelectedPaymentMethodId}
+                isLoading={paymentMethodsLoading}
+              />
+            )}
+          </div>
 
           <DateTimePicker value={recordedAt} onChange={setRecordedAt} />
 
