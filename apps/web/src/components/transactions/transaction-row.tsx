@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Receipt } from "lucide-react";
 import { formatCurrency } from "@/utils/currency";
 import type { Transaction } from "@/types";
 import type { PaymentMethod } from "@/hooks/use-payment-methods";
@@ -49,6 +49,7 @@ export function TransactionRow({ transaction, searchQuery, paymentMethods = [], 
 
   const isExpense = transaction.type === "expense";
   const user = transaction.transaction.user;
+  const hasReceipts = transaction.receiptImages && transaction.receiptImages.length > 0;
   const matchedItems = transaction.matchedItems;
   const hasMatchedItems = matchedItems && matchedItems.length > 0;
 
@@ -105,6 +106,9 @@ export function TransactionRow({ transaction, searchQuery, paymentMethods = [], 
                 />
                 {paymentMethod.name}
               </span>
+            )}
+            {hasReceipts && (
+              <Receipt className="h-3.5 w-3.5 text-text-secondary flex-shrink-0" />
             )}
           </div>
 

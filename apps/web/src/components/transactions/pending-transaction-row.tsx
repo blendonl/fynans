@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, Clock, XCircle } from "lucide-react";
+import { ChevronRight, Clock, XCircle, Receipt } from "lucide-react";
 import { formatCurrency } from "@/utils/currency";
 import type { Transaction } from "@/types";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,7 @@ export function PendingTransactionRow({ transaction }: PendingTransactionRowProp
   const isRejected = transaction.status === "REJECTED";
   const user = transaction.transaction.user;
   const isExpense = transaction.type === "expense";
+  const hasReceipts = transaction.receiptImages && transaction.receiptImages.length > 0;
 
   return (
     <Link href={`/transactions/pending/${transaction.id}?type=${transaction.type}`}>
@@ -52,6 +53,9 @@ export function PendingTransactionRow({ transaction }: PendingTransactionRowProp
                 <Clock className="h-3 w-3" />
                 Pending
               </Badge>
+            )}
+            {hasReceipts && (
+              <Receipt className="h-3.5 w-3.5 text-text-secondary flex-shrink-0" />
             )}
           </div>
           <div className="flex items-center gap-2">
