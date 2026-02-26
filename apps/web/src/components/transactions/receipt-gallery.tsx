@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { X, Receipt, ChevronLeft, ChevronRight } from "lucide-react";
 import { GlassCard } from "@/components/glass/glass-card";
 
@@ -68,7 +69,7 @@ export function ReceiptGallery({ images }: ReceiptGalleryProps) {
         </div>
       </GlassCard>
 
-      {lightboxIndex !== null && (
+      {lightboxIndex !== null && createPortal(
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-in fade-in duration-200"
           onClick={() => setLightboxIndex(null)}
@@ -122,7 +123,8 @@ export function ReceiptGallery({ images }: ReceiptGalleryProps) {
             className="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           />
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );
