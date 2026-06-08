@@ -8,6 +8,13 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 
+  if (pathname === "/") {
+    if (!token) {
+      return NextResponse.rewrite(new URL("/welcome", request.url));
+    }
+    return NextResponse.next();
+  }
+
   if (AUTH_PAGES.some((p) => pathname.startsWith(p))) {
     if (token) {
       return NextResponse.redirect(new URL("/", request.url));
