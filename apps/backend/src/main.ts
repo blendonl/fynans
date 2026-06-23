@@ -8,6 +8,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { toNodeHandler } from 'better-auth/node';
+import cors from 'cors';
 import { AppModule } from './app.module';
 import { BetterAuthProvider } from './feature/auth/core/infrastructure/providers/better-auth.provider';
 import { validateEnv } from './common/config/env.validation';
@@ -17,12 +18,15 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors({
-    origin: env.CORS_ORIGIN.split(',').map((o) => o.trim()),
+  const corsOrigins = env.CORS_ORIGIN.split(',').map((o) => o.trim());
+  const corsOptions = {
+    origin: corsOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-  });
+  };
+
+  app.enableCors(corsOptions);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -53,7 +57,16 @@ async function bootstrap() {
   const betterAuthHandler = toNodeHandler(betterAuthProvider.auth);
 
   const expressApp = app.getHttpAdapter().getInstance();
-  expressApp.all('/api/auth/*splat', betterAuthHandler);
+
+  // Apply CORS middleware directly on the Express app for auth routes.
+  // The better-auth handler is mounted outside NestJS's router, so we
+  // must ensure the cors middleware runs before it to handle preflight
+  // (OPTIONS) requests correctly.
+  expressApp.use('/api/auth', cors(corsOptions));
+
+  // Express 5 + path-to-regexp v8: use {*path} instead of the Express 4
+  // *splat syntax to capture all remaining path segments.
+  expressApp.all('/api/auth/{*path}', betterAuthHandler);
 
   await app.listen(env.PORT, '0.0.0.0');
 }
