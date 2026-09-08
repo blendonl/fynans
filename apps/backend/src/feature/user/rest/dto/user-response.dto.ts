@@ -15,9 +15,6 @@ export class UserResponseDto {
   lastName!: string;
 
   @ApiProperty()
-  balance!: string;
-
-  @ApiProperty()
   emailVerified!: boolean;
 
   @ApiProperty()
@@ -32,7 +29,6 @@ export class UserResponseDto {
     dto.email = user.email;
     dto.firstName = user.firstName;
     dto.lastName = user.lastName;
-    dto.balance = user.balance.toString();
     dto.emailVerified = user.emailVerified;
     dto.createdAt = user.createdAt.toISOString();
     dto.updatedAt = user.updatedAt.toISOString();
