@@ -66,6 +66,12 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
     return stateMap[state] ?? 'waiting';
   }
 
+  async findJobOwnerId(jobId: string): Promise<string | null> {
+    const job = await this.queue.getJob(jobId);
+    const userId = (job?.data as { userId?: string } | undefined)?.userId;
+    return userId ?? null;
+  }
+
   async getJobResult(jobId: string): Promise<ReceiptJobResult> {
     const job = await this.queue.getJob(jobId);
     if (!job) {
