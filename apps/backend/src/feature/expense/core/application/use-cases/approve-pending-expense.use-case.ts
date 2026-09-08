@@ -43,7 +43,7 @@ export class ApprovePendingExpenseUseCase {
       throw new DomainValidationException('Only pending expenses can be approved');
     }
 
-    await this.expenseAuthService.verifyTransactionAccess(transaction, userId);
+    await this.expenseAuthService.verifyApprovalAuthority(transaction, userId);
 
     const updatedTransaction = await this.transactionRepository.updateStatus(
       transaction.id,
