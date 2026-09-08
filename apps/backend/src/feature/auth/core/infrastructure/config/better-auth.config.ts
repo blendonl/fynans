@@ -3,8 +3,17 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { PrismaClient } from 'prisma/generated/prisma/client';
 import { bearer } from 'better-auth/plugins';
 
+function usesSecureCookies(): boolean {
+  return (
+    process.env.NODE_ENV === 'production' ||
+    process.env.BETTER_AUTH_URL?.startsWith('https://') === true
+  );
+}
+
 export function createBetterAuthInstance(prisma: PrismaClient) {
   const trustedOrigins = process.env.CORS_ORIGIN?.split(',') || [];
+  const secureCookies = usesSecureCookies();
+  const cookieDomain = process.env.COOKIE_DOMAIN || undefined;
 
   return betterAuth({
     database: prismaAdapter(prisma, {
@@ -68,13 +77,13 @@ export function createBetterAuthInstance(prisma: PrismaClient) {
     },
     advanced: {
       crossSubDomainCookies: {
-        enabled: true,
-        domain: process.env.COOKIE_DOMAIN || undefined,
+        enabled: cookieDomain !== undefined,
+        domain: cookieDomain,
       },
-      useSecureCookies: true,
+      useSecureCookies: secureCookies,
       defaultCookieAttributes: {
-        sameSite: 'none',
-        secure: true,
+        sameSite: secureCookies ? 'none' : 'lax',
+        secure: secureCookies,
       },
     },
   });
