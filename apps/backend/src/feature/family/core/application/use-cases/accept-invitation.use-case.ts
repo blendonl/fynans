@@ -19,6 +19,10 @@ import {
 } from '../../../../notification/core/domain/value-objects/notification-type.vo';
 import { v4 as uuid } from 'uuid';
 import { UserService } from '~feature/user/core/application/services/user.service';
+import {
+  DomainConflictException,
+  DomainForbiddenException,
+} from '~common/exceptions/domain.exceptions';
 
 @Injectable()
 export class AcceptInvitationUseCase {
@@ -39,6 +43,27 @@ export class AcceptInvitationUseCase {
 
     if (!invitation.canBeAccepted()) {
       throw new BadRequestException('Invitation expired or already processed');
+    }
+
+    const invitee = await this.userService.findById(userId);
+
+    const addressedToInvitee =
+      invitation.inviteeId === userId ||
+      invitation.inviteeEmail.toLowerCase() === invitee.email.toLowerCase();
+    if (!addressedToInvitee) {
+      throw new DomainForbiddenException(
+        'Invitation was not addressed to this user',
+      );
+    }
+
+    const existingMember = await this.familyRepository.findMember(
+      invitation.familyId,
+      userId,
+    );
+    if (existingMember) {
+      throw new DomainConflictException(
+        'User is already a member of this family',
+      );
     }
 
     const member = await this.familyRepository.addMember({
@@ -65,7 +90,6 @@ export class AcceptInvitationUseCase {
     });
 
     const family = await this.familyRepository.findById(invitation.familyId);
-    const invitee = await this.userService.findById(userId);
 
     await this.createNotificationUseCase.execute({
       userId: invitation.inviterId,
