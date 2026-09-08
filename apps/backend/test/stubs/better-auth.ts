@@ -1,9 +1,9 @@
-export const betterAuth = () => ({
+export const betterAuth = (): Record<string, unknown> => ({
   api: {},
-  handler: async () => new Response(null),
+  handler: () => Promise.resolve(null),
   options: {},
 });
 
-export const prismaAdapter = () => ({});
+export const prismaAdapter = (): Record<string, unknown> => ({});
 
-export const bearer = () => ({ id: 'bearer' });
+export const bearer = (): Record<string, unknown> => ({ id: 'bearer' });

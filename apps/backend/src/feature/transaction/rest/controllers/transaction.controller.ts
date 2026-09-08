@@ -103,7 +103,11 @@ export class TransactionController {
     });
 
     const pagination = new Pagination(query.page, query.limit);
-    const result = await this.transactionService.findAll(filters, pagination);
+    const result = await this.transactionService.findAll(
+      user.id,
+      filters,
+      pagination,
+    );
 
     return {
       data: TransactionResponseDto.fromEntities(result.data),

@@ -158,7 +158,6 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   }
 
   async getStatistics(
-    userId: string,
     filters?: ExpenseFiltersInterface,
   ): Promise<ExpenseStatistics> {
     const where = this.buildWhereClause(filters);

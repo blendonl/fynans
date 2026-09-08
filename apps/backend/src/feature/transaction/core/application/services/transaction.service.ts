@@ -41,10 +41,11 @@ export class TransactionService {
   }
 
   async findAll(
+    userId: string,
     filters?: TransactionFilters,
     pagination?: Pagination,
   ): Promise<PaginatedResult<Transaction>> {
-    return this.listTransactionsUseCase.execute(filters, pagination);
+    return this.listTransactionsUseCase.execute(userId, filters, pagination);
   }
 
   async update(
