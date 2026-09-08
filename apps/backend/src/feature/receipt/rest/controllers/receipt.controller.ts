@@ -38,6 +38,7 @@ import { ProcessedReceiptResponseDto } from '../dto/processed-receipt-response.d
 import { ProcessReceiptBodyDto } from '../dto/process-receipt-body.dto';
 import { EnrichedReceiptDataDto } from '../../core/application/dto/enriched-receipt-data.dto';
 import { CurrentUser } from '~feature/auth/rest/decorators/current-user.decorator';
+import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
 import { User } from '~feature/user/core/domain/entities/user.entity';
 
 class ProcessReceiptResponseDto {
@@ -135,6 +136,9 @@ export class ReceiptController {
       });
       receiptId = stored.id;
     } catch (error) {
+      if (error instanceof DomainForbiddenException) {
+        throw error;
+      }
       this.logger.error(
         `Failed to store receipt file: ${error instanceof Error ? error.message : error}`,
       );
