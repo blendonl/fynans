@@ -4,6 +4,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
 import { type IIncomeCategoryRepository } from '../../domain/repositories/income-category.repository.interface';
 import { UpdateIncomeCategoryDto } from '../dto/update-income-category.dto';
 import { IncomeCategory } from '../../domain/entities/income-category.entity';
@@ -18,11 +19,22 @@ export class UpdateIncomeCategoryUseCase {
   async execute(
     id: string,
     dto: UpdateIncomeCategoryDto,
+    userId: string,
   ): Promise<IncomeCategory> {
     const category = await this.incomeCategoryRepository.findById(id);
 
     if (!category) {
       throw new NotFoundException('Income category not found');
+    }
+
+    const linked = await this.incomeCategoryRepository.isLinkedToUser(
+      id,
+      userId,
+    );
+    if (!linked) {
+      throw new DomainForbiddenException(
+        'Income category does not belong to this user',
+      );
     }
 
     await this.validate(id, dto);

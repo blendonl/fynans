@@ -49,6 +49,7 @@ export interface IItemRepository {
     pagination?: Pagination,
   ): Promise<PaginatedResult<Item>>;
   linkToUser(itemId: string, userId: string): Promise<void>;
+  isLinkedToUser(itemId: string, userId: string): Promise<boolean>;
   searchWithStores(
     userId: string,
     search?: string,

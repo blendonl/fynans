@@ -127,13 +127,18 @@ export class IncomeCategoryController {
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateIncomeCategoryRequestDto,
+    @CurrentUser() user: User,
   ) {
     const coreDto = new UpdateIncomeCategoryDto({
       name: updateDto.name,
       parentId: updateDto.parentId,
     });
 
-    const category = await this.incomeCategoryService.update(id, coreDto);
+    const category = await this.incomeCategoryService.update(
+      id,
+      coreDto,
+      user.id,
+    );
     return IncomeCategoryResponseDto.fromEntity(category);
   }
 
@@ -141,7 +146,7 @@ export class IncomeCategoryController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete an income category' })
   @ApiResponse({ status: 204 })
-  async remove(@Param('id') id: string) {
-    await this.incomeCategoryService.delete(id);
+  async remove(@Param('id') id: string, @CurrentUser() user: User) {
+    await this.incomeCategoryService.delete(id, user.id);
   }
 }

@@ -58,15 +58,16 @@ export class ExpenseCategoryService {
   async update(
     id: string,
     dto: UpdateExpenseCategoryDto,
+    userId: string,
   ): Promise<ExpenseCategory> {
     if (!id || id.trim() === '') {
       throw new DomainValidationException('Category ID is required');
     }
-    return this.updateExpenseCategoryUseCase.execute(id, dto);
+    return this.updateExpenseCategoryUseCase.execute(id, dto, userId);
   }
 
-  async delete(id: string): Promise<void> {
-    return this.deleteExpenseCategoryUseCase.execute(id);
+  async delete(id: string, userId: string): Promise<void> {
+    return this.deleteExpenseCategoryUseCase.execute(id, userId);
   }
 
   async linkToUser(categoryId: string, userId: string): Promise<void> {

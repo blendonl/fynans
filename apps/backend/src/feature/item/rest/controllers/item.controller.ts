@@ -113,10 +113,11 @@ export class ItemController {
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateItemRequestDto,
+    @CurrentUser() user: User,
   ) {
     const coreDto = new UpdateItemDto(updateDto.name, updateDto.categoryId);
 
-    const item = await this.itemService.update(id, coreDto);
+    const item = await this.itemService.update(id, coreDto, user.id);
     return ItemResponseDto.fromEntity(item);
   }
 
@@ -124,7 +125,7 @@ export class ItemController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete an item' })
   @ApiResponse({ status: 204, description: 'Item deleted successfully' })
-  async delete(@Param('id') id: string) {
-    await this.itemService.delete(id);
+  async delete(@Param('id') id: string, @CurrentUser() user: User) {
+    await this.itemService.delete(id, user.id);
   }
 }

@@ -111,6 +111,14 @@ export class PrismaIncomeCategoryRepository
     });
   }
 
+  async isLinkedToUser(categoryId: string, userId: string): Promise<boolean> {
+    const link = await this.prisma.userIncomeCategory.findUnique({
+      where: { userId_categoryId: { userId, categoryId } },
+      select: { userId: true },
+    });
+    return link !== null;
+  }
+
   async update(
     id: string,
     data: Partial<IncomeCategory>,
