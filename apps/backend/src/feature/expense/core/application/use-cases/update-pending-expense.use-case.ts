@@ -4,6 +4,7 @@ import { type ITransactionRepository } from '../../../../transaction/core/domain
 import { Transaction } from '../../../../transaction/core/domain/entities/transaction.entity';
 import { Expense } from '../../domain/entities/expense.entity';
 import { UpdatePendingExpenseDto } from '../dto/update-pending-expense.dto';
+import { PaymentMethodService } from '~feature/payment-method/core/application/services/payment-method.service';
 import {
   DomainNotFoundException,
   DomainForbiddenException,
@@ -17,6 +18,7 @@ export class UpdatePendingExpenseUseCase {
     private readonly expenseRepository: IExpenseRepository,
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
+    private readonly paymentMethodService: PaymentMethodService,
   ) {}
 
   async execute(
@@ -36,6 +38,13 @@ export class UpdatePendingExpenseUseCase {
 
     if (transaction.userId !== userId) {
       throw new DomainForbiddenException('Only the creator can edit a pending expense');
+    }
+
+    if (dto.paymentMethodId) {
+      await this.paymentMethodService.verifyOwnership(
+        dto.paymentMethodId,
+        userId,
+      );
     }
 
     const expenseUpdates: { categoryId?: string; storeId?: string | null } = {};

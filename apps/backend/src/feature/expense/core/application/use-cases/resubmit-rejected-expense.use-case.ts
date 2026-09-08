@@ -3,6 +3,7 @@ import { type IExpenseRepository } from '../../domain/repositories/expense.repos
 import { type ITransactionRepository } from '../../../../transaction/core/domain/repositories/transaction.repository.interface';
 import { Transaction } from '../../../../transaction/core/domain/entities/transaction.entity';
 import { NotifyFamilyMembersService } from '~common/services/notify-family-members.service';
+import { PaymentMethodService } from '~feature/payment-method/core/application/services/payment-method.service';
 import { Expense } from '../../domain/entities/expense.entity';
 import { ResubmitExpenseDto } from '../dto/resubmit-expense.dto';
 import { TransactionStatus } from '../../../../transaction/core/domain/value-objects/transaction-status.vo';
@@ -21,6 +22,7 @@ export class ResubmitRejectedExpenseUseCase {
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
+    private readonly paymentMethodService: PaymentMethodService,
   ) {}
 
   async execute(
@@ -40,6 +42,13 @@ export class ResubmitRejectedExpenseUseCase {
 
     if (transaction.userId !== userId) {
       throw new DomainForbiddenException('Only the creator can re-submit a rejected expense');
+    }
+
+    if (dto?.paymentMethodId) {
+      await this.paymentMethodService.verifyOwnership(
+        dto.paymentMethodId,
+        userId,
+      );
     }
 
     if (dto?.categoryId) {
