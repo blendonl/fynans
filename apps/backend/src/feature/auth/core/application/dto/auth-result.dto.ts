@@ -8,3 +8,8 @@ export class AuthResultDto {
   };
   expiresAt!: Date;
 }
+
+export class AuthSessionDto {
+  result!: AuthResultDto;
+  sessionCookies!: string[];
+}
