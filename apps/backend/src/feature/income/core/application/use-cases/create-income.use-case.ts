@@ -26,13 +26,16 @@ export class CreateIncomeUseCase {
   async execute(dto: CreateIncomeDto): Promise<Income> {
     await this.validate(dto);
 
+    const transaction = await this.transactionService.findById(
+      dto.transactionId,
+      dto.userId,
+    );
+
     const income = await this.incomeRepository.create({
       transactionId: dto.transactionId,
       storeId: dto.storeId,
       categoryId: dto.categoryId,
     } as Partial<Income>);
-
-    const transaction = await this.transactionService.findById(dto.transactionId);
 
     await this.incomeCategoryRepository.linkToUser(dto.categoryId, transaction.userId);
 
@@ -54,6 +57,10 @@ export class CreateIncomeUseCase {
   private async validate(dto: CreateIncomeDto): Promise<void> {
     if (!dto.transactionId || dto.transactionId.trim() === '') {
       throw new DomainValidationException('Transaction ID is required');
+    }
+
+    if (!dto.userId || dto.userId.trim() === '') {
+      throw new DomainValidationException('User ID is required');
     }
 
     if (!dto.storeId || dto.storeId.trim() === '') {
