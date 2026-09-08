@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import {
   ArrowRight,
   BadgeCheck,
@@ -19,6 +20,7 @@ import {
   Tags,
   UsersRound,
 } from 'lucide-react';
+import { contactEmail } from '@/components/marketing/contact-email';
 
 const registerHref = '/register';
 const loginHref = '/login';
@@ -120,7 +122,7 @@ const faqs = [
   {
     question: 'What happens to receipt images?',
     answer:
-      'Receipt data should be treated as household financial data. The landing page now states that receipts stay tied to your household and should link to a full privacy policy before launch.',
+      'Images are stored in private object storage under a key scoped to your account, and are only ever served through short-lived signed links to you and to members of the family a receipt is shared with. Text extraction runs on our own infrastructure; only the extracted text, never the image, is sent to an AI service to structure the line items. Delete a receipt and both the file and its record are removed.',
   },
   {
     question: 'Is this budgeting or expense splitting?',
@@ -149,7 +151,7 @@ export default function Home() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a
               href={registerHref}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-base font-semibold text-white shadow-lg shadow-primary/20 transition hover:bg-primary-variant"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-base font-semibold text-surface-inverse shadow-lg shadow-primary/20 transition hover:bg-primary-variant"
             >
               Start tracking receipts
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -303,7 +305,7 @@ export default function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
-        <div className="rounded-[1.5rem] bg-text px-6 py-12 text-white sm:px-10 lg:px-14">
+        <div className="rounded-[1.5rem] bg-surface-inverse px-6 py-12 text-text-inverse sm:px-10 lg:px-14">
           <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto]">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-light">
@@ -316,14 +318,14 @@ export default function Home() {
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
               <a
                 href={registerHref}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary-light px-6 py-3 font-semibold text-text transition hover:bg-white"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary-light px-6 py-3 font-semibold text-surface-inverse transition hover:bg-primary"
               >
                 Create account
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </a>
               <a
                 href={loginHref}
-                className="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-full border border-text-inverse/20 px-6 py-3 font-semibold text-text-inverse transition hover:bg-text-inverse/10"
               >
                 Log in
               </a>
@@ -342,7 +344,7 @@ function Header() {
     <header className="sticky top-0 z-20 border-b border-border-light bg-background/85 backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10">
         <a href="/" className="flex items-center gap-3" aria-label="Fynans home">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-surface-inverse shadow-lg shadow-primary/20">
             <CircleDollarSign className="h-6 w-6" aria-hidden />
           </div>
           <span className="text-xl font-semibold tracking-tight text-text">Fynans</span>
@@ -359,14 +361,14 @@ function Header() {
           </a>
           <a
             href={registerHref}
-            className="rounded-full bg-text px-5 py-2.5 font-semibold text-white transition hover:bg-primary-variant"
+            className="rounded-full bg-surface-inverse px-5 py-2.5 font-semibold text-text-inverse transition hover:bg-surface-inverse/90"
           >
             Get started
           </a>
         </nav>
         <a
           href={registerHref}
-          className="rounded-full bg-text px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-variant md:hidden"
+          className="rounded-full bg-surface-inverse px-4 py-2.5 text-sm font-semibold text-text-inverse transition hover:bg-surface-inverse/90 md:hidden"
         >
           Get started
         </a>
@@ -378,8 +380,8 @@ function Header() {
 function ProductPreview() {
   return (
     <div className="relative mx-auto w-full max-w-2xl">
-      <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-primary/15 via-white/40 to-secondary/20 blur-2xl" />
-      <div className="relative rounded-[1.75rem] border border-white/70 bg-glass-bg-strong p-4 soft-shadow backdrop-blur sm:p-5">
+      <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-primary/15 via-surface/40 to-secondary/20 blur-2xl" />
+      <div className="relative rounded-[1.75rem] border border-glass-border bg-glass-bg-strong p-4 soft-shadow backdrop-blur sm:p-5">
         <div className="rounded-[1.25rem] border border-border-light bg-surface p-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -421,18 +423,18 @@ function ProductPreview() {
             </div>
           </div>
           <div className="mt-5 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-            <div className="rounded-[var(--radius)] bg-text p-4 text-white">
+            <div className="rounded-[var(--radius)] bg-surface-inverse p-4 text-text-inverse">
               <div className="mb-4 flex items-center justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/12">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-text-inverse/12">
                   <FileText className="h-5 w-5" aria-hidden />
                 </div>
-                <span className="rounded-full bg-primary-light px-2.5 py-1 text-xs font-semibold text-text">
+                <span className="rounded-full bg-primary-light px-2.5 py-1 text-xs font-semibold text-surface-inverse">
                   Shared
                 </span>
               </div>
-              <p className="text-sm text-white/60">Household impact</p>
+              <p className="text-sm text-text-inverse/60">Household impact</p>
               <p className="mt-1 text-2xl font-semibold">$28.93</p>
-              <p className="mt-4 text-sm leading-6 text-white/70">
+              <p className="mt-4 text-sm leading-6 text-text-inverse/70">
                 Groceries, household, and kids' items move into shared budgets.
               </p>
             </div>
@@ -448,7 +450,7 @@ function ProductPreview() {
                       <span className="text-text-secondary">{row.label}</span>
                       <span className="font-medium text-text">{row.value}</span>
                     </div>
-                    <div className="h-2 rounded-full bg-white">
+                    <div className="h-2 rounded-full bg-surface">
                       <div className={row.color + ' ' + row.width + ' h-2 rounded-full'} />
                     </div>
                   </div>
@@ -468,7 +470,7 @@ function Footer() {
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-10 text-sm text-text-secondary sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
         <div>
           <div className="flex items-center gap-3 text-text">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-surface-inverse">
               <CircleDollarSign className="h-5 w-5" aria-hidden />
             </div>
             <span className="font-semibold">Fynans</span>
@@ -482,15 +484,20 @@ function Footer() {
           <a href="#faq" className="transition hover:text-primary-variant">
             FAQ
           </a>
-          <a href="/privacy" className="transition hover:text-primary-variant">
+          <Link href="/privacy" className="transition hover:text-primary-variant">
             Privacy
-          </a>
-          <a href="/terms" className="transition hover:text-primary-variant">
+          </Link>
+          <Link href="/terms" className="transition hover:text-primary-variant">
             Terms
-          </a>
-          <a href="mailto:hello@fynans.app" className="transition hover:text-primary-variant">
-            Contact
-          </a>
+          </Link>
+          {contactEmail ? (
+            <a
+              href={`mailto:${contactEmail}`}
+              className="transition hover:text-primary-variant"
+            >
+              Contact
+            </a>
+          ) : null}
         </nav>
       </div>
     </footer>
