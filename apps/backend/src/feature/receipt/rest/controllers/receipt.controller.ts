@@ -160,7 +160,12 @@ export class ReceiptController {
   @Get('jobs/:jobId')
   @ApiOperation({ summary: 'Get receipt processing job status and result' })
   @ApiResponse({ status: 200, type: ReceiptJobStatusResponseDto })
-  async getJobStatus(@Param('jobId') jobId: string) {
+  async getJobStatus(
+    @Param('jobId') jobId: string,
+    @CurrentUser() user: User,
+  ) {
+    await this.assertJobOwnership(jobId, user.id);
+
     const result =
       await this.receiptJobQueue.getJobResult(jobId) as ReceiptJobResult<EnrichedReceiptDataDto>;
 
@@ -181,10 +186,13 @@ export class ReceiptController {
   @Sse('jobs/:jobId/stream')
   @ApiOperation({ summary: 'Stream receipt processing job progress via SSE' })
   @ApiResponse({ status: 200, description: 'SSE stream of job progress events' })
-  streamJobProgress(
+  async streamJobProgress(
     @Param('jobId') jobId: string,
+    @CurrentUser() user: User,
     @Req() req: Request,
-  ): Observable<MessageEvent> {
+  ): Promise<Observable<MessageEvent>> {
+    await this.assertJobOwnership(jobId, user.id);
+
     return new Observable((subscriber) => {
       const abortController = new AbortController();
 
@@ -251,5 +259,15 @@ export class ReceiptController {
         )
         .catch((err) => subscriber.error(err));
     });
+  }
+
+  private async assertJobOwnership(
+    jobId: string,
+    userId: string,
+  ): Promise<void> {
+    const ownerId = await this.receiptJobQueue.findJobOwnerId(jobId);
+    if (ownerId !== userId) {
+      throw new NotFoundException(`Job ${jobId} not found`);
+    }
   }
 }
