@@ -1,6 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { firstValueFrom, toArray } from 'rxjs';
 import { ReceiptController } from './receipt.controller';
+import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
 
 const owner = { id: 'owner-1' };
 const attacker = { id: 'attacker-1' };
@@ -57,6 +58,41 @@ describe('ReceiptController job scoping', () => {
         status: 'active',
         progress: 40,
       });
+    });
+  });
+
+  describe('processReceipt', () => {
+    const file = {
+      buffer: Buffer.from('image'),
+      originalname: 'receipt.jpg',
+      mimetype: 'image/jpeg',
+    };
+
+    it('surfaces a rejected familyId instead of queueing the job anyway', async () => {
+      saveReceiptFileUseCase.execute.mockRejectedValue(
+        new DomainForbiddenException('Not a member of this family'),
+      );
+
+      await expect(
+        controller.processReceipt(
+          file as never,
+          { familyId: 'someone-elses-family' } as never,
+          attacker as never,
+          req as never,
+        ),
+      ).rejects.toBeInstanceOf(DomainForbiddenException);
+
+      expect(receiptJobQueue.addJob).not.toHaveBeenCalled();
+    });
+
+    it('still swallows storage failures and queues the job', async () => {
+      saveReceiptFileUseCase.execute.mockRejectedValue(new Error('minio down'));
+
+      await expect(
+        controller.processReceipt(file as never, {} as never, owner as never, req as never),
+      ).resolves.toEqual({ jobId: '7', status: 'processing', receiptId: undefined });
+
+      expect(receiptJobQueue.addJob).toHaveBeenCalled();
     });
   });
 
