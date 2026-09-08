@@ -53,10 +53,7 @@ export interface IExpenseRepository {
   update(id: string, data: UpdateExpenseData): Promise<Expense>;
   delete(id: string): Promise<void>;
   verifyOwnership(expenseId: string, userId: string): Promise<boolean>;
-  getStatistics(
-    userId?: string,
-    filters?: ExpenseFilters,
-  ): Promise<ExpenseStatistics>;
+  getStatistics(filters?: ExpenseFilters): Promise<ExpenseStatistics>;
   getTrends(
     userId: string,
     dateFrom: Date,
