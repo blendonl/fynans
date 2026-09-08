@@ -21,6 +21,7 @@ export interface IIncomeCategoryRepository {
   ): Promise<PaginatedResult<IncomeCategory>>;
   findChildren(parentId: string): Promise<IncomeCategory[]>;
   linkToUser(categoryId: string, userId: string): Promise<void>;
+  isLinkedToUser(categoryId: string, userId: string): Promise<boolean>;
   update(
     id: string,
     data: Partial<IncomeCategory>,

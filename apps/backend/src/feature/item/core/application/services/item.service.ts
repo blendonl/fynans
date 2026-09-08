@@ -57,8 +57,8 @@ export class ItemService {
     return this.findItemByNameUseCase.execute(name);
   }
 
-  async update(id: string, dto: UpdateItemDto): Promise<Item> {
-    return this.updateItemUseCase.execute(id, dto);
+  async update(id: string, dto: UpdateItemDto, userId: string): Promise<Item> {
+    return this.updateItemUseCase.execute(id, dto, userId);
   }
 
   async searchWithStores(
@@ -69,7 +69,7 @@ export class ItemService {
     return this.searchItemsWithStoresUseCase.execute(userId, search, pagination);
   }
 
-  async delete(id: string): Promise<void> {
-    return this.deleteItemUseCase.execute(id);
+  async delete(id: string, userId: string): Promise<void> {
+    return this.deleteItemUseCase.execute(id, userId);
   }
 }

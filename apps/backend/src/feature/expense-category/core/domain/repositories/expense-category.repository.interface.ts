@@ -31,6 +31,7 @@ export interface IExpenseCategoryRepository {
   ): Promise<PaginatedResult<ExpenseCategory>>;
   findChildren(parentId: string): Promise<ExpenseCategory[]>;
   linkToUser(categoryId: string, userId: string): Promise<void>;
+  isLinkedToUser(categoryId: string, userId: string): Promise<boolean>;
   update(
     id: string,
     data: UpdateExpenseCategoryData,

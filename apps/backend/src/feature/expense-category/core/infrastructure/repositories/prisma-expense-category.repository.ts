@@ -116,6 +116,14 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
     });
   }
 
+  async isLinkedToUser(categoryId: string, userId: string): Promise<boolean> {
+    const link = await this.prisma.userExpenseCategory.findUnique({
+      where: { userId_categoryId: { userId, categoryId } },
+      select: { userId: true },
+    });
+    return link !== null;
+  }
+
   async update(
     id: string,
     data: UpdateExpenseCategoryData,

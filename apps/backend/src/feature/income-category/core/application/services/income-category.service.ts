@@ -48,11 +48,12 @@ export class IncomeCategoryService {
   async update(
     id: string,
     dto: UpdateIncomeCategoryDto,
+    userId: string,
   ): Promise<IncomeCategory> {
-    return this.updateIncomeCategoryUseCase.execute(id, dto);
+    return this.updateIncomeCategoryUseCase.execute(id, dto, userId);
   }
 
-  async delete(id: string): Promise<void> {
-    return this.deleteIncomeCategoryUseCase.execute(id);
+  async delete(id: string, userId: string): Promise<void> {
+    return this.deleteIncomeCategoryUseCase.execute(id, userId);
   }
 }

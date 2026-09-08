@@ -278,6 +278,14 @@ export class PrismaItemRepository implements IItemRepository {
     });
   }
 
+  async isLinkedToUser(itemId: string, userId: string): Promise<boolean> {
+    const link = await this.prisma.userItem.findUnique({
+      where: { userId_itemId: { userId, itemId } },
+      select: { userId: true },
+    });
+    return link !== null;
+  }
+
   async update(id: string, data: Partial<Item>): Promise<Item> {
     const updateData: any = {};
 
