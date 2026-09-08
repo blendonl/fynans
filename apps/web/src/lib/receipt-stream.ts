@@ -1,4 +1,3 @@
-import { getToken } from "@/lib/auth";
 import type { ProcessedReceiptResponse } from "@/hooks/use-receipt-scan";
 
 interface JobStreamEvent {
@@ -21,12 +20,9 @@ export async function streamResult(
   onProgress: (progress: number, step: string) => void,
   signal: AbortSignal,
 ): Promise<ProcessedReceiptResponse> {
-  const token = getToken();
-  const headers: Record<string, string> = { Accept: "text/event-stream" };
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-
   const response = await fetch(`${BASE_URL}/receipts/jobs/${jobId}/stream`, {
-    headers,
+    headers: { Accept: "text/event-stream" },
+    credentials: "include",
     signal,
   });
 

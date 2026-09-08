@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo } 
 import { useRouter } from "next/navigation";
 import type { User } from "@/types";
 import { authControllerLogin, authControllerRegister, authControllerLogout, authControllerMe } from "@/api/generated/endpoints/auth/auth";
-import { getToken, setToken, removeToken } from "@/lib/auth";
+import { fetchSessionToken } from "@/lib/auth";
 
 interface AuthContextType {
   user: User | null;
@@ -13,17 +13,10 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (data: { firstName: string; lastName: string; email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
-  handleOAuthCallback: (token: string) => Promise<void>;
+  completeOAuthSignIn: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-
-async function fetchSession(): Promise<{ user: User } | null> {
-  const token = getToken();
-  if (!token) return null;
-  const res = await authControllerMe();
-  return { user: res.data };
-}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -32,31 +25,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const stored = getToken();
-    if (stored) {
-      setTokenState(stored);
-      fetchSession()
-        .then((session) => {
-          if (session?.user) {
-            setUser(session.user);
-          } else {
-            removeToken();
-            setTokenState(null);
-          }
-        })
-        .catch(() => {
-          removeToken();
-          setTokenState(null);
-        })
-        .finally(() => setIsLoading(false));
-    } else {
-      setIsLoading(false);
-    }
+    let active = true;
+
+    const restoreSession = async () => {
+      const sessionToken = await fetchSessionToken();
+
+      if (!active) return;
+
+      if (!sessionToken) {
+        setIsLoading(false);
+        return;
+      }
+
+      setTokenState(sessionToken);
+
+      try {
+        const res = await authControllerMe();
+        if (active) setUser(res.data);
+      } catch {
+        if (active) setTokenState(null);
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    };
+
+    void restoreSession();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
     const res = await authControllerLogin({ email, password });
-    setToken(res.data.token);
     setTokenState(res.data.token);
     setUser(res.data.user as unknown as User);
     router.push("/");
@@ -65,7 +66,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = useCallback(
     async (data: { firstName: string; lastName: string; email: string; password: string }) => {
       const res = await authControllerRegister(data);
-      setToken(res.data.token);
       setTokenState(res.data.token);
       setUser(res.data.user as unknown as User);
       router.push("/");
@@ -73,15 +73,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [router]
   );
 
-  const handleOAuthCallback = useCallback(async (oauthToken: string) => {
-    setToken(oauthToken);
-    setTokenState(oauthToken);
-    try {
-      const session = await fetchSession();
-      if (session?.user) {
-        setUser(session.user);
-      }
-    } catch { /* non-critical */ }
+  const completeOAuthSignIn = useCallback(async () => {
+    const sessionToken = await fetchSessionToken();
+
+    if (!sessionToken) {
+      throw new Error("Sign-in did not establish a session");
+    }
+
+    const res = await authControllerMe();
+    setTokenState(sessionToken);
+    setUser(res.data);
     router.push("/");
   }, [router]);
 
@@ -89,15 +90,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await authControllerLogout();
     } catch { /* non-critical */ }
-    removeToken();
     setTokenState(null);
     setUser(null);
     router.push("/login");
   }, [router]);
 
   const value = useMemo(
-    () => ({ user, token, isLoading, login, register, logout, handleOAuthCallback }),
-    [user, token, isLoading, login, register, logout, handleOAuthCallback],
+    () => ({ user, token, isLoading, login, register, logout, completeOAuthSignIn }),
+    [user, token, isLoading, login, register, logout, completeOAuthSignIn],
   );
 
   return (

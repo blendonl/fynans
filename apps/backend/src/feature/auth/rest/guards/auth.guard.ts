@@ -9,6 +9,7 @@ import { Request } from 'express';
 import { AuthService } from '../../core/application/services/auth.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { AuthenticatedRequest } from '../../../../common/types/authenticated-request';
+import { hasSessionCredentials, toSessionHeaders } from '../http/session-http';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -29,24 +30,19 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    const token = this.extractTokenFromHeader(request);
-
-    if (!token) {
+    if (!hasSessionCredentials(request)) {
       throw new UnauthorizedException('Authentication required');
     }
 
     try {
-      const user = await this.authService.validateSession(token);
+      const user = await this.authService.validateRequestSession(
+        toSessionHeaders(request),
+      );
       (request as AuthenticatedRequest).user = user;
     } catch {
       throw new UnauthorizedException('Invalid or expired session');
     }
 
     return true;
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }
