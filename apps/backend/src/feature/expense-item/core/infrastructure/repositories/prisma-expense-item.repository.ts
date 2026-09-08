@@ -8,6 +8,8 @@ import {
 } from '../../domain/repositories/expense-item.repository.interface';
 import { ExpenseItem } from '../../domain/entities/expense-item.entity';
 import { Pagination } from '~common/dto/pagination.dto';
+import { OwnerScope } from '~common/authorization/domain/owner-scope';
+import { Prisma, TransactionScope } from 'prisma/generated/prisma/client';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
 const EXPENSE_ITEM_INCLUDE = {
@@ -43,9 +45,12 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
     return item ? ExpenseItem.fromPrisma(item) : null;
   }
 
-  async findByExpenseId(expenseId: string): Promise<ExpenseItem[]> {
+  async findByExpenseId(
+    expenseId: string,
+    scope: OwnerScope,
+  ): Promise<ExpenseItem[]> {
     const items = await this.prisma.expenseItem.findMany({
-      where: { expenseId },
+      where: { expenseId, ...this.accessibleTo(scope) },
       include: EXPENSE_ITEM_INCLUDE,
       orderBy: { createdAt: 'asc' },
     });
@@ -54,19 +59,20 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
   }
 
   async findAll(
+    scope: OwnerScope,
     pagination?: Pagination,
   ): Promise<PaginatedResult<ExpenseItem>> {
+    const where = this.accessibleTo(scope);
+
     const [items, total] = await Promise.all([
       this.prisma.expenseItem.findMany({
-        include: {
-          item: { include: { item: { include: { category: true } } } },
-          expense: true,
-        },
+        where,
+        include: EXPENSE_ITEM_INCLUDE,
         orderBy: { createdAt: 'desc' },
         skip: pagination?.skip,
         take: pagination?.take,
       }),
-      this.prisma.expenseItem.count(),
+      this.prisma.expenseItem.count({ where }),
     ]);
 
     return {
@@ -121,5 +127,21 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
     }, 0);
 
     return total;
+  }
+
+  private accessibleTo(scope: OwnerScope): Prisma.ExpenseItemWhereInput {
+    const transaction: Prisma.TransactionWhereInput = scope.hasFamilies
+      ? {
+          OR: [
+            { userId: scope.userId },
+            {
+              familyId: { in: scope.familyIds },
+              scope: TransactionScope.FAMILY,
+            },
+          ],
+        }
+      : { userId: scope.userId };
+
+    return { expense: { transaction } };
   }
 }
