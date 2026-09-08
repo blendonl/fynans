@@ -56,6 +56,6 @@ import { ExpenseAuthService } from './application/services/expense-auth.service'
     ExpenseService,
     ExpenseAuthService,
   ],
-  exports: [ExpenseService],
+  exports: [ExpenseService, 'ExpenseRepository'],
 })
 export class ExpenseCoreModule {}
