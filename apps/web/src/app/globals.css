@@ -32,6 +32,9 @@
   --text-secondary: #5F646E;
   --text-disabled: #9DA2AE;
 
+  --surface-inverse: #1A1C20;
+  --text-inverse: #FFFFFF;
+
   --divider: rgba(26, 28, 32, 0.06);
   --border: #DDDFE3;
   --border-light: #ECEEF0;
@@ -101,6 +104,9 @@
   --text-secondary: rgba(238, 238, 240, 0.65);
   --text-disabled: rgba(238, 238, 240, 0.35);
 
+  --surface-inverse: #2A2F37;
+  --text-inverse: #F7F8FA;
+
   --divider: rgba(238, 238, 240, 0.06);
   --border: #2C3038;
   --border-light: #252930;
@@ -164,6 +170,8 @@
   --color-text: var(--text);
   --color-text-secondary: var(--text-secondary);
   --color-text-disabled: var(--text-disabled);
+  --color-surface-inverse: var(--surface-inverse);
+  --color-text-inverse: var(--text-inverse);
   --color-border: var(--border);
   --color-border-light: var(--border-light);
   --color-divider: var(--divider);
