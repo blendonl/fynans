@@ -14,11 +14,12 @@ export class CreateIncomeRequestDto {
   @IsNotEmpty()
   categoryId!: string;
 
-  toCoreDto(): CreateIncomeDto {
+  toCoreDto(userId: string): CreateIncomeDto {
     return new CreateIncomeDto(
       this.transactionId,
       this.storeId,
       this.categoryId,
+      userId,
     );
   }
 }

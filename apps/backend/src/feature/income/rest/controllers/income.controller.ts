@@ -56,7 +56,7 @@ export class IncomeController {
     @Body() createDto: CreateIncomeRequestDto,
     @CurrentUser() user: User,
   ) {
-    const income = await this.incomeService.create(createDto.toCoreDto());
+    const income = await this.incomeService.create(createDto.toCoreDto(user.id));
     return IncomeResponseDto.fromEntity(income);
   }
 
