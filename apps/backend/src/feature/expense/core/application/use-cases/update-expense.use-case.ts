@@ -10,6 +10,7 @@ import { UpdateExpenseDto } from '../dto/update-expense.dto';
 import { type IExpenseCategoryRepository } from '../../../../expense-category/core/domain/repositories/expense-category.repository.interface';
 import { Expense } from '../../domain/entities/expense.entity';
 import { StoreService } from '~feature/store/core';
+import { PaymentMethodService } from '~feature/payment-method/core/application/services/payment-method.service';
 
 @Injectable()
 export class UpdateExpenseUseCase {
@@ -22,6 +23,7 @@ export class UpdateExpenseUseCase {
     private readonly transactionRepository: ITransactionRepository,
     @Inject()
     private readonly storeService: StoreService,
+    private readonly paymentMethodService: PaymentMethodService,
   ) {}
 
   async execute(
@@ -38,6 +40,13 @@ export class UpdateExpenseUseCase {
     const isOwner = await this.expenseRepository.verifyOwnership(id, userId);
     if (!isOwner) {
       throw new DomainForbiddenException('Access denied');
+    }
+
+    if (dto.paymentMethodId) {
+      await this.paymentMethodService.verifyOwnership(
+        dto.paymentMethodId,
+        userId,
+      );
     }
 
     await this.validate(dto);

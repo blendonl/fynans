@@ -8,6 +8,7 @@ import {
 import { TransactionStatus } from '../../domain/value-objects/transaction-status.vo';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { FamilyService } from '../../../../family/core/application/services/family.service';
+import { PaymentMethodService } from '../../../../payment-method/core/application/services/payment-method.service';
 import { FamilyBalanceService } from '../../../../family/core/application/services/family-balance.service';
 import {
   DomainForbiddenException,
@@ -21,6 +22,7 @@ export class CreateTransactionUseCase {
     private readonly transactionRepository: ITransactionRepository,
     private readonly familyService: FamilyService,
     private readonly familyBalanceService: FamilyBalanceService,
+    private readonly paymentMethodService: PaymentMethodService,
   ) {}
 
   async execute(dto: CreateTransactionDto): Promise<Transaction> {
@@ -34,6 +36,13 @@ export class CreateTransactionUseCase {
       if (!member) {
         throw new DomainForbiddenException('Not a member of this family');
       }
+    }
+
+    if (dto.paymentMethodId) {
+      await this.paymentMethodService.verifyOwnership(
+        dto.paymentMethodId,
+        dto.userId,
+      );
     }
 
     const status = dto.status ?? TransactionStatus.CONFIRMED;

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
 import { FamilyCoreModule } from '../../family/core/family-core.module';
+import { PaymentMethodCoreModule } from '../../payment-method/core/payment-method-core.module';
 
 import { TransactionService } from './application/services/transaction.service';
 
@@ -18,6 +19,7 @@ import { PrismaTransactionRepository } from './infrastructure/repositories/prism
   imports: [
     PrismaModule,
     FamilyCoreModule,
+    PaymentMethodCoreModule,
   ],
   providers: [
     {
