@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { firstValueFrom, toArray } from 'rxjs';
 import { ReceiptController } from './receipt.controller';
 import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
@@ -63,10 +63,23 @@ describe('ReceiptController job scoping', () => {
 
   describe('processReceipt', () => {
     const file = {
-      buffer: Buffer.from('image'),
+      buffer: Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00]),
       originalname: 'receipt.jpg',
       mimetype: 'image/jpeg',
     };
+
+    it('rejects a payload that only claims to be a JPEG', async () => {
+      await expect(
+        controller.processReceipt(
+          { ...file, buffer: Buffer.from('<?php ?>') } as never,
+          {} as never,
+          owner as never,
+          req as never,
+        ),
+      ).rejects.toBeInstanceOf(BadRequestException);
+
+      expect(receiptJobQueue.addJob).not.toHaveBeenCalled();
+    });
 
     it('surfaces a rejected familyId instead of queueing the job anyway', async () => {
       saveReceiptFileUseCase.execute.mockRejectedValue(

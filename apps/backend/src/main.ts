@@ -39,19 +39,21 @@ async function bootstrap() {
     }),
   );
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Fynans API')
-    .setDescription('Fynans personal finance API')
-    .setVersion('1.0')
-    .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      'bearer',
-    )
-    .build();
+  if (process.env.NODE_ENV !== 'production') {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Fynans API')
+      .setDescription('Fynans personal finance API')
+      .setVersion('1.0')
+      .addBearerAuth(
+        { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+        'bearer',
+      )
+      .build();
 
-  SwaggerModule.setup('docs', app, () =>
-    SwaggerModule.createDocument(app, swaggerConfig),
-  );
+    SwaggerModule.setup('docs', app, () =>
+      SwaggerModule.createDocument(app, swaggerConfig),
+    );
+  }
 
   const betterAuthProvider = app.get(BetterAuthProvider);
   const betterAuthHandler = toNodeHandler(betterAuthProvider.auth);

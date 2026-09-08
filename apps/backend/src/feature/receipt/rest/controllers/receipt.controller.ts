@@ -39,6 +39,12 @@ import { ProcessReceiptBodyDto } from '../dto/process-receipt-body.dto';
 import { EnrichedReceiptDataDto } from '../../core/application/dto/enriched-receipt-data.dto';
 import { CurrentUser } from '~feature/auth/rest/decorators/current-user.decorator';
 import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
+import {
+  ALLOWED_RECEIPT_MIME_TYPES,
+  MAX_RECEIPT_UPLOAD_BYTES,
+  hasMatchingMagicBytes,
+  isAllowedImageMimeType,
+} from '~common/helpers/image-upload.helper';
 import { User } from '~feature/user/core/domain/entities/user.entity';
 
 class ProcessReceiptResponseDto {
@@ -103,11 +109,13 @@ export class ReceiptController {
   @ApiResponse({ status: 202, type: ProcessReceiptResponseDto })
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 100 * 1024 * 1024 },
+      limits: { fileSize: MAX_RECEIPT_UPLOAD_BYTES, files: 1 },
       fileFilter: (req, file, cb) => {
-        if (!file.mimetype.match(/image\/(jpeg|jpg|png)/)) {
+        if (!isAllowedImageMimeType(file.mimetype)) {
           return cb(
-            new BadRequestException('Only JPEG and PNG images are allowed'),
+            new BadRequestException(
+              `Only ${ALLOWED_RECEIPT_MIME_TYPES.join(' and ')} images are allowed`,
+            ),
             false,
           );
         }
@@ -123,6 +131,10 @@ export class ReceiptController {
   ) {
     if (!file) {
       throw new BadRequestException('No image file provided');
+    }
+
+    if (!hasMatchingMagicBytes(file.buffer, file.mimetype)) {
+      throw new BadRequestException('File contents are not a JPEG or PNG image');
     }
 
     let receiptId: string | undefined;
@@ -219,11 +231,8 @@ export class ReceiptController {
                 data: responseDto,
                 isPartial: true,
               };
-              this.logger.log(
-                `SSE [${jobId}] partial: store="${responseDto.store?.name}", ${responseDto.items.length} items, progress=${typedEvent.progress}%`,
-              );
               this.logger.debug(
-                `SSE [${jobId}] partial items: ${JSON.stringify(responseDto.items.map((i) => ({ name: i.name, size: i.size, price: i.price })))}`,
+                `SSE [${jobId}] partial: ${responseDto.items.length} items, progress=${typedEvent.progress}%`,
               );
             } else if (typedEvent.status === 'completed' && typedEvent.data) {
               const responseDto = ProcessedReceiptResponseDto.fromData(typedEvent.data);
@@ -231,12 +240,8 @@ export class ReceiptController {
                 ...data,
                 data: responseDto,
               };
-              this.logger.log(
-                `SSE [${jobId}] completed: store="${responseDto.store?.name}", ${responseDto.items.length} items, ` +
-                `expenseCategory="${responseDto.suggestedExpenseCategory?.name ?? 'none'}"`,
-              );
               this.logger.debug(
-                `SSE [${jobId}] final items: ${JSON.stringify(responseDto.items.map((i) => ({ name: i.name, size: i.size, categoryId: i.resolvedCategoryId })))}`,
+                `SSE [${jobId}] completed: ${responseDto.items.length} items`,
               );
             } else {
               this.logger.debug(
