@@ -6,6 +6,9 @@ import { useTheme } from "next-themes";
 import { useAuth } from "@/providers/auth-provider";
 import { useFamilies } from "@/hooks/use-families";
 import { useUnreadCount } from "@/hooks/use-unread-count";
+import { AccountSection } from "@/components/profile/account-section";
+import { ChangePasswordSection } from "@/components/profile/change-password-section";
+import { NotificationPreferencesSection } from "@/components/profile/notification-preferences-section";
 import { PaymentMethodsSection } from "@/components/profile/payment-methods-section";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const { pendingInvitations } = useFamilies();
   const pendingInvitationCount = pendingInvitations.length;
@@ -33,24 +36,9 @@ export default function ProfilePage() {
         description="Manage your account settings and preferences."
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Account</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <span className="text-2xl font-bold text-primary">
-                {user?.firstName?.[0]}{user?.lastName?.[0]}
-              </span>
-            </div>
-            <div>
-              <p className="text-lg font-medium text-text">{user?.firstName} {user?.lastName}</p>
-              <p className="text-sm text-text-secondary">{user?.email}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <AccountSection />
+
+      <ChangePasswordSection />
 
       <Card>
         <CardHeader>
@@ -99,6 +87,8 @@ export default function ProfilePage() {
           </Link>
         </CardContent>
       </Card>
+
+      <NotificationPreferencesSection />
 
       <Card className="overflow-hidden">
         <CardHeader>
