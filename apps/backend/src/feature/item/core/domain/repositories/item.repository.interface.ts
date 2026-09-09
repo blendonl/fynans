@@ -34,10 +34,7 @@ export interface IItemRepository {
   findById(id: string): Promise<Item | null>;
   findByName(name: string): Promise<Item | null>;
   findBySimilarName(name: string, threshold?: number): Promise<Item | null>;
-  findByNameAndCategory(
-    name: string,
-    categoryId: string,
-  ): Promise<Item | null>;
+  findByNameAndCategory(name: string, categoryId: string): Promise<Item | null>;
   findByCategoryId(
     userId: string,
     categoryId: string,

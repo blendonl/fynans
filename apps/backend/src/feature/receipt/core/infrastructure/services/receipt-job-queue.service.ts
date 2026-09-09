@@ -26,7 +26,12 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
     };
   }
 
-  async addJob(imageBuffer: Buffer, userId?: string, options?: ReceiptJobOptions, meta?: ReceiptJobMeta): Promise<string> {
+  async addJob(
+    imageBuffer: Buffer,
+    userId?: string,
+    options?: ReceiptJobOptions,
+    meta?: ReceiptJobMeta,
+  ): Promise<string> {
     const job = await this.queue.add(
       'process-receipt',
       {
@@ -139,8 +144,17 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
         queueEvents.on('progress', ({ jobId: jId, data }) => {
           if (jId !== jobId) return;
 
-          if (data && typeof data === 'object' && 'type' in data && (data as any).type === 'partial-result') {
-            const structured = data as { type: string; percent: number; data: unknown };
+          if (
+            data &&
+            typeof data === 'object' &&
+            'type' in data &&
+            (data as any).type === 'partial-result'
+          ) {
+            const structured = data as {
+              type: string;
+              percent: number;
+              data: unknown;
+            };
             onEvent({
               status: 'active',
               progress: structured.percent,
@@ -173,7 +187,9 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
         });
 
         queueEvents.on('error', (err) => {
-          this.logger.error(`QueueEvents error for job ${jobId}: ${err.message}`);
+          this.logger.error(
+            `QueueEvents error for job ${jobId}: ${err.message}`,
+          );
           cleanup();
           reject(err);
         });

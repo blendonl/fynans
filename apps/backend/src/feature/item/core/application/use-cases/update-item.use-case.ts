@@ -1,5 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { DomainValidationException, DomainNotFoundException, DomainForbiddenException } from '~common/exceptions/domain.exceptions';
+import {
+  DomainValidationException,
+  DomainNotFoundException,
+  DomainForbiddenException,
+} from '~common/exceptions/domain.exceptions';
 import { type IItemRepository } from '../../domain/repositories/item.repository.interface';
 import { type IStoreItemCategoryRepository } from '../../../../store-item-category/core/domain/repositories/store-item-category.repository.interface';
 import { UpdateItemDto } from '../dto/update-item.dto';
@@ -22,9 +26,7 @@ export class UpdateItemUseCase {
 
     const linked = await this.itemRepository.isLinkedToUser(id, userId);
     if (!linked) {
-      throw new DomainForbiddenException(
-        'Item does not belong to this user',
-      );
+      throw new DomainForbiddenException('Item does not belong to this user');
     }
 
     await this.validate(id, dto);

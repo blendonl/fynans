@@ -33,11 +33,15 @@ export class UpdatePendingExpenseUseCase {
 
     const transaction = expense.transaction;
     if (!transaction.canBeModified()) {
-      throw new DomainValidationException('Only pending expenses can be edited');
+      throw new DomainValidationException(
+        'Only pending expenses can be edited',
+      );
     }
 
     if (transaction.userId !== userId) {
-      throw new DomainForbiddenException('Only the creator can edit a pending expense');
+      throw new DomainForbiddenException(
+        'Only the creator can edit a pending expense',
+      );
     }
 
     if (dto.paymentMethodId) {
@@ -71,7 +75,10 @@ export class UpdatePendingExpenseUseCase {
     }
 
     if (Object.keys(transactionUpdates).length > 0) {
-      await this.transactionRepository.update(transaction.id, transactionUpdates as Partial<Transaction>);
+      await this.transactionRepository.update(
+        transaction.id,
+        transactionUpdates as Partial<Transaction>,
+      );
     }
 
     return this.expenseRepository.findById(expenseId) as Promise<Expense>;

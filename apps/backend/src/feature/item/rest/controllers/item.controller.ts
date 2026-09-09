@@ -12,7 +12,12 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { ItemService } from '../../core/application/services/item.service';
 import { CreateItemRequestDto } from '../dto/create-item-request.dto';
 import { UpdateItemRequestDto } from '../dto/update-item-request.dto';
@@ -32,9 +37,7 @@ import { User } from '../../../user/core/domain/entities/user.entity';
 @ApiBearerAuth('bearer')
 @Controller('items')
 export class ItemController {
-  constructor(
-    private readonly itemService: ItemService,
-  ) {}
+  constructor(private readonly itemService: ItemService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -62,7 +65,12 @@ export class ItemController {
   ) {
     const pagination = new Pagination(page, limit);
 
-    const result = await this.itemService.findAll(user.id, categoryId, { search }, pagination);
+    const result = await this.itemService.findAll(
+      user.id,
+      categoryId,
+      { search },
+      pagination,
+    );
 
     return {
       data: ItemResponseDto.fromEntities(result.data),
@@ -82,7 +90,11 @@ export class ItemController {
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit?: number,
   ) {
     const pagination = new Pagination(page, limit);
-    const result = await this.itemService.searchWithStores(user.id, search, pagination);
+    const result = await this.itemService.searchWithStores(
+      user.id,
+      search,
+      pagination,
+    );
     return {
       data: result.data,
       total: result.total,

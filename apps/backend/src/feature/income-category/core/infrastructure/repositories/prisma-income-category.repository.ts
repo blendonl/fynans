@@ -10,9 +10,7 @@ import { IncomeCategoryMapper } from '../mappers/income-category.mapper';
 import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
 
 @Injectable()
-export class PrismaIncomeCategoryRepository
-  implements IIncomeCategoryRepository
-{
+export class PrismaIncomeCategoryRepository implements IIncomeCategoryRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: Partial<IncomeCategory>): Promise<IncomeCategory> {

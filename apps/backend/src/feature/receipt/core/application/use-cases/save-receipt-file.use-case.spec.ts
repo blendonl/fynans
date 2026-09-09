@@ -22,12 +22,14 @@ describe('SaveReceiptFileUseCase', () => {
     receiptRepo = { create: jest.fn().mockResolvedValue({ id: 'receipt-1' }) };
     storage = { upload: jest.fn().mockResolvedValue(undefined) };
     familyService = {
-      verifyMembership: jest.fn().mockImplementation((_familyId: string, userId: string) => {
-        if (userId !== member) {
-          throw new DomainForbiddenException('Not a member of this family');
-        }
-        return Promise.resolve();
-      }),
+      verifyMembership: jest
+        .fn()
+        .mockImplementation((_familyId: string, userId: string) => {
+          if (userId !== member) {
+            throw new DomainForbiddenException('Not a member of this family');
+          }
+          return Promise.resolve();
+        }),
     };
     useCase = new SaveReceiptFileUseCase(
       receiptRepo as never,
@@ -37,9 +39,9 @@ describe('SaveReceiptFileUseCase', () => {
   });
 
   it('rejects planting a receipt in a family the caller does not belong to', async () => {
-    await expect(useCase.execute(inputFor(outsider, 'family-1'))).rejects.toBeInstanceOf(
-      DomainForbiddenException,
-    );
+    await expect(
+      useCase.execute(inputFor(outsider, 'family-1')),
+    ).rejects.toBeInstanceOf(DomainForbiddenException);
 
     expect(storage.upload).not.toHaveBeenCalled();
     expect(receiptRepo.create).not.toHaveBeenCalled();
@@ -48,7 +50,10 @@ describe('SaveReceiptFileUseCase', () => {
   it('stores the receipt for a member of the family', async () => {
     await useCase.execute(inputFor(member, 'family-1'));
 
-    expect(familyService.verifyMembership).toHaveBeenCalledWith('family-1', member);
+    expect(familyService.verifyMembership).toHaveBeenCalledWith(
+      'family-1',
+      member,
+    );
     expect(receiptRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({ userId: member, familyId: 'family-1' }),
     );

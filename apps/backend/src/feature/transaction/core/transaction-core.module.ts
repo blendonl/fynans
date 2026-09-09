@@ -16,11 +16,7 @@ import { GetTransactionStatisticsComparisonUseCase } from './application/use-cas
 import { PrismaTransactionRepository } from './infrastructure/repositories/prisma-transaction.repository';
 
 @Module({
-  imports: [
-    PrismaModule,
-    FamilyCoreModule,
-    PaymentMethodCoreModule,
-  ],
+  imports: [PrismaModule, FamilyCoreModule, PaymentMethodCoreModule],
   providers: [
     {
       provide: 'TransactionRepository',

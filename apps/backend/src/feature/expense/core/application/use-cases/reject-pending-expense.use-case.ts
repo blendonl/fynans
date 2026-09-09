@@ -38,7 +38,9 @@ export class RejectPendingExpenseUseCase {
 
     const transaction = expense.transaction;
     if (!transaction.isPending()) {
-      throw new DomainValidationException('Only pending expenses can be rejected');
+      throw new DomainValidationException(
+        'Only pending expenses can be rejected',
+      );
     }
 
     await this.expenseAuthService.verifyApprovalAuthority(transaction, userId);

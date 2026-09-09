@@ -25,7 +25,11 @@ export interface ExpenseStatistics {
   totalExpenses: number;
   expenseCount: number;
   averageExpense: number;
-  expensesByCategory: { categoryId: string; categoryName: string; total: number }[];
+  expensesByCategory: {
+    categoryId: string;
+    categoryName: string;
+    total: number;
+  }[];
   expensesByStore: { storeId: string; total: number }[];
 }
 

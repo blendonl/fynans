@@ -1,13 +1,24 @@
 import { AcceptInvitationUseCase } from './accept-invitation.use-case';
 import { DeclineInvitationUseCase } from './decline-invitation.use-case';
-import { FamilyInvitation, FamilyInvitationStatus } from '../../domain/entities/family-invitation.entity';
+import {
+  FamilyInvitation,
+  FamilyInvitationStatus,
+} from '../../domain/entities/family-invitation.entity';
 import {
   DomainConflictException,
   DomainForbiddenException,
 } from '~common/exceptions/domain.exceptions';
 
-const invitee = { id: 'invitee-1', email: 'invitee@example.com', fullName: 'Invitee' };
-const attacker = { id: 'attacker-1', email: 'attacker@example.com', fullName: 'Attacker' };
+const invitee = {
+  id: 'invitee-1',
+  email: 'invitee@example.com',
+  fullName: 'Invitee',
+};
+const attacker = {
+  id: 'attacker-1',
+  email: 'attacker@example.com',
+  fullName: 'Attacker',
+};
 
 const buildInvitation = (overrides: Partial<Record<string, unknown>> = {}) =>
   new FamilyInvitation({
@@ -46,15 +57,21 @@ describe('invitation identity checks', () => {
     };
     familyRepository = {
       findById: jest.fn().mockResolvedValue({ id: 'family-1', name: 'Family' }),
-      addMember: jest.fn().mockImplementation((member) => Promise.resolve(member)),
+      addMember: jest
+        .fn()
+        .mockImplementation((member) => Promise.resolve(member)),
       findMember: jest.fn().mockResolvedValue(null),
       findMembers: jest.fn().mockResolvedValue([]),
     };
-    createNotificationUseCase = { execute: jest.fn().mockResolvedValue(undefined) };
+    createNotificationUseCase = {
+      execute: jest.fn().mockResolvedValue(undefined),
+    };
     userService = {
-      findById: jest.fn().mockImplementation((id: string) =>
-        Promise.resolve(id === invitee.id ? invitee : attacker),
-      ),
+      findById: jest
+        .fn()
+        .mockImplementation((id: string) =>
+          Promise.resolve(id === invitee.id ? invitee : attacker),
+        ),
     };
 
     acceptInvitation = new AcceptInvitationUseCase(
@@ -91,7 +108,10 @@ describe('invitation identity checks', () => {
 
     it('accepts the invitee matched by id when the email differs', async () => {
       invitationRepository.findById.mockResolvedValue(
-        buildInvitation({ inviteeId: invitee.id, inviteeEmail: 'old-address@example.com' }),
+        buildInvitation({
+          inviteeId: invitee.id,
+          inviteeEmail: 'old-address@example.com',
+        }),
       );
 
       await acceptInvitation.execute('invitation-1', invitee.id);
