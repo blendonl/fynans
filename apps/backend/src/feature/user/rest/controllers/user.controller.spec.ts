@@ -172,7 +172,9 @@ describe('UserController', () => {
     it('lets a user read their own record', async () => {
       currentUserId = USER_A;
 
-      const response = await request(server).get(`/users/${USER_A}`).expect(200);
+      const response = await request(server)
+        .get(`/users/${USER_A}`)
+        .expect(200);
 
       expect((response.body as UserResponseBody).email).toBe(
         `${USER_A}@example.com`,
@@ -182,7 +184,9 @@ describe('UserController', () => {
     it('never exposes a balance', async () => {
       currentUserId = USER_A;
 
-      const response = await request(server).get(`/users/${USER_A}`).expect(200);
+      const response = await request(server)
+        .get(`/users/${USER_A}`)
+        .expect(200);
 
       expect(response.body).not.toHaveProperty('balance');
     });
@@ -190,7 +194,9 @@ describe('UserController', () => {
     it('lets a family co-member read the record', async () => {
       currentUserId = USER_C;
 
-      const response = await request(server).get(`/users/${USER_A}`).expect(200);
+      const response = await request(server)
+        .get(`/users/${USER_A}`)
+        .expect(200);
 
       expect((response.body as UserResponseBody).email).toBe(
         `${USER_A}@example.com`,
@@ -390,7 +396,10 @@ describe('UserController', () => {
 
       await request(server)
         .post('/users/me/change-password')
-        .send({ currentPassword: 'same-password', newPassword: 'same-password' })
+        .send({
+          currentPassword: 'same-password',
+          newPassword: 'same-password',
+        })
         .expect(400);
 
       expect(passwordChanges).toHaveLength(0);
