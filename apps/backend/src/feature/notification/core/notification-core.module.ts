@@ -14,6 +14,7 @@ import { ExpoPushNotificationService } from './infrastructure/services/expo-push
 import { WebPushNotificationService } from './infrastructure/services/web-push-notification.service';
 
 import { CreateNotificationUseCase } from './application/use-cases/create-notification.use-case';
+import { CreateNotificationsUseCase } from './application/use-cases/create-notifications.use-case';
 import { GetNotificationsUseCase } from './application/use-cases/get-notifications.use-case';
 import { GetUnreadCountUseCase } from './application/use-cases/get-unread-count.use-case';
 import { MarkNotificationAsReadUseCase } from './application/use-cases/mark-notification-as-read.use-case';
@@ -53,6 +54,7 @@ import { UnregisterWebPushSubscriptionUseCase } from './application/use-cases/un
     WebPushNotificationService,
 
     CreateNotificationUseCase,
+    CreateNotificationsUseCase,
     GetNotificationsUseCase,
     GetUnreadCountUseCase,
     MarkNotificationAsReadUseCase,
@@ -67,6 +69,7 @@ import { UnregisterWebPushSubscriptionUseCase } from './application/use-cases/un
   ],
   exports: [
     CreateNotificationUseCase,
+    CreateNotificationsUseCase,
     GetNotificationsUseCase,
     GetUnreadCountUseCase,
     MarkNotificationAsReadUseCase,
