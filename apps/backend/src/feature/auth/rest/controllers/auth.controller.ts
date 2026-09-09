@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  Res,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,8 +15,9 @@ import {
   ApiResponse,
   ApiProperty,
 } from '@nestjs/swagger';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { AuthService } from '../../core/application/services/auth.service';
+import { applySessionCookies, toSessionHeaders } from '../http/session-http';
 import { RegisterRequestDto } from '../dto/register-request.dto';
 import { LoginRequestDto } from '../dto/login-request.dto';
 import { RegisterDto } from '../../core/application/dto/register.dto';
@@ -73,7 +75,10 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Register a new user account' })
   @ApiResponse({ status: 201, type: AuthResultResponseDto })
-  async register(@Body() dto: RegisterRequestDto) {
+  async register(
+    @Body() dto: RegisterRequestDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const coreDto: RegisterDto = {
       email: dto.email,
       password: dto.password,
@@ -81,7 +86,10 @@ export class AuthController {
       lastName: dto.lastName,
     };
 
-    return this.authService.register(coreDto);
+    const { result, sessionCookies } = await this.authService.register(coreDto);
+    applySessionCookies(res, sessionCookies);
+
+    return result;
   }
 
   @Public()
@@ -89,13 +97,19 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Log in with email and password' })
   @ApiResponse({ status: 200, type: AuthResultResponseDto })
-  async login(@Body() dto: LoginRequestDto) {
+  async login(
+    @Body() dto: LoginRequestDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const coreDto: LoginDto = {
       email: dto.email,
       password: dto.password,
     };
 
-    return this.authService.login(coreDto);
+    const { result, sessionCookies } = await this.authService.login(coreDto);
+    applySessionCookies(res, sessionCookies);
+
+    return result;
   }
 
   @Post('logout')
@@ -103,11 +117,9 @@ export class AuthController {
   @ApiBearerAuth('bearer')
   @ApiOperation({ summary: 'Log out and invalidate the current token' })
   @ApiResponse({ status: 204, description: 'Successfully logged out' })
-  async logout(@Req() req: Request) {
-    const [, token] = req.headers.authorization?.split(' ') ?? [];
-    if (token) {
-      await this.authService.logout(token);
-    }
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const sessionCookies = await this.authService.logout(toSessionHeaders(req));
+    applySessionCookies(res, sessionCookies);
   }
 
   @Get('me')
