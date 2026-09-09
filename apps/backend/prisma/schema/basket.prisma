@@ -18,8 +18,7 @@ model Basket {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@unique([userId, scope], name: "personal_basket")
-  @@unique([familyId, scope], name: "family_basket")
+  @@unique([familyId])
   @@index([userId])
   @@index([familyId])
   @@map("basket")
