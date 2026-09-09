@@ -43,6 +43,7 @@ export class ExpenseMapper {
       category: ExpenseCategoryMapper.toDomain(prismaExpense.category),
       storeId: prismaExpense.storeId,
       categoryId: prismaExpense.categoryId,
+      description: prismaExpense.description,
       items: prismaExpense.items.map((item) =>
         ExpenseItemMapper.toDomain(item),
       ),

@@ -55,6 +55,7 @@ const expense = (
     }),
     storeId: 'store-1',
     categoryId: 'cat-1',
+    description: null,
     category: new ExpenseCategory({
       id: 'cat-1',
       parentId: null,
@@ -102,7 +103,9 @@ describe('ExpenseResponseMapper', () => {
     });
 
     it('degrades to no images when storage is unavailable', async () => {
-      storage.getPresignedDownloadUrl.mockRejectedValue(new Error('minio down'));
+      storage.getPresignedDownloadUrl.mockRejectedValue(
+        new Error('minio down'),
+      );
 
       const dto = await mapper.toResponse(
         expense('e1', [], { id: 'r1', storageKey: 'receipts/r1.jpg' }),
@@ -116,7 +119,9 @@ describe('ExpenseResponseMapper', () => {
     const listed = () =>
       mapper.toPaginatedResponse(
         {
-          data: [expense('e1', [item('i1', 'Qumësht'), item('i2', 'Bukë')], null)],
+          data: [
+            expense('e1', [item('i1', 'Qumësht'), item('i2', 'Bukë')], null),
+          ],
           total: 1,
         },
         new Pagination(1, 10),

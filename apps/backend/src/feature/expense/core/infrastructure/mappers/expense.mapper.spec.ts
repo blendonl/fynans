@@ -108,3 +108,65 @@ describe('ExpenseMapper.toDomain', () => {
     expect(domainExpense.items[0].price.toNumber()).toBe(50);
   });
 });
+
+describe('ExpenseMapper.toDomain description', () => {
+  const date = new Date('2026-03-01T00:00:00.000Z');
+
+  const prismaExpense = (description: string | null) => ({
+    id: 'expense-1',
+    transactionId: 'tx-1',
+    storeId: null,
+    categoryId: 'cat-1',
+    description,
+    createdAt: date,
+    updatedAt: date,
+    transaction: {
+      id: 'tx-1',
+      userId: 'user-1',
+      type: 'EXPENSE',
+      status: 'CONFIRMED',
+      value: new Decimal(10),
+      familyId: null,
+      paymentMethodId: null,
+      rejectionReason: null,
+      scope: 'PERSONAL',
+      recordedAt: date,
+      createdAt: date,
+      updatedAt: date,
+      user: {
+        id: 'user-1',
+        firstName: 'Arben',
+        lastName: 'Krasniqi',
+        name: 'Arben Krasniqi',
+        image: null,
+      },
+    },
+    category: {
+      id: 'cat-1',
+      name: 'Ushqime',
+      parentId: null,
+      isConnectedToStore: false,
+      createdAt: date,
+      updatedAt: date,
+    },
+    store: null,
+    receipt: null,
+    items: [],
+  });
+
+  it('carries the description that UpdateExpenseUseCase writes', () => {
+    // @ts-ignore - deep prisma types are impractical to mock exactly
+    const expense = ExpenseMapper.toDomain(prismaExpense('Blerje javore'));
+
+    expect(expense.description).toBe('Blerje javore');
+    expect(expense.toJSON().description).toBe('Blerje javore');
+  });
+
+  it('keeps a missing description null rather than dropping the field', () => {
+    // @ts-ignore - deep prisma types are impractical to mock exactly
+    const expense = ExpenseMapper.toDomain(prismaExpense(null));
+
+    expect(expense.description).toBeNull();
+    expect(expense.toJSON()).toHaveProperty('description', null);
+  });
+});
