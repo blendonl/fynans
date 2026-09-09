@@ -71,7 +71,7 @@ describe('AuthGuard session caching', () => {
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
 
     expect(validateRequestSession).toHaveBeenCalled();
-    expect(cacheSet).toHaveBeenCalledWith(TOKEN, user);
+    expect(cacheSet).toHaveBeenCalledWith(expect.stringContaining(TOKEN), user);
     expect(request.user).toBe(user);
   });
 
@@ -102,7 +102,10 @@ describe('AuthGuard session caching', () => {
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
 
     expect(validateRequestSession).toHaveBeenCalled();
-    expect(cacheSet).toHaveBeenCalledWith(COOKIE_VALUE, user);
+    expect(cacheSet).toHaveBeenCalledWith(
+      expect.stringContaining(COOKIE_VALUE),
+      user,
+    );
     expect(request.user).toBe(user);
   });
 
@@ -111,7 +114,10 @@ describe('AuthGuard session caching', () => {
 
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
 
-    expect(cacheSet).toHaveBeenCalledWith(COOKIE_VALUE, user);
+    expect(cacheSet).toHaveBeenCalledWith(
+      expect.stringContaining(COOKIE_VALUE),
+      user,
+    );
   });
 
   it('serves a cookie-authenticated hit from the cache', async () => {
@@ -120,11 +126,34 @@ describe('AuthGuard session caching', () => {
 
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
 
-    expect(cacheGet).toHaveBeenCalledWith(COOKIE_VALUE);
+    expect(cacheGet).toHaveBeenCalledWith(expect.stringContaining(COOKIE_VALUE));
     expect(validateRequestSession).not.toHaveBeenCalled();
   });
 
-  it('prefers the bearer token over a cookie when both are present', async () => {
+  it('does not let a bearer-only request reuse a session cached alongside a cookie', async () => {
+    const both: FakeRequest = {
+      method: 'GET',
+      headers: {
+        authorization: `Bearer ${TOKEN}`,
+        cookie: `better-auth.session_token=${COOKIE_VALUE}`,
+      },
+    };
+
+    await expect(guard.canActivate(contextFor(both))).resolves.toBe(true);
+
+    const combinedKey = cacheSet.mock.calls[0][0] as string;
+
+    cacheSet.mockClear();
+    await expect(
+      guard.canActivate(contextFor(authenticatedRequest())),
+    ).resolves.toBe(true);
+
+    const bearerOnlyKey = cacheSet.mock.calls[0][0] as string;
+
+    expect(bearerOnlyKey).not.toBe(combinedKey);
+  });
+
+  it('keys a cookie-plus-bearer request on both credentials', async () => {
     const request: FakeRequest = {
       method: 'GET',
       headers: {
@@ -135,7 +164,10 @@ describe('AuthGuard session caching', () => {
 
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
 
-    expect(cacheSet).toHaveBeenCalledWith(TOKEN, user);
+    const key = cacheSet.mock.calls[0][0] as string;
+
+    expect(key).toContain(COOKIE_VALUE);
+    expect(key).toContain(TOKEN);
   });
 
   it('still validates when a cookie carries no recognised session name', async () => {
