@@ -15,7 +15,6 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 
 export const viewport: Viewport = {
   viewportFit: "cover",
-  maximumScale: 1,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#F8F8F6" },
     { media: "(prefers-color-scheme: dark)", color: "#0F1114" },

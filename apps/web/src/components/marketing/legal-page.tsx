@@ -21,7 +21,7 @@ export function LegalPage({ title, lastUpdated, summary, children }: LegalPagePr
           </Link>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm font-medium text-text-secondary transition hover:text-primary-variant"
+            className="inline-flex items-center gap-2 text-sm font-medium text-text-secondary transition hover:text-primary-text"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden />
             Back home
@@ -45,7 +45,7 @@ export function LegalPage({ title, lastUpdated, summary, children }: LegalPagePr
         </div>
 
         <div className="mt-8 rounded-[var(--radius)] border border-border-light bg-surface p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-text">
             In short
           </h2>
           <div className="mt-4 space-y-3 leading-7 text-text-secondary">{summary}</div>
@@ -56,13 +56,13 @@ export function LegalPage({ title, lastUpdated, summary, children }: LegalPagePr
 
       <footer className="border-t border-border-light bg-surface/70">
         <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-5 px-5 py-8 text-sm font-medium text-text-secondary sm:px-8">
-          <Link href="/" className="transition hover:text-primary-variant">
+          <Link href="/" className="transition hover:text-primary-text">
             Home
           </Link>
-          <Link href="/privacy" className="transition hover:text-primary-variant">
+          <Link href="/privacy" className="transition hover:text-primary-text">
             Privacy
           </Link>
-          <Link href="/terms" className="transition hover:text-primary-variant">
+          <Link href="/terms" className="transition hover:text-primary-text">
             Terms
           </Link>
         </div>
