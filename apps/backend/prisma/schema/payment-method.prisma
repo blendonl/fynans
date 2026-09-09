@@ -11,8 +11,8 @@ model PaymentMethod {
   name           String
   type           PaymentMethodType @default(CASH)
   color          String            @default("#6366F1")
-  initialBalance Decimal           @default(0) @map("initial_balance")
-  currentBalance Decimal           @default(0) @map("current_balance")
+  initialBalance Decimal           @default(0) @map("initial_balance") @db.Decimal(12, 2)
+  currentBalance Decimal           @default(0) @map("current_balance") @db.Decimal(12, 2)
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
