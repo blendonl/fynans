@@ -16,6 +16,8 @@ model Expense {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@id([id])
+  @@index([categoryId])
+  @@index([storeId])
   @@map("expense")
 }
 
@@ -35,6 +37,7 @@ model ExpenseCategory {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([parentId])
   @@map("expense_category")
 }
 

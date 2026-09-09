@@ -54,5 +54,6 @@ model Transaction {
   @@index([scope])
   @@index([status])
   @@index([userId, status])
+  @@index([recordedAt])
   @@map("transaction")
 }
