@@ -16,9 +16,9 @@ const lineItems = [
 ];
 
 const categorySpend = [
-  { label: 'Groceries', value: '€684', color: 'bg-primary', width: 'w-[86%]' },
-  { label: 'Household', value: '€312', color: 'bg-secondary', width: 'w-[58%]' },
-  { label: 'Transport', value: '€168', color: 'bg-info', width: 'w-[32%]' },
+  { label: 'Groceries', value: '€684', color: 'bg-primary', width: 'w-full' },
+  { label: 'Household', value: '€312', color: 'bg-secondary', width: 'w-[46%]' },
+  { label: 'Transport', value: '€168', color: 'bg-info', width: 'w-[25%]' },
 ];
 
 export function ReceiptPreview() {
@@ -75,8 +75,8 @@ export function ReceiptPreview() {
               <p className="text-sm text-text-inverse/60">Waiting for approval</p>
               <p className="mt-1 text-2xl font-semibold">{store.total}</p>
               <p className="mt-4 text-sm leading-6 text-text-inverse/70">
-                Filed under {store.category}. Any member of the family can approve it, or reject it
-                with a reason.
+                Filed under {store.category}. An owner or admin approves it — never the person who
+                submitted it — or sends it back with a reason.
               </p>
             </div>
             <div className="rounded-[var(--radius)] bg-surface-variant p-4">

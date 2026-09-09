@@ -39,7 +39,7 @@ const features = [
     icon: CheckCheck,
     title: 'Approval, not surveillance',
     description:
-      'Send an expense to the family instead of straight to the ledger. Any member can approve it, or reject it with a reason.',
+      'Send an expense to the family instead of straight to the ledger. Sign-off belongs to an owner or admin, and never to the person who submitted it — nobody approves their own spending.',
   },
   {
     icon: Undo2,
@@ -69,7 +69,7 @@ const features = [
     icon: Zap,
     title: 'Live updates and push notifications',
     description:
-      'Baskets sync over a live connection, and scans report their progress from anywhere in the app. Push tells you when an expense needs your decision, and when one of yours has been approved or sent back.',
+      'Baskets sync over a live connection, and scans report their progress from anywhere in the app. Push tells you when an expense is waiting on the family, and when one of yours has been approved or sent back.',
   },
 ];
 
@@ -96,14 +96,14 @@ const workflow = [
     icon: BadgeCheck,
     title: 'Approve or send it back',
     description:
-      'Confirm it yourself, or leave it pending so the household decides. Nothing touches a family balance until it is approved.',
+      'Record it confirmed, or leave it pending for the family. Sign-off falls to an owner or admin other than you, and the family balance does not move until it is approved.',
   },
 ];
 
 const trustItems = [
   { icon: ShieldCheck, title: 'Personal and family spending stay apart' },
   { icon: LockKeyhole, title: 'Receipt images live in private storage' },
-  { icon: BadgeCheck, title: 'Family expenses can wait for approval' },
+  { icon: BadgeCheck, title: 'Nobody signs off their own spending' },
 ];
 
 const audiences = [
@@ -253,8 +253,8 @@ export default function Home() {
           </h2>
           <p className="mt-5 leading-8 text-text-secondary">
             Invite the people you actually share costs with, give them a role, and let the
-            transactions carry their own history — who recorded it, who approved it, and what was
-            said if it went back.
+            transactions carry their own history — who recorded it, whether it was approved, and
+            what was said if it went back.
           </p>
           <div className="mt-8 space-y-3">
             {audiences.map((audience) => (
@@ -272,9 +272,8 @@ export default function Home() {
             </div>
             <h3 className="mt-5 text-xl font-semibold text-text">Roles that mean something.</h3>
             <p className="mt-3 leading-7 text-text-secondary">
-              Invite by email and the invitation lapses on its own if nobody acts on it. Owners,
-              admins and members share one family balance and a single view of who is in the
-              household.
+              Invite by email and the invitation lapses on its own if nobody acts on it. Owners and
+              admins hold the sign-off; members record spending against the same shared balance.
             </p>
           </div>
           <div className="rounded-[var(--radius)] border border-border-light bg-surface p-6 soft-shadow">
