@@ -1,3 +1,4 @@
+import { createPrismaServiceDouble } from '~test/prisma-service.double';
 import { CreateIncomeUseCase } from './create-income.use-case';
 import { CreateIncomeDto } from '../dto/create-income.dto';
 import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
@@ -43,15 +44,16 @@ describe('CreateIncomeUseCase', () => {
       incomeCategoryRepository as never,
       transactionService as never,
       notifyFamilyMembersService as never,
+      createPrismaServiceDouble(),
     );
   });
 
   it("rejects attaching an income to another user's transaction", async () => {
     const dto = new CreateIncomeDto(
       'transaction-1',
-      'store-1',
       'category-1',
       attacker,
+      'store-1',
     );
 
     await expect(useCase.execute(dto)).rejects.toBeInstanceOf(
@@ -66,9 +68,9 @@ describe('CreateIncomeUseCase', () => {
   it('creates the income for the transaction owner', async () => {
     const dto = new CreateIncomeDto(
       'transaction-1',
-      'store-1',
       'category-1',
       owner,
+      'store-1',
     );
 
     await expect(useCase.execute(dto)).resolves.toEqual({ id: 'income-1' });

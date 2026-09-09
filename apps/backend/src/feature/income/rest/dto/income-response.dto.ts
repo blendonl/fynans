@@ -10,11 +10,14 @@ export class IncomeResponseDto {
   @ApiProperty()
   transactionId: string;
 
-  @ApiProperty()
-  storeId: string;
+  @ApiProperty({ nullable: true })
+  storeId: string | null;
 
   @ApiProperty()
   categoryId: string;
+
+  @ApiProperty({ nullable: true })
+  description: string | null;
 
   @ApiProperty({ type: () => TransactionResponseDto, required: false })
   transaction?: TransactionResponseDto;
@@ -34,6 +37,7 @@ export class IncomeResponseDto {
     dto.transactionId = income.transactionId;
     dto.storeId = income.storeId;
     dto.categoryId = income.categoryId;
+    dto.description = income.description;
     dto.transaction = income.transaction ? TransactionResponseDto.fromEntity(income.transaction) : undefined;
     dto.category = income.category ? IncomeCategoryResponseDto.fromEntity(income.category) : undefined;
     dto.createdAt = income.createdAt;
