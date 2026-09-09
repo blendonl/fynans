@@ -5,6 +5,7 @@ export class IncomeCategoryMapper {
   static toDomain(prismaCategory: PrismaIncomeCategory): IncomeCategory {
     return new IncomeCategory({
       id: prismaCategory.id,
+      userId: prismaCategory.userId,
       parentId: prismaCategory.parentId,
       name: prismaCategory.name,
       createdAt: prismaCategory.createdAt,

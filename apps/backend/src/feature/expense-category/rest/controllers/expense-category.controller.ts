@@ -98,8 +98,8 @@ export class ExpenseCategoryController {
   @Get(':id')
   @ApiOperation({ summary: 'Get an expense category by ID' })
   @ApiResponse({ status: 200, type: ExpenseCategoryResponseDto })
-  async findOne(@Param('id') id: string) {
-    const category = await this.expenseCategoryService.findById(id);
+  async findOne(@Param('id') id: string, @CurrentUser() user: User) {
+    const category = await this.expenseCategoryService.findById(id, user.id);
     return ExpenseCategoryResponseDto.fromEntity(category);
   }
 

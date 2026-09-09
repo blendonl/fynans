@@ -19,34 +19,21 @@ model Income {
 
 model IncomeCategory {
   id       String  @id @default(uuid())
+  userId   String  @map("user_id")
   parentId String? @map("parent_id")
 
-  name String @unique
+  name String
 
+  owner    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   parent   IncomeCategory?  @relation(name: "children", fields: [parentId], references: [id])
   children IncomeCategory[] @relation(name: "children")
   incomes  Income[]
-  users    UserIncomeCategory[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([userId, name])
+  @@index([userId])
   @@index([parentId])
   @@map("income_category")
-}
-
-model UserIncomeCategory {
-  id         String @id @default(uuid())
-  userId     String @map("user_id")
-  categoryId String @map("category_id")
-
-  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category IncomeCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@unique([userId, categoryId])
-  @@index([userId])
-  @@index([categoryId])
-  @@map("user_income_category")
 }

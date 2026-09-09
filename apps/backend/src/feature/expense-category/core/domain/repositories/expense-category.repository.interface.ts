@@ -4,6 +4,7 @@ import { Pagination, PaginatedResult } from '~common/dto/pagination.dto';
 export { PaginatedResult };
 
 export interface CreateExpenseCategoryData {
+  userId: string;
   name: string;
   parentId?: string | null;
   isConnectedToStore?: boolean;
@@ -18,7 +19,11 @@ export interface UpdateExpenseCategoryData {
 export interface IExpenseCategoryRepository {
   create(data: CreateExpenseCategoryData): Promise<ExpenseCategory>;
   findById(id: string): Promise<ExpenseCategory | null>;
-  findByName(name: string): Promise<ExpenseCategory | null>;
+  findVisibleById(id: string, userId: string): Promise<ExpenseCategory | null>;
+  findOwnedByName(
+    name: string,
+    userId: string,
+  ): Promise<ExpenseCategory | null>;
   findAll(
     userId: string,
     pagination?: Pagination,
@@ -29,10 +34,11 @@ export interface IExpenseCategoryRepository {
     parentId: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<ExpenseCategory>>;
-  findChildren(parentId: string): Promise<ExpenseCategory[]>;
-  linkToUser(categoryId: string, userId: string): Promise<void>;
-  isLinkedToUser(categoryId: string, userId: string): Promise<boolean>;
+  findChildren(parentId: string, userId: string): Promise<ExpenseCategory[]>;
   update(id: string, data: UpdateExpenseCategoryData): Promise<ExpenseCategory>;
   delete(id: string): Promise<void>;
-  countExpensesByCategory(categoryId: string): Promise<number>;
+  countExpensesInOwnedCategory(
+    categoryId: string,
+    userId: string,
+  ): Promise<number>;
 }

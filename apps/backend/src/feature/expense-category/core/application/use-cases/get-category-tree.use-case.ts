@@ -31,8 +31,10 @@ export class GetCategoryTreeUseCase {
     userId: string,
     category: ExpenseCategory,
   ): Promise<CategoryTree> {
-    const children =
-      await this.expenseCategoryRepository.findChildren(category.id);
+    const children = await this.expenseCategoryRepository.findChildren(
+      category.id,
+      userId,
+    );
 
     const childTrees = await Promise.all(
       children.map((child) => this.buildTree(userId, child)),

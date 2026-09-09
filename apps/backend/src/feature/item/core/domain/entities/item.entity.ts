@@ -2,6 +2,7 @@ import { ItemSize } from './item-size.entity';
 
 export interface ItemProps {
   id: string;
+  userId: string;
   categoryId: string;
   name: string;
   nameEn?: string;
@@ -23,6 +24,10 @@ export class Item {
       throw new Error('Item ID is required');
     }
 
+    if (!props.userId || props.userId.trim() === '') {
+      throw new Error('Item owner is required');
+    }
+
     if (!props.categoryId || props.categoryId.trim() === '') {
       throw new Error('Item category ID is required');
     }
@@ -42,6 +47,10 @@ export class Item {
 
   get id(): string {
     return this.props.id;
+  }
+
+  get userId(): string {
+    return this.props.userId;
   }
 
   get categoryId(): string {
@@ -71,6 +80,7 @@ export class Item {
   toJSON() {
     return {
       id: this.props.id,
+      userId: this.props.userId,
       categoryId: this.props.categoryId,
       name: this.props.name,
       nameEn: this.props.nameEn,

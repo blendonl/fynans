@@ -40,6 +40,7 @@ describe('Expense.fromPrisma', () => {
             },
             category: {
                 id: 'cat-1',
+                userId: 'user-1',
                 name: 'Groceries',
                 parentId: null,
                 isConnectedToStore: false,

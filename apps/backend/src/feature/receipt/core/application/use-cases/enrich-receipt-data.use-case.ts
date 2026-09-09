@@ -50,7 +50,10 @@ export class EnrichReceiptDataUseCase {
     if (!store && processedData.storeName && userId) {
       try {
         store = await this.createOrFindStoreUseCase.execute(
-          { name: processedData.storeName, location: processedData.storeLocation || '' },
+          {
+            name: processedData.storeName,
+            location: processedData.storeLocation || '',
+          },
           userId,
         );
         this.logger.log(`Auto-created store: ${store.name}`);
@@ -69,10 +72,15 @@ export class EnrichReceiptDataUseCase {
         let resolvedName = item.name;
 
         try {
-          let dbItem = await this.itemRepository.findByName(item.name);
+          let dbItem = userId
+            ? await this.itemRepository.findOwnedByName(item.name, userId)
+            : null;
 
-          if (!dbItem) {
-            dbItem = await this.itemRepository.findBySimilarName(item.name);
+          if (!dbItem && userId) {
+            dbItem = await this.itemRepository.findOwnedBySimilarName(
+              item.name,
+              userId,
+            );
             if (dbItem) {
               this.logger.log(
                 `Fuzzy matched "${item.name}" → "${dbItem.name}" (id=${dbItem.id})`,
@@ -96,10 +104,11 @@ export class EnrichReceiptDataUseCase {
 
             // Find existing StoreItem by store + item
             if (store) {
-              const existingStoreItem = await this.storeItemRepository.findByStoreAndItemId(
-                store.id,
-                dbItem.id,
-              );
+              const existingStoreItem =
+                await this.storeItemRepository.findByStoreAndItemId(
+                  store.id,
+                  dbItem.id,
+                );
               existingStoreItemId = existingStoreItem?.id;
             }
           }
@@ -141,7 +150,7 @@ export class EnrichReceiptDataUseCase {
     const withStoreItem = enrichedItems.filter((i) => i.id).length;
     this.logger.log(
       `resolveStoreAndItems: store="${result.store.name}" (id=${result.store.id ?? 'new'}), ` +
-      `${enrichedItems.length} items (${matched} matched, ${withStoreItem} with storeItem)`,
+        `${enrichedItems.length} items (${matched} matched, ${withStoreItem} with storeItem)`,
     );
     this.logger.debug(
       `resolveStoreAndItems items: ${JSON.stringify(enrichedItems.map((i) => ({ name: i.name, size: i.size, itemId: i.itemId, storeItemId: i.id })))}`,
@@ -182,18 +191,17 @@ export class EnrichReceiptDataUseCase {
     let suggestedExpenseCategoryName: string | undefined;
     if (processedData.suggestedExpenseCategory && userId) {
       try {
-        let category = await this.expenseCategoryRepository.findByName(
+        let category = await this.expenseCategoryRepository.findOwnedByName(
           processedData.suggestedExpenseCategory,
+          userId,
         );
 
         if (!category) {
           category = await this.expenseCategoryRepository.create({
+            userId,
             name: processedData.suggestedExpenseCategory,
             isConnectedToStore: true,
           });
-          await this.expenseCategoryRepository
-            .linkToUser(category.id, userId)
-            .catch((err) => this.logger.debug('Category already linked', err));
           this.logger.log(
             `Auto-created expense category: ${processedData.suggestedExpenseCategory}`,
           );
@@ -220,7 +228,7 @@ export class EnrichReceiptDataUseCase {
       .join(', ');
     this.logger.log(
       `resolveCategories: ${categoryMap.size} item categories [${categoriesResolved}], ` +
-      `expenseCategory="${suggestedExpenseCategoryName ?? 'none'}" (id=${suggestedExpenseCategoryId ?? 'none'})`,
+        `expenseCategory="${suggestedExpenseCategoryName ?? 'none'}" (id=${suggestedExpenseCategoryId ?? 'none'})`,
     );
 
     return {

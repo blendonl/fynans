@@ -44,12 +44,13 @@ export class CreateExpenseUseCase {
   async execute(dto: CreateExpenseDto): Promise<Expense> {
     this.validate(dto);
 
-    const category = await this.expenseCategoryService.findById(dto.categoryId);
+    const category = await this.expenseCategoryService.findById(
+      dto.categoryId,
+      dto.userId,
+    );
     if (!category) {
       throw new DomainNotFoundException('Expense category not found');
     }
-
-    await this.expenseCategoryService.linkToUser(dto.categoryId, dto.userId);
 
     const store =
       category.isConnectedToStore || dto.storeId

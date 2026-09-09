@@ -20,23 +20,22 @@ export class DeleteExpenseCategoryUseCase {
       throw new DomainNotFoundException('Expense category not found');
     }
 
-    const linked = await this.expenseCategoryRepository.isLinkedToUser(
-      id,
-      userId,
-    );
-    if (!linked) {
+    if (category.userId !== userId) {
       throw new DomainForbiddenException(
         'Expense category does not belong to this user',
       );
     }
 
-    await this.validate(id);
+    await this.validate(id, userId);
 
     await this.expenseCategoryRepository.delete(id);
   }
 
-  private async validate(id: string): Promise<void> {
-    const children = await this.expenseCategoryRepository.findChildren(id);
+  private async validate(id: string, userId: string): Promise<void> {
+    const children = await this.expenseCategoryRepository.findChildren(
+      id,
+      userId,
+    );
     if (children.length > 0) {
       throw new DomainValidationException(
         'Cannot delete category with child categories',
@@ -44,7 +43,10 @@ export class DeleteExpenseCategoryUseCase {
     }
 
     const expenseCount =
-      await this.expenseCategoryRepository.countExpensesByCategory(id);
+      await this.expenseCategoryRepository.countExpensesInOwnedCategory(
+        id,
+        userId,
+      );
     if (expenseCount > 0) {
       throw new DomainValidationException(
         'Cannot delete category that is used by existing expenses',

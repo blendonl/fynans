@@ -24,28 +24,34 @@ export class UpdateItemUseCase {
       throw new DomainNotFoundException(`Item with ID ${id} not found`);
     }
 
-    const linked = await this.itemRepository.isLinkedToUser(id, userId);
-    if (!linked) {
+    if (existingItem.userId !== userId) {
       throw new DomainForbiddenException('Item does not belong to this user');
     }
 
-    await this.validate(id, dto);
+    await this.validate(id, dto, userId);
 
     const item = await this.itemRepository.update(id, {
       name: dto.name,
       categoryId: dto.categoryId,
-    } as Partial<Item>);
+    });
 
     return item;
   }
 
-  private async validate(id: string, dto: UpdateItemDto): Promise<void> {
+  private async validate(
+    id: string,
+    dto: UpdateItemDto,
+    userId: string,
+  ): Promise<void> {
     if (dto.name !== undefined && dto.name.trim() === '') {
       throw new DomainValidationException('Item name cannot be empty');
     }
 
     if (dto.name) {
-      const existingItem = await this.itemRepository.findByName(dto.name);
+      const existingItem = await this.itemRepository.findOwnedByName(
+        dto.name,
+        userId,
+      );
       if (existingItem && existingItem.id !== id) {
         throw new DomainValidationException(
           `An item with the name "${dto.name}" already exists`,

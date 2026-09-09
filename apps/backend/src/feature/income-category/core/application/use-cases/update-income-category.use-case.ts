@@ -27,22 +27,18 @@ export class UpdateIncomeCategoryUseCase {
       throw new NotFoundException('Income category not found');
     }
 
-    const linked = await this.incomeCategoryRepository.isLinkedToUser(
-      id,
-      userId,
-    );
-    if (!linked) {
+    if (category.userId !== userId) {
       throw new DomainForbiddenException(
         'Income category does not belong to this user',
       );
     }
 
-    await this.validate(id, dto);
+    await this.validate(id, dto, userId);
 
     const updated = await this.incomeCategoryRepository.update(id, {
       name: dto.name,
       parentId: dto.parentId,
-    } as Partial<IncomeCategory>);
+    });
 
     return updated;
   }
@@ -50,7 +46,16 @@ export class UpdateIncomeCategoryUseCase {
   private async validate(
     id: string,
     dto: UpdateIncomeCategoryDto,
+    userId: string,
   ): Promise<void> {
+    if (dto.name) {
+      const existingCategory =
+        await this.incomeCategoryRepository.findOwnedByName(dto.name, userId);
+      if (existingCategory && existingCategory.id !== id) {
+        throw new BadRequestException('Category name must be unique');
+      }
+    }
+
     if (dto.parentId !== undefined) {
       if (dto.parentId === id) {
         throw new BadRequestException('Category cannot be its own parent');
@@ -60,7 +65,7 @@ export class UpdateIncomeCategoryUseCase {
         const parent = await this.incomeCategoryRepository.findById(
           dto.parentId,
         );
-        if (!parent) {
+        if (!parent || parent.userId !== userId) {
           throw new BadRequestException('Parent category not found');
         }
 

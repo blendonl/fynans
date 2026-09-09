@@ -83,11 +83,6 @@ export type Expense = Prisma.ExpenseModel
  */
 export type ExpenseCategory = Prisma.ExpenseCategoryModel
 /**
- * Model UserExpenseCategory
- * 
- */
-export type UserExpenseCategory = Prisma.UserExpenseCategoryModel
-/**
  * Model Family
  * 
  */
@@ -112,11 +107,6 @@ export type Income = Prisma.IncomeModel
  * 
  */
 export type IncomeCategory = Prisma.IncomeCategoryModel
-/**
- * Model UserIncomeCategory
- * 
- */
-export type UserIncomeCategory = Prisma.UserIncomeCategoryModel
 /**
  * Model Notification
  * 
@@ -187,11 +177,6 @@ export type ItemCategory = Prisma.ItemCategoryModel
  * 
  */
 export type UserStore = Prisma.UserStoreModel
-/**
- * Model UserItem
- * 
- */
-export type UserItem = Prisma.UserItemModel
 /**
  * Model UserStoreItem
  * 

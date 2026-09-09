@@ -49,11 +49,6 @@ export class CreateIncomeUseCase {
       description: dto.description,
     } as Partial<Income>);
 
-    await this.incomeCategoryRepository.linkToUser(
-      dto.categoryId,
-      transaction.userId,
-    );
-
     await this.recordFinancialAudit.execute({
       entity: AuditEntity.INCOME,
       entityId: income.id,
@@ -97,8 +92,9 @@ export class CreateIncomeUseCase {
       throw new DomainValidationException('Category ID is required');
     }
 
-    const category = await this.incomeCategoryRepository.findById(
+    const category = await this.incomeCategoryRepository.findVisibleById(
       dto.categoryId,
+      dto.userId,
     );
     if (!category) {
       throw new DomainNotFoundException('Income category not found');

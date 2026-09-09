@@ -114,8 +114,8 @@ export class IncomeCategoryController {
   @Get(':id')
   @ApiOperation({ summary: 'Get an income category by ID' })
   @ApiResponse({ status: 200, type: IncomeCategoryResponseDto })
-  async findOne(@Param('id') id: string) {
-    const category = await this.incomeCategoryService.findById(id);
+  async findOne(@Param('id') id: string, @CurrentUser() user: User) {
+    const category = await this.incomeCategoryService.findById(id, user.id);
     return IncomeCategoryResponseDto.fromEntity(category);
   }
 
