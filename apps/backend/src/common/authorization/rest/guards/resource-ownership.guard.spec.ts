@@ -59,7 +59,42 @@ describe('ResourceOwnershipGuard', () => {
       contextFor({ user: { id: 'user-a' }, params: { id: 'item-1' } }),
     );
 
-    expect(execute).toHaveBeenCalledWith('expenseItem', 'item-1', 'user-a');
+    expect(execute).toHaveBeenCalledWith(
+      'expenseItem',
+      'item-1',
+      'user-a',
+      undefined,
+    );
+  });
+
+  it('passes ownerOnly through to the policy', async () => {
+    givenRules({ resource: 'expense', ownerOnly: true });
+
+    await guard.canActivate(
+      contextFor({ user: { id: 'user-a' }, params: { id: 'expense-1' } }),
+    );
+
+    expect(execute).toHaveBeenCalledWith(
+      'expense',
+      'expense-1',
+      'user-a',
+      true,
+    );
+  });
+
+  it('leaves ownerOnly unset for a shared rule', async () => {
+    givenRules({ resource: 'expense' });
+
+    await guard.canActivate(
+      contextFor({ user: { id: 'user-a' }, params: { id: 'expense-1' } }),
+    );
+
+    expect(execute).toHaveBeenCalledWith(
+      'expense',
+      'expense-1',
+      'user-a',
+      undefined,
+    );
   });
 
   it('verifies a query parameter', async () => {
@@ -69,7 +104,12 @@ describe('ResourceOwnershipGuard', () => {
       contextFor({ user: { id: 'user-a' }, query: { expenseId: 'expense-1' } }),
     );
 
-    expect(execute).toHaveBeenCalledWith('expense', 'expense-1', 'user-a');
+    expect(execute).toHaveBeenCalledWith(
+      'expense',
+      'expense-1',
+      'user-a',
+      undefined,
+    );
   });
 
   it('verifies a body field', async () => {
@@ -79,7 +119,12 @@ describe('ResourceOwnershipGuard', () => {
       contextFor({ user: { id: 'user-a' }, body: { expenseId: 'expense-1' } }),
     );
 
-    expect(execute).toHaveBeenCalledWith('expense', 'expense-1', 'user-a');
+    expect(execute).toHaveBeenCalledWith(
+      'expense',
+      'expense-1',
+      'user-a',
+      undefined,
+    );
   });
 
   it('skips an optional rule when the id is absent', async () => {

@@ -52,6 +52,7 @@ export class ResourceOwnershipGuard implements CanActivate {
         rule.resource,
         resourceId,
         userId,
+        rule.ownerOnly,
       );
     }
 

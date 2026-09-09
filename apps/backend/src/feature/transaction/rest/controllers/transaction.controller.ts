@@ -188,7 +188,7 @@ export class TransactionController {
   }
 
   @Put(':id')
-  @OwnsResource({ resource: 'transaction' })
+  @OwnsResource({ resource: 'transaction', ownerOnly: true })
   @ApiOperation({ summary: 'Update a transaction' })
   @ApiResponse({ status: 200, type: TransactionResponseDto })
   async update(
@@ -209,7 +209,7 @@ export class TransactionController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @OwnsResource({ resource: 'transaction' })
+  @OwnsResource({ resource: 'transaction', ownerOnly: true })
   @ApiOperation({ summary: 'Delete a transaction' })
   @ApiResponse({ status: 204 })
   async remove(@Param('id') id: string) {

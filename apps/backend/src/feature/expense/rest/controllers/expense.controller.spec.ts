@@ -36,13 +36,45 @@ import { ExpenseController } from './expense.controller';
 
 const MEMBER = '11111111-1111-4111-8111-111111111111';
 const OUTSIDER = '22222222-2222-4222-8222-222222222222';
+const CO_MEMBER = '44444444-4444-4444-8444-444444444444';
 const FAMILY = '33333333-3333-4333-8333-333333333333';
 
 const EXPENSE_OF_MEMBER = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const FAMILY_EXPENSE = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 
 const EXPENSE_OWNERS: Record<string, ResourceOwner> = {
   [EXPENSE_OF_MEMBER]: { userId: MEMBER, familyId: null },
+  [FAMILY_EXPENSE]: { userId: MEMBER, familyId: FAMILY },
 };
+
+const FAMILY_MEMBERS = [MEMBER, CO_MEMBER];
+
+const expenseOf = (id: string) => ({
+  id,
+  transactionId: 'transaction-1',
+  categoryId: 'category-1',
+  storeId: null,
+  createdAt: new Date('2026-01-01T00:00:00.000Z'),
+  updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+  category: { id: 'category-1', name: 'Groceries', parentId: null },
+  store: null,
+  items: [],
+  receipt: null,
+  transaction: {
+    id: 'transaction-1',
+    userId: MEMBER,
+    type: 'EXPENSE',
+    scope: 'FAMILY',
+    status: 'CONFIRMED',
+    value: { toNumber: () => 10 },
+    paymentMethodId: undefined,
+    rejectionReason: undefined,
+    recordedAt: new Date('2026-01-01T00:00:00.000Z'),
+    createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    user: { id: MEMBER, firstName: 'A', lastName: 'B' },
+  },
+});
 
 describe('ExpenseController authorization', () => {
   let app: INestApplication;
@@ -63,15 +95,15 @@ describe('ExpenseController authorization', () => {
 
   const familyMembershipRepository: IFamilyMembershipRepository = {
     isMember: (familyId: string, userId: string) =>
-      Promise.resolve(familyId === FAMILY && userId === MEMBER),
+      Promise.resolve(familyId === FAMILY && FAMILY_MEMBERS.includes(userId)),
     findRole: (familyId: string, userId: string) =>
       Promise.resolve(
-        familyId === FAMILY && userId === MEMBER
+        familyId === FAMILY && FAMILY_MEMBERS.includes(userId)
           ? FamilyMemberRole.MEMBER
           : null,
       ),
     findFamilyIds: (userId: string) =>
-      Promise.resolve(userId === MEMBER ? [FAMILY] : []),
+      Promise.resolve(FAMILY_MEMBERS.includes(userId) ? [FAMILY] : []),
     findCoMemberUserIds: (userId: string) => Promise.resolve([userId]),
   };
 
@@ -160,6 +192,13 @@ describe('ExpenseController authorization', () => {
       expensesByStore: [],
     });
     getExpenseTrendsUseCase.execute.mockResolvedValue([]);
+    getExpenseByIdUseCase.execute.mockImplementation((id: string) =>
+      Promise.resolve(expenseOf(id)),
+    );
+    updateExpenseUseCase.execute.mockImplementation((id: string) =>
+      Promise.resolve(expenseOf(id)),
+    );
+    deleteExpenseUseCase.execute.mockResolvedValue(undefined);
   });
 
   it('rejects statistics for a family the caller does not belong to', async () => {
@@ -229,5 +268,67 @@ describe('ExpenseController authorization', () => {
     await request(server).delete(`/expenses/${EXPENSE_OF_MEMBER}`).expect(404);
 
     expect(deleteExpenseUseCase.execute).not.toHaveBeenCalled();
+  });
+
+  describe('writes stay owner-only even inside the family', () => {
+    it('refuses to let a co-member update a family expense', async () => {
+      currentUserId = CO_MEMBER;
+
+      await request(server)
+        .put(`/expenses/${FAMILY_EXPENSE}`)
+        .send({ note: 'rewritten' })
+        .expect(404);
+
+      expect(updateExpenseUseCase.execute).not.toHaveBeenCalled();
+    });
+
+    it('refuses to let a co-member delete a family expense', async () => {
+      currentUserId = CO_MEMBER;
+
+      await request(server).delete(`/expenses/${FAMILY_EXPENSE}`).expect(404);
+
+      expect(deleteExpenseUseCase.execute).not.toHaveBeenCalled();
+    });
+
+    it('lets a co-member read the same family expense', async () => {
+      currentUserId = CO_MEMBER;
+
+      await request(server).get(`/expenses/${FAMILY_EXPENSE}`).expect(200);
+
+      expect(getExpenseByIdUseCase.execute).toHaveBeenCalledWith(
+        FAMILY_EXPENSE,
+        CO_MEMBER,
+      );
+    });
+
+    it('still lets the owner update their family expense', async () => {
+      currentUserId = MEMBER;
+
+      await request(server)
+        .put(`/expenses/${FAMILY_EXPENSE}`)
+        .send({ note: 'rewritten' })
+        .expect(200);
+
+      expect(updateExpenseUseCase.execute).toHaveBeenCalled();
+    });
+
+    it('still lets the owner delete their family expense', async () => {
+      currentUserId = MEMBER;
+
+      await request(server).delete(`/expenses/${FAMILY_EXPENSE}`).expect(204);
+
+      expect(deleteExpenseUseCase.execute).toHaveBeenCalled();
+    });
+
+    it('refuses a complete stranger', async () => {
+      currentUserId = OUTSIDER;
+
+      await request(server)
+        .put(`/expenses/${FAMILY_EXPENSE}`)
+        .send({ note: 'rewritten' })
+        .expect(404);
+
+      expect(updateExpenseUseCase.execute).not.toHaveBeenCalled();
+    });
   });
 });
