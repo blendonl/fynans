@@ -9,6 +9,7 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ToBoolean } from '~common/dto/to-boolean.transform';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { RecordIncomeDto } from '../../core/application/dto/record-income.dto';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
@@ -41,7 +42,7 @@ export class RecordIncomeRequestDto {
 
   @IsBoolean()
   @IsOptional()
-  @Type(() => Boolean)
+  @ToBoolean()
   pending?: boolean;
 
   toCoreDto(userId: string): RecordIncomeDto {

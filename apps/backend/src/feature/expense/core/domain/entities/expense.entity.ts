@@ -17,6 +17,7 @@ export interface ExpenseProps {
   transactionId: string;
   storeId: string | null;
   categoryId: string;
+  description: string | null;
   items?: ExpenseItem[];
   receipt?: ExpenseReceiptInfo | null;
   createdAt: Date;
@@ -69,6 +70,10 @@ export class Expense {
     return this.props.categoryId;
   }
 
+  get description(): string | null {
+    return this.props.description;
+  }
+
   get createdAt(): Date {
     return this.props.createdAt;
   }
@@ -116,6 +121,7 @@ export class Expense {
       storeId: this.props.storeId,
       store: this.props.store,
       categoryId: this.props.categoryId,
+      description: this.props.description,
       createdAt: this.props.createdAt,
       updatedAt: this.props.updatedAt,
       items: this.items.map((item) => item.toJSON()),
