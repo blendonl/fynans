@@ -7,6 +7,11 @@ import { Pool } from 'pg';
 
 type PostCommitHook = () => Promise<unknown>;
 
+const INTERACTIVE_TRANSACTION_OPTIONS = {
+  maxWait: 10_000,
+  timeout: 30_000,
+};
+
 interface TransactionScope {
   client: Prisma.TransactionClient;
   postCommitHooks: PostCommitHook[];
@@ -42,8 +47,9 @@ export class PrismaService
     }
 
     const postCommitHooks: PostCommitHook[] = [];
-    const result = await this.$transaction((client) =>
-      this.scope.run({ client, postCommitHooks }, work),
+    const result = await this.$transaction(
+      (client) => this.scope.run({ client, postCommitHooks }, work),
+      INTERACTIVE_TRANSACTION_OPTIONS,
     );
 
     for (const hook of postCommitHooks) {

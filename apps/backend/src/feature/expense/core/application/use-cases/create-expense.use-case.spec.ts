@@ -47,13 +47,11 @@ describe('CreateExpenseUseCase', () => {
       findById: jest.fn().mockResolvedValue({ id: 'expense-1' }),
     };
     expenseCategoryService = {
-      findById: jest
-        .fn()
-        .mockResolvedValue({
-          id: CATEGORY,
-          name: 'Groceries',
-          isConnectedToStore: true,
-        }),
+      findById: jest.fn().mockResolvedValue({
+        id: CATEGORY,
+        name: 'Groceries',
+        isConnectedToStore: true,
+      }),
       linkToUser: jest.fn().mockResolvedValue(undefined),
     };
     transactionService = {
@@ -179,6 +177,20 @@ describe('CreateExpenseUseCase', () => {
     const itemDto = expenseItemService.create.mock.calls[0][0];
     expect(itemDto.itemName).toBe('Kiosk run');
     expect(itemDto.itemPrice).toBe(12.5);
+  });
+
+  it('treats an empty item list as a simple amount-only expense', async () => {
+    await useCase.execute(
+      new CreateExpenseDto({
+        userId: USER,
+        categoryId: CATEGORY,
+        items: [],
+        amount: new Decimal('19.99'),
+      }),
+    );
+
+    const dto = transactionService.create.mock.calls[0][0];
+    expect(dto.value.toString()).toBe('19.99');
   });
 
   it('requires either items or a positive amount', async () => {

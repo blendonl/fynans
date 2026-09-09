@@ -56,14 +56,16 @@ export class CreateExpenseUseCase {
           })
         : null;
 
-    if (dto.items?.length && !store) {
+    const suppliedItems = dto.items?.length ? dto.items : undefined;
+
+    if (suppliedItems && !store) {
       throw new DomainValidationException(
         'A store is required to record an itemised expense',
       );
     }
 
     const items =
-      dto.items ??
+      suppliedItems ??
       (store
         ? [
             new CreateExpenseItemDto({
@@ -75,9 +77,9 @@ export class CreateExpenseUseCase {
           ]
         : []);
 
-    const totalValue = dto.items
+    const totalValue = suppliedItems
       ? ExpenseTotalCalculator.total(
-          dto.items.map((item) => ({
+          suppliedItems.map((item) => ({
             price: item.itemPrice,
             discount: item.discount,
             quantity: item.quantity,
