@@ -52,14 +52,15 @@ export class CreateExpenseUseCase {
       }),
     ];
 
-    const store = category.isConnectedToStore || dto.storeId
-      ? await this.storeService.resolveStore({
-          storeId: dto.storeId,
-          storeName: dto.storeName,
-          storeLocation: dto.storeLocation,
-          userId: dto.userId,
-        })
-      : null;
+    const store =
+      category.isConnectedToStore || dto.storeId
+        ? await this.storeService.resolveStore({
+            storeId: dto.storeId,
+            storeName: dto.storeName,
+            storeLocation: dto.storeLocation,
+            userId: dto.userId,
+          })
+        : null;
 
     const totalValue = items.reduce((sum, item) => {
       const itemPrice = item.itemPrice;
@@ -151,13 +152,19 @@ export class CreateExpenseUseCase {
     if (dto.items) {
       for (const item of dto.items) {
         if (item.itemPrice < 0) {
-          throw new DomainValidationException('Item price must be non-negative');
+          throw new DomainValidationException(
+            'Item price must be non-negative',
+          );
         }
         if (item.discount !== undefined && item.discount < 0) {
-          throw new DomainValidationException('Item discount must be non-negative');
+          throw new DomainValidationException(
+            'Item discount must be non-negative',
+          );
         }
         if (item.discount !== undefined && item.discount > item.itemPrice) {
-          throw new DomainValidationException('Item discount cannot exceed price');
+          throw new DomainValidationException(
+            'Item discount cannot exceed price',
+          );
         }
       }
     }

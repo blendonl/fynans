@@ -50,10 +50,7 @@ describe('SaveReceiptFileUseCase', () => {
   it('stores the receipt for a member of the family', async () => {
     await useCase.execute(inputFor(member, 'family-1'));
 
-    expect(verifyFamilyAccess.execute).toHaveBeenCalledWith(
-      'family-1',
-      member,
-    );
+    expect(verifyFamilyAccess.execute).toHaveBeenCalledWith('family-1', member);
     expect(receiptRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({ userId: member, familyId: 'family-1' }),
     );

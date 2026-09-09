@@ -119,7 +119,10 @@ describe('TransactionController authorization', () => {
           provide: GetTransactionStatisticsComparisonUseCase,
           useValue: getTransactionStatisticsComparisonUseCase,
         },
-        { provide: RecalculateBalanceUseCase, useValue: { execute: jest.fn() } },
+        {
+          provide: RecalculateBalanceUseCase,
+          useValue: { execute: jest.fn() },
+        },
         {
           provide: RESOURCE_OWNER_REPOSITORY,
           useValue: resourceOwnerRepository,

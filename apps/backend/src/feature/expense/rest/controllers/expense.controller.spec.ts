@@ -105,7 +105,10 @@ describe('ExpenseController authorization', () => {
           provide: UpdatePendingExpenseUseCase,
           useValue: { execute: jest.fn() },
         },
-        { provide: 'StorageProvider', useValue: { getPresignedDownloadUrl: jest.fn() } },
+        {
+          provide: 'StorageProvider',
+          useValue: { getPresignedDownloadUrl: jest.fn() },
+        },
         {
           provide: RESOURCE_OWNER_REPOSITORY,
           useValue: resourceOwnerRepository,

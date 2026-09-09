@@ -29,7 +29,9 @@ export class PrismaTransactionRepository implements ITransactionRepository {
         userId: data.userId!,
         familyId: data.familyId,
         type: data.type as PrismaTransactionType,
-        status: (data.status as PrismaTransactionStatus) ?? PrismaTransactionStatus.CONFIRMED,
+        status:
+          (data.status as PrismaTransactionStatus) ??
+          PrismaTransactionStatus.CONFIRMED,
         scope: data.familyId
           ? TransactionScope.FAMILY
           : TransactionScope.PERSONAL,
@@ -191,7 +193,10 @@ export class PrismaTransactionRepository implements ITransactionRepository {
   ): Promise<TransactionStatistics> {
     const where = this.buildWhereClause(filters);
 
-    const confirmedWhere = { ...where, status: PrismaTransactionStatus.CONFIRMED };
+    const confirmedWhere = {
+      ...where,
+      status: PrismaTransactionStatus.CONFIRMED,
+    };
 
     const [incomeResult, expenseResult, count] = await Promise.all([
       this.prisma.transaction.aggregate({

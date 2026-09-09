@@ -53,14 +53,14 @@ export class CheckoutBasketItemsUseCase {
 
     const invalidItems = items.filter((item) => item.basketId !== dto.basketId);
     if (invalidItems.length > 0) {
-      throw new DomainValidationException('Some items do not belong to this basket');
+      throw new DomainValidationException(
+        'Some items do not belong to this basket',
+      );
     }
 
     // Apply item overrides (price/quantity from the checkout dialog)
     if (dto.itemOverrides?.length) {
-      const overrideMap = new Map(
-        dto.itemOverrides.map((o) => [o.id, o]),
-      );
+      const overrideMap = new Map(dto.itemOverrides.map((o) => [o.id, o]));
       for (const item of items) {
         const override = overrideMap.get(item.id);
         if (!override) continue;
@@ -90,11 +90,12 @@ export class CheckoutBasketItemsUseCase {
     }
 
     const totalValue = items.reduce((sum, item) => {
-      return sum + (item.price! * item.quantity);
+      return sum + item.price! * item.quantity;
     }, 0);
 
     // Create expense via ExpenseService (reuse the full flow)
-    const familyId = basket.scope === BasketScope.FAMILY ? basket.familyId : dto.familyId;
+    const familyId =
+      basket.scope === BasketScope.FAMILY ? basket.familyId : dto.familyId;
 
     const expense = await this.createExpenseUseCase.execute(
       new CreateExpenseDto({

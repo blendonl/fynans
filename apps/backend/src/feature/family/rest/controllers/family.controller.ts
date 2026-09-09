@@ -39,10 +39,7 @@ export class FamilyController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new family' })
   @ApiResponse({ status: 201, type: FamilyResponseDto })
-  async create(
-    @Body() dto: CreateFamilyRequestDto,
-    @CurrentUser() user: User,
-  ) {
+  async create(@Body() dto: CreateFamilyRequestDto, @CurrentUser() user: User) {
     const family = await this.familyService.create(dto.toCoreDto(), user.id);
     return FamilyResponseDto.fromEntity(family);
   }

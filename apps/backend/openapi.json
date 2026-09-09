@@ -270,15 +270,6 @@
         "operationId": "TransactionController_findAll",
         "parameters": [
           {
-            "name": "userId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
             "name": "type",
             "required": false,
             "in": "query",
@@ -415,15 +406,6 @@
         "operationId": "TransactionController_getStatistics",
         "parameters": [
           {
-            "name": "userId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
             "name": "type",
             "required": false,
             "in": "query",
@@ -559,15 +541,6 @@
       "get": {
         "operationId": "TransactionController_getStatisticsComparison",
         "parameters": [
-          {
-            "name": "userId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
           {
             "name": "type",
             "required": false,
@@ -3962,12 +3935,12 @@
         ]
       }
     },
-    "/families/{id}": {
+    "/families/{familyId}": {
       "get": {
         "operationId": "FamilyController_findOne",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -3998,12 +3971,12 @@
         ]
       }
     },
-    "/families/{id}/invitations": {
+    "/families/{familyId}/invitations": {
       "post": {
         "operationId": "FamilyController_inviteMember",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -4074,12 +4047,12 @@
         ]
       }
     },
-    "/families/{id}/invitations/pending": {
+    "/families/{familyId}/invitations/pending": {
       "get": {
         "operationId": "FamilyController_getFamilyPendingInvitations",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -4207,12 +4180,41 @@
         ]
       }
     },
-    "/families/{id}/members/{userId}": {
+    "/families/{familyId}/members/me": {
+      "delete": {
+        "operationId": "FamilyController_leaveFamily",
+        "parameters": [
+          {
+            "name": "familyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Leave a family",
+        "tags": [
+          "Family"
+        ]
+      }
+    },
+    "/families/{familyId}/members/{userId}": {
       "delete": {
         "operationId": "FamilyController_removeMember",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -4239,35 +4241,6 @@
           }
         ],
         "summary": "Remove a member from a family",
-        "tags": [
-          "Family"
-        ]
-      }
-    },
-    "/families/{id}/members/me": {
-      "delete": {
-        "operationId": "FamilyController_leaveFamily",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Leave a family",
         "tags": [
           "Family"
         ]

@@ -106,9 +106,7 @@ export class IncomeController {
   @OwnsResource({ resource: 'transaction', key: 'transactionId' })
   @ApiOperation({ summary: 'Get an income by transaction ID' })
   @ApiResponse({ status: 200, type: IncomeResponseDto })
-  async findByTransactionId(
-    @Param('transactionId') transactionId: string,
-  ) {
+  async findByTransactionId(@Param('transactionId') transactionId: string) {
     const income =
       await this.getIncomeByTransactionIdUseCase.execute(transactionId);
     return IncomeResponseDto.fromEntity(income);
