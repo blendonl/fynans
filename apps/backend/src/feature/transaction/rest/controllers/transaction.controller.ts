@@ -74,17 +74,23 @@ export class TransactionController {
     @Body() createDto: CreateTransactionRequestDto,
     @CurrentUser() user: User,
   ) {
-    const transaction = await this.transactionService.create(createDto.toCoreDto(user.id));
+    const transaction = await this.transactionService.create(
+      createDto.toCoreDto(user.id),
+    );
 
     if (createDto.paymentMethodId) {
-      await this.paymentMethodService.recalculateBalance(createDto.paymentMethodId);
+      await this.paymentMethodService.recalculateBalance(
+        createDto.paymentMethodId,
+      );
     }
 
     return TransactionResponseDto.fromEntity(transaction);
   }
 
   @Get()
-  @ApiOperation({ summary: 'List all transactions with pagination and filters' })
+  @ApiOperation({
+    summary: 'List all transactions with pagination and filters',
+  })
   @ApiResponse({ status: 200, type: PaginatedTransactionResponseDto })
   async findAll(
     @Query() query: QueryTransactionDto,
@@ -140,8 +146,13 @@ export class TransactionController {
   }
 
   @Get('statistics/comparison')
-  @ApiOperation({ summary: 'Get transaction statistics with period comparison' })
-  @ApiResponse({ status: 200, type: TransactionStatisticsComparisonResponseDto })
+  @ApiOperation({
+    summary: 'Get transaction statistics with period comparison',
+  })
+  @ApiResponse({
+    status: 200,
+    type: TransactionStatisticsComparisonResponseDto,
+  })
   async getStatisticsComparison(
     @Query() query: QueryTransactionDto,
     @CurrentUser() user: User,
@@ -177,10 +188,16 @@ export class TransactionController {
     @Body() updateDto: UpdateTransactionRequestDto,
     @CurrentUser() user: User,
   ) {
-    const updated = await this.transactionService.update(id, updateDto.toCoreDto(), user.id);
+    const updated = await this.transactionService.update(
+      id,
+      updateDto.toCoreDto(),
+      user.id,
+    );
 
     if (updated.paymentMethodId) {
-      await this.paymentMethodService.recalculateBalance(updated.paymentMethodId);
+      await this.paymentMethodService.recalculateBalance(
+        updated.paymentMethodId,
+      );
     }
 
     return TransactionResponseDto.fromEntity(updated);
@@ -195,7 +212,9 @@ export class TransactionController {
     await this.transactionService.delete(id, user.id);
 
     if (transaction.paymentMethodId) {
-      await this.paymentMethodService.recalculateBalance(transaction.paymentMethodId);
+      await this.paymentMethodService.recalculateBalance(
+        transaction.paymentMethodId,
+      );
     }
   }
 }

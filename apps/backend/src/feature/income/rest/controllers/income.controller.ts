@@ -56,7 +56,9 @@ export class IncomeController {
     @Body() createDto: CreateIncomeRequestDto,
     @CurrentUser() user: User,
   ) {
-    const income = await this.incomeService.create(createDto.toCoreDto(user.id));
+    const income = await this.incomeService.create(
+      createDto.toCoreDto(user.id),
+    );
     return IncomeResponseDto.fromEntity(income);
   }
 
@@ -91,7 +93,10 @@ export class IncomeController {
     @Param('transactionId') transactionId: string,
     @CurrentUser() user: User,
   ) {
-    const income = await this.incomeService.findByTransactionId(transactionId, user.id);
+    const income = await this.incomeService.findByTransactionId(
+      transactionId,
+      user.id,
+    );
     return IncomeResponseDto.fromEntity(income);
   }
 
@@ -111,7 +116,11 @@ export class IncomeController {
     @Body() updateDto: UpdateIncomeRequestDto,
     @CurrentUser() user: User,
   ) {
-    const updated = await this.incomeService.update(id, updateDto.toCoreDto(), user.id);
+    const updated = await this.incomeService.update(
+      id,
+      updateDto.toCoreDto(),
+      user.id,
+    );
     return IncomeResponseDto.fromEntity(updated);
   }
 

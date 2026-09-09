@@ -57,8 +57,9 @@ export class UpdateIncomeCategoryUseCase {
       }
 
       if (dto.parentId !== null) {
-        const parent =
-          await this.incomeCategoryRepository.findById(dto.parentId);
+        const parent = await this.incomeCategoryRepository.findById(
+          dto.parentId,
+        );
         if (!parent) {
           throw new BadRequestException('Parent category not found');
         }

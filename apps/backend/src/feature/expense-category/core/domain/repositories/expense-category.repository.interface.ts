@@ -32,10 +32,7 @@ export interface IExpenseCategoryRepository {
   findChildren(parentId: string): Promise<ExpenseCategory[]>;
   linkToUser(categoryId: string, userId: string): Promise<void>;
   isLinkedToUser(categoryId: string, userId: string): Promise<boolean>;
-  update(
-    id: string,
-    data: UpdateExpenseCategoryData,
-  ): Promise<ExpenseCategory>;
+  update(id: string, data: UpdateExpenseCategoryData): Promise<ExpenseCategory>;
   delete(id: string): Promise<void>;
   countExpensesByCategory(categoryId: string): Promise<number>;
 }

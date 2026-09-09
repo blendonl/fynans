@@ -40,7 +40,9 @@ export class ApprovePendingExpenseUseCase {
 
     const transaction = expense.transaction;
     if (!transaction.isPending()) {
-      throw new DomainValidationException('Only pending expenses can be approved');
+      throw new DomainValidationException(
+        'Only pending expenses can be approved',
+      );
     }
 
     await this.expenseAuthService.verifyApprovalAuthority(transaction, userId);
@@ -70,7 +72,9 @@ export class ApprovePendingExpenseUseCase {
     }
 
     if (transaction.paymentMethodId) {
-      await this.paymentMethodService.recalculateBalance(transaction.paymentMethodId);
+      await this.paymentMethodService.recalculateBalance(
+        transaction.paymentMethodId,
+      );
     }
 
     if (userId !== transaction.userId) {

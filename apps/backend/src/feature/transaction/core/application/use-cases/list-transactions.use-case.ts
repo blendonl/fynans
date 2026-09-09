@@ -14,7 +14,7 @@ export class ListTransactionsUseCase {
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
     private readonly familyService: FamilyService,
-  ) { }
+  ) {}
 
   async execute(
     userId: string,

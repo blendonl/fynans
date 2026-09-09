@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { CreateIncomeCategoryUseCase } from '../use-cases/create-income-category.use-case';
 import { GetIncomeCategoryByIdUseCase } from '../use-cases/get-income-category-by-id.use-case';
 import { ListIncomeCategoriesUseCase } from '../use-cases/list-income-categories.use-case';
-import { GetIncomeCategoryTreeUseCase, IncomeCategoryTree } from '../use-cases/get-income-category-tree.use-case';
+import {
+  GetIncomeCategoryTreeUseCase,
+  IncomeCategoryTree,
+} from '../use-cases/get-income-category-tree.use-case';
 import { UpdateIncomeCategoryUseCase } from '../use-cases/update-income-category.use-case';
 import { DeleteIncomeCategoryUseCase } from '../use-cases/delete-income-category.use-case';
 import { CreateIncomeCategoryDto } from '../dto/create-income-category.dto';
@@ -38,7 +41,11 @@ export class IncomeCategoryService {
     parentId?: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<IncomeCategory>> {
-    return this.listIncomeCategoriesUseCase.execute(userId, parentId, pagination);
+    return this.listIncomeCategoriesUseCase.execute(
+      userId,
+      parentId,
+      pagination,
+    );
   }
 
   async getTree(userId: string): Promise<IncomeCategoryTree[]> {

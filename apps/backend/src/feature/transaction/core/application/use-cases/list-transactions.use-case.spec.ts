@@ -15,12 +15,14 @@ describe('ListTransactionsUseCase', () => {
       findAll: jest.fn().mockResolvedValue({ data: [], total: 0 }),
     };
     familyService = {
-      verifyMembership: jest.fn().mockImplementation((_familyId: string, userId: string) => {
-        if (userId !== member) {
-          throw new DomainForbiddenException('Not a member of this family');
-        }
-        return Promise.resolve();
-      }),
+      verifyMembership: jest
+        .fn()
+        .mockImplementation((_familyId: string, userId: string) => {
+          if (userId !== member) {
+            throw new DomainForbiddenException('Not a member of this family');
+          }
+          return Promise.resolve();
+        }),
     };
     useCase = new ListTransactionsUseCase(
       transactionRepository as never,
@@ -43,8 +45,14 @@ describe('ListTransactionsUseCase', () => {
 
     await useCase.execute(member, filters);
 
-    expect(familyService.verifyMembership).toHaveBeenCalledWith('family-1', member);
-    expect(transactionRepository.findAll).toHaveBeenCalledWith(filters, undefined);
+    expect(familyService.verifyMembership).toHaveBeenCalledWith(
+      'family-1',
+      member,
+    );
+    expect(transactionRepository.findAll).toHaveBeenCalledWith(
+      filters,
+      undefined,
+    );
   });
 
   it('skips the membership check for personal listings', async () => {

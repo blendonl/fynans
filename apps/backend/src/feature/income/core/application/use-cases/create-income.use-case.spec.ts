@@ -34,7 +34,9 @@ describe('CreateIncomeUseCase', () => {
         });
       }),
     };
-    notifyFamilyMembersService = { notify: jest.fn().mockResolvedValue(undefined) };
+    notifyFamilyMembersService = {
+      notify: jest.fn().mockResolvedValue(undefined),
+    };
 
     useCase = new CreateIncomeUseCase(
       incomeRepository as never,
@@ -45,9 +47,16 @@ describe('CreateIncomeUseCase', () => {
   });
 
   it("rejects attaching an income to another user's transaction", async () => {
-    const dto = new CreateIncomeDto('transaction-1', 'store-1', 'category-1', attacker);
+    const dto = new CreateIncomeDto(
+      'transaction-1',
+      'store-1',
+      'category-1',
+      attacker,
+    );
 
-    await expect(useCase.execute(dto)).rejects.toBeInstanceOf(DomainForbiddenException);
+    await expect(useCase.execute(dto)).rejects.toBeInstanceOf(
+      DomainForbiddenException,
+    );
 
     expect(incomeRepository.create).not.toHaveBeenCalled();
     expect(incomeCategoryRepository.linkToUser).not.toHaveBeenCalled();
@@ -55,11 +64,19 @@ describe('CreateIncomeUseCase', () => {
   });
 
   it('creates the income for the transaction owner', async () => {
-    const dto = new CreateIncomeDto('transaction-1', 'store-1', 'category-1', owner);
+    const dto = new CreateIncomeDto(
+      'transaction-1',
+      'store-1',
+      'category-1',
+      owner,
+    );
 
     await expect(useCase.execute(dto)).resolves.toEqual({ id: 'income-1' });
 
-    expect(transactionService.findById).toHaveBeenCalledWith('transaction-1', owner);
+    expect(transactionService.findById).toHaveBeenCalledWith(
+      'transaction-1',
+      owner,
+    );
     expect(incomeRepository.create).toHaveBeenCalled();
   });
 });

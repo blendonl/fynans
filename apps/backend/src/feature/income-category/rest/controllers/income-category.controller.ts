@@ -53,9 +53,7 @@ export class PaginatedIncomeCategoryResponseDto {
 @ApiBearerAuth('bearer')
 @Controller('income-categories')
 export class IncomeCategoryController {
-  constructor(
-    private readonly incomeCategoryService: IncomeCategoryService,
-  ) {}
+  constructor(private readonly incomeCategoryService: IncomeCategoryService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

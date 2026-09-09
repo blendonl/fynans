@@ -13,7 +13,11 @@ const linkedUser = 'linked-user';
 const otherUser = 'other-user';
 
 const linkOwnedBy = (owner: string) =>
-  jest.fn().mockImplementation((_id: string, userId: string) => Promise.resolve(userId === owner));
+  jest
+    .fn()
+    .mockImplementation((_id: string, userId: string) =>
+      Promise.resolve(userId === owner),
+    );
 
 describe('category and item mutations require a link to the caller', () => {
   describe('expense categories', () => {
@@ -21,7 +25,9 @@ describe('category and item mutations require a link to the caller', () => {
 
     beforeEach(() => {
       repository = {
-        findById: jest.fn().mockResolvedValue({ id: 'category-1', parentId: null }),
+        findById: jest
+          .fn()
+          .mockResolvedValue({ id: 'category-1', parentId: null }),
         findByName: jest.fn().mockResolvedValue(null),
         findChildren: jest.fn().mockResolvedValue([]),
         countExpensesByCategory: jest.fn().mockResolvedValue(0),
@@ -35,7 +41,11 @@ describe('category and item mutations require a link to the caller', () => {
       const useCase = new UpdateExpenseCategoryUseCase(repository as never);
 
       await expect(
-        useCase.execute('category-1', new UpdateExpenseCategoryDto({ name: 'Renamed' }), otherUser),
+        useCase.execute(
+          'category-1',
+          new UpdateExpenseCategoryDto({ name: 'Renamed' }),
+          otherUser,
+        ),
       ).rejects.toBeInstanceOf(DomainForbiddenException);
 
       expect(repository.update).not.toHaveBeenCalled();
@@ -44,9 +54,9 @@ describe('category and item mutations require a link to the caller', () => {
     it('rejects deleting a category the caller is not linked to', async () => {
       const useCase = new DeleteExpenseCategoryUseCase(repository as never);
 
-      await expect(useCase.execute('category-1', otherUser)).rejects.toBeInstanceOf(
-        DomainForbiddenException,
-      );
+      await expect(
+        useCase.execute('category-1', otherUser),
+      ).rejects.toBeInstanceOf(DomainForbiddenException);
 
       expect(repository.delete).not.toHaveBeenCalled();
     });
@@ -57,7 +67,10 @@ describe('category and item mutations require a link to the caller', () => {
         new UpdateExpenseCategoryDto({ name: 'Renamed' }),
         linkedUser,
       );
-      await new DeleteExpenseCategoryUseCase(repository as never).execute('category-1', linkedUser);
+      await new DeleteExpenseCategoryUseCase(repository as never).execute(
+        'category-1',
+        linkedUser,
+      );
 
       expect(repository.update).toHaveBeenCalled();
       expect(repository.delete).toHaveBeenCalled();
@@ -69,7 +82,9 @@ describe('category and item mutations require a link to the caller', () => {
 
     beforeEach(() => {
       repository = {
-        findById: jest.fn().mockResolvedValue({ id: 'category-1', parentId: null }),
+        findById: jest
+          .fn()
+          .mockResolvedValue({ id: 'category-1', parentId: null }),
         findChildren: jest.fn().mockResolvedValue([]),
         isLinkedToUser: linkOwnedBy(linkedUser),
         update: jest.fn().mockResolvedValue({ id: 'category-1' }),
@@ -81,7 +96,11 @@ describe('category and item mutations require a link to the caller', () => {
       const useCase = new UpdateIncomeCategoryUseCase(repository as never);
 
       await expect(
-        useCase.execute('category-1', new UpdateIncomeCategoryDto({ name: 'Renamed' }), otherUser),
+        useCase.execute(
+          'category-1',
+          new UpdateIncomeCategoryDto({ name: 'Renamed' }),
+          otherUser,
+        ),
       ).rejects.toBeInstanceOf(DomainForbiddenException);
 
       expect(repository.update).not.toHaveBeenCalled();
@@ -90,9 +109,9 @@ describe('category and item mutations require a link to the caller', () => {
     it('rejects deleting a category the caller is not linked to', async () => {
       const useCase = new DeleteIncomeCategoryUseCase(repository as never);
 
-      await expect(useCase.execute('category-1', otherUser)).rejects.toBeInstanceOf(
-        DomainForbiddenException,
-      );
+      await expect(
+        useCase.execute('category-1', otherUser),
+      ).rejects.toBeInstanceOf(DomainForbiddenException);
 
       expect(repository.delete).not.toHaveBeenCalled();
     });
@@ -103,7 +122,10 @@ describe('category and item mutations require a link to the caller', () => {
         new UpdateIncomeCategoryDto({ name: 'Renamed' }),
         linkedUser,
       );
-      await new DeleteIncomeCategoryUseCase(repository as never).execute('category-1', linkedUser);
+      await new DeleteIncomeCategoryUseCase(repository as never).execute(
+        'category-1',
+        linkedUser,
+      );
 
       expect(repository.update).toHaveBeenCalled();
       expect(repository.delete).toHaveBeenCalled();
@@ -123,12 +145,17 @@ describe('category and item mutations require a link to the caller', () => {
         update: jest.fn().mockResolvedValue({ id: 'item-1' }),
         delete: jest.fn().mockResolvedValue(undefined),
       };
-      categoryRepository = { findById: jest.fn().mockResolvedValue({ id: 'item-category-1' }) };
+      categoryRepository = {
+        findById: jest.fn().mockResolvedValue({ id: 'item-category-1' }),
+      };
       prisma = { storeItem: { count: jest.fn().mockResolvedValue(0) } };
     });
 
     it('rejects renaming an item the caller is not linked to', async () => {
-      const useCase = new UpdateItemUseCase(repository as never, categoryRepository as never);
+      const useCase = new UpdateItemUseCase(
+        repository as never,
+        categoryRepository as never,
+      );
 
       await expect(
         useCase.execute('item-1', new UpdateItemDto('Renamed'), otherUser),
@@ -138,7 +165,10 @@ describe('category and item mutations require a link to the caller', () => {
     });
 
     it('rejects deleting an item the caller is not linked to', async () => {
-      const useCase = new DeleteItemUseCase(repository as never, prisma as never);
+      const useCase = new DeleteItemUseCase(
+        repository as never,
+        prisma as never,
+      );
 
       await expect(useCase.execute('item-1', otherUser)).rejects.toBeInstanceOf(
         DomainForbiddenException,
@@ -148,12 +178,14 @@ describe('category and item mutations require a link to the caller', () => {
     });
 
     it('allows a linked user to rename and delete', async () => {
-      await new UpdateItemUseCase(repository as never, categoryRepository as never).execute(
+      await new UpdateItemUseCase(
+        repository as never,
+        categoryRepository as never,
+      ).execute('item-1', new UpdateItemDto('Renamed'), linkedUser);
+      await new DeleteItemUseCase(repository as never, prisma as never).execute(
         'item-1',
-        new UpdateItemDto('Renamed'),
         linkedUser,
       );
-      await new DeleteItemUseCase(repository as never, prisma as never).execute('item-1', linkedUser);
 
       expect(repository.update).toHaveBeenCalled();
       expect(repository.delete).toHaveBeenCalled();

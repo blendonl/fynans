@@ -25,7 +25,12 @@ export interface ReceiptJobOptions {
 }
 
 export interface IReceiptJobQueue {
-  addJob(imageBuffer: Buffer, userId?: string, options?: ReceiptJobOptions, meta?: ReceiptJobMeta): Promise<string>;
+  addJob(
+    imageBuffer: Buffer,
+    userId?: string,
+    options?: ReceiptJobOptions,
+    meta?: ReceiptJobMeta,
+  ): Promise<string>;
   getJobStatus(jobId: string): Promise<ReceiptJobStatus>;
   findJobOwnerId(jobId: string): Promise<string | null>;
   getJobResult(jobId: string): Promise<ReceiptJobResult>;

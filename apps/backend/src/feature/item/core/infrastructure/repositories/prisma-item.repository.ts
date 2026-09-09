@@ -57,10 +57,7 @@ export class PrismaItemRepository implements IItemRepository {
     return item ? ItemMapper.toDomain(item) : null;
   }
 
-  async findBySimilarName(
-    name: string,
-    threshold = 0.3,
-  ): Promise<Item | null> {
+  async findBySimilarName(name: string, threshold = 0.3): Promise<Item | null> {
     const rows = await this.prisma.$queryRaw<
       Array<{
         id: string;

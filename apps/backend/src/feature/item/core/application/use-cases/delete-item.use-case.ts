@@ -1,5 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { DomainNotFoundException, DomainValidationException, DomainForbiddenException } from '~common/exceptions/domain.exceptions';
+import {
+  DomainNotFoundException,
+  DomainValidationException,
+  DomainForbiddenException,
+} from '~common/exceptions/domain.exceptions';
 import { type IItemRepository } from '../../domain/repositories/item.repository.interface';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 
@@ -19,9 +23,7 @@ export class DeleteItemUseCase {
 
     const linked = await this.itemRepository.isLinkedToUser(id, userId);
     if (!linked) {
-      throw new DomainForbiddenException(
-        'Item does not belong to this user',
-      );
+      throw new DomainForbiddenException('Item does not belong to this user');
     }
 
     const storeItemCount = await this.prisma.storeItem.count({

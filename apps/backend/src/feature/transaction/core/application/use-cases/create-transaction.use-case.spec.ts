@@ -23,18 +23,26 @@ describe('CreateTransactionUseCase payment method ownership', () => {
     );
 
   beforeEach(() => {
-    transactionRepository = { create: jest.fn().mockResolvedValue({ id: 'transaction-1' }) };
-    familyService = { findMember: jest.fn().mockResolvedValue({ userId: owner }) };
+    transactionRepository = {
+      create: jest.fn().mockResolvedValue({ id: 'transaction-1' }),
+    };
+    familyService = {
+      findMember: jest.fn().mockResolvedValue({ userId: owner }),
+    };
     familyBalanceService = {
       updateBalancesAfterTransaction: jest.fn().mockResolvedValue(undefined),
     };
     paymentMethodService = {
-      verifyOwnership: jest.fn().mockImplementation((_id: string, userId: string) => {
-        if (userId !== owner) {
-          throw new DomainForbiddenException('Payment method does not belong to this user');
-        }
-        return Promise.resolve();
-      }),
+      verifyOwnership: jest
+        .fn()
+        .mockImplementation((_id: string, userId: string) => {
+          if (userId !== owner) {
+            throw new DomainForbiddenException(
+              'Payment method does not belong to this user',
+            );
+          }
+          return Promise.resolve();
+        }),
     };
 
     useCase = new CreateTransactionUseCase(
@@ -45,14 +53,16 @@ describe('CreateTransactionUseCase payment method ownership', () => {
     );
   });
 
-  it("rejects a payment method that belongs to another user", async () => {
+  it('rejects a payment method that belongs to another user', async () => {
     paymentMethodService.verifyOwnership.mockRejectedValue(
-      new DomainForbiddenException('Payment method does not belong to this user'),
+      new DomainForbiddenException(
+        'Payment method does not belong to this user',
+      ),
     );
 
-    await expect(useCase.execute(dtoFor('victim-payment-method'))).rejects.toBeInstanceOf(
-      DomainForbiddenException,
-    );
+    await expect(
+      useCase.execute(dtoFor('victim-payment-method')),
+    ).rejects.toBeInstanceOf(DomainForbiddenException);
 
     expect(transactionRepository.create).not.toHaveBeenCalled();
   });

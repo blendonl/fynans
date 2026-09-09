@@ -11,7 +11,10 @@ import {
 import { ExpenseTrendPoint } from '../../application/dto/expense-trends.dto';
 import { Expense } from '../../domain/entities/expense.entity';
 import { Pagination } from '~common/dto/pagination.dto';
-import { Prisma, TransactionStatus as PrismaTransactionStatus } from 'prisma/generated/prisma/client';
+import {
+  Prisma,
+  TransactionStatus as PrismaTransactionStatus,
+} from 'prisma/generated/prisma/client';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
@@ -268,7 +271,9 @@ export class PrismaExpenseRepository implements IExpenseRepository {
     });
 
     return Array.from(grouped.entries())
-      .map(([date, data]) => new ExpenseTrendPoint(date, data.total, data.count))
+      .map(
+        ([date, data]) => new ExpenseTrendPoint(date, data.total, data.count),
+      )
       .sort((a, b) => a.date.localeCompare(b.date));
   }
 
@@ -291,7 +296,8 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   private buildWhereClause(
     filters?: ExpenseFiltersInterface,
   ): Prisma.ExpenseWhereInput {
-    if (!filters) return { transaction: { status: PrismaTransactionStatus.CONFIRMED } };
+    if (!filters)
+      return { transaction: { status: PrismaTransactionStatus.CONFIRMED } };
 
     const where: Prisma.ExpenseWhereInput = {};
 
@@ -348,9 +354,21 @@ export class PrismaExpenseRepository implements IExpenseRepository {
 
     if (filters.search) {
       const searchOr: Prisma.ExpenseWhereInput[] = [
-        { category: { name: { contains: filters.search, mode: 'insensitive' } } },
+        {
+          category: { name: { contains: filters.search, mode: 'insensitive' } },
+        },
         { store: { name: { contains: filters.search, mode: 'insensitive' } } },
-        { items: { some: { item: { item: { name: { contains: filters.search, mode: 'insensitive' } } } } } },
+        {
+          items: {
+            some: {
+              item: {
+                item: {
+                  name: { contains: filters.search, mode: 'insensitive' },
+                },
+              },
+            },
+          },
+        },
       ];
 
       if (Object.keys(where).length > 0) {

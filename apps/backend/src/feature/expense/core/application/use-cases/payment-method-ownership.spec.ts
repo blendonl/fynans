@@ -28,7 +28,11 @@ describe('expense update paths verify payment method ownership', () => {
 
   beforeEach(() => {
     expenseRepository = {
-      findById: jest.fn().mockResolvedValue({ id: 'expense-1', transactionId: 'transaction-1', transaction }),
+      findById: jest.fn().mockResolvedValue({
+        id: 'expense-1',
+        transactionId: 'transaction-1',
+        transaction,
+      }),
       verifyOwnership: jest.fn().mockResolvedValue(true),
       update: jest.fn().mockResolvedValue({ id: 'expense-1' }),
     };
@@ -36,16 +40,24 @@ describe('expense update paths verify payment method ownership', () => {
       update: jest.fn().mockResolvedValue(undefined),
       updateStatus: jest.fn().mockResolvedValue(undefined),
     };
-    expenseCategoryRepository = { findById: jest.fn().mockResolvedValue({ id: 'category-1' }) };
+    expenseCategoryRepository = {
+      findById: jest.fn().mockResolvedValue({ id: 'category-1' }),
+    };
     storeService = { findById: jest.fn().mockResolvedValue({ id: 'store-1' }) };
-    notifyFamilyMembersService = { notify: jest.fn().mockResolvedValue(undefined) };
+    notifyFamilyMembersService = {
+      notify: jest.fn().mockResolvedValue(undefined),
+    };
     paymentMethodService = {
-      verifyOwnership: jest.fn().mockImplementation((paymentMethodId: string) => {
-        if (paymentMethodId !== ownPaymentMethod) {
-          throw new DomainForbiddenException('Payment method does not belong to this user');
-        }
-        return Promise.resolve();
-      }),
+      verifyOwnership: jest
+        .fn()
+        .mockImplementation((paymentMethodId: string) => {
+          if (paymentMethodId !== ownPaymentMethod) {
+            throw new DomainForbiddenException(
+              'Payment method does not belong to this user',
+            );
+          }
+          return Promise.resolve();
+        }),
     };
   });
 
@@ -117,7 +129,10 @@ describe('expense update paths verify payment method ownership', () => {
       new UpdatePendingExpenseDto({ paymentMethodId: ownPaymentMethod }),
     );
 
-    expect(paymentMethodService.verifyOwnership).toHaveBeenCalledWith(ownPaymentMethod, owner);
+    expect(paymentMethodService.verifyOwnership).toHaveBeenCalledWith(
+      ownPaymentMethod,
+      owner,
+    );
     expect(transactionRepository.update).toHaveBeenCalled();
   });
 });

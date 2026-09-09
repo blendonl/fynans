@@ -37,7 +37,10 @@ export class CreateIncomeUseCase {
       categoryId: dto.categoryId,
     } as Partial<Income>);
 
-    await this.incomeCategoryRepository.linkToUser(dto.categoryId, transaction.userId);
+    await this.incomeCategoryRepository.linkToUser(
+      dto.categoryId,
+      transaction.userId,
+    );
 
     if (transaction.familyId) {
       await this.notifyFamilyMembersService.notify({

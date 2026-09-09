@@ -71,11 +71,22 @@ import { CopilotTokenService } from '~common/services/copilot-token.service';
         nameNormalizer: ItemNameNormalizerService,
         tokenService: CopilotTokenService,
       ): OpencodeReceiptParser | undefined => {
-        const enabled = config.get<string>('COPILOT_ENABLED', 'true') === 'true';
+        const enabled =
+          config.get<string>('COPILOT_ENABLED', 'true') === 'true';
         if (!enabled) return undefined;
-        return new OpencodeReceiptParser(config, postProcessor, nameNormalizer, tokenService);
+        return new OpencodeReceiptParser(
+          config,
+          postProcessor,
+          nameNormalizer,
+          tokenService,
+        );
       },
-      inject: [ConfigService, ReceiptPostProcessor, ItemNameNormalizerService, CopilotTokenService],
+      inject: [
+        ConfigService,
+        ReceiptPostProcessor,
+        ItemNameNormalizerService,
+        CopilotTokenService,
+      ],
     },
     LlmReceiptParser,
     {

@@ -77,6 +77,9 @@ export class TransactionService {
     userId?: string,
     filters?: TransactionFilters,
   ): Promise<TransactionStatisticsComparison> {
-    return this.getTransactionStatisticsComparisonUseCase.execute(userId, filters);
+    return this.getTransactionStatisticsComparisonUseCase.execute(
+      userId,
+      filters,
+    );
   }
 }

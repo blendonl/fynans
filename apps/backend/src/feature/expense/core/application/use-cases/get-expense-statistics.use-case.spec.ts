@@ -21,12 +21,14 @@ describe('GetExpenseStatisticsUseCase', () => {
       }),
     };
     familyService = {
-      verifyMembership: jest.fn().mockImplementation((_familyId: string, userId: string) => {
-        if (userId !== member) {
-          throw new DomainForbiddenException('Not a member of this family');
-        }
-        return Promise.resolve();
-      }),
+      verifyMembership: jest
+        .fn()
+        .mockImplementation((_familyId: string, userId: string) => {
+          if (userId !== member) {
+            throw new DomainForbiddenException('Not a member of this family');
+          }
+          return Promise.resolve();
+        }),
     };
     useCase = new GetExpenseStatisticsUseCase(
       expenseRepository as never,
@@ -49,7 +51,10 @@ describe('GetExpenseStatisticsUseCase', () => {
 
     const stats = await useCase.execute(member, filters);
 
-    expect(familyService.verifyMembership).toHaveBeenCalledWith('family-1', member);
+    expect(familyService.verifyMembership).toHaveBeenCalledWith(
+      'family-1',
+      member,
+    );
     expect(expenseRepository.getStatistics).toHaveBeenCalledWith(filters);
     expect(stats.totalExpenses).toBe(100);
   });

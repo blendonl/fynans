@@ -50,7 +50,12 @@ export class ItemService {
     filters?: { search?: string },
     pagination?: Pagination,
   ): Promise<PaginatedResult<Item>> {
-    return this.listItemsUseCase.execute(userId, categoryId, filters, pagination);
+    return this.listItemsUseCase.execute(
+      userId,
+      categoryId,
+      filters,
+      pagination,
+    );
   }
 
   async findByName(name: string): Promise<Item | null> {
@@ -66,7 +71,11 @@ export class ItemService {
     search?: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<ItemWithStoresResult>> {
-    return this.searchItemsWithStoresUseCase.execute(userId, search, pagination);
+    return this.searchItemsWithStoresUseCase.execute(
+      userId,
+      search,
+      pagination,
+    );
   }
 
   async delete(id: string, userId: string): Promise<void> {

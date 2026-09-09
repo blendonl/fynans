@@ -14,8 +14,12 @@ describe('LinkReceiptToExpenseUseCase', () => {
       findById: jest.fn().mockResolvedValue({ id: 'receipt-1', userId: owner }),
       verifyOwnership: jest
         .fn()
-        .mockImplementation((_id: string, userId: string) => Promise.resolve(userId === owner)),
-      update: jest.fn().mockResolvedValue({ id: 'receipt-1', expenseId: 'expense-1' }),
+        .mockImplementation((_id: string, userId: string) =>
+          Promise.resolve(userId === owner),
+        ),
+      update: jest
+        .fn()
+        .mockResolvedValue({ id: 'receipt-1', expenseId: 'expense-1' }),
     };
     expenseRepo = {
       findById: jest.fn().mockResolvedValue({ id: 'expense-1' }),
@@ -25,7 +29,10 @@ describe('LinkReceiptToExpenseUseCase', () => {
           Promise.resolve(expenseId === 'expense-1' && userId === owner),
         ),
     };
-    useCase = new LinkReceiptToExpenseUseCase(receiptRepo as never, expenseRepo as never);
+    useCase = new LinkReceiptToExpenseUseCase(
+      receiptRepo as never,
+      expenseRepo as never,
+    );
   });
 
   it("rejects attaching your receipt to another user's expense", async () => {
@@ -57,6 +64,8 @@ describe('LinkReceiptToExpenseUseCase', () => {
   it('links when the caller owns both the receipt and the expense', async () => {
     await useCase.execute('receipt-1', 'expense-1', owner);
 
-    expect(receiptRepo.update).toHaveBeenCalledWith('receipt-1', { expenseId: 'expense-1' });
+    expect(receiptRepo.update).toHaveBeenCalledWith('receipt-1', {
+      expenseId: 'expense-1',
+    });
   });
 });

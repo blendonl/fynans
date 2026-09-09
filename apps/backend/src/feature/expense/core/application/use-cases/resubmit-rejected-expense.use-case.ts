@@ -37,11 +37,15 @@ export class ResubmitRejectedExpenseUseCase {
 
     const transaction = expense.transaction;
     if (!transaction.isRejected()) {
-      throw new DomainValidationException('Only rejected expenses can be re-submitted');
+      throw new DomainValidationException(
+        'Only rejected expenses can be re-submitted',
+      );
     }
 
     if (transaction.userId !== userId) {
-      throw new DomainForbiddenException('Only the creator can re-submit a rejected expense');
+      throw new DomainForbiddenException(
+        'Only the creator can re-submit a rejected expense',
+      );
     }
 
     if (dto?.paymentMethodId) {
@@ -52,7 +56,9 @@ export class ResubmitRejectedExpenseUseCase {
     }
 
     if (dto?.categoryId) {
-      await this.expenseRepository.update(expenseId, { categoryId: dto.categoryId });
+      await this.expenseRepository.update(expenseId, {
+        categoryId: dto.categoryId,
+      });
     }
 
     const transactionUpdates: Record<string, unknown> = {};
@@ -67,7 +73,10 @@ export class ResubmitRejectedExpenseUseCase {
     }
 
     if (Object.keys(transactionUpdates).length > 0) {
-      await this.transactionRepository.update(transaction.id, transactionUpdates as Partial<Transaction>);
+      await this.transactionRepository.update(
+        transaction.id,
+        transactionUpdates as Partial<Transaction>,
+      );
     }
 
     await this.transactionRepository.updateStatus(

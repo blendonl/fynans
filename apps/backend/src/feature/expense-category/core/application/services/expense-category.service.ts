@@ -2,13 +2,19 @@ import { Injectable, Inject } from '@nestjs/common';
 import { CreateExpenseCategoryUseCase } from '../use-cases/create-expense-category.use-case';
 import { GetExpenseCategoryByIdUseCase } from '../use-cases/get-expense-category-by-id.use-case';
 import { ListExpenseCategoriesUseCase } from '../use-cases/list-expense-categories.use-case';
-import { GetCategoryTreeUseCase, CategoryTree } from '../use-cases/get-category-tree.use-case';
+import {
+  GetCategoryTreeUseCase,
+  CategoryTree,
+} from '../use-cases/get-category-tree.use-case';
 import { UpdateExpenseCategoryUseCase } from '../use-cases/update-expense-category.use-case';
 import { DeleteExpenseCategoryUseCase } from '../use-cases/delete-expense-category.use-case';
 import { CreateExpenseCategoryDto } from '../dto/create-expense-category.dto';
 import { UpdateExpenseCategoryDto } from '../dto/update-expense-category.dto';
 import { ExpenseCategory } from '../../domain/entities/expense-category.entity';
-import { IExpenseCategoryRepository, PaginatedResult } from '../../domain/repositories/expense-category.repository.interface';
+import {
+  IExpenseCategoryRepository,
+  PaginatedResult,
+} from '../../domain/repositories/expense-category.repository.interface';
 import { Pagination } from '~common/dto/pagination.dto';
 import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
@@ -48,7 +54,12 @@ export class ExpenseCategoryService {
     pagination?: Pagination,
     filters?: { search?: string },
   ): Promise<PaginatedResult<ExpenseCategory>> {
-    return this.listExpenseCategoriesUseCase.execute(userId, parentId, pagination, filters);
+    return this.listExpenseCategoriesUseCase.execute(
+      userId,
+      parentId,
+      pagination,
+      filters,
+    );
   }
 
   async getTree(userId: string): Promise<CategoryTree[]> {
