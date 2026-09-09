@@ -11,6 +11,9 @@ const SIGNED_OUT_ONLY_ROUTES = ["/login", "/register"];
 const PUBLIC_ROUTES = [
   ...SIGNED_OUT_ONLY_ROUTES,
   "/auth/callback",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
   "/welcome",
   "/privacy",
   "/terms",

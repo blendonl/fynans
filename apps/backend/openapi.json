@@ -100,6 +100,107 @@
         ]
       }
     },
+    "/auth/forgot-password": {
+      "post": {
+        "operationId": "AuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcknowledgementResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Request a password reset link",
+        "description": "Always succeeds with the same body so that the response cannot be used to discover whether an address has an account.",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcknowledgementResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Token invalid, expired or used"
+          }
+        },
+        "summary": "Set a new password using a reset token",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/send-verification-email": {
+      "post": {
+        "operationId": "AuthController_sendVerificationEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendVerificationRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcknowledgementResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Send a fresh email verification link",
+        "description": "Always succeeds with the same body so that the response cannot be used to discover whether an address has an account.",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/auth/logout": {
       "post": {
         "operationId": "AuthController_logout",
@@ -5561,6 +5662,58 @@
           "password"
         ]
       },
+      "ForgotPasswordRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "AcknowledgementResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ResetPasswordRequestDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "token",
+          "newPassword"
+        ]
+      },
+      "ResendVerificationRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
       "MeResponseDto": {
         "type": "object",
         "properties": {
@@ -5575,13 +5728,17 @@
           },
           "lastName": {
             "type": "string"
+          },
+          "emailVerified": {
+            "type": "boolean"
           }
         },
         "required": [
           "id",
           "email",
           "firstName",
-          "lastName"
+          "lastName",
+          "emailVerified"
         ]
       },
       "UserSearchResponseDto": {

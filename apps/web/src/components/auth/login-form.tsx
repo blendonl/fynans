@@ -29,7 +29,15 @@ export function LoginForm() {
             <GoogleSignInButton />
           </div>
 
-          <div className="dash-animate-in dash-delay-4 mt-8 text-center">
+          <div className="dash-animate-in dash-delay-4 mt-8 text-center space-y-3">
+            <p className="text-sm text-text-secondary/80">
+              <Link
+                href="/forgot-password"
+                className="text-primary font-semibold hover:underline underline-offset-4 transition-colors"
+              >
+                Forgot your password?
+              </Link>
+            </p>
             <p className="text-sm text-text-secondary/80">
               Don&apos;t have an account?{" "}
               <Link

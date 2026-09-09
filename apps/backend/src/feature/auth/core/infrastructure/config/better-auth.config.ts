@@ -1,7 +1,33 @@
+import { Logger } from '@nestjs/common';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { PrismaClient } from 'prisma/generated/prisma/client';
 import { bearer } from 'better-auth/plugins';
+import {
+  EmailMessage,
+  EmailSender,
+} from '~common/email/email-sender.interface';
+import {
+  emailVerificationEmail,
+  passwordResetEmail,
+} from '../email/auth-email.templates';
+
+const RESET_PASSWORD_TOKEN_TTL_SECONDS = 60 * 60;
+const EMAIL_VERIFICATION_TOKEN_TTL_SECONDS = 60 * 60 * 24;
+
+const logger = new Logger('BetterAuthEmail');
+
+async function deliver(
+  emailSender: EmailSender,
+  message: EmailMessage,
+): Promise<void> {
+  try {
+    await emailSender.send(message);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    logger.error(`Could not deliver "${message.subject}": ${reason}`);
+  }
+}
 
 function usesSecureCookies(): boolean {
   return (
@@ -10,10 +36,31 @@ function usesSecureCookies(): boolean {
   );
 }
 
-export function createBetterAuthInstance(prisma: PrismaClient) {
+function webAppOrigin(trustedOrigins: string[]): string {
+  return trustedOrigins[0]?.trim() || 'http://localhost:3000';
+}
+
+function resetPasswordPageUrl(webOrigin: string, token: string): string {
+  const url = new URL('/reset-password', webOrigin);
+  url.searchParams.set('token', token);
+  return url.href;
+}
+
+function withCallbackUrl(verificationUrl: string, callbackUrl: string): string {
+  const url = new URL(verificationUrl);
+  url.searchParams.set('callbackURL', callbackUrl);
+  return url.href;
+}
+
+export function createBetterAuthInstance(
+  prisma: PrismaClient,
+  emailSender: EmailSender,
+) {
   const trustedOrigins = process.env.CORS_ORIGIN?.split(',') || [];
   const secureCookies = usesSecureCookies();
   const cookieDomain = process.env.COOKIE_DOMAIN || undefined;
+  const webOrigin = webAppOrigin(trustedOrigins);
+  const verifiedEmailCallbackUrl = new URL('/verify-email', webOrigin).href;
 
   return betterAuth({
     database: prismaAdapter(prisma, {
@@ -22,6 +69,46 @@ export function createBetterAuthInstance(prisma: PrismaClient) {
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 8,
+      requireEmailVerification: false,
+      resetPasswordTokenExpiresIn: RESET_PASSWORD_TOKEN_TTL_SECONDS,
+      revokeSessionsOnPasswordReset: true,
+      sendResetPassword: async ({ user, token }) => {
+        await deliver(
+          emailSender,
+          passwordResetEmail(
+            user,
+            resetPasswordPageUrl(webOrigin, token),
+            RESET_PASSWORD_TOKEN_TTL_SECONDS / 60,
+          ),
+        );
+      },
+    },
+    emailVerification: {
+      sendOnSignUp: true,
+      autoSignInAfterVerification: true,
+      expiresIn: EMAIL_VERIFICATION_TOKEN_TTL_SECONDS,
+      sendVerificationEmail: async ({ user, url }) => {
+        await deliver(
+          emailSender,
+          emailVerificationEmail(
+            user,
+            withCallbackUrl(url, verifiedEmailCallbackUrl),
+          ),
+        );
+      },
+    },
+    rateLimit: {
+      enabled: true,
+      window: 60,
+      max: 120,
+      customRules: {
+        '/request-password-reset': { window: 60, max: 3 },
+        '/forget-password': { window: 60, max: 3 },
+        '/reset-password': { window: 60, max: 5 },
+        '/reset-password/:token': { window: 60, max: 5 },
+        '/send-verification-email': { window: 60, max: 3 },
+        '/verify-email': { window: 60, max: 10 },
+      },
     },
     session: {
       expiresIn: 60 * 60 * 24 * 30,
