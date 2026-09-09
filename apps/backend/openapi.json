@@ -194,6 +194,100 @@
         ]
       }
     },
+    "/users/me": {
+      "get": {
+        "operationId": "UserController_findMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the signed-in user profile",
+        "tags": [
+          "Users"
+        ]
+      },
+      "patch": {
+        "description": "Updates the display name and avatar of the account resolved from the session. Email is deliberately not editable here: changing the address that password reset keys on requires the email verification flow, which is not yet implemented.",
+        "operationId": "UserController_updateMe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update the signed-in user profile",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/users/me/change-password": {
+      "post": {
+        "description": "Verifies the current password and rotates the session. All other sessions for the account are revoked.",
+        "operationId": "UserController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Password changed"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change the signed-in user password",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
     "/users/{id}": {
       "get": {
         "operationId": "UserController_findOne",
@@ -5528,6 +5622,10 @@
           "lastName": {
             "type": "string"
           },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
           "emailVerified": {
             "type": "boolean"
           },
@@ -5543,9 +5641,46 @@
           "email",
           "firstName",
           "lastName",
+          "image",
           "emailVerified",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "UpdateProfileRequestDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "image": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2048,
+            "description": "Absolute http(s) avatar URL, or null to clear it"
+          }
+        }
+      },
+      "ChangePasswordRequestDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
         ]
       },
       "CreateTransactionRequestDto": {
