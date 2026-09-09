@@ -21,6 +21,7 @@ import { FamilyResponseDto } from '../dto/family-response.dto';
 import { FamilyWithMembersResponseDto } from '../dto/family-with-members-response.dto';
 import { FamilyInvitationResponseDto } from '../dto/family-invitation-response.dto';
 import { FamilyMemberResponseDto } from '../dto/family-member-response.dto';
+import { FamilyBalanceReconciliationResponseDto } from '../dto/family-balance-reconciliation-response.dto';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 
@@ -151,6 +152,25 @@ export class FamilyController {
     @CurrentUser() user: User,
   ) {
     await this.familyService.removeMember(familyId, targetUserId, user.id);
+  }
+
+  @Post(':id/balances/reconcile')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Compare cached family and member balances against the transaction ledger and repair any drift',
+  })
+  @ApiResponse({ status: 200, type: FamilyBalanceReconciliationResponseDto })
+  async reconcileBalances(
+    @Param('id') familyId: string,
+    @CurrentUser() user: User,
+  ) {
+    const reconciliation = await this.familyService.reconcileBalances(
+      familyId,
+      user.id,
+    );
+    return FamilyBalanceReconciliationResponseDto.fromReconciliation(
+      reconciliation,
+    );
   }
 
   @Delete(':id/members/me')

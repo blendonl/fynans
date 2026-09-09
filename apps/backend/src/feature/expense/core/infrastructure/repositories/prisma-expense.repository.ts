@@ -17,6 +17,27 @@ import {
 } from 'prisma/generated/prisma/client';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+import { reportingTimeZone } from '~common/config/reporting-timezone';
+
+const EXPENSE_SOURCE = Prisma.sql`
+  "expense" e
+  JOIN "transaction" t ON t."id" = e."transaction_id"
+  JOIN "expense_category" ec ON ec."id" = e."category_id"
+  LEFT JOIN "store" s ON s."id" = e."store_id"
+`;
+
+const TREND_BUCKETS: Record<string, { unit: string; format: string }> = {
+  day: { unit: 'day', format: 'YYYY-MM-DD' },
+  week: { unit: 'week', format: 'YYYY-MM-DD' },
+  month: { unit: 'month', format: 'YYYY-MM' },
+};
+
+function toDecimal(value: string | number | Decimal | null | undefined): Decimal {
+  if (value === null || value === undefined) {
+    return new Decimal(0);
+  }
+  return value instanceof Decimal ? value : new Decimal(value.toString());
+}
 
 const EXPENSE_INCLUDE = {
   transaction: { include: { user: true } },
@@ -163,134 +184,160 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   async getStatistics(
     filters?: ExpenseFiltersInterface,
   ): Promise<ExpenseStatistics> {
-    const where = this.buildWhereClause(filters);
+    const where = this.buildFilterSql(filters);
 
-    const count = await this.prisma.db.expense.count({ where });
+    const [totals, byCategory, byStore] = await Promise.all([
+      this.prisma.db.$queryRaw<
+        { total: string | null; count: bigint | number }[]
+      >`
+        SELECT COALESCE(SUM(t."value"), 0) AS "total", COUNT(*) AS "count"
+        FROM ${EXPENSE_SOURCE}
+        ${where}
+      `,
+      this.prisma.db.$queryRaw<
+        { categoryId: string; categoryName: string; total: string | null }[]
+      >`
+        SELECT
+          e."category_id" AS "categoryId",
+          ec."name" AS "categoryName",
+          COALESCE(SUM(t."value"), 0) AS "total"
+        FROM ${EXPENSE_SOURCE}
+        ${where}
+        GROUP BY e."category_id", ec."name"
+        ORDER BY "total" DESC
+      `,
+      this.prisma.db.$queryRaw<{ storeId: string; total: string | null }[]>`
+        SELECT e."store_id" AS "storeId", COALESCE(SUM(t."value"), 0) AS "total"
+        FROM ${EXPENSE_SOURCE}
+        ${where} AND e."store_id" IS NOT NULL
+        GROUP BY e."store_id"
+        ORDER BY "total" DESC
+      `,
+    ]);
 
-    const allExpenses = await this.prisma.db.expense.findMany({
-      where,
-      include: {
-        transaction: {
-          select: {
-            value: true,
-          },
-        },
-        category: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-
-    const totalExpenses = allExpenses.reduce(
-      (sum, expense) => sum + expense.transaction.value.toNumber(),
-      0,
-    );
-
-    const averageExpense = count > 0 ? totalExpenses / count : 0;
-
-    const categoryMap = new Map<string, { name: string; total: number }>();
-    allExpenses.forEach((expense) => {
-      const current = categoryMap.get(expense.categoryId);
-      if (current) {
-        current.total += expense.transaction.value.toNumber();
-      } else {
-        categoryMap.set(expense.categoryId, {
-          name: expense.category.name,
-          total: expense.transaction.value.toNumber(),
-        });
-      }
-    });
-
-    const storeMap = new Map<string, number>();
-    allExpenses.forEach((expense) => {
-      if (!expense.storeId) return;
-      const current = storeMap.get(expense.storeId) || 0;
-      storeMap.set(
-        expense.storeId,
-        current + expense.transaction.value.toNumber(),
-      );
-    });
+    const expenseCount = Number(totals[0]?.count ?? 0);
+    const totalExpenses = toDecimal(totals[0]?.total);
 
     return {
       totalExpenses,
-      expenseCount: count,
-      averageExpense,
-      expensesByCategory: Array.from(categoryMap.entries()).map(
-        ([categoryId, data]) => ({
-          categoryId,
-          categoryName: data.name,
-          total: data.total,
-        }),
-      ),
-      expensesByStore: Array.from(storeMap.entries()).map(
-        ([storeId, total]) => ({ storeId, total }),
-      ),
+      expenseCount,
+      averageExpense:
+        expenseCount > 0 ? totalExpenses.dividedBy(expenseCount) : new Decimal(0),
+      expensesByCategory: byCategory.map((row) => ({
+        categoryId: row.categoryId,
+        categoryName: row.categoryName,
+        total: toDecimal(row.total),
+      })),
+      expensesByStore: byStore.map((row) => ({
+        storeId: row.storeId,
+        total: toDecimal(row.total),
+      })),
     };
   }
 
   async getTrends(
-    userId: string,
     dateFrom: Date,
     dateTo: Date,
     groupBy: string,
     filters?: ExpenseFiltersInterface,
   ): Promise<ExpenseTrendPoint[]> {
-    const where = this.buildWhereClause({
-      ...filters,
-      userId,
-      dateFrom,
-      dateTo,
-    });
+    const where = this.buildFilterSql({ ...filters, dateFrom, dateTo });
+    const bucket = TREND_BUCKETS[groupBy] ?? TREND_BUCKETS.day;
+    const timeZone = reportingTimeZone();
 
-    const expenses = await this.prisma.db.expense.findMany({
-      where,
-      include: {
-        transaction: {
-          select: {
-            value: true,
-            recordedAt: true,
-          },
-        },
-      },
-      orderBy: { transaction: { recordedAt: 'asc' } },
-    });
+    const rows = await this.prisma.db.$queryRaw<
+      { bucket: string; total: string | null; count: bigint | number }[]
+    >`
+      SELECT
+        to_char(
+          date_trunc(${bucket.unit}::text, t."recorded_at" AT TIME ZONE ${timeZone}::text),
+          ${bucket.format}::text
+        ) AS "bucket",
+        COALESCE(SUM(t."value"), 0) AS "total",
+        COUNT(*) AS "count"
+      FROM ${EXPENSE_SOURCE}
+      ${where}
+      GROUP BY 1
+      ORDER BY 1 ASC
+    `;
 
-    const grouped = new Map<string, { total: number; count: number }>();
-    expenses.forEach((expense) => {
-      const key = this.getDateKey(expense.transaction.recordedAt, groupBy);
-      const current = grouped.get(key);
-      const value = expense.transaction.value.toNumber();
-      if (current) {
-        current.total += value;
-        current.count += 1;
-      } else {
-        grouped.set(key, { total: value, count: 1 });
-      }
-    });
-
-    return Array.from(grouped.entries())
-      .map(
-        ([date, data]) => new ExpenseTrendPoint(date, data.total, data.count),
-      )
-      .sort((a, b) => a.date.localeCompare(b.date));
+    return rows.map(
+      (row) =>
+        new ExpenseTrendPoint(
+          row.bucket,
+          toDecimal(row.total),
+          Number(row.count),
+        ),
+    );
   }
 
-  private getDateKey(date: Date, groupBy: string): string {
-    const d = new Date(date);
-    if (groupBy === 'month') {
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  private buildFilterSql(filters?: ExpenseFiltersInterface): Prisma.Sql {
+    const conditions: Prisma.Sql[] = [
+      Prisma.sql`t."status"::text = ${(filters?.status ?? TransactionStatus.CONFIRMED) as string}`,
+    ];
+
+    if (filters?.categoryId) {
+      conditions.push(Prisma.sql`e."category_id" = ${filters.categoryId}::uuid`);
     }
-    if (groupBy === 'week') {
-      // Get Monday of the week
-      const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(d);
-      monday.setDate(diff);
-      return monday.toISOString().split('T')[0];
+
+    if (filters?.storeId) {
+      conditions.push(Prisma.sql`e."store_id" = ${filters.storeId}::uuid`);
     }
-    return d.toISOString().split('T')[0];
+
+    if (filters?.userId) {
+      conditions.push(Prisma.sql`t."user_id" = ${filters.userId}::uuid`);
+    }
+
+    if (filters?.familyId) {
+      conditions.push(Prisma.sql`t."family_id" = ${filters.familyId}::uuid`);
+    }
+
+    if (filters?.scope) {
+      conditions.push(Prisma.sql`t."scope"::text = ${filters.scope as string}`);
+    }
+
+    if (filters?.paymentMethodId) {
+      conditions.push(
+        Prisma.sql`t."payment_method_id" = ${filters.paymentMethodId}::uuid`,
+      );
+    }
+
+    if (filters?.valueMin !== undefined) {
+      conditions.push(
+        Prisma.sql`t."value" >= ${String(filters.valueMin)}::numeric`,
+      );
+    }
+
+    if (filters?.valueMax !== undefined) {
+      conditions.push(
+        Prisma.sql`t."value" <= ${String(filters.valueMax)}::numeric`,
+      );
+    }
+
+    if (filters?.dateFrom) {
+      conditions.push(Prisma.sql`t."recorded_at" >= ${filters.dateFrom}`);
+    }
+
+    if (filters?.dateTo) {
+      conditions.push(Prisma.sql`t."recorded_at" <= ${filters.dateTo}`);
+    }
+
+    if (filters?.search) {
+      const pattern = `%${filters.search}%`;
+      conditions.push(Prisma.sql`(
+        ec."name" ILIKE ${pattern}
+        OR s."name" ILIKE ${pattern}
+        OR EXISTS (
+          SELECT 1
+          FROM "expense_item" ei
+          JOIN "store_item" si ON si."id" = ei."item_id"
+          JOIN "item" i ON i."id" = si."item_id"
+          WHERE ei."expense_id" = e."id" AND i."name" ILIKE ${pattern}
+        )
+      )`);
+    }
+
+    return Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}`;
   }
 
   private buildWhereClause(
