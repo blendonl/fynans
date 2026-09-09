@@ -6,10 +6,22 @@ export interface PaginatedResult<T> {
   total: number;
 }
 
+export interface CreateIncomeCategoryData {
+  userId: string;
+  name: string;
+  parentId?: string | null;
+}
+
+export interface UpdateIncomeCategoryData {
+  name?: string;
+  parentId?: string | null;
+}
+
 export interface IIncomeCategoryRepository {
-  create(data: Partial<IncomeCategory>): Promise<IncomeCategory>;
+  create(data: CreateIncomeCategoryData): Promise<IncomeCategory>;
   findById(id: string): Promise<IncomeCategory | null>;
-  findByName(name: string): Promise<IncomeCategory | null>;
+  findVisibleById(id: string, userId: string): Promise<IncomeCategory | null>;
+  findOwnedByName(name: string, userId: string): Promise<IncomeCategory | null>;
   findAll(
     userId: string,
     pagination?: Pagination,
@@ -19,9 +31,7 @@ export interface IIncomeCategoryRepository {
     parentId: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<IncomeCategory>>;
-  findChildren(parentId: string): Promise<IncomeCategory[]>;
-  linkToUser(categoryId: string, userId: string): Promise<void>;
-  isLinkedToUser(categoryId: string, userId: string): Promise<boolean>;
-  update(id: string, data: Partial<IncomeCategory>): Promise<IncomeCategory>;
+  findChildren(parentId: string, userId: string): Promise<IncomeCategory[]>;
+  update(id: string, data: UpdateIncomeCategoryData): Promise<IncomeCategory>;
   delete(id: string): Promise<void>;
 }

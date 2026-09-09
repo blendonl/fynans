@@ -21,23 +21,22 @@ export class DeleteIncomeCategoryUseCase {
       throw new NotFoundException('Income category not found');
     }
 
-    const linked = await this.incomeCategoryRepository.isLinkedToUser(
-      id,
-      userId,
-    );
-    if (!linked) {
+    if (category.userId !== userId) {
       throw new DomainForbiddenException(
         'Income category does not belong to this user',
       );
     }
 
-    await this.validate(id);
+    await this.validate(id, userId);
 
     await this.incomeCategoryRepository.delete(id);
   }
 
-  private async validate(id: string): Promise<void> {
-    const children = await this.incomeCategoryRepository.findChildren(id);
+  private async validate(id: string, userId: string): Promise<void> {
+    const children = await this.incomeCategoryRepository.findChildren(
+      id,
+      userId,
+    );
     if (children.length > 0) {
       throw new BadRequestException(
         'Cannot delete category with child categories',

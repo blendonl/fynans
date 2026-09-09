@@ -106,16 +106,16 @@ export class ItemController {
   @Get('search')
   @ApiOperation({ summary: 'Search for an item by name' })
   @ApiResponse({ status: 200, type: ItemResponseDto })
-  async search(@Query('name') name: string) {
-    const item = await this.itemService.findByName(name);
+  async search(@Query('name') name: string, @CurrentUser() user: User) {
+    const item = await this.itemService.findByName(name, user.id);
     return item ? ItemResponseDto.fromEntity(item) : null;
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get an item by ID with category and store links' })
   @ApiResponse({ status: 200, type: ItemDetailResponseDto })
-  async findOne(@Param('id') id: string) {
-    const detail = await this.itemService.findByIdWithDetail(id);
+  async findOne(@Param('id') id: string, @CurrentUser() user: User) {
+    const detail = await this.itemService.findByIdWithDetail(id, user.id);
     return ItemDetailResponseDto.fromDetail(detail);
   }
 

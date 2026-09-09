@@ -16,19 +16,22 @@ model Store {
 
 model Item {
   id         String @id @default(uuid())
+  userId     String @map("user_id")
   categoryId String @map("category_id")
 
-  name   String  @unique
+  name   String
   nameEn String? @map("name_en")
 
+  owner    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   category ItemCategory @relation(fields: [categoryId], references: [id])
   stores   StoreItem[]
-  users    UserItem[]
   sizes    ItemSize[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([userId, name])
+  @@index([userId])
   @@map("item")
 }
 
@@ -119,22 +122,6 @@ model UserStore {
   @@index([userId])
   @@index([storeId])
   @@map("user_store")
-}
-
-model UserItem {
-  id     String @id @default(uuid())
-  userId String @map("user_id")
-  itemId String @map("item_id")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@unique([userId, itemId])
-  @@index([userId])
-  @@index([itemId])
-  @@map("user_item")
 }
 
 model UserStoreItem {

@@ -2,6 +2,7 @@ import { ExpenseCategory as PrismaExpenseCategory } from 'prisma/generated/prism
 
 export interface ExpenseCategoryProps {
   id: string;
+  userId: string;
   parentId: string | null;
   name: string;
   isConnectedToStore: boolean;
@@ -20,6 +21,7 @@ export class ExpenseCategory {
   static fromPrisma(data: PrismaExpenseCategory): ExpenseCategory {
     return new ExpenseCategory({
       id: data.id,
+      userId: data.userId,
       parentId: data.parentId,
       name: data.name,
       isConnectedToStore: data.isConnectedToStore,
@@ -31,6 +33,10 @@ export class ExpenseCategory {
   private validate(props: ExpenseCategoryProps): void {
     if (!props.id || props.id.trim() === '') {
       throw new Error('Expense category ID is required');
+    }
+
+    if (!props.userId || props.userId.trim() === '') {
+      throw new Error('Expense category owner is required');
     }
 
     if (!props.name || props.name.trim() === '') {
@@ -48,6 +54,10 @@ export class ExpenseCategory {
 
   get id(): string {
     return this.props.id;
+  }
+
+  get userId(): string {
+    return this.props.userId;
   }
 
   get parentId(): string | null {
@@ -69,5 +79,4 @@ export class ExpenseCategory {
   get isConnectedToStore(): boolean {
     return this.props.isConnectedToStore;
   }
-
 }

@@ -37,10 +37,10 @@ model User {
   baskets Basket[]
 
   // User-scoped entity relationships
-  userExpenseCategories UserExpenseCategory[]
-  userIncomeCategories  UserIncomeCategory[]
+  expenseCategories     ExpenseCategory[]
+  incomeCategories      IncomeCategory[]
+  items                 Item[]
   userStores            UserStore[]
-  userItems             UserItem[]
   userStoreItems        UserStoreItem[]
   userItemCategories    UserItemCategory[]
 

@@ -26,17 +26,13 @@ export class UpdateExpenseCategoryUseCase {
       throw new DomainNotFoundException('Expense category not found');
     }
 
-    const linked = await this.expenseCategoryRepository.isLinkedToUser(
-      id,
-      userId,
-    );
-    if (!linked) {
+    if (category.userId !== userId) {
       throw new DomainForbiddenException(
         'Expense category does not belong to this user',
       );
     }
 
-    await this.validate(id, dto);
+    await this.validate(id, dto, userId);
 
     const updated = await this.expenseCategoryRepository.update(id, {
       name: dto.name,
@@ -50,11 +46,11 @@ export class UpdateExpenseCategoryUseCase {
   private async validate(
     id: string,
     dto: UpdateExpenseCategoryDto,
+    userId: string,
   ): Promise<void> {
     if (dto.name) {
-      const existingCategory = await this.expenseCategoryRepository.findByName(
-        dto.name,
-      );
+      const existingCategory =
+        await this.expenseCategoryRepository.findOwnedByName(dto.name, userId);
       if (existingCategory && existingCategory.id !== id) {
         throw new DomainValidationException('Category name must be unique');
       }
@@ -71,7 +67,7 @@ export class UpdateExpenseCategoryUseCase {
         const parent = await this.expenseCategoryRepository.findById(
           dto.parentId,
         );
-        if (!parent) {
+        if (!parent || parent.userId !== userId) {
           throw new DomainValidationException('Parent category not found');
         }
 

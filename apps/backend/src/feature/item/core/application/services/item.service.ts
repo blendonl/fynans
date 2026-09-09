@@ -36,12 +36,15 @@ export class ItemService {
     return this.createItemUseCase.execute(dto, userId);
   }
 
-  async findById(id: string): Promise<Item> {
-    return this.getItemByIdUseCase.execute(id);
+  async findById(id: string, userId: string): Promise<Item> {
+    return this.getItemByIdUseCase.execute(id, userId);
   }
 
-  async findByIdWithDetail(id: string): Promise<ItemDetailResult> {
-    return this.getItemByIdWithDetailUseCase.execute(id);
+  async findByIdWithDetail(
+    id: string,
+    userId: string,
+  ): Promise<ItemDetailResult> {
+    return this.getItemByIdWithDetailUseCase.execute(id, userId);
   }
 
   async findAll(
@@ -58,8 +61,8 @@ export class ItemService {
     );
   }
 
-  async findByName(name: string): Promise<Item | null> {
-    return this.findItemByNameUseCase.execute(name);
+  async findByName(name: string, userId: string): Promise<Item | null> {
+    return this.findItemByNameUseCase.execute(name, userId);
   }
 
   async update(id: string, dto: UpdateItemDto, userId: string): Promise<Item> {
