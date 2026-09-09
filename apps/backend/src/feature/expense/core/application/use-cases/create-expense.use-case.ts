@@ -19,6 +19,9 @@ import {
   DomainNotFoundException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
+import { Pagination } from '~common/dto/pagination.dto';
+import { ExpenseCategory } from '../../../../expense-category/core/domain/entities/expense-category.entity';
+import { NoExpenseCategoriesException } from '../../domain/exceptions/no-expense-categories.exception';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import {
   AuditAction,
@@ -44,13 +47,7 @@ export class CreateExpenseUseCase {
   async execute(dto: CreateExpenseDto): Promise<Expense> {
     this.validate(dto);
 
-    const category = await this.expenseCategoryService.findById(
-      dto.categoryId,
-      dto.userId,
-    );
-    if (!category) {
-      throw new DomainNotFoundException('Expense category not found');
-    }
+    const category = await this.resolveCategory(dto);
 
     const store =
       category.isConnectedToStore || dto.storeId
@@ -175,13 +172,50 @@ export class CreateExpenseUseCase {
     return this.expenseRepository.findById(expenseId) as Promise<Expense>;
   }
 
+  private async resolveCategory(
+    dto: CreateExpenseDto,
+  ): Promise<ExpenseCategory> {
+    if (!dto.categoryId || dto.categoryId.trim() === '') {
+      await this.rejectWhenCatalogIsEmpty(dto.userId);
+      throw new DomainValidationException('Category ID is required');
+    }
+
+    let category: ExpenseCategory | null = null;
+
+    try {
+      category = await this.expenseCategoryService.findById(
+        dto.categoryId,
+        dto.userId,
+      );
+    } catch (error) {
+      if (!(error instanceof DomainNotFoundException)) {
+        throw error;
+      }
+    }
+
+    if (!category) {
+      await this.rejectWhenCatalogIsEmpty(dto.userId);
+      throw new DomainNotFoundException('Expense category not found');
+    }
+
+    return category;
+  }
+
+  private async rejectWhenCatalogIsEmpty(userId: string): Promise<void> {
+    const visible = await this.expenseCategoryService.findAll(
+      userId,
+      undefined,
+      new Pagination(1, 1),
+    );
+
+    if (visible.total === 0) {
+      throw new NoExpenseCategoriesException();
+    }
+  }
+
   private validate(dto: CreateExpenseDto): void {
     if (!dto.userId || dto.userId.trim() === '') {
       throw new DomainValidationException('User ID is required');
-    }
-
-    if (!dto.categoryId || dto.categoryId.trim() === '') {
-      throw new DomainValidationException('Category ID is required');
     }
 
     const hasItems = dto.items && dto.items.length > 0;
