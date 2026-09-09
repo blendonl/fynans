@@ -64,6 +64,44 @@ financial record is left pointing at a stranger's row.
 
 ---
 
+## BLOCKING DEPENDENCY — a user registered after this migration has no categories
+
+**Do not deploy this migration on its own.** It must ship together with, or
+after, the onboarding work that seeds a starter catalog.
+
+`Expense.categoryId` is required. Before this change a brand-new account was
+carried by the global catalog: whatever categories existed system-wide were
+visible to everybody, so "Add Transaction" worked on day one. After this change
+there is no shared catalog. An account created after the migration owns zero
+`expense_category`, zero `income_category` and zero `item` rows, and
+`POST /expenses` has nothing valid to put in `categoryId`. The user is stuck at
+the first screen.
+
+Existing accounts are unaffected — the backfill gives every current user their
+own copy of everything they were linked to. This is strictly about accounts
+created after the cutover.
+
+**This phase deliberately does not implement seeding.** Seeding belongs to the
+onboarding effort, which owns the registration flow; doing it here would put a
+catalog writer inside a schema migration branch and collide with that work.
+
+What that work must provide, and what this document is asserting as its
+contract:
+
+- Seed **per-user rows** at registration — insert `expense_category`,
+  `income_category` (and optionally `item`) rows with `user_id` set to the new
+  user. Do **not** seed one shared tree and point users at it: that is exactly
+  the shared-ownership model this phase removes, and the `@@unique([user_id,
+  name])` index no longer permits the old junction-table shape anyway.
+- A user who somehow reaches expense creation with no categories should get an
+  actionable API response, not a foreign-key error.
+
+Until that lands, the answer to "what happens to a user with no categories?" is:
+**they cannot create an expense.** Verify before deploying that the onboarding
+seed is in the same release.
+
+---
+
 ## Pre-flight, on a replica or a restored snapshot
 
 Run all of these **before** scheduling the migration. They are read-only.
