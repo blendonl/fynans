@@ -16,6 +16,7 @@ import {
   NotFoundException,
   MessageEvent,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
@@ -59,7 +60,9 @@ class ProcessReceiptResponseDto {
 }
 
 class ReceiptJobStatusResponseDto {
-  @ApiProperty({ enum: ['waiting', 'active', 'completed', 'failed', 'not_found'] })
+  @ApiProperty({
+    enum: ['waiting', 'active', 'completed', 'failed', 'not_found'],
+  })
   status: string;
 
   @ApiPropertyOptional({ type: () => ProcessedReceiptResponseDto })
@@ -79,13 +82,17 @@ class ReceiptUploadBodyDto {
   @ApiProperty({ type: 'string', format: 'binary' })
   file: any;
 
-  @ApiPropertyOptional({ description: 'Auto-create a pending expense from the receipt' })
+  @ApiPropertyOptional({
+    description: 'Auto-create a pending expense from the receipt',
+  })
   autoCreatePending?: string;
 
   @ApiPropertyOptional({ description: 'Family ID to assign the receipt to' })
   familyId?: string;
 
-  @ApiPropertyOptional({ description: 'Payment method ID for auto-created pending expense' })
+  @ApiPropertyOptional({
+    description: 'Payment method ID for auto-created pending expense',
+  })
   paymentMethodId?: string;
 }
 
@@ -102,6 +109,7 @@ export class ReceiptController {
   ) {}
 
   @Post('process')
+  @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: 'Upload and process a receipt image' })
   @ApiConsumes('multipart/form-data')
@@ -127,14 +135,15 @@ export class ReceiptController {
     @UploadedFile() file: Express.Multer.File,
     @Body() body: ProcessReceiptBodyDto,
     @CurrentUser() user: User,
-    @Req() req: Request,
   ) {
     if (!file) {
       throw new BadRequestException('No image file provided');
     }
 
     if (!hasMatchingMagicBytes(file.buffer, file.mimetype)) {
-      throw new BadRequestException('File contents are not a JPEG or PNG image');
+      throw new BadRequestException(
+        'File contents are not a JPEG or PNG image',
+      );
     }
 
     let receiptId: string | undefined;
@@ -152,7 +161,7 @@ export class ReceiptController {
         throw error;
       }
       this.logger.error(
-        `Failed to store receipt file: ${error instanceof Error ? error.message : error}`,
+        `Failed to store receipt file: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
 
@@ -160,7 +169,8 @@ export class ReceiptController {
       file.buffer,
       user.id,
       {
-        autoCreatePending: body.autoCreatePending === 'true' || body.autoCreatePending === true,
+        autoCreatePending:
+          body.autoCreatePending === 'true' || body.autoCreatePending === true,
         familyId: body.familyId || undefined,
         paymentMethodId: body.paymentMethodId || undefined,
       },
@@ -176,14 +186,12 @@ export class ReceiptController {
   @Get('jobs/:jobId')
   @ApiOperation({ summary: 'Get receipt processing job status and result' })
   @ApiResponse({ status: 200, type: ReceiptJobStatusResponseDto })
-  async getJobStatus(
-    @Param('jobId') jobId: string,
-    @CurrentUser() user: User,
-  ) {
+  async getJobStatus(@Param('jobId') jobId: string, @CurrentUser() user: User) {
     await this.assertJobOwnership(jobId, user.id);
 
-    const result =
-      await this.receiptJobQueue.getJobResult(jobId) as ReceiptJobResult<EnrichedReceiptDataDto>;
+    const result = (await this.receiptJobQueue.getJobResult(
+      jobId,
+    )) as ReceiptJobResult<EnrichedReceiptDataDto>;
 
     if (result.status === 'not_found') {
       throw new NotFoundException(`Job ${jobId} not found`);
@@ -201,7 +209,10 @@ export class ReceiptController {
 
   @Sse('jobs/:jobId/stream')
   @ApiOperation({ summary: 'Stream receipt processing job progress via SSE' })
-  @ApiResponse({ status: 200, description: 'SSE stream of job progress events' })
+  @ApiResponse({
+    status: 200,
+    description: 'SSE stream of job progress events',
+  })
   async streamJobProgress(
     @Param('jobId') jobId: string,
     @CurrentUser() user: User,
@@ -218,14 +229,17 @@ export class ReceiptController {
         .streamJobProgress(
           jobId,
           (event) => {
-            const typedEvent = event as ReceiptJobResult<EnrichedReceiptDataDto>;
+            const typedEvent =
+              event as ReceiptJobResult<EnrichedReceiptDataDto>;
             let data: Record<string, unknown> = {
               status: typedEvent.status,
               progress: typedEvent.progress,
             };
 
             if (typedEvent.isPartial && typedEvent.data) {
-              const responseDto = ProcessedReceiptResponseDto.fromData(typedEvent.data);
+              const responseDto = ProcessedReceiptResponseDto.fromData(
+                typedEvent.data,
+              );
               data = {
                 ...data,
                 data: responseDto,
@@ -235,7 +249,9 @@ export class ReceiptController {
                 `SSE [${jobId}] partial: ${responseDto.items.length} items, progress=${typedEvent.progress}%`,
               );
             } else if (typedEvent.status === 'completed' && typedEvent.data) {
-              const responseDto = ProcessedReceiptResponseDto.fromData(typedEvent.data);
+              const responseDto = ProcessedReceiptResponseDto.fromData(
+                typedEvent.data,
+              );
               data = {
                 ...data,
                 data: responseDto,

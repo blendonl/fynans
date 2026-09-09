@@ -20,11 +20,17 @@ describe('ReceiptController job scoping', () => {
   beforeEach(() => {
     receiptJobQueue = {
       findJobOwnerId: jest.fn().mockResolvedValue(owner.id),
-      getJobResult: jest.fn().mockResolvedValue({ status: 'active', progress: 40 }),
-      streamJobProgress: jest.fn().mockImplementation((_jobId, onEvent) => {
-        onEvent({ status: 'completed', progress: 100 });
-        return Promise.resolve();
-      }),
+      getJobResult: jest
+        .fn()
+        .mockResolvedValue({ status: 'active', progress: 40 }),
+      streamJobProgress: jest
+        .fn()
+        .mockImplementation(
+          (_jobId: string, onEvent: (event: unknown) => void) => {
+            onEvent({ status: 'completed', progress: 100 });
+            return Promise.resolve();
+          },
+        ),
       addJob: jest.fn().mockResolvedValue('7'),
     };
     saveReceiptFileUseCase = { execute: jest.fn() };
@@ -54,7 +60,9 @@ describe('ReceiptController job scoping', () => {
     });
 
     it('returns the job to its owner', async () => {
-      await expect(controller.getJobStatus('7', owner as never)).resolves.toEqual({
+      await expect(
+        controller.getJobStatus('7', owner as never),
+      ).resolves.toEqual({
         status: 'active',
         progress: 40,
       });
@@ -74,7 +82,6 @@ describe('ReceiptController job scoping', () => {
           { ...file, buffer: Buffer.from('<?php ?>') } as never,
           {} as never,
           owner as never,
-          req as never,
         ),
       ).rejects.toBeInstanceOf(BadRequestException);
 
@@ -91,7 +98,6 @@ describe('ReceiptController job scoping', () => {
           file as never,
           { familyId: 'someone-elses-family' } as never,
           attacker as never,
-          req as never,
         ),
       ).rejects.toBeInstanceOf(DomainForbiddenException);
 
@@ -102,8 +108,12 @@ describe('ReceiptController job scoping', () => {
       saveReceiptFileUseCase.execute.mockRejectedValue(new Error('minio down'));
 
       await expect(
-        controller.processReceipt(file as never, {} as never, owner as never, req as never),
-      ).resolves.toEqual({ jobId: '7', status: 'processing', receiptId: undefined });
+        controller.processReceipt(file as never, {} as never, owner as never),
+      ).resolves.toEqual({
+        jobId: '7',
+        status: 'processing',
+        receiptId: undefined,
+      });
 
       expect(receiptJobQueue.addJob).toHaveBeenCalled();
     });
