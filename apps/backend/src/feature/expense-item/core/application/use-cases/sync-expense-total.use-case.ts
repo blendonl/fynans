@@ -45,13 +45,13 @@ export class SyncExpenseTotalUseCase {
           transaction.familyId,
         );
       }
-    });
 
-    if (transaction.paymentMethodId) {
-      await this.paymentMethodService.recalculateBalance(
-        transaction.paymentMethodId,
-      );
-    }
+      if (transaction.paymentMethodId) {
+        await this.paymentMethodService.recalculateBalance(
+          transaction.paymentMethodId,
+        );
+      }
+    });
 
     return total;
   }
