@@ -1,5 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { DomainNotFoundException } from '../../../exceptions/domain.exceptions';
+import { FamilyMemberRole } from '../../domain/family-role';
 import { OwnedResource, ResourceOwner } from '../../domain/owned-resource';
 import {
   FAMILY_MEMBERSHIP_REPOSITORY,
@@ -32,6 +33,12 @@ describe('VerifyResourceAccessUseCase', () => {
   const familyMembershipRepository: IFamilyMembershipRepository = {
     isMember: (familyId: string, userId: string) =>
       Promise.resolve(familyId === FAMILY && userId === CO_MEMBER),
+    findRole: (familyId: string, userId: string) =>
+      Promise.resolve(
+        familyId === FAMILY && (userId === USER_A || userId === CO_MEMBER)
+          ? FamilyMemberRole.MEMBER
+          : null,
+      ),
     findFamilyIds: (userId: string) =>
       Promise.resolve(
         userId === USER_A || userId === CO_MEMBER ? [FAMILY] : [],

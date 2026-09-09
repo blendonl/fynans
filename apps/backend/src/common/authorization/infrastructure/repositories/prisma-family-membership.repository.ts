@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { FamilyMemberRole } from '../../domain/family-role';
 import { IFamilyMembershipRepository } from '../../domain/repositories/family-membership.repository.interface';
 
 @Injectable()
@@ -13,6 +14,18 @@ export class PrismaFamilyMembershipRepository implements IFamilyMembershipReposi
     });
 
     return membership !== null;
+  }
+
+  async findRole(
+    familyId: string,
+    userId: string,
+  ): Promise<FamilyMemberRole | null> {
+    const membership = await this.prisma.familyMember.findUnique({
+      where: { familyId_userId: { familyId, userId } },
+      select: { role: true },
+    });
+
+    return membership ? (membership.role as FamilyMemberRole) : null;
   }
 
   async findFamilyIds(userId: string): Promise<string[]> {
