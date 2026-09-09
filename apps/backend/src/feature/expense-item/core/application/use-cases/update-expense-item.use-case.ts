@@ -8,6 +8,8 @@ import { type IStoreItemCategoryRepository } from '../../../../store-item-catego
 import { UpdateExpenseItemDto } from '../dto/update-expense-item.dto';
 import { ExpenseItem } from '../../domain/entities/expense-item.entity';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+import { PrismaService } from '~common/prisma/prisma.service';
+import { SyncExpenseTotalUseCase } from './sync-expense-total.use-case';
 
 @Injectable()
 export class UpdateExpenseItemUseCase {
@@ -16,6 +18,8 @@ export class UpdateExpenseItemUseCase {
     private readonly expenseItemRepository: IExpenseItemRepository,
     @Inject('StoreItemCategoryRepository')
     private readonly storeItemCategoryRepository: IStoreItemCategoryRepository,
+    private readonly syncExpenseTotalUseCase: SyncExpenseTotalUseCase,
+    private readonly prisma: PrismaService,
   ) {}
 
   async execute(id: string, dto: UpdateExpenseItemDto): Promise<ExpenseItem> {
@@ -27,13 +31,18 @@ export class UpdateExpenseItemUseCase {
 
     await this.validate(dto);
 
-    const updated = await this.expenseItemRepository.update(id, {
-      categoryId: dto.categoryId,
-      price: dto.price !== undefined ? new Decimal(dto.price) : undefined,
-      discount: dto.discount !== undefined ? new Decimal(dto.discount) : undefined,
-    });
+    return this.prisma.runInTransaction(async () => {
+      const updated = await this.expenseItemRepository.update(id, {
+        categoryId: dto.categoryId,
+        price: dto.price !== undefined ? new Decimal(dto.price) : undefined,
+        discount:
+          dto.discount !== undefined ? new Decimal(dto.discount) : undefined,
+      });
 
-    return updated;
+      await this.syncExpenseTotalUseCase.execute(item.expenseId);
+
+      return updated;
+    });
   }
 
   private async validate(dto: UpdateExpenseItemDto): Promise<void> {

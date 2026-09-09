@@ -19,6 +19,13 @@ export interface UpdateExpenseItemData {
   discount?: Decimal;
 }
 
+export interface ExpenseTransactionRef {
+  id: string;
+  value: Decimal;
+  familyId: string | null;
+  paymentMethodId: string | null;
+}
+
 export interface IExpenseItemRepository {
   create(data: CreateExpenseItemData): Promise<ExpenseItem>;
   findById(id: string): Promise<ExpenseItem | null>;
@@ -30,4 +37,7 @@ export interface IExpenseItemRepository {
   update(id: string, data: UpdateExpenseItemData): Promise<ExpenseItem>;
   delete(id: string): Promise<void>;
   calculateExpenseTotal(expenseId: string): Promise<Decimal>;
+  findExpenseTransaction(
+    expenseId: string,
+  ): Promise<ExpenseTransactionRef | null>;
 }

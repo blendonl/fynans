@@ -5,6 +5,7 @@ import {
   PaginatedResult,
   CreateExpenseItemData,
   UpdateExpenseItemData,
+  ExpenseTransactionRef,
 } from '../../domain/repositories/expense-item.repository.interface';
 import { ExpenseItem } from '../../domain/entities/expense-item.entity';
 import { Pagination } from '~common/dto/pagination.dto';
@@ -123,6 +124,26 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
     });
 
     return ExpenseTotalCalculator.total(items);
+  }
+
+  async findExpenseTransaction(
+    expenseId: string,
+  ): Promise<ExpenseTransactionRef | null> {
+    const expense = await this.prisma.db.expense.findUnique({
+      where: { id: expenseId },
+      select: {
+        transaction: {
+          select: {
+            id: true,
+            value: true,
+            familyId: true,
+            paymentMethodId: true,
+          },
+        },
+      },
+    });
+
+    return expense?.transaction ?? null;
   }
 
   private accessibleTo(scope: OwnerScope): Prisma.ExpenseItemWhereInput {
