@@ -23,7 +23,9 @@ export class ExpenseTrendPointResponseDto {
     return dto;
   }
 
-  static fromPoints(points: ExpenseTrendPoint[]): ExpenseTrendPointResponseDto[] {
+  static fromPoints(
+    points: ExpenseTrendPoint[],
+  ): ExpenseTrendPointResponseDto[] {
     return points.map((point) => this.fromPoint(point));
   }
 }

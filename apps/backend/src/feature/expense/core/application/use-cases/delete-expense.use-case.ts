@@ -1,5 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { DomainNotFoundException, DomainForbiddenException } from '~common/exceptions/domain.exceptions';
+import {
+  DomainNotFoundException,
+  DomainForbiddenException,
+} from '~common/exceptions/domain.exceptions';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
 import { PaymentMethodService } from '../../../../payment-method/core/application/services/payment-method.service';

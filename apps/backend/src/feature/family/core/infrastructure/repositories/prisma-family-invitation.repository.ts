@@ -5,9 +5,7 @@ import { FamilyInvitation } from '../../domain/entities/family-invitation.entity
 import { FamilyInvitationMapper } from '../mappers/family-invitation.mapper';
 
 @Injectable()
-export class PrismaFamilyInvitationRepository
-  implements IFamilyInvitationRepository
-{
+export class PrismaFamilyInvitationRepository implements IFamilyInvitationRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: Partial<FamilyInvitation>): Promise<FamilyInvitation> {
@@ -81,7 +79,10 @@ export class PrismaFamilyInvitationRepository
     return invitations.map((inv) => FamilyInvitationMapper.toDomain(inv));
   }
 
-  async findPendingByEmailAndFamily(email: string, familyId: string): Promise<FamilyInvitation | null> {
+  async findPendingByEmailAndFamily(
+    email: string,
+    familyId: string,
+  ): Promise<FamilyInvitation | null> {
     const invitation = await this.prisma.db.familyInvitation.findFirst({
       where: {
         inviteeEmail: email,

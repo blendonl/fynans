@@ -101,8 +101,7 @@ export class FamilyBalanceService {
     ]);
 
     const members = Array.from(userIds).map((userId) => {
-      const cachedBalance =
-        cached.memberBalances.get(userId) ?? new Decimal(0);
+      const cachedBalance = cached.memberBalances.get(userId) ?? new Decimal(0);
       const computedBalance =
         computed.memberBalances.get(userId) ?? new Decimal(0);
 

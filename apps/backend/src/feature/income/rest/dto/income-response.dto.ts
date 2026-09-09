@@ -38,8 +38,12 @@ export class IncomeResponseDto {
     dto.storeId = income.storeId;
     dto.categoryId = income.categoryId;
     dto.description = income.description;
-    dto.transaction = income.transaction ? TransactionResponseDto.fromEntity(income.transaction) : undefined;
-    dto.category = income.category ? IncomeCategoryResponseDto.fromEntity(income.category) : undefined;
+    dto.transaction = income.transaction
+      ? TransactionResponseDto.fromEntity(income.transaction)
+      : undefined;
+    dto.category = income.category
+      ? IncomeCategoryResponseDto.fromEntity(income.category)
+      : undefined;
     dto.createdAt = income.createdAt;
     dto.updatedAt = income.updatedAt;
     return dto;

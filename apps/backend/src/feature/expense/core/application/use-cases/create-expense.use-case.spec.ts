@@ -49,7 +49,11 @@ describe('CreateExpenseUseCase', () => {
     expenseCategoryService = {
       findById: jest
         .fn()
-        .mockResolvedValue({ id: CATEGORY, name: 'Groceries', isConnectedToStore: true }),
+        .mockResolvedValue({
+          id: CATEGORY,
+          name: 'Groceries',
+          isConnectedToStore: true,
+        }),
       linkToUser: jest.fn().mockResolvedValue(undefined),
     };
     transactionService = {
@@ -59,7 +63,9 @@ describe('CreateExpenseUseCase', () => {
       resolveStore: jest.fn().mockResolvedValue({ id: 'store-1' }),
     };
     expenseItemService = { create: jest.fn().mockResolvedValue(undefined) };
-    notifyFamilyMembersService = { notify: jest.fn().mockResolvedValue(undefined) };
+    notifyFamilyMembersService = {
+      notify: jest.fn().mockResolvedValue(undefined),
+    };
     paymentMethodService = {
       recalculateBalance: jest.fn().mockResolvedValue(undefined),
     };
@@ -68,7 +74,11 @@ describe('CreateExpenseUseCase', () => {
 
   it('stores (price - discount) * quantity as the transaction value', async () => {
     await useCase.execute(
-      new CreateExpenseDto({ userId: USER, categoryId: CATEGORY, items: itemised() }),
+      new CreateExpenseDto({
+        userId: USER,
+        categoryId: CATEGORY,
+        items: itemised(),
+      }),
     );
 
     const dto = transactionService.create.mock.calls[0][0];
@@ -89,7 +99,11 @@ describe('CreateExpenseUseCase', () => {
       paymentMethodService as never,
       prisma,
     ).execute(
-      new CreateExpenseDto({ userId: USER, categoryId: CATEGORY, items: itemised() }),
+      new CreateExpenseDto({
+        userId: USER,
+        categoryId: CATEGORY,
+        items: itemised(),
+      }),
     );
 
     expect(runInTransaction).toHaveBeenCalledTimes(1);
@@ -118,7 +132,11 @@ describe('CreateExpenseUseCase', () => {
 
     await expect(
       useCase.execute(
-        new CreateExpenseDto({ userId: USER, categoryId: CATEGORY, items: itemised() }),
+        new CreateExpenseDto({
+          userId: USER,
+          categoryId: CATEGORY,
+          items: itemised(),
+        }),
       ),
     ).rejects.toBeInstanceOf(DomainValidationException);
 
@@ -165,7 +183,9 @@ describe('CreateExpenseUseCase', () => {
 
   it('requires either items or a positive amount', async () => {
     await expect(
-      useCase.execute(new CreateExpenseDto({ userId: USER, categoryId: CATEGORY })),
+      useCase.execute(
+        new CreateExpenseDto({ userId: USER, categoryId: CATEGORY }),
+      ),
     ).rejects.toBeInstanceOf(DomainValidationException);
 
     await expect(

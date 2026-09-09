@@ -13,15 +13,17 @@ describe('ReconcileFamilyBalancesUseCase', () => {
 
   beforeEach(() => {
     familyRepository = {
-      findMember: jest.fn().mockImplementation((_familyId: string, userId: string) => {
-        if (userId === ADMIN) {
-          return Promise.resolve({ canManageMembers: () => true });
-        }
-        if (userId === MEMBER) {
-          return Promise.resolve({ canManageMembers: () => false });
-        }
-        return Promise.resolve(null);
-      }),
+      findMember: jest
+        .fn()
+        .mockImplementation((_familyId: string, userId: string) => {
+          if (userId === ADMIN) {
+            return Promise.resolve({ canManageMembers: () => true });
+          }
+          if (userId === MEMBER) {
+            return Promise.resolve({ canManageMembers: () => false });
+          }
+          return Promise.resolve(null);
+        }),
     };
     familyBalanceService = {
       reconcile: jest.fn().mockResolvedValue({

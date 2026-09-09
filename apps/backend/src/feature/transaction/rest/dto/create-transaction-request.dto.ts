@@ -1,4 +1,12 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsUUID, Min, IsOptional, IsDateString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsUUID,
+  Min,
+  IsOptional,
+  IsDateString,
+} from 'class-validator';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { TransactionType } from '../../core/domain/value-objects/transaction-type.vo';
 import { CreateTransactionDto } from '../../core/application/dto/create-transaction.dto';

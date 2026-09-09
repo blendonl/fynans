@@ -32,7 +32,9 @@ const TREND_BUCKETS: Record<string, { unit: string; format: string }> = {
   month: { unit: 'month', format: 'YYYY-MM' },
 };
 
-function toDecimal(value: string | number | Decimal | null | undefined): Decimal {
+function toDecimal(
+  value: string | number | Decimal | null | undefined,
+): Decimal {
   if (value === null || value === undefined) {
     return new Decimal(0);
   }
@@ -222,7 +224,9 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       totalExpenses,
       expenseCount,
       averageExpense:
-        expenseCount > 0 ? totalExpenses.dividedBy(expenseCount) : new Decimal(0),
+        expenseCount > 0
+          ? totalExpenses.dividedBy(expenseCount)
+          : new Decimal(0),
       expensesByCategory: byCategory.map((row) => ({
         categoryId: row.categoryId,
         categoryName: row.categoryName,
@@ -277,7 +281,9 @@ export class PrismaExpenseRepository implements IExpenseRepository {
     ];
 
     if (filters?.categoryId) {
-      conditions.push(Prisma.sql`e."category_id" = ${filters.categoryId}::uuid`);
+      conditions.push(
+        Prisma.sql`e."category_id" = ${filters.categoryId}::uuid`,
+      );
     }
 
     if (filters?.storeId) {

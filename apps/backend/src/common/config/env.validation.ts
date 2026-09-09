@@ -23,10 +23,15 @@ const envSchema = z.object({
     .string()
     .optional()
     .default('Europe/Belgrade')
-    .refine(isSupportedTimeZone, 'REPORTING_TIMEZONE must be an IANA time zone'),
+    .refine(
+      isSupportedTimeZone,
+      'REPORTING_TIMEZONE must be an IANA time zone',
+    ),
 
   // Database
-  DATABASE_URL: z.string().url('DATABASE_URL must be a valid connection string'),
+  DATABASE_URL: z
+    .string()
+    .url('DATABASE_URL must be a valid connection string'),
 
   // Auth
   BETTER_AUTH_SECRET: z

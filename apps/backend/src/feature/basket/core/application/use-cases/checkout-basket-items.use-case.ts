@@ -56,14 +56,14 @@ export class CheckoutBasketItemsUseCase {
 
     const invalidItems = items.filter((item) => item.basketId !== dto.basketId);
     if (invalidItems.length > 0) {
-      throw new DomainValidationException('Some items do not belong to this basket');
+      throw new DomainValidationException(
+        'Some items do not belong to this basket',
+      );
     }
 
     // Apply item overrides (price/quantity from the checkout dialog)
     if (dto.itemOverrides?.length) {
-      const overrideMap = new Map(
-        dto.itemOverrides.map((o) => [o.id, o]),
-      );
+      const overrideMap = new Map(dto.itemOverrides.map((o) => [o.id, o]));
       for (const item of items) {
         const override = overrideMap.get(item.id);
         if (!override) continue;
@@ -96,7 +96,8 @@ export class CheckoutBasketItemsUseCase {
       items.map((item) => ({ price: item.price!, quantity: item.quantity })),
     );
 
-    const familyId = basket.scope === BasketScope.FAMILY ? basket.familyId : dto.familyId;
+    const familyId =
+      basket.scope === BasketScope.FAMILY ? basket.familyId : dto.familyId;
 
     const expense = await this.prisma.runInTransaction(async () => {
       const created = await this.expenseService.create(

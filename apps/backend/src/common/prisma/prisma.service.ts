@@ -13,7 +13,10 @@ interface TransactionScope {
 }
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
   private readonly scope = new AsyncLocalStorage<TransactionScope>();
 
   constructor() {

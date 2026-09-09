@@ -6,14 +6,17 @@ import {
 } from '@nestjs/common';
 import { type ITransactionRepository } from '../../domain/repositories/transaction.repository.interface';
 import { UpdateTransactionDto } from '../dto/update-transaction.dto';
-import { Transaction, TransactionProps } from '../../domain/entities/transaction.entity';
+import {
+  Transaction,
+  TransactionProps,
+} from '../../domain/entities/transaction.entity';
 
 @Injectable()
 export class UpdateTransactionUseCase {
   constructor(
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
-  ) { }
+  ) {}
 
   async execute(id: string, dto: UpdateTransactionDto): Promise<Transaction> {
     const existingTransaction = await this.transactionRepository.findById(id);
