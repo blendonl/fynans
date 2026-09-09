@@ -1,9 +1,8 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { type IIncomeRepository } from '../../domain/repositories/income.repository.interface';
 import { type IIncomeCategoryRepository } from '../../../../income-category/core/domain/repositories/income-category.repository.interface';
 import { type ITransactionRepository } from '~feature/transaction/core/domain/repositories/transaction.repository.interface';
@@ -25,7 +24,7 @@ export class UpdateIncomeUseCase {
     const income = await this.incomeRepository.findById(id);
 
     if (!income) {
-      throw new NotFoundException('Income not found');
+      throw new DomainNotFoundException('Income not found');
     }
 
     await this.validate(dto);
@@ -42,7 +41,7 @@ export class UpdateIncomeUseCase {
 
     if (Object.keys(txUpdates).length > 0) {
       await this.transactionRepository.update(
-        income.transactionId!,
+        income.transactionId,
         txUpdates as any,
       );
     }
@@ -60,7 +59,7 @@ export class UpdateIncomeUseCase {
         dto.categoryId,
       );
       if (!category) {
-        throw new BadRequestException('Income category not found');
+        throw new DomainValidationException('Income category not found');
       }
     }
   }

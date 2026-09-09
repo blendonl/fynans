@@ -1,4 +1,7 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  DomainForbiddenException,
+  DomainNotFoundException,
+} from '~common/exceptions/domain.exceptions';
 import { LinkReceiptToExpenseUseCase } from './link-receipt-to-expense.use-case';
 
 const owner = 'owner-1';
@@ -38,7 +41,7 @@ describe('LinkReceiptToExpenseUseCase', () => {
   it("rejects attaching your receipt to another user's expense", async () => {
     await expect(
       useCase.execute('receipt-1', 'victim-expense', owner),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    ).rejects.toBeInstanceOf(DomainForbiddenException);
 
     expect(receiptRepo.update).not.toHaveBeenCalled();
   });
@@ -48,7 +51,7 @@ describe('LinkReceiptToExpenseUseCase', () => {
 
     await expect(
       useCase.execute('receipt-1', 'missing-expense', owner),
-    ).rejects.toBeInstanceOf(NotFoundException);
+    ).rejects.toBeInstanceOf(DomainNotFoundException);
 
     expect(receiptRepo.update).not.toHaveBeenCalled();
   });
@@ -56,7 +59,7 @@ describe('LinkReceiptToExpenseUseCase', () => {
   it("still rejects another user's receipt", async () => {
     await expect(
       useCase.execute('receipt-1', 'expense-1', victim),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    ).rejects.toBeInstanceOf(DomainForbiddenException);
 
     expect(receiptRepo.update).not.toHaveBeenCalled();
   });

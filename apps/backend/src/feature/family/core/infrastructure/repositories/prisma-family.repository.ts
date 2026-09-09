@@ -148,6 +148,14 @@ export class PrismaFamilyRepository implements IFamilyRepository {
     return member ? FamilyMemberMapper.toDomain(member) : null;
   }
 
+  async findMembershipsOfUser(userId: string): Promise<FamilyMember[]> {
+    const members = await this.prisma.db.familyMember.findMany({
+      where: { userId },
+    });
+
+    return members.map((m) => FamilyMemberMapper.toDomain(m));
+  }
+
   async findMembers(familyId: string): Promise<FamilyMember[]> {
     const members = await this.prisma.db.familyMember.findMany({
       where: { familyId },

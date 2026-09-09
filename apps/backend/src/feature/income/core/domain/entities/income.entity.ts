@@ -1,5 +1,6 @@
 import { Transaction } from '~feature/transaction/core';
 import { IncomeCategory } from '~feature/income-category/core';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 interface IncomeProps {
   id: string;
@@ -23,23 +24,23 @@ export class Income {
 
   private validate(props: IncomeProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Income ID is required');
+      throw new DomainValidationException('Income ID is required');
     }
 
     if (!props.transactionId || props.transactionId.trim() === '') {
-      throw new Error('Transaction ID is required');
+      throw new DomainValidationException('Transaction ID is required');
     }
 
     if (!props.categoryId || props.categoryId.trim() === '') {
-      throw new Error('Category ID is required');
+      throw new DomainValidationException('Category ID is required');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 

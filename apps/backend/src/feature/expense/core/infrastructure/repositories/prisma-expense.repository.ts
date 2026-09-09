@@ -11,6 +11,7 @@ import {
 } from '../../domain/repositories/expense.repository.interface';
 import { ExpenseTrendPoint } from '../../application/dto/expense-trends.dto';
 import { Expense } from '../../domain/entities/expense.entity';
+import { ExpenseMapper } from '../mappers/expense.mapper';
 import { Pagination } from '~common/dto/pagination.dto';
 import {
   Prisma,
@@ -77,7 +78,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       include: EXPENSE_INCLUDE,
     });
 
-    return Expense.fromPrisma(expense);
+    return ExpenseMapper.toDomain(expense);
   }
 
   async findById(id: string): Promise<Expense | null> {
@@ -86,7 +87,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       include: EXPENSE_INCLUDE,
     });
 
-    return expense ? Expense.fromPrisma(expense) : null;
+    return expense ? ExpenseMapper.toDomain(expense) : null;
   }
 
   async findByTransactionId(transactionId: string): Promise<Expense | null> {
@@ -95,7 +96,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       include: EXPENSE_INCLUDE,
     });
 
-    return expense ? Expense.fromPrisma(expense) : null;
+    return expense ? ExpenseMapper.toDomain(expense) : null;
   }
 
   async findAll(
@@ -138,7 +139,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
     ]);
 
     return {
-      data: expenses.map(Expense.fromPrisma),
+      data: expenses.map((expense) => ExpenseMapper.toDomain(expense)),
       total,
     };
   }
@@ -166,12 +167,29 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       include: EXPENSE_INCLUDE,
     });
 
-    return Expense.fromPrisma(expense);
+    return ExpenseMapper.toDomain(expense);
   }
 
   async delete(id: string): Promise<void> {
     await this.prisma.db.expense.delete({
       where: { id },
+    });
+  }
+
+  async deleteWithItemsAndTransaction(
+    expenseId: string,
+    transactionId: string,
+  ): Promise<void> {
+    await this.prisma.db.expenseItem.deleteMany({
+      where: { expenseId },
+    });
+
+    await this.prisma.db.expense.delete({
+      where: { id: expenseId },
+    });
+
+    await this.prisma.db.transaction.delete({
+      where: { id: transactionId },
     });
   }
 

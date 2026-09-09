@@ -1,6 +1,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Inject, Logger, Optional } from '@nestjs/common';
 import { Job } from 'bullmq';
+import { IStorageProvider } from '~common/storage/storage-provider.interface';
 import { ProcessReceiptUseCase } from '../../application/use-cases/process-receipt.use-case';
 import { EnrichReceiptDataUseCase } from '../../application/use-cases/enrich-receipt-data.use-case';
 import { EnrichedReceiptDataDto } from '../../application/dto/enriched-receipt-data.dto';
@@ -13,7 +14,7 @@ import { CreateExpenseItemDto } from '~feature/expense-item/core/application/dto
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 
 interface ReceiptJobData {
-  imageBase64: string;
+  storageKey: string;
   userId?: string;
   receiptId?: string;
   autoCreatePending?: boolean;
@@ -27,6 +28,7 @@ export class ReceiptProcessingWorker extends WorkerHost {
   constructor(
     private readonly processReceiptUseCase: ProcessReceiptUseCase,
     private readonly enrichReceiptDataUseCase: EnrichReceiptDataUseCase,
+    @Inject('StorageProvider') private readonly storage: IStorageProvider,
     @Optional() private readonly createExpenseUseCase?: CreateExpenseUseCase,
     @Optional()
     @Inject('StoredReceiptRepository')
@@ -38,7 +40,7 @@ export class ReceiptProcessingWorker extends WorkerHost {
   async process(job: Job<ReceiptJobData>): Promise<EnrichedReceiptDataDto> {
     this.logger.log(`Processing receipt job ${job.id}`);
 
-    const imageBuffer = Buffer.from(job.data.imageBase64, 'base64');
+    const imageBuffer = await this.storage.download(job.data.storageKey);
     const userId = job.data.userId;
 
     const stages = [

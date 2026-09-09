@@ -9,8 +9,9 @@ function isSupportedTimeZone(timeZone: string): boolean {
   }
 }
 
-const envSchema = z.object({
+export const envSchema = z.object({
   // Server
+  NODE_ENV: z.string().optional().default('development'),
   PORT: z
     .string()
     .default('3001')
@@ -82,12 +83,17 @@ const envSchema = z.object({
   COPILOT_TIMEOUT: z.string().optional(),
   COPILOT_API_ENDPOINT: z.string().optional(),
   COPILOT_ENABLED: z.string().optional(),
+
+  // Receipt parsing
+  RECEIPT_NORMALIZE_NAMES: z.string().optional().default('false'),
 });
 
-type EnvConfig = z.infer<typeof envSchema>;
+export type EnvConfig = z.infer<typeof envSchema>;
 
-export function validateEnv(): EnvConfig {
-  const result = envSchema.safeParse(process.env);
+export function validateEnv(
+  source: Record<string, unknown> = process.env,
+): EnvConfig {
+  const result = envSchema.safeParse(source);
 
   if (!result.success) {
     const errors = result.error.issues
@@ -99,4 +105,15 @@ export function validateEnv(): EnvConfig {
   }
 
   return result.data;
+}
+
+let cachedEnv: EnvConfig | null = null;
+
+export function appEnv(): EnvConfig {
+  cachedEnv ??= validateEnv();
+  return cachedEnv;
+}
+
+export function resetAppEnv(): void {
+  cachedEnv = null;
 }
