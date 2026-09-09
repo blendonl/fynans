@@ -32,8 +32,8 @@ export class IncomeCategoryService {
     return this.createIncomeCategoryUseCase.execute(dto, userId);
   }
 
-  async findById(id: string): Promise<IncomeCategory> {
-    return this.getIncomeCategoryByIdUseCase.execute(id);
+  async findById(id: string, userId: string): Promise<IncomeCategory> {
+    return this.getIncomeCategoryByIdUseCase.execute(id, userId);
   }
 
   async findAll(

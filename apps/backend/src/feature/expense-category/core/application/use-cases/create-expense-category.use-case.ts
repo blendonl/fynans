@@ -15,33 +15,35 @@ export class CreateExpenseCategoryUseCase {
     dto: CreateExpenseCategoryDto,
     userId: string,
   ): Promise<ExpenseCategory> {
-    await this.validate(dto);
+    await this.validate(dto, userId);
 
-    const existing = await this.expenseCategoryRepository.findByName(dto.name);
+    const existing = await this.expenseCategoryRepository.findOwnedByName(
+      dto.name,
+      userId,
+    );
     if (existing) {
-      await this.expenseCategoryRepository.linkToUser(existing.id, userId);
       return existing;
     }
 
-    const category = await this.expenseCategoryRepository.create({
+    return this.expenseCategoryRepository.create({
+      userId,
       name: dto.name,
       parentId: dto.parentId ?? null,
       isConnectedToStore: dto.isConnectedToStore,
     });
-
-    await this.expenseCategoryRepository.linkToUser(category.id, userId);
-
-    return category;
   }
 
-  private async validate(dto: CreateExpenseCategoryDto): Promise<void> {
+  private async validate(
+    dto: CreateExpenseCategoryDto,
+    userId: string,
+  ): Promise<void> {
     if (!dto.parentId) {
       return;
     }
 
     const parent = await this.expenseCategoryRepository.findById(dto.parentId);
 
-    if (!parent) {
+    if (!parent || parent.userId !== userId) {
       throw new DomainValidationException('Parent category not found');
     }
   }

@@ -9,7 +9,7 @@ const attacker = 'attacker-1';
 
 describe('CreateIncomeUseCase', () => {
   let incomeRepository: { create: jest.Mock; findByTransactionId: jest.Mock };
-  let incomeCategoryRepository: { findById: jest.Mock; linkToUser: jest.Mock };
+  let incomeCategoryRepository: { findVisibleById: jest.Mock };
   let getTransactionByIdUseCase: { execute: jest.Mock };
   let notifyFamilyMembersService: { notify: jest.Mock };
   let useCase: CreateIncomeUseCase;
@@ -20,8 +20,9 @@ describe('CreateIncomeUseCase', () => {
       findByTransactionId: jest.fn().mockResolvedValue(null),
     };
     incomeCategoryRepository = {
-      findById: jest.fn().mockResolvedValue({ id: 'category-1' }),
-      linkToUser: jest.fn().mockResolvedValue(undefined),
+      findVisibleById: jest
+        .fn()
+        .mockResolvedValue({ id: 'category-1', userId: owner }),
     };
     getTransactionByIdUseCase = {
       execute: jest.fn().mockResolvedValue({
@@ -58,7 +59,6 @@ describe('CreateIncomeUseCase', () => {
     );
 
     expect(incomeRepository.create).not.toHaveBeenCalled();
-    expect(incomeCategoryRepository.linkToUser).not.toHaveBeenCalled();
     expect(notifyFamilyMembersService.notify).not.toHaveBeenCalled();
   });
 

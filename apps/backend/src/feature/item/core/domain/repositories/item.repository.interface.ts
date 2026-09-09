@@ -29,12 +29,29 @@ export interface ItemDetailResult {
   }[];
 }
 
+export interface CreateItemData {
+  userId: string;
+  categoryId: string;
+  name: string;
+  nameEn?: string;
+}
+
+export interface UpdateItemData {
+  categoryId?: string;
+  name?: string;
+  nameEn?: string;
+}
+
 export interface IItemRepository {
-  create(data: Partial<Item>): Promise<Item>;
+  create(data: CreateItemData): Promise<Item>;
   findById(id: string): Promise<Item | null>;
-  findByName(name: string): Promise<Item | null>;
-  findBySimilarName(name: string, threshold?: number): Promise<Item | null>;
-  findByNameAndCategory(name: string, categoryId: string): Promise<Item | null>;
+  findVisibleById(id: string, userId: string): Promise<Item | null>;
+  findOwnedByName(name: string, userId: string): Promise<Item | null>;
+  findOwnedBySimilarName(
+    name: string,
+    userId: string,
+    threshold?: number,
+  ): Promise<Item | null>;
   findByCategoryId(
     userId: string,
     categoryId: string,
@@ -45,14 +62,15 @@ export interface IItemRepository {
     filters?: { search?: string },
     pagination?: Pagination,
   ): Promise<PaginatedResult<Item>>;
-  linkToUser(itemId: string, userId: string): Promise<void>;
-  isLinkedToUser(itemId: string, userId: string): Promise<boolean>;
   searchWithStores(
     userId: string,
     search?: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<ItemWithStoresRow>>;
-  findByIdWithDetail(id: string): Promise<ItemDetailResult | null>;
-  update(id: string, data: Partial<Item>): Promise<Item>;
+  findVisibleByIdWithDetail(
+    id: string,
+    userId: string,
+  ): Promise<ItemDetailResult | null>;
+  update(id: string, data: UpdateItemData): Promise<Item>;
   delete(id: string): Promise<void>;
 }

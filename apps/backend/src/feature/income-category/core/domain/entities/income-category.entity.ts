@@ -1,5 +1,6 @@
 interface IncomeCategoryProps {
   id: string;
+  userId: string;
   parentId: string | null;
   name: string;
   createdAt: Date;
@@ -19,6 +20,10 @@ export class IncomeCategory {
       throw new Error('Income category ID is required');
     }
 
+    if (!props.userId || props.userId.trim() === '') {
+      throw new Error('Income category owner is required');
+    }
+
     if (!props.name || props.name.trim() === '') {
       throw new Error('Category name is required');
     }
@@ -34,6 +39,10 @@ export class IncomeCategory {
 
   get id(): string {
     return this.props.id;
+  }
+
+  get userId(): string {
+    return this.props.userId;
   }
 
   get parentId(): string | null {
@@ -55,6 +64,7 @@ export class IncomeCategory {
   toJSON() {
     return {
       id: this.props.id,
+      userId: this.props.userId,
       parentId: this.props.parentId,
       name: this.props.name,
       createdAt: this.props.createdAt,

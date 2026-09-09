@@ -15,19 +15,16 @@ export class CreateItemUseCase {
   ) {}
 
   async execute(dto: CreateItemDto, userId: string): Promise<Item> {
-    await this.validate(dto);
+    await this.validate(dto, userId);
 
-    const item = await this.itemRepository.create({
+    return this.itemRepository.create({
+      userId,
       name: dto.name,
       categoryId: dto.categoryId,
-    } as Partial<Item>);
-
-    await this.itemRepository.linkToUser(item.id, userId);
-
-    return item;
+    });
   }
 
-  private async validate(dto: CreateItemDto): Promise<void> {
+  private async validate(dto: CreateItemDto, userId: string): Promise<void> {
     if (!dto.name || dto.name.trim() === '') {
       throw new DomainValidationException('Item name is required');
     }
@@ -41,7 +38,10 @@ export class CreateItemUseCase {
       throw new DomainValidationException('Category not found');
     }
 
-    const existingItem = await this.itemRepository.findByName(dto.name);
+    const existingItem = await this.itemRepository.findOwnedByName(
+      dto.name,
+      userId,
+    );
     if (existingItem) {
       throw new DomainValidationException(
         `An item with the name "${dto.name}" already exists`,

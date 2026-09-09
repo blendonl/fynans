@@ -5,6 +5,8 @@ import {
   PaginatedResult,
   ItemWithStoresRow,
   ItemDetailResult,
+  CreateItemData,
+  UpdateItemData,
 } from '../../domain/repositories/item.repository.interface';
 import { Item } from '../../domain/entities/item.entity';
 import { Pagination } from '~common/dto/pagination.dto';
@@ -15,11 +17,12 @@ import { getVisibleUserIds } from '../../../../../common/helpers/family-visibili
 export class PrismaItemRepository implements IItemRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: Partial<Item>): Promise<Item> {
+  async create(data: CreateItemData): Promise<Item> {
     const item = await this.prisma.item.create({
       data: {
-        name: data.name!,
-        categoryId: data.categoryId!,
+        userId: data.userId,
+        name: data.name,
+        categoryId: data.categoryId,
         nameEn: data.nameEn,
       },
       include: {
@@ -41,9 +44,22 @@ export class PrismaItemRepository implements IItemRepository {
     return item ? ItemMapper.toDomain(item) : null;
   }
 
-  async findByName(name: string): Promise<Item | null> {
+  async findVisibleById(id: string, userId: string): Promise<Item | null> {
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const item = await this.prisma.item.findFirst({
+      where: { id, userId: { in: visibleUserIds } },
+      include: {
+        category: true,
+      },
+    });
+
+    return item ? ItemMapper.toDomain(item) : null;
+  }
+
+  async findOwnedByName(name: string, userId: string): Promise<Item | null> {
     const item = await this.prisma.item.findFirst({
       where: {
+        userId,
         name: {
           equals: name,
           mode: 'insensitive',
@@ -57,10 +73,15 @@ export class PrismaItemRepository implements IItemRepository {
     return item ? ItemMapper.toDomain(item) : null;
   }
 
-  async findBySimilarName(name: string, threshold = 0.3): Promise<Item | null> {
+  async findOwnedBySimilarName(
+    name: string,
+    userId: string,
+    threshold = 0.3,
+  ): Promise<Item | null> {
     const rows = await this.prisma.$queryRaw<
       Array<{
         id: string;
+        user_id: string;
         category_id: string;
         name: string;
         name_en: string | null;
@@ -71,7 +92,8 @@ export class PrismaItemRepository implements IItemRepository {
     >`
       SELECT *, similarity(name, ${name}) AS sim
       FROM item
-      WHERE similarity(name, ${name}) > ${threshold}
+      WHERE user_id = ${userId}
+        AND similarity(name, ${name}) > ${threshold}
       ORDER BY sim DESC
       LIMIT 1
     `;
@@ -81,32 +103,13 @@ export class PrismaItemRepository implements IItemRepository {
     const row = rows[0];
     return new Item({
       id: row.id,
+      userId: row.user_id,
       categoryId: row.category_id,
       name: row.name,
       nameEn: row.name_en ?? undefined,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     });
-  }
-
-  async findByNameAndCategory(
-    name: string,
-    categoryId: string,
-  ): Promise<Item | null> {
-    const item = await this.prisma.item.findFirst({
-      where: {
-        name: {
-          equals: name,
-          mode: 'insensitive',
-        },
-        categoryId,
-      },
-      include: {
-        category: true,
-      },
-    });
-
-    return item ? ItemMapper.toDomain(item) : null;
   }
 
   async findByCategoryId(
@@ -117,7 +120,7 @@ export class PrismaItemRepository implements IItemRepository {
     const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
     const where = {
       categoryId,
-      users: { some: { userId: { in: visibleUserIds } } },
+      userId: { in: visibleUserIds },
     };
 
     const [items, total] = await Promise.all([
@@ -148,7 +151,7 @@ export class PrismaItemRepository implements IItemRepository {
   ): Promise<PaginatedResult<Item>> {
     const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
     const where: any = {
-      users: { some: { userId: { in: visibleUserIds } } },
+      userId: { in: visibleUserIds },
     };
 
     if (filters?.search) {
@@ -203,8 +206,7 @@ export class PrismaItemRepository implements IItemRepository {
         SELECT DISTINCT i.id, i.name, i.category_id AS "categoryId",
           COUNT(*) OVER()::bigint AS total
         FROM item i
-        JOIN user_item ui ON ui.item_id = i.id
-        WHERE ui.user_id IN (SELECT user_id FROM visible_users)
+        WHERE i.user_id IN (SELECT user_id FROM visible_users)
           AND (${searchParam}::text IS NULL OR i.name ILIKE '%' || ${searchParam} || '%')
         ORDER BY i.name
         LIMIT ${limit} OFFSET ${offset}
@@ -235,9 +237,13 @@ export class PrismaItemRepository implements IItemRepository {
     };
   }
 
-  async findByIdWithDetail(id: string): Promise<ItemDetailResult | null> {
-    const item = await this.prisma.item.findUnique({
-      where: { id },
+  async findVisibleByIdWithDetail(
+    id: string,
+    userId: string,
+  ): Promise<ItemDetailResult | null> {
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const item = await this.prisma.item.findFirst({
+      where: { id, userId: { in: visibleUserIds } },
       include: {
         category: true,
         stores: {
@@ -267,24 +273,8 @@ export class PrismaItemRepository implements IItemRepository {
     };
   }
 
-  async linkToUser(itemId: string, userId: string): Promise<void> {
-    await this.prisma.userItem.upsert({
-      where: { userId_itemId: { userId, itemId } },
-      create: { userId, itemId },
-      update: {},
-    });
-  }
-
-  async isLinkedToUser(itemId: string, userId: string): Promise<boolean> {
-    const link = await this.prisma.userItem.findUnique({
-      where: { userId_itemId: { userId, itemId } },
-      select: { userId: true },
-    });
-    return link !== null;
-  }
-
-  async update(id: string, data: Partial<Item>): Promise<Item> {
-    const updateData: any = {};
+  async update(id: string, data: UpdateItemData): Promise<Item> {
+    const updateData: Record<string, unknown> = {};
 
     if (data.name !== undefined) {
       updateData.name = data.name;

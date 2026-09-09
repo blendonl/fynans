@@ -60,13 +60,11 @@ export const ModelName = {
   ExpenseItem: 'ExpenseItem',
   Expense: 'Expense',
   ExpenseCategory: 'ExpenseCategory',
-  UserExpenseCategory: 'UserExpenseCategory',
   Family: 'Family',
   FamilyMember: 'FamilyMember',
   FamilyInvitation: 'FamilyInvitation',
   Income: 'Income',
   IncomeCategory: 'IncomeCategory',
-  UserIncomeCategory: 'UserIncomeCategory',
   Notification: 'Notification',
   NotificationPreference: 'NotificationPreference',
   DeviceToken: 'DeviceToken',
@@ -81,7 +79,6 @@ export const ModelName = {
   StoreItemDiscount: 'StoreItemDiscount',
   ItemCategory: 'ItemCategory',
   UserStore: 'UserStore',
-  UserItem: 'UserItem',
   UserStoreItem: 'UserStoreItem',
   UserItemCategory: 'UserItemCategory',
   Transaction: 'Transaction'
@@ -221,6 +218,7 @@ export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeo
 
 export const ExpenseCategoryScalarFieldEnum = {
   id: 'id',
+  userId: 'userId',
   parentId: 'parentId',
   name: 'name',
   isConnectedToStore: 'isConnectedToStore',
@@ -229,16 +227,6 @@ export const ExpenseCategoryScalarFieldEnum = {
 } as const
 
 export type ExpenseCategoryScalarFieldEnum = (typeof ExpenseCategoryScalarFieldEnum)[keyof typeof ExpenseCategoryScalarFieldEnum]
-
-
-export const UserExpenseCategoryScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  categoryId: 'categoryId',
-  createdAt: 'createdAt'
-} as const
-
-export type UserExpenseCategoryScalarFieldEnum = (typeof UserExpenseCategoryScalarFieldEnum)[keyof typeof UserExpenseCategoryScalarFieldEnum]
 
 
 export const FamilyScalarFieldEnum = {
@@ -296,6 +284,7 @@ export type IncomeScalarFieldEnum = (typeof IncomeScalarFieldEnum)[keyof typeof 
 
 export const IncomeCategoryScalarFieldEnum = {
   id: 'id',
+  userId: 'userId',
   parentId: 'parentId',
   name: 'name',
   createdAt: 'createdAt',
@@ -303,16 +292,6 @@ export const IncomeCategoryScalarFieldEnum = {
 } as const
 
 export type IncomeCategoryScalarFieldEnum = (typeof IncomeCategoryScalarFieldEnum)[keyof typeof IncomeCategoryScalarFieldEnum]
-
-
-export const UserIncomeCategoryScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  categoryId: 'categoryId',
-  createdAt: 'createdAt'
-} as const
-
-export type UserIncomeCategoryScalarFieldEnum = (typeof UserIncomeCategoryScalarFieldEnum)[keyof typeof UserIncomeCategoryScalarFieldEnum]
 
 
 export const NotificationScalarFieldEnum = {
@@ -448,6 +427,7 @@ export type StoreScalarFieldEnum = (typeof StoreScalarFieldEnum)[keyof typeof St
 
 export const ItemScalarFieldEnum = {
   id: 'id',
+  userId: 'userId',
   categoryId: 'categoryId',
   name: 'name',
   nameEn: 'nameEn',
@@ -515,16 +495,6 @@ export const UserStoreScalarFieldEnum = {
 } as const
 
 export type UserStoreScalarFieldEnum = (typeof UserStoreScalarFieldEnum)[keyof typeof UserStoreScalarFieldEnum]
-
-
-export const UserItemScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  itemId: 'itemId',
-  createdAt: 'createdAt'
-} as const
-
-export type UserItemScalarFieldEnum = (typeof UserItemScalarFieldEnum)[keyof typeof UserItemScalarFieldEnum]
 
 
 export const UserStoreItemScalarFieldEnum = {

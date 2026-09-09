@@ -1,4 +1,7 @@
-import { Item as PrismaItem, ItemSize as PrismaItemSize } from 'prisma/generated/prisma/client';
+import {
+  Item as PrismaItem,
+  ItemSize as PrismaItemSize,
+} from 'prisma/generated/prisma/client';
 import { Item } from '../../domain/entities/item.entity';
 import { ItemSize } from '../../domain/entities/item-size.entity';
 
@@ -6,6 +9,7 @@ export class ItemMapper {
   static toDomain(prismaItem: PrismaItem & { sizes?: PrismaItemSize[] }): Item {
     return new Item({
       id: prismaItem.id,
+      userId: prismaItem.userId,
       categoryId: prismaItem.categoryId,
       name: prismaItem.name,
       nameEn: prismaItem.nameEn ?? undefined,

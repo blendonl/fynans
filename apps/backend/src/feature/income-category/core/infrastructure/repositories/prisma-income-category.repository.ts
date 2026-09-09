@@ -3,6 +3,8 @@ import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IIncomeCategoryRepository,
   PaginatedResult,
+  CreateIncomeCategoryData,
+  UpdateIncomeCategoryData,
 } from '../../domain/repositories/income-category.repository.interface';
 import { IncomeCategory } from '../../domain/entities/income-category.entity';
 import { Pagination } from '~common/dto/pagination.dto';
@@ -13,10 +15,11 @@ import { getVisibleUserIds } from '../../../../../common/helpers/family-visibili
 export class PrismaIncomeCategoryRepository implements IIncomeCategoryRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: Partial<IncomeCategory>): Promise<IncomeCategory> {
+  async create(data: CreateIncomeCategoryData): Promise<IncomeCategory> {
     const category = await this.prisma.incomeCategory.create({
       data: {
-        name: data.name!,
+        userId: data.userId,
+        name: data.name,
         parentId: data.parentId ?? null,
       },
     });
@@ -32,9 +35,24 @@ export class PrismaIncomeCategoryRepository implements IIncomeCategoryRepository
     return category ? IncomeCategoryMapper.toDomain(category) : null;
   }
 
-  async findByName(name: string): Promise<IncomeCategory | null> {
+  async findVisibleById(
+    id: string,
+    userId: string,
+  ): Promise<IncomeCategory | null> {
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const category = await this.prisma.incomeCategory.findFirst({
+      where: { id, userId: { in: visibleUserIds } },
+    });
+
+    return category ? IncomeCategoryMapper.toDomain(category) : null;
+  }
+
+  async findOwnedByName(
+    name: string,
+    userId: string,
+  ): Promise<IncomeCategory | null> {
     const category = await this.prisma.incomeCategory.findUnique({
-      where: { name },
+      where: { userId_name: { userId, name } },
     });
 
     return category ? IncomeCategoryMapper.toDomain(category) : null;
@@ -46,7 +64,7 @@ export class PrismaIncomeCategoryRepository implements IIncomeCategoryRepository
   ): Promise<PaginatedResult<IncomeCategory>> {
     const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
     const where = {
-      users: { some: { userId: { in: visibleUserIds } } },
+      userId: { in: visibleUserIds },
     };
 
     const [categories, total] = await Promise.all([
@@ -73,7 +91,7 @@ export class PrismaIncomeCategoryRepository implements IIncomeCategoryRepository
     const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
     const where = {
       parentId,
-      users: { some: { userId: { in: visibleUserIds } } },
+      userId: { in: visibleUserIds },
     };
 
     const [categories, total] = await Promise.all([
@@ -92,36 +110,24 @@ export class PrismaIncomeCategoryRepository implements IIncomeCategoryRepository
     };
   }
 
-  async findChildren(parentId: string): Promise<IncomeCategory[]> {
+  async findChildren(
+    parentId: string,
+    userId: string,
+  ): Promise<IncomeCategory[]> {
+    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
     const categories = await this.prisma.incomeCategory.findMany({
-      where: { parentId },
+      where: { parentId, userId: { in: visibleUserIds } },
       orderBy: { name: 'asc' },
     });
 
     return categories.map(IncomeCategoryMapper.toDomain);
   }
 
-  async linkToUser(categoryId: string, userId: string): Promise<void> {
-    await this.prisma.userIncomeCategory.upsert({
-      where: { userId_categoryId: { userId, categoryId } },
-      create: { userId, categoryId },
-      update: {},
-    });
-  }
-
-  async isLinkedToUser(categoryId: string, userId: string): Promise<boolean> {
-    const link = await this.prisma.userIncomeCategory.findUnique({
-      where: { userId_categoryId: { userId, categoryId } },
-      select: { userId: true },
-    });
-    return link !== null;
-  }
-
   async update(
     id: string,
-    data: Partial<IncomeCategory>,
+    data: UpdateIncomeCategoryData,
   ): Promise<IncomeCategory> {
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
 
     if (data.name !== undefined) {
       updateData.name = data.name;

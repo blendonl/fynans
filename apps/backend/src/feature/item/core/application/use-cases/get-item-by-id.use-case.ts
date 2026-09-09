@@ -10,8 +10,8 @@ export class GetItemByIdUseCase {
     private readonly itemRepository: IItemRepository,
   ) {}
 
-  async execute(id: string): Promise<Item> {
-    const item = await this.itemRepository.findById(id);
+  async execute(id: string, userId: string): Promise<Item> {
+    const item = await this.itemRepository.findVisibleById(id, userId);
 
     if (!item) {
       throw new DomainNotFoundException(`Item with ID ${id} not found`);

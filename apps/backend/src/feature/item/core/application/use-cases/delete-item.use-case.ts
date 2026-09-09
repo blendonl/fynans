@@ -21,8 +21,7 @@ export class DeleteItemUseCase {
       throw new DomainNotFoundException(`Item with ID ${id} not found`);
     }
 
-    const linked = await this.itemRepository.isLinkedToUser(id, userId);
-    if (!linked) {
+    if (item.userId !== userId) {
       throw new DomainForbiddenException('Item does not belong to this user');
     }
 

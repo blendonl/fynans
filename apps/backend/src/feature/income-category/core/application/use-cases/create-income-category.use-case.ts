@@ -15,33 +15,34 @@ export class CreateIncomeCategoryUseCase {
     dto: CreateIncomeCategoryDto,
     userId: string,
   ): Promise<IncomeCategory> {
-    await this.validate(dto);
+    await this.validate(dto, userId);
 
-    const existing = await this.incomeCategoryRepository.findByName(dto.name);
+    const existing = await this.incomeCategoryRepository.findOwnedByName(
+      dto.name,
+      userId,
+    );
     if (existing) {
-      await this.incomeCategoryRepository.linkToUser(existing.id, userId);
       return existing;
     }
 
-    const category = await this.incomeCategoryRepository.create({
+    return this.incomeCategoryRepository.create({
+      userId,
       name: dto.name,
       parentId: dto.parentId ?? null,
-    } as Partial<IncomeCategory>);
-
-    await this.incomeCategoryRepository.linkToUser(category.id, userId);
-
-    return category;
+    });
   }
 
-  private async validate(dto: CreateIncomeCategoryDto): Promise<void> {
+  private async validate(
+    dto: CreateIncomeCategoryDto,
+    userId: string,
+  ): Promise<void> {
     if (!dto.name || dto.name.trim() === '') {
       throw new DomainValidationException('Category name is required');
     }
 
     if (dto.parentId) {
-      const parent =
-        await this.incomeCategoryRepository.findById(dto.parentId);
-      if (!parent) {
+      const parent = await this.incomeCategoryRepository.findById(dto.parentId);
+      if (!parent || parent.userId !== userId) {
         throw new DomainValidationException('Parent category not found');
       }
     }
