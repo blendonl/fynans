@@ -1,7 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatCurrency } from "@/utils/currency";
-import { transactionControllerCreate } from "@/api/generated/endpoints/transaction/transaction";
+import { incomeControllerRecord } from "@/api/generated/endpoints/income/income";
+import type { RecordIncomeRequestDto } from "@/api/generated/model";
 
 interface IncomeSubmitArgs {
   amount: string;
@@ -18,12 +19,11 @@ interface UseIncomeSubmissionOptions {
   onSaveForReview?: () => void;
 }
 
-function buildIncomePayload(args: IncomeSubmitArgs, pending?: boolean) {
+function buildIncomePayload(args: IncomeSubmitArgs, pending?: boolean): RecordIncomeRequestDto {
   return {
-    type: "INCOME" as const,
-    value: parseFloat(args.amount),
-    description: args.note,
-    categoryId: args.categoryId,
+    categoryId: args.categoryId!,
+    amount: parseFloat(args.amount),
+    note: args.note || undefined,
     recordedAt: new Date(args.recordedAt).toISOString(),
     familyId: args.scope === "FAMILY" ? args.familyId : undefined,
     paymentMethodId: args.paymentMethodId || undefined,
@@ -34,9 +34,7 @@ function buildIncomePayload(args: IncomeSubmitArgs, pending?: boolean) {
 export function useIncomeSubmission({ onSuccess, onSaveForReview }: UseIncomeSubmissionOptions) {
   const submitMutation = useMutation({
     mutationFn: async (args: IncomeSubmitArgs) => {
-      await transactionControllerCreate(
-        buildIncomePayload(args) as unknown as Parameters<typeof transactionControllerCreate>[0],
-      );
+      await incomeControllerRecord(buildIncomePayload(args));
       return args;
     },
     onSuccess: (args) => {
@@ -50,9 +48,7 @@ export function useIncomeSubmission({ onSuccess, onSaveForReview }: UseIncomeSub
 
   const saveForReviewMutation = useMutation({
     mutationFn: async (args: IncomeSubmitArgs) => {
-      await transactionControllerCreate(
-        buildIncomePayload(args, true) as unknown as Parameters<typeof transactionControllerCreate>[0],
-      );
+      await incomeControllerRecord(buildIncomePayload(args, true));
       return args;
     },
     onSuccess: (args) => {

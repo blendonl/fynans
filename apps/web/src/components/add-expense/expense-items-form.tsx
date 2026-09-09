@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useRef, type ReactNode } from "react";
 import { Plus, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { formatCurrency } from "@/utils/currency";
-import { calculateExpenseItemsTotal } from "@/utils/calculations";
+import { expenseLinesTotal } from "@/utils/expense-total";
 import type { CurrentItem, Category, ExpenseItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -172,7 +172,7 @@ export function ExpenseItemsForm({
     onCurrentItemChange({ ...currentItem, name: "", categoryId: "" });
   };
 
-  const total = calculateExpenseItemsTotal(items);
+  const total = expenseLinesTotal(items);
 
   const handleRemove = (index: number) => {
     const removed = onRemoveItem(index);

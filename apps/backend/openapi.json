@@ -3263,14 +3263,14 @@
     },
     "/incomes": {
       "post": {
-        "operationId": "IncomeController_create",
+        "operationId": "IncomeController_record",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateIncomeRequestDto"
+                "$ref": "#/components/schemas/RecordIncomeRequestDto"
               }
             }
           }
@@ -3292,7 +3292,7 @@
             "bearer": []
           }
         ],
-        "summary": "Create a new income",
+        "summary": "Record an income, creating its transaction in the same request",
         "tags": [
           "Income"
         ]
@@ -3436,6 +3436,43 @@
           }
         ],
         "summary": "List all incomes with pagination and filters",
+        "tags": [
+          "Income"
+        ]
+      }
+    },
+    "/incomes/link": {
+      "post": {
+        "operationId": "IncomeController_link",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkIncomeRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncomeResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Attach an income to an existing transaction",
         "tags": [
           "Income"
         ]
@@ -5458,9 +5495,6 @@
           "lastName": {
             "type": "string"
           },
-          "balance": {
-            "type": "string"
-          },
           "emailVerified": {
             "type": "boolean"
           },
@@ -5476,7 +5510,6 @@
           "email",
           "firstName",
           "lastName",
-          "balance",
           "emailVerified",
           "createdAt",
           "updatedAt"
@@ -7108,26 +7141,38 @@
           }
         }
       },
-      "CreateIncomeRequestDto": {
+      "RecordIncomeRequestDto": {
         "type": "object",
         "properties": {
-          "transactionId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "storeId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "categoryId": {
             "type": "string",
             "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "note": {
+            "type": "string"
+          },
+          "familyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recordedAt": {
+            "type": "string"
+          },
+          "paymentMethodId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pending": {
+            "type": "boolean"
           }
         },
         "required": [
-          "transactionId",
-          "storeId",
-          "categoryId"
+          "categoryId",
+          "amount"
         ]
       },
       "IncomeResponseDto": {
@@ -7140,10 +7185,15 @@
             "type": "string"
           },
           "storeId": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "categoryId": {
             "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
           },
           "transaction": {
             "$ref": "#/components/schemas/TransactionResponseDto"
@@ -7165,8 +7215,30 @@
           "transactionId",
           "storeId",
           "categoryId",
+          "description",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "LinkIncomeRequestDto": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "storeId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "transactionId",
+          "categoryId"
         ]
       },
       "PaginatedIncomeResponseDto": {

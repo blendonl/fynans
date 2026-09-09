@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { CreateIncomeUseCase } from '../use-cases/create-income.use-case';
+import { RecordIncomeUseCase } from '../use-cases/record-income.use-case';
 import { GetIncomeByIdUseCase } from '../use-cases/get-income-by-id.use-case';
 import { GetIncomeByTransactionIdUseCase } from '../use-cases/get-income-by-transaction-id.use-case';
 import { ListIncomesUseCase } from '../use-cases/list-incomes.use-case';
 import { UpdateIncomeUseCase } from '../use-cases/update-income.use-case';
 import { DeleteIncomeUseCase } from '../use-cases/delete-income.use-case';
 import { CreateIncomeDto } from '../dto/create-income.dto';
+import { RecordIncomeDto } from '../dto/record-income.dto';
 import { UpdateIncomeDto } from '../dto/update-income.dto';
 import { IncomeFilters } from '../dto/income-filters.dto';
 import { Income } from '../../domain/entities/income.entity';
@@ -17,6 +19,7 @@ import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
 export class IncomeService {
   constructor(
     private readonly createIncomeUseCase: CreateIncomeUseCase,
+    private readonly recordIncomeUseCase: RecordIncomeUseCase,
     private readonly getIncomeByIdUseCase: GetIncomeByIdUseCase,
     private readonly getIncomeByTransactionIdUseCase: GetIncomeByTransactionIdUseCase,
     private readonly listIncomesUseCase: ListIncomesUseCase,
@@ -24,7 +27,11 @@ export class IncomeService {
     private readonly deleteIncomeUseCase: DeleteIncomeUseCase,
   ) {}
 
-  async create(dto: CreateIncomeDto): Promise<Income> {
+  async record(dto: RecordIncomeDto): Promise<Income> {
+    return this.recordIncomeUseCase.execute(dto);
+  }
+
+  async linkToTransaction(dto: CreateIncomeDto): Promise<Income> {
     return this.createIncomeUseCase.execute(dto);
   }
 

@@ -18,7 +18,8 @@ import {
   ApiProperty,
 } from '@nestjs/swagger';
 import { IncomeService } from '../../core/application/services/income.service';
-import { CreateIncomeRequestDto } from '../dto/create-income-request.dto';
+import { RecordIncomeRequestDto } from '../dto/record-income-request.dto';
+import { LinkIncomeRequestDto } from '../dto/link-income-request.dto';
 import { UpdateIncomeRequestDto } from '../dto/update-income-request.dto';
 import { QueryIncomeDto } from '../dto/query-income.dto';
 import { IncomeResponseDto } from '../dto/income-response.dto';
@@ -50,14 +51,28 @@ export class IncomeController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new income' })
+  @ApiOperation({
+    summary: 'Record an income, creating its transaction in the same request',
+  })
   @ApiResponse({ status: 201, type: IncomeResponseDto })
-  async create(
-    @Body() createDto: CreateIncomeRequestDto,
+  async record(
+    @Body() recordDto: RecordIncomeRequestDto,
     @CurrentUser() user: User,
   ) {
-    const income = await this.incomeService.create(
-      createDto.toCoreDto(user.id),
+    const income = await this.incomeService.record(recordDto.toCoreDto(user.id));
+    return IncomeResponseDto.fromEntity(income);
+  }
+
+  @Post('link')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Attach an income to an existing transaction' })
+  @ApiResponse({ status: 201, type: IncomeResponseDto })
+  async link(
+    @Body() linkDto: LinkIncomeRequestDto,
+    @CurrentUser() user: User,
+  ) {
+    const income = await this.incomeService.linkToTransaction(
+      linkDto.toCoreDto(user.id),
     );
     return IncomeResponseDto.fromEntity(income);
   }

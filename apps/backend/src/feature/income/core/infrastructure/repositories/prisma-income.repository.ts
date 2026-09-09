@@ -21,8 +21,9 @@ export class PrismaIncomeRepository implements IIncomeRepository {
       data: {
         id: data.transactionId!,
         transactionId: data.transactionId!,
-        storeId: data.storeId!,
+        storeId: data.storeId ?? null,
         categoryId: data.categoryId!,
+        description: data.description ?? null,
       },
       include: {
         transaction: {
