@@ -1,5 +1,12 @@
 # Phase 3a schema rollout
 
+> **`20260909040000_drop_income_store_id` runs AFTER the application deploy.**
+> Not with the others. Not as part of the same `migrate deploy`. It is the one
+> destructive, irreversible migration in this set, and the old application still
+> writes the column it drops. Everything else in the combined sequence below runs
+> before the deploy. If you are about to run `prisma migrate deploy` and the new
+> code is not live yet, exclude it — see "Deploy shape" for how.
+
 ## Read this first
 
 **Nothing in this document has been applied to, or verified against, a real
@@ -21,7 +28,7 @@ An earlier revision of this document sequenced the `income.store_id` drop third
 of six and concluded the whole thing needed a maintenance window spanning all
 six migrations plus the application deploy. That conclusion was correct **for
 that ordering** and is now obsolete: the drop has been renumbered from
-`20260909032000` to `20260909036000` so it sorts last, which removes most of the
+`20260909032000` to `20260909040000` so it sorts last, which removes most of the
 window.
 
 The window existed only because a destructive migration was sequenced ahead of
@@ -39,7 +46,29 @@ an additive one the new code depends on. Three facts make the drop deferrable:
 Nothing in either version of the application requires the column to be *gone*.
 That makes the drop pure cleanup, safe to run after the new code is live.
 
-### The sequence
+### The combined sequence, across all phase 3 branches
+
+A deployer runs these as one set, so this is the whole order, not just this
+branch's. Two of them are authored on `review/phase-3b-category-ownership` and
+are listed here for ordering only — their content, backfills and rollback are
+that branch's to document.
+
+| Migration | Branch | When |
+|---|---|---|
+| `20260909030000_add_decimal_precision` | 3a (this one) | **before** deploy |
+| `20260909031000_add_missing_indexes` | 3a (this one) | **before** deploy |
+| `20260909033000_fix_cascades` | 3a (this one) | **before** deploy |
+| `20260909034000_fix_basket_uniqueness` | 3a (this one) | **before** deploy |
+| `20260909035000_add_soft_delete_and_audit_log` | 3a (this one) | **before** deploy |
+| `20260909036000_own_categories_and_items` | 3b — category re-ownership | **before** deploy |
+| `20260909037000_add_currency_columns` | reserved, not yet authored | **before** deploy |
+| `20260909040000_drop_income_store_id` | 3a (this one) | **AFTER** deploy |
+
+The gap between `037000` and `040000` is deliberate: it is a visible break
+between "everything that must land before the application deploy" and the single
+migration that must not.
+
+### This branch's sequence
 
 **Group 1 — apply while the old application keeps serving.**
 
@@ -73,14 +102,52 @@ between applying them and completing the deploy as small as you can.
 **Group 3 — after the new application is live and old instances are gone.**
 
 ```
-20260909036000_drop_income_store_id
+20260909040000_drop_income_store_id
 ```
 
 Run this only once nothing writing `store_id` is still running. It is
 irreversible; see its section.
 
-This is a rolling deploy with a short window around group 2, rather than a
-maintenance window spanning six migrations and a deploy.
+### Keeping the drop out of the pre-deploy run
+
+`prisma migrate deploy` applies *everything* pending. It has no "stop here" flag,
+so a plain run before the deploy will take the drop with it — which is the exact
+mistake the numbering is meant to prevent, and the numbering alone will not stop
+it. Do one of:
+
+- **Hold the migration back.** Deploy the pre-deploy migrations from a checkout
+  that does not contain `20260909040000_drop_income_store_id`, then bring it in
+  and run `migrate deploy` again after the application is live. This is the only
+  option that makes the mistake impossible rather than merely unlikely.
+- **Or apply it by hand.** Run the pre-deploy migrations however you like, then
+  after the deploy execute the drop yourself and record it:
+
+  ```
+  psql -f apps/backend/prisma/migrations/20260909040000_drop_income_store_id/migration.sql
+  prisma migrate resolve --applied 20260909040000_drop_income_store_id
+  ```
+
+Either way, `migrate status` will report one pending migration between the deploy
+and group 3. That is expected, not a fault.
+
+### Check this after the branches are merged
+
+`review/phase-3b-category-ownership` branched before this migration was
+renumbered, so it still carries the original `20260909032000_drop_income_store_id`
+directory. Git should resolve that to the rename, but confirm it rather than
+assume — a merge that keeps both paths would run
+`ALTER TABLE "income" DROP COLUMN "store_id"` twice, and the second run fails with
+`column "store_id" of relation "income" does not exist`, aborting `migrate deploy`
+partway through the set.
+
+```
+ls apps/backend/prisma/migrations | grep -c drop_income_store_id   # expect 1
+ls apps/backend/prisma/migrations | grep drop_income_store_id      # expect 20260909040000_...
+```
+
+Delete any surviving `20260909032000_drop_income_store_id` before deploying.
+`apps/backend/src/common/prisma/prisma-schema.spec.ts` asserts the drop sorts
+last, so a bad merge that reintroduces an earlier copy fails the suite.
 
 ### What the old code can still hit, during group 2
 
@@ -126,7 +193,7 @@ a restored copy first:
 
 ### Schema drift between group 2 and group 3
 
-After the new application deploys and before `20260909036000` runs, the database
+After the new application deploys and before `20260909040000` runs, the database
 has an `income.store_id` column that the Prisma schema no longer declares. This
 is harmless at runtime — Prisma names columns explicitly, so a column it does not
 know about is simply never referenced, and the column is nullable so inserts that
@@ -135,14 +202,19 @@ omit it succeed.
 It is *not* invisible to tooling. Expect `prisma migrate diff` and `prisma db pull`
 to report the extra column, and `migrate status` to show one pending migration,
 for as long as group 3 is outstanding. That is expected drift, not a problem to
-fix by hand — running `20260909036000` resolves it. Do not "fix" it by
+fix by hand — running `20260909040000` resolves it. Do not "fix" it by
 introspecting the column back into the schema.
 
 ## Apply order
 
-Prisma applies migrations in directory-name order. After the renumbering, the
-on-disk order matches the required order, so a plain `prisma migrate deploy`
-cannot run the destructive drop early by accident:
+Prisma applies migrations in directory-name order. The renumbering guarantees the
+destructive drop sorts **last**, so it can never run before the migrations the new
+code depends on. It does not stop `migrate deploy` from running it in the same
+pass — see "Keeping the drop out of the pre-deploy run" above for that.
+
+This table covers this branch's six migrations. `20260909036000_own_categories_and_items`
+and the reserved `20260909037000` come from other branches and slot in between
+groups 2 and 3; see the combined sequence above.
 
 | # | Migration | Group | Rewrites a table? | Lock | Reversible? |
 |---|---|---|---|---|---|
@@ -151,14 +223,14 @@ cannot run the destructive drop early by accident:
 | 3 | `20260909035000_add_soft_delete_and_audit_log` | 1 | no | `ACCESS EXCLUSIVE`, momentary, then index builds | yes |
 | 4 | `20260909033000_fix_cascades` | 2 | no | `ACCESS EXCLUSIVE` on `transaction`, scans it | schema yes, backfill **no** |
 | 5 | `20260909034000_fix_basket_uniqueness` | 2 | no | `ACCESS EXCLUSIVE` briefly, then index builds | schema yes, backfill **no** |
-| 6 | `20260909036000_drop_income_store_id` | 3 | no | `ACCESS EXCLUSIVE`, momentary | **no** |
+| 6 | `20260909040000_drop_income_store_id` | 3 | no | `ACCESS EXCLUSIVE`, momentary | **no** |
 
 Note that `20260909033000` and `20260909034000` sort *before* `20260909035000` on
 disk, so `migrate deploy` will apply them in that order — which is fine, they are
-mutually independent. If you want group 1 applied on its own first, run
-`migrate deploy` once you are ready for group 2, or apply group 1 by hand and
-`prisma migrate resolve --applied` each one. The renumbering only guarantees the
-destructive drop comes last; it does not split groups 1 and 2 for you.
+mutually independent. Nothing in the numbering splits group 1 from group 2 for
+you: if you want group 1 applied on its own first, apply those three by hand and
+`prisma migrate resolve --applied` each one. The numbering carries exactly one
+guarantee, that the drop comes last.
 
 Why this order:
 
@@ -168,10 +240,15 @@ Why this order:
   `store_item`). Running them the other way builds those indexes twice. This is
   efficiency, not correctness — swapping them produces the same end state, more
   slowly.
-- **The drop last.** Nothing depends on the column being gone, and running it
-  early is what forced a maintenance window in the first place. It is the only
-  irreversible-by-design step in the set, so it goes after everything that might
-  make you want to stop.
+- **The drop last, at `040000`.** Nothing depends on the column being gone, and
+  running it early is what forced a maintenance window in the first place. It is
+  the only irreversible-by-design step in the set, so it goes after everything
+  that might make you want to stop. It was briefly numbered `036000`, which
+  collided with `20260909036000_own_categories_and_items` on the category
+  re-ownership branch — and lexically `drop_income_store_id` sorts before
+  `own_categories_and_items`, which would have put the after-deploy migration
+  ahead of a before-deploy one. `040000` clears the collision and leaves `037000`
+  onwards free.
 - **Inside `20260909033000`, the `UPDATE` must precede the `CHECK`.**
   `transaction_family_scope_check` asserts `scope <> 'FAMILY' OR family_id IS NOT NULL`.
   Any row already sitting at `scope = 'FAMILY', family_id = NULL` — which the old
@@ -690,14 +767,20 @@ UPDATE "basket_item" bi SET basket_id = old.basket_id
 
 ---
 
-## 6. `20260909036000_drop_income_store_id` (group 3)
+## 6. `20260909040000_drop_income_store_id` (group 3)
+
+> **Do not run this with the others.** It goes after the application deploy, on
+> its own. `prisma migrate deploy` will happily take it along with the rest — see
+> "Keeping the drop out of the pre-deploy run" for how to hold it back.
 
 Run this last, once the new application is live and no old instance is still
-writing `store_id`. This migration was originally numbered `20260909032000` and
-sequenced third; renumbering it to sort last is what turns this rollout from a
-six-migration maintenance window into a rolling deploy. Nothing depends on the
-column being gone, so there is no hurry — but until it runs, `migrate status`
-will report one pending migration and `migrate diff` will report the drift.
+writing `store_id`. It was originally numbered `20260909032000` and sequenced
+third; moving it to sort last is what turns this rollout from a six-migration
+maintenance window into a rolling deploy. (It passed through `20260909036000` on
+the way, which collided with the category re-ownership branch — hence `040000`.)
+Nothing depends on the column being gone, so there is no hurry — but until it
+runs, `migrate status` will report one pending migration and `migrate diff` will
+report the drift.
 
 ### What it does
 
