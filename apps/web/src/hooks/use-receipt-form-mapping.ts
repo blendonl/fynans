@@ -1,4 +1,7 @@
+"use client";
+
 import { useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { QueryClient } from "@tanstack/react-query";
@@ -30,6 +33,8 @@ export function useReceiptFormMapping({
   onPendingCreated,
   onReceiptIdCaptured,
 }: UseReceiptFormMappingOptions) {
+  const router = useRouter();
+
   const handleReceiptResult = useCallback(
     (data: ProcessedReceiptResponse) => {
       if (!data.items || data.items.length === 0) {
@@ -97,13 +102,13 @@ export function useReceiptFormMapping({
           action: {
             label: "Review",
             onClick: () => {
-              window.location.href = `/transactions?tab=pending`;
+              router.push("/transactions?tab=pending");
             },
           },
         });
       }
     },
-    [selectedCategory, setSelectedCategory, setSelectedStore, setRecordedAt, setIsItemized, setHasScannedReceipt, setItems, queryClient, onPendingCreated, onReceiptIdCaptured],
+    [selectedCategory, setSelectedCategory, setSelectedStore, setRecordedAt, setIsItemized, setHasScannedReceipt, setItems, queryClient, onPendingCreated, onReceiptIdCaptured, router],
   );
 
   return { handleReceiptResult };
