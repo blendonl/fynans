@@ -125,7 +125,7 @@ describe('prisma schema', () => {
 
     it('defers the drop until after the soft-delete migration', () => {
       const names = migrationNames();
-      const drop = names.indexOf('20260909036000_drop_income_store_id');
+      const drop = names.indexOf('20260909040000_drop_income_store_id');
       const softDelete = names.indexOf(
         '20260909035000_add_soft_delete_and_audit_log',
       );
@@ -133,7 +133,7 @@ describe('prisma schema', () => {
       expect(drop).toBeGreaterThan(-1);
       expect(drop).toBeGreaterThan(softDelete);
       expect(names[names.length - 1]).toBe(
-        '20260909036000_drop_income_store_id',
+        '20260909040000_drop_income_store_id',
       );
     });
   });
