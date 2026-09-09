@@ -8,7 +8,7 @@ export class GetTransactionStatisticsUseCase {
   constructor(
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
-  ) { }
+  ) {}
 
   async execute(filters: TransactionFilters): Promise<TransactionStatistics> {
     return this.transactionRepository.getStatistics(filters);

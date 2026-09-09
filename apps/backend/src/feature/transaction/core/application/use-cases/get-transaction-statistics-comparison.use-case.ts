@@ -33,13 +33,16 @@ export class GetTransactionStatisticsComparisonUseCase {
     return new TransactionStatisticsComparison(current, previous, comparison);
   }
 
-  private buildPreviousFilters(filters: TransactionFilters): TransactionFilters {
+  private buildPreviousFilters(
+    filters: TransactionFilters,
+  ): TransactionFilters {
     if (!filters.dateFrom || !filters.dateTo) {
       return new TransactionFilters({ ...filters });
     }
 
     const days = Math.ceil(
-      (filters.dateTo.getTime() - filters.dateFrom.getTime()) / (1000 * 60 * 60 * 24),
+      (filters.dateTo.getTime() - filters.dateFrom.getTime()) /
+        (1000 * 60 * 60 * 24),
     );
 
     const previousDateTo = new Date(filters.dateFrom);
@@ -59,9 +62,12 @@ export class GetTransactionStatisticsComparisonUseCase {
 
   private computeDelta(current: number, previous: number): DeltaComparison {
     const delta = current - previous;
-    const percentage = previous !== 0
-      ? Math.round((delta / previous) * 100)
-      : current !== 0 ? 100 : 0;
+    const percentage =
+      previous !== 0
+        ? Math.round((delta / previous) * 100)
+        : current !== 0
+          ? 100
+          : 0;
     return new DeltaComparison(delta, percentage);
   }
 }

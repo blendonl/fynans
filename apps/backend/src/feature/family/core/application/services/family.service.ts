@@ -78,9 +78,7 @@ export class FamilyService {
     return this.inviteMemberUseCase.execute(dto, inviterId);
   }
 
-  async getPendingInvitations(
-    userEmail: string,
-  ): Promise<FamilyInvitation[]> {
+  async getPendingInvitations(userEmail: string): Promise<FamilyInvitation[]> {
     return this.getPendingInvitationsUseCase.execute(userEmail);
   }
 
@@ -97,17 +95,11 @@ export class FamilyService {
     return this.acceptInvitationUseCase.execute(invitationId, userId);
   }
 
-  async declineInvitation(
-    invitationId: string,
-    userId: string,
-  ): Promise<void> {
+  async declineInvitation(invitationId: string, userId: string): Promise<void> {
     return this.declineInvitationUseCase.execute(invitationId, userId);
   }
 
-  async cancelInvitation(
-    invitationId: string,
-    userId: string,
-  ): Promise<void> {
+  async cancelInvitation(invitationId: string, userId: string): Promise<void> {
     return this.cancelInvitationUseCase.execute(invitationId, userId);
   }
 

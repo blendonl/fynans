@@ -61,7 +61,8 @@ export class PaymentMethodController {
       createDto.initialBalance,
     );
 
-    const paymentMethod = await this.createPaymentMethodUseCase.execute(coreDto);
+    const paymentMethod =
+      await this.createPaymentMethodUseCase.execute(coreDto);
     return PaymentMethodResponseDto.fromEntity(paymentMethod);
   }
 
@@ -69,12 +70,17 @@ export class PaymentMethodController {
   @ApiOperation({ summary: 'Get all payment methods' })
   @ApiResponse({ status: 200, type: [PaymentMethodResponseDto] })
   async findAll(@CurrentUser() user: User) {
-    const paymentMethods = await this.listPaymentMethodsUseCase.execute(user.id);
+    const paymentMethods = await this.listPaymentMethodsUseCase.execute(
+      user.id,
+    );
     return PaymentMethodResponseDto.fromEntities(paymentMethods);
   }
 
   @Get('balance')
-  @ApiOperation({ summary: 'Get unified balance with payment method breakdown and family balances' })
+  @ApiOperation({
+    summary:
+      'Get unified balance with payment method breakdown and family balances',
+  })
   @ApiResponse({ status: 200, type: BalanceResponseDto })
   async getBalance(@CurrentUser() user: User) {
     return this.getBalanceUseCase.execute(user.id);
@@ -97,7 +103,10 @@ export class PaymentMethodController {
   @ApiOperation({ summary: 'Get a payment method by ID' })
   @ApiResponse({ status: 200, type: PaymentMethodResponseDto })
   async findOne(@Param('id') id: string, @CurrentUser() user: User) {
-    const paymentMethod = await this.getPaymentMethodByIdUseCase.execute(id, user.id);
+    const paymentMethod = await this.getPaymentMethodByIdUseCase.execute(
+      id,
+      user.id,
+    );
     return PaymentMethodResponseDto.fromEntity(paymentMethod);
   }
 

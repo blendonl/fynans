@@ -43,9 +43,6 @@ import { UserCoreModule } from '~feature/user/core/user-core.module';
     FamilyBalanceService,
     FamilyService,
   ],
-  exports: [
-    FamilyService,
-    FamilyBalanceService,
-  ],
+  exports: [FamilyService, FamilyBalanceService],
 })
 export class FamilyCoreModule {}

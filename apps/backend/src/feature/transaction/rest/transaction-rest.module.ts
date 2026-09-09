@@ -5,7 +5,11 @@ import { PaymentMethodCoreModule } from '../../payment-method/core/payment-metho
 import { TransactionController } from './controllers/transaction.controller';
 
 @Module({
-  imports: [TransactionCoreModule, PaymentMethodCoreModule, AuthorizationModule],
+  imports: [
+    TransactionCoreModule,
+    PaymentMethodCoreModule,
+    AuthorizationModule,
+  ],
   controllers: [TransactionController],
 })
 export class TransactionRestModule {}
