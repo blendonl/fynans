@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 import { QueryProvider } from "@/providers/query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { ToastProvider } from "@/providers/toast-provider";
+import { ServiceWorkerRegister } from "@/components/pwa/sw-register";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -53,9 +53,7 @@ export default function RootLayout({
             </AuthProvider>
           </QueryProvider>
         </ThemeProvider>
-        <Script id="sw-register" strategy="afterInteractive">
-          {`if("serviceWorker"in navigator){navigator.serviceWorker.register("/sw.js")}`}
-        </Script>
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
