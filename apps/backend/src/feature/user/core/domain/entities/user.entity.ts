@@ -3,6 +3,7 @@ interface UserProps {
   email: string;
   firstName: string;
   lastName: string;
+  image?: string | null;
   emailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -33,6 +34,9 @@ export class User {
   }
   get lastName(): string {
     return this.props.lastName;
+  }
+  get image(): string | null {
+    return this.props.image ?? null;
   }
   get emailVerified(): boolean {
     return this.props.emailVerified;
