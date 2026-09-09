@@ -4,7 +4,6 @@ import { IncomeCategory } from '~feature/income-category/core';
 interface IncomeProps {
   id: string;
   transactionId: string;
-  storeId?: string | null;
   categoryId: string;
   description?: string | null;
   transaction?: Transaction;
@@ -51,10 +50,6 @@ export class Income {
     return this.props.transactionId;
   }
 
-  get storeId(): string | null {
-    return this.props.storeId ?? null;
-  }
-
   get categoryId(): string {
     return this.props.categoryId;
   }
@@ -83,7 +78,6 @@ export class Income {
     return {
       id: this.props.id,
       transactionId: this.props.transactionId,
-      storeId: this.storeId,
       categoryId: this.props.categoryId,
       description: this.description,
       transaction: this.props.transaction?.toJSON(),

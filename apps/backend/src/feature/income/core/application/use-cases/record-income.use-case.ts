@@ -44,7 +44,6 @@ export class RecordIncomeUseCase {
           transaction.id,
           dto.categoryId,
           dto.userId,
-          undefined,
           dto.note?.trim() || undefined,
         ),
       );
