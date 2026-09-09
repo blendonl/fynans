@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { AuthService } from '../../core/application/services/auth.service';
+import { SessionCacheService } from '../../core/application/services/session-cache.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { AuthenticatedRequest } from '../../../../common/types/authenticated-request';
 
@@ -14,6 +15,7 @@ import { AuthenticatedRequest } from '../../../../common/types/authenticated-req
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly authService: AuthService,
+    private readonly sessionCache: SessionCacheService,
     private readonly reflector: Reflector,
   ) {}
 
@@ -35,12 +37,22 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Authentication required');
     }
 
+    const cached = await this.sessionCache.get(token);
+
+    if (cached) {
+      (request as AuthenticatedRequest).user = cached;
+      return true;
+    }
+
+    let user;
     try {
-      const user = await this.authService.validateSession(token);
-      (request as AuthenticatedRequest).user = user;
+      user = await this.authService.validateSession(token);
     } catch {
       throw new UnauthorizedException('Invalid or expired session');
     }
+
+    (request as AuthenticatedRequest).user = user;
+    await this.sessionCache.set(token, user);
 
     return true;
   }

@@ -16,6 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from '../../core/application/services/auth.service';
+import { SessionCacheService } from '../../core/application/services/session-cache.service';
 import { RegisterRequestDto } from '../dto/register-request.dto';
 import { LoginRequestDto } from '../dto/login-request.dto';
 import { RegisterDto } from '../../core/application/dto/register.dto';
@@ -66,7 +67,10 @@ class MeResponseDto {
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly sessionCache: SessionCacheService,
+  ) {}
 
   @Public()
   @Post('register')
@@ -106,6 +110,7 @@ export class AuthController {
   async logout(@Req() req: Request) {
     const [, token] = req.headers.authorization?.split(' ') ?? [];
     if (token) {
+      await this.sessionCache.invalidate(token);
       await this.authService.logout(token);
     }
   }
