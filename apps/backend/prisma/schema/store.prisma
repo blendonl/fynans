@@ -49,6 +49,8 @@ model StoreItem {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([itemId])
+  @@index([storeId])
   @@map("store_item")
 }
 
@@ -80,6 +82,7 @@ model StoreItemDiscount {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([storeItemId])
   @@map("store_item_discount")
 }
 
@@ -98,6 +101,7 @@ model ItemCategory {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([parentId])
   @@map("item_category")
 }
 
