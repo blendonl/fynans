@@ -176,6 +176,23 @@ export class PrismaExpenseRepository implements IExpenseRepository {
     });
   }
 
+  async deleteWithItemsAndTransaction(
+    expenseId: string,
+    transactionId: string,
+  ): Promise<void> {
+    await this.prisma.db.expenseItem.deleteMany({
+      where: { expenseId },
+    });
+
+    await this.prisma.db.expense.delete({
+      where: { id: expenseId },
+    });
+
+    await this.prisma.db.transaction.delete({
+      where: { id: transactionId },
+    });
+  }
+
   async verifyOwnership(expenseId: string, userId: string): Promise<boolean> {
     const expense = await this.prisma.db.expense.findUnique({
       where: { id: expenseId },

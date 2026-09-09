@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
+import { PaymentMethodType } from '../../domain/value-objects/payment-method-type.enum';
 import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import {
   IPaymentMethodRepository,
@@ -155,6 +156,7 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
       select: {
         id: true,
         name: true,
+        type: true,
         color: true,
         currentBalance: true,
       },
@@ -163,6 +165,7 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
     return paymentMethods.map((pm) => ({
       id: pm.id,
       name: pm.name,
+      type: pm.type as PaymentMethodType,
       color: pm.color,
       currentBalance: pm.currentBalance,
     }));

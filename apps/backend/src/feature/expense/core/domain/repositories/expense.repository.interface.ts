@@ -57,6 +57,10 @@ export interface IExpenseRepository {
   ): Promise<PaginatedResult<Expense>>;
   update(id: string, data: UpdateExpenseData): Promise<Expense>;
   delete(id: string): Promise<void>;
+  deleteWithItemsAndTransaction(
+    expenseId: string,
+    transactionId: string,
+  ): Promise<void>;
   verifyOwnership(expenseId: string, userId: string): Promise<boolean>;
   getStatistics(filters?: ExpenseFilters): Promise<ExpenseStatistics>;
   getTrends(

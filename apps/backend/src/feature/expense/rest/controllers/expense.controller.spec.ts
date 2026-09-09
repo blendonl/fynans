@@ -4,6 +4,8 @@ import { NextFunction, Request, Response } from 'express';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AllExceptionsFilter } from '~common/filters/all-exceptions.filter';
+import { ExpenseReceiptUrlResolver } from '../../core/application/services/expense-receipt-url.resolver';
+import { ExpenseResponseMapper } from '../mappers/expense-response.mapper';
 import { VerifyFamilyAccessUseCase } from '~common/authorization/application/use-cases/verify-family-access.use-case';
 import { VerifyResourceAccessUseCase } from '~common/authorization/application/use-cases/verify-resource-access.use-case';
 import { FamilyScopeGuard } from '~common/authorization/rest/guards/family-scope.guard';
@@ -142,6 +144,8 @@ describe('ExpenseController authorization', () => {
           provide: 'StorageProvider',
           useValue: { getPresignedDownloadUrl: jest.fn() },
         },
+        ExpenseReceiptUrlResolver,
+        ExpenseResponseMapper,
         {
           provide: RESOURCE_OWNER_REPOSITORY,
           useValue: resourceOwnerRepository,
