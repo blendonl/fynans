@@ -146,7 +146,7 @@ export default function Home() {
       <Header />
       <section className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-7xl items-center gap-12 px-5 py-12 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:px-10 lg:py-20">
         <div className="max-w-2xl">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-muted bg-surface/85 px-3 py-2 text-sm font-medium text-primary-variant shadow-sm">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-muted bg-surface/85 px-3 py-2 text-sm font-medium text-primary-text shadow-sm">
             <Sparkles className="h-4 w-4" aria-hidden />
             Receipt-first expense tracking for shared households
           </div>
@@ -167,7 +167,7 @@ export default function Home() {
             </a>
             <a
               href={loginHref}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-surface/85 px-6 py-3 text-base font-semibold text-text transition hover:border-primary/40 hover:text-primary-variant"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-surface/85 px-6 py-3 text-base font-semibold text-text transition hover:border-primary/40 hover:text-primary-text"
             >
               Log in
               <ChevronRight className="h-4 w-4" aria-hidden />
@@ -190,7 +190,7 @@ export default function Home() {
 
       <section id="features" className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
         <div className="max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-text">
             Built around real purchases
           </p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-text sm:text-4xl">
@@ -216,7 +216,7 @@ export default function Home() {
       <section className="bg-surface/60 py-20">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
           <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-text">
               How it works
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-text sm:text-4xl">
@@ -245,7 +245,7 @@ export default function Home() {
 
       <section className="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:px-10">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-text">
             Designed for shared money
           </p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-text sm:text-4xl">
@@ -305,7 +305,7 @@ export default function Home() {
       <section id="faq" className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-text">
               Questions
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-text sm:text-4xl">
@@ -372,13 +372,13 @@ function Header() {
           <span className="text-xl font-semibold tracking-tight text-text">Fynans</span>
         </a>
         <nav className="hidden items-center gap-8 text-sm font-medium text-text-secondary md:flex">
-          <a href="#features" className="transition hover:text-primary-variant">
+          <a href="#features" className="transition hover:text-primary-text">
             Features
           </a>
-          <a href="#faq" className="transition hover:text-primary-variant">
+          <a href="#faq" className="transition hover:text-primary-text">
             FAQ
           </a>
-          <a href={loginHref} className="transition hover:text-primary-variant">
+          <a href={loginHref} className="transition hover:text-primary-text">
             Log in
           </a>
           <a
@@ -413,22 +413,22 @@ function Footer() {
           <p className="mt-3">Receipt-level expense tracking for shared households.</p>
         </div>
         <nav className="flex flex-wrap gap-5 font-medium">
-          <a href="#features" className="transition hover:text-primary-variant">
+          <a href="#features" className="transition hover:text-primary-text">
             Features
           </a>
-          <a href="#faq" className="transition hover:text-primary-variant">
+          <a href="#faq" className="transition hover:text-primary-text">
             FAQ
           </a>
-          <Link href="/privacy" className="transition hover:text-primary-variant">
+          <Link href="/privacy" className="transition hover:text-primary-text">
             Privacy
           </Link>
-          <Link href="/terms" className="transition hover:text-primary-variant">
+          <Link href="/terms" className="transition hover:text-primary-text">
             Terms
           </Link>
           {contactEmail ? (
             <a
               href={`mailto:${contactEmail}`}
-              className="transition hover:text-primary-variant"
+              className="transition hover:text-primary-text"
             >
               Contact
             </a>

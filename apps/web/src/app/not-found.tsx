@@ -24,7 +24,7 @@ export default function NotFound() {
           <span className="text-xl font-semibold tracking-tight text-text">Fynans</span>
         </div>
 
-        <p className="mt-8 inline-flex items-center gap-2 rounded-full border border-primary-muted bg-surface-variant px-3 py-1.5 text-sm font-semibold text-primary-variant">
+        <p className="mt-8 inline-flex items-center gap-2 rounded-full border border-primary-muted bg-surface-variant px-3 py-1.5 text-sm font-semibold text-primary-text">
           <Compass className="h-4 w-4" aria-hidden />
           Error 404
         </p>
@@ -48,7 +48,7 @@ export default function NotFound() {
         </div>
 
         <nav className="mt-8 border-t border-border-light pt-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-text">
             Or try one of these
           </p>
           <div className="mt-4 flex flex-wrap gap-3 text-sm font-medium">
@@ -56,7 +56,7 @@ export default function NotFound() {
               <Link
                 key={suggestion.href}
                 href={suggestion.href}
-                className="rounded-full border border-border bg-surface px-4 py-2 text-text-secondary transition hover:border-primary/40 hover:text-primary-variant"
+                className="rounded-full border border-border bg-surface px-4 py-2 text-text-secondary transition hover:border-primary/40 hover:text-primary-text"
               >
                 {suggestion.label}
               </Link>
