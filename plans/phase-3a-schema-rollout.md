@@ -15,69 +15,182 @@ Treat every step below as unexercised. Take a full backup first, rehearse the
 whole sequence on a restored copy of production, and time it there before you
 touch the real thing.
 
-## The deploy is not zero-downtime
+## Deploy shape: a rolling deploy, with one short window
 
-The application and the schema cannot be rolled independently across this
-window:
+An earlier revision of this document sequenced the `income.store_id` drop third
+of six and concluded the whole thing needed a maintenance window spanning all
+six migrations plus the application deploy. That conclusion was correct **for
+that ordering** and is now obsolete: the drop has been renumbered from
+`20260909032000` to `20260909036000` so it sorts last, which removes most of the
+window.
 
-- After `20260909032000` the **old** application breaks. `PrismaIncomeRepository.create`
-  still writes `store_id`, and the column is gone.
-- Before `20260909035000` the **new** application breaks. Every financial read
-  filters on `deleted_at`, and the column does not exist yet.
+The window existed only because a destructive migration was sequenced ahead of
+an additive one the new code depends on. Three facts make the drop deferrable:
 
-So between migration 3 and migration 6 there is no version of the code that
-works. Plan a maintenance window covering all six migrations plus the
-application deploy. Do not attempt a rolling deploy.
+1. `income.store_id` is already nullable — `20260909020000` ran
+   `ALTER COLUMN "store_id" DROP NOT NULL`. Old code writing to it keeps working
+   whether or not the drop has run.
+2. The new code never touches it. `prisma-income.repository.ts` on this branch
+   has zero references to `storeId`, and the regenerated Prisma client no longer
+   names the column in any query it emits.
+3. The old code does write it — `storeId: data.storeId!` in its version of the
+   same file — so the column must still exist while old code is serving.
 
-Order of operations:
+Nothing in either version of the application requires the column to be *gone*.
+That makes the drop pure cleanup, safe to run after the new code is live.
 
-1. Back up.
-2. Run the pre-checks in this document. Stop if any of them returns rows.
-3. Stop the application.
-4. `prisma migrate deploy` (applies all six in directory order).
-5. Run the verification queries.
-6. Deploy the new application.
-7. Start the application.
+### The sequence
+
+**Group 1 — apply while the old application keeps serving.**
+
+```
+20260909030000_add_decimal_precision
+20260909031000_add_missing_indexes
+20260909035000_add_soft_delete_and_audit_log
+```
+
+The old code tolerates all three. `deleted_at` and `financial_audit_log` are
+invisible to it — Prisma names every column explicitly, so a client that does not
+know about a column never selects it. The decimal narrowing changes stored
+values but nothing structural. Migration 1 still takes `ACCESS EXCLUSIVE` for the
+duration of its table rewrites, so "keeps serving" means "is not broken by the
+schema", not "is unaffected" — requests against the rewritten tables will block.
+
+**Group 2 — a short window: two migrations, then deploy immediately.**
+
+```
+20260909033000_fix_cascades
+20260909034000_fix_basket_uniqueness
+   → deploy the new application
+```
+
+These two are the remaining exposure. Neither can be deferred past the deploy —
+the new code needs the `basket_family_id_key` unique index to exist before its
+`upsert({ where: { familyId } })` will work — and both change rules the old code
+relies on. Details in "What the old code can still hit" below. Keep the gap
+between applying them and completing the deploy as small as you can.
+
+**Group 3 — after the new application is live and old instances are gone.**
+
+```
+20260909036000_drop_income_store_id
+```
+
+Run this only once nothing writing `store_id` is still running. It is
+irreversible; see its section.
+
+This is a rolling deploy with a short window around group 2, rather than a
+maintenance window spanning six migrations and a deploy.
+
+### What the old code can still hit, during group 2
+
+Two known exposures. Both are narrow, both are real, and neither has been
+exercised against a database.
+
+**`20260909033000` — family deletion breaks.** The migration makes
+`transaction_family_id_fkey` `ON DELETE RESTRICT`. The new code handles that:
+`PrismaFamilyRepository.delete` demotes the family's transactions to
+`scope = PERSONAL, family_id = NULL` in the same transaction before removing the
+family. The old code does not — its version is a bare `family.delete({ where: { id } })`.
+So between this migration and the deploy, the last remaining owner of a family
+that has any transactions cannot leave it: `LeaveFamilyUseCase` deletes the
+family, Postgres rejects it on the foreign key, and the request fails. The data
+stays consistent; the request errors.
+
+**`20260909034000` — basket upserts may break outright.** This is the more
+serious of the two, and worse than "a second family basket would violate the new
+constraint". The migration drops `basket_user_id_scope_key` and
+`basket_family_id_scope_key`. Those are the exact two compound uniques the old
+code's upserts key on:
+
+```ts
+this.prisma.basket.upsert({ where: { personal_basket: { userId, scope: 'PERSONAL' } }, ... })
+this.prisma.basket.upsert({ where: { family_basket: { familyId, scope: 'FAMILY' } }, ... })
+```
+
+If Prisma compiles those to a native `INSERT ... ON CONFLICT (user_id, scope)`,
+Postgres will reject every one of them with *"there is no unique or exclusion
+constraint matching the ON CONFLICT specification"* — meaning all basket opens
+fail, not just duplicate ones. If Prisma instead compiles them to a
+find-then-create pair, they keep working and the only exposure is the narrow one:
+a second family basket for the same family now violates `basket_family_id_key`.
+
+**Which of those two it is could not be determined here — there was no database
+to run it against.** Assume the worse one. If baskets matter during the window,
+either take a real maintenance window for group 2, or verify the emitted SQL on
+a restored copy first:
+
+```sql
+-- with log_statement = 'all', open a basket on the old code and read the log
+```
+
+### Schema drift between group 2 and group 3
+
+After the new application deploys and before `20260909036000` runs, the database
+has an `income.store_id` column that the Prisma schema no longer declares. This
+is harmless at runtime — Prisma names columns explicitly, so a column it does not
+know about is simply never referenced, and the column is nullable so inserts that
+omit it succeed.
+
+It is *not* invisible to tooling. Expect `prisma migrate diff` and `prisma db pull`
+to report the extra column, and `migrate status` to show one pending migration,
+for as long as group 3 is outstanding. That is expected drift, not a problem to
+fix by hand — running `20260909036000` resolves it. Do not "fix" it by
+introspecting the column back into the schema.
 
 ## Apply order
 
-Prisma applies migrations in directory-name order, which is already correct:
+Prisma applies migrations in directory-name order. After the renumbering, the
+on-disk order matches the required order, so a plain `prisma migrate deploy`
+cannot run the destructive drop early by accident:
 
-| # | Migration | Rewrites a table? | Lock | Reversible? |
-|---|---|---|---|---|
-| 1 | `20260909030000_add_decimal_precision` | **yes, nine tables** | `ACCESS EXCLUSIVE` (blocks reads and writes) | schema yes, data **no** |
-| 2 | `20260909031000_add_missing_indexes` | no | `SHARE` (blocks writes, allows reads) | yes |
-| 3 | `20260909032000_drop_income_store_id` | no | `ACCESS EXCLUSIVE`, momentary | **no** |
-| 4 | `20260909033000_fix_cascades` | no | `ACCESS EXCLUSIVE` on `transaction`, scans it | schema yes, backfill **no** |
-| 5 | `20260909034000_fix_basket_uniqueness` | no | `ACCESS EXCLUSIVE` briefly, then index builds | schema yes, backfill **no** |
-| 6 | `20260909035000_add_soft_delete_and_audit_log` | no | `ACCESS EXCLUSIVE`, momentary, then index builds | yes |
+| # | Migration | Group | Rewrites a table? | Lock | Reversible? |
+|---|---|---|---|---|---|
+| 1 | `20260909030000_add_decimal_precision` | 1 | **yes, nine tables** | `ACCESS EXCLUSIVE` (blocks reads and writes) | schema yes, data **no** |
+| 2 | `20260909031000_add_missing_indexes` | 1 | no | `SHARE` (blocks writes, allows reads) | yes |
+| 3 | `20260909035000_add_soft_delete_and_audit_log` | 1 | no | `ACCESS EXCLUSIVE`, momentary, then index builds | yes |
+| 4 | `20260909033000_fix_cascades` | 2 | no | `ACCESS EXCLUSIVE` on `transaction`, scans it | schema yes, backfill **no** |
+| 5 | `20260909034000_fix_basket_uniqueness` | 2 | no | `ACCESS EXCLUSIVE` briefly, then index builds | schema yes, backfill **no** |
+| 6 | `20260909036000_drop_income_store_id` | 3 | no | `ACCESS EXCLUSIVE`, momentary | **no** |
+
+Note that `20260909033000` and `20260909034000` sort *before* `20260909035000` on
+disk, so `migrate deploy` will apply them in that order — which is fine, they are
+mutually independent. If you want group 1 applied on its own first, run
+`migrate deploy` once you are ready for group 2, or apply group 1 by hand and
+`prisma migrate resolve --applied` each one. The renumbering only guarantees the
+destructive drop comes last; it does not split groups 1 and 2 for you.
 
 Why this order:
 
-- **1 before 2.** A `SET DATA TYPE` rewrite rebuilds every index on the table it
-  rewrites. Migration 1 rewrites `transaction`, `expense_item` and `store_item`,
-  which are exactly the tables migration 2 adds indexes to. Running 2 first
-  means building those indexes twice. This is efficiency, not correctness —
-  swapping them produces the same end state, more slowly.
-- **Inside 4, the `UPDATE` must precede the `CHECK`.** `transaction_family_scope_check`
-  asserts `scope <> 'FAMILY' OR family_id IS NOT NULL`. Any row already sitting
-  at `scope = 'FAMILY', family_id = NULL` — which the old `ON DELETE SET NULL`
-  rule created every time a family was deleted — makes `ADD CONSTRAINT` fail and
-  rolls the whole migration back. The `UPDATE` clears them first.
-- **Inside 5, both backfills must precede the unique indexes.** `basket_item.basket_id`
-  is `ON DELETE CASCADE`. If the losing family baskets were deleted before their
-  items were re-parented, those items would be destroyed silently — no error, no
-  warning, just missing shopping-list rows. The `UPDATE` moves the items, then
-  the `DELETE` removes the now-empty baskets.
-- **6 last**, because it is the only one the new application code strictly
-  requires to exist before it can serve a single request.
+- **Decimal precision before the index migration.** A `SET DATA TYPE` rewrite
+  rebuilds every index on the table it rewrites, and migration 1 rewrites exactly
+  the tables migration 2 adds indexes to (`transaction`, `expense_item`,
+  `store_item`). Running them the other way builds those indexes twice. This is
+  efficiency, not correctness — swapping them produces the same end state, more
+  slowly.
+- **The drop last.** Nothing depends on the column being gone, and running it
+  early is what forced a maintenance window in the first place. It is the only
+  irreversible-by-design step in the set, so it goes after everything that might
+  make you want to stop.
+- **Inside `20260909033000`, the `UPDATE` must precede the `CHECK`.**
+  `transaction_family_scope_check` asserts `scope <> 'FAMILY' OR family_id IS NOT NULL`.
+  Any row already sitting at `scope = 'FAMILY', family_id = NULL` — which the old
+  `ON DELETE SET NULL` rule created every time a family was deleted — makes
+  `ADD CONSTRAINT` fail and rolls the whole migration back. The `UPDATE` clears
+  them first.
+- **Inside `20260909034000`, both backfills must precede the unique indexes.**
+  `basket_item.basket_id` is `ON DELETE CASCADE`. If the losing family baskets
+  were deleted before their items were re-parented, those items would be
+  destroyed silently — no error, no warning, just missing shopping-list rows. The
+  `UPDATE` moves the items, then the `DELETE` removes the now-empty baskets.
 
 Each migration file runs in its own transaction. A failure inside one rolls that
 file back; the files applied before it stay applied.
 
 ---
 
-## 1. `20260909030000_add_decimal_precision`
+## 1. `20260909030000_add_decimal_precision` (group 1)
+
 
 ### What it does
 
@@ -190,7 +303,8 @@ digits.** Only a restore from backup does.
 
 ---
 
-## 2. `20260909031000_add_missing_indexes`
+## 2. `20260909031000_add_missing_indexes` (group 1)
+
 
 ### What it does
 
@@ -252,74 +366,102 @@ DROP INDEX "expense_category_id_idx", "expense_store_id_idx", "expense_category_
 
 ---
 
-## 3. `20260909032000_drop_income_store_id`
+## 3. `20260909035000_add_soft_delete_and_audit_log` (group 1)
+
 
 ### What it does
 
-```sql
-ALTER TABLE "income" DROP COLUMN "store_id";
-```
+Creates the `audit_entity` and `audit_action` enums; adds a nullable
+`deleted_at TIMESTAMP(3)` to `transaction`, `expense` and `income`; indexes each;
+creates `financial_audit_log` with five indexes and a `RESTRICT` foreign key from
+`actor_id` to `users.id`.
 
-### This is destructive and it is not reversible
+### Lock and duration
 
-`DROP COLUMN` is a catalog change — it is fast and takes `ACCESS EXCLUSIVE` only
-momentarily — but the values become unreachable through SQL the instant it
-commits. The bytes linger in the heap until the next rewrite, and there is no
-supported way to read them back.
+Adding a nullable column with no default is a catalog-only change — instant,
+with a momentary `ACCESS EXCLUSIVE`, and no table rewrite at any supported
+Postgres version. The three
+`CREATE INDEX` statements on `deleted_at` block writes to those tables while they
+build, same as migration 2. `financial_audit_log` is created empty, so its
+indexes and its foreign key validate against nothing.
 
-**What is lost:** every `income.store_id` value. Because the column was
-`NOT NULL` for most of its life with no foreign key behind it, clients were
-forced to invent a store id for a record that has no store, so most of these
-values are expected to be junk. That is the reason the column is being dropped
-rather than given a relation. It does not change the fact that if any of them
-turn out to have meant something, they are gone.
+No backfill. Existing rows get `deleted_at = NULL`, which is exactly what
+"not deleted" means to the new code.
 
-**Reverting the migration does not bring the data back.** Re-adding the column
-gives you a column full of `NULL`.
+### Behaviour change to be aware of
 
-### Before you run it, take the values
+From the moment the new application deploys, deleting an expense or an income no
+longer removes rows. `DELETE /expenses/:id` sets `deleted_at` on the expense and
+its transaction, and the expense items stay. Anything that counts rows directly
+in SQL — a report, a dashboard query, an export — will start including deleted
+records unless it adds `deleted_at IS NULL`. The application repositories all
+filter; external queries do not.
 
-```sql
-CREATE TABLE phase3a_income_store_id_backup AS
-  SELECT id, store_id FROM "income" WHERE store_id IS NOT NULL;
-
-SELECT count(*) FROM phase3a_income_store_id_backup;
-```
-
-Worth a look before deciding this is fine — how many of those ids point at a
-store that actually exists:
-
-```sql
-SELECT count(*) FILTER (WHERE s.id IS NOT NULL) AS resolvable,
-       count(*) FILTER (WHERE s.id IS NULL)     AS junk
-FROM phase3a_income_store_id_backup b
-LEFT JOIN "store" s ON s.id = b.store_id;
-```
+Two places deliberately still count soft-deleted rows, because the foreign keys
+still point at them and the database would reject the delete anyway:
+`countExpensesByCategory` and the store-deletion guard. A category or store used
+only by a soft-deleted expense therefore remains undeletable.
 
 ### Verify
 
 ```sql
-SELECT count(*) FROM information_schema.columns
-WHERE table_name = 'income' AND column_name = 'store_id';
+SELECT table_name FROM information_schema.columns
+WHERE column_name = 'deleted_at' AND table_name IN ('transaction','expense','income')
+ORDER BY table_name;
+-- expect 3 rows
+
+SELECT to_regclass('financial_audit_log');   -- expect financial_audit_log, not NULL
+
+SELECT indexname FROM pg_indexes WHERE tablename = 'financial_audit_log' ORDER BY indexname;
+-- expect 5 indexes plus financial_audit_log_pkey
+
+SELECT count(*) FROM "transaction" WHERE deleted_at IS NOT NULL;  -- expect 0 immediately after
 ```
 
-Expect `0`.
+After the application has been live a while, confirm the audit log is actually
+being written — approve or reject a pending expense and check:
+
+```sql
+SELECT entity, action, actor_id, created_at
+FROM financial_audit_log ORDER BY created_at DESC LIMIT 20;
+```
+
+An empty table after real traffic means audit writes are failing silently:
+`RecordFinancialAuditUseCase` swallows repository errors by design so it can
+never fail the financial mutation it is auditing. Check the application logs for
+`RecordFinancialAuditUseCase` errors.
 
 ### Rollback
 
-Only meaningful if you took the backup table above.
+Fully reversible as a schema change.
 
 ```sql
-ALTER TABLE "income" ADD COLUMN "store_id" TEXT;
-UPDATE "income" i SET "store_id" = b."store_id"
-FROM phase3a_income_store_id_backup b WHERE b.id = i.id;
+DROP TABLE "financial_audit_log";
+DROP TYPE "audit_action";
+DROP TYPE "audit_entity";
+ALTER TABLE "transaction" DROP COLUMN "deleted_at";
+ALTER TABLE "expense"     DROP COLUMN "deleted_at";
+ALTER TABLE "income"      DROP COLUMN "deleted_at";
 ```
 
-Without that table: unrecoverable short of a full database restore.
+Two things go with it. Every audit row written since the deploy is destroyed —
+that is the record of who approved and edited what, and it exists nowhere else.
+And every soft-deleted expense, income and transaction becomes visible again,
+because the flag that hid them is gone; users will see records they believe they
+deleted. Export both before rolling back:
+
+```sql
+CREATE TABLE phase3a_audit_log_archive AS SELECT * FROM financial_audit_log;
+CREATE TABLE phase3a_soft_deleted_archive AS
+  SELECT 'transaction' AS entity, id, deleted_at FROM "transaction" WHERE deleted_at IS NOT NULL
+  UNION ALL SELECT 'expense', id, deleted_at FROM "expense" WHERE deleted_at IS NOT NULL
+  UNION ALL SELECT 'income',  id, deleted_at FROM "income"  WHERE deleted_at IS NOT NULL;
+```
 
 ---
 
-## 4. `20260909033000_fix_cascades`
+## 4. `20260909033000_fix_cascades` (group 2)
+
 
 ### What it does, in order
 
@@ -428,7 +570,8 @@ state the constraint forbids.
 
 ---
 
-## 5. `20260909034000_fix_basket_uniqueness`
+## 5. `20260909034000_fix_basket_uniqueness` (group 2)
+
 
 ### What it does, in order
 
@@ -547,96 +690,77 @@ UPDATE "basket_item" bi SET basket_id = old.basket_id
 
 ---
 
-## 6. `20260909035000_add_soft_delete_and_audit_log`
+## 6. `20260909036000_drop_income_store_id` (group 3)
+
+Run this last, once the new application is live and no old instance is still
+writing `store_id`. This migration was originally numbered `20260909032000` and
+sequenced third; renumbering it to sort last is what turns this rollout from a
+six-migration maintenance window into a rolling deploy. Nothing depends on the
+column being gone, so there is no hurry — but until it runs, `migrate status`
+will report one pending migration and `migrate diff` will report the drift.
 
 ### What it does
 
-Creates the `audit_entity` and `audit_action` enums; adds a nullable
-`deleted_at TIMESTAMP(3)` to `transaction`, `expense` and `income`; indexes each;
-creates `financial_audit_log` with five indexes and a `RESTRICT` foreign key from
-`actor_id` to `users.id`.
+```sql
+ALTER TABLE "income" DROP COLUMN "store_id";
+```
 
-### Lock and duration
+### This is destructive and it is not reversible
 
-Adding a nullable column with no default is a catalog-only change — instant,
-with a momentary `ACCESS EXCLUSIVE`, and no table rewrite at any supported
-Postgres version. The three
-`CREATE INDEX` statements on `deleted_at` block writes to those tables while they
-build, same as migration 2. `financial_audit_log` is created empty, so its
-indexes and its foreign key validate against nothing.
+`DROP COLUMN` is a catalog change — it is fast and takes `ACCESS EXCLUSIVE` only
+momentarily — but the values become unreachable through SQL the instant it
+commits. The bytes linger in the heap until the next rewrite, and there is no
+supported way to read them back.
 
-No backfill. Existing rows get `deleted_at = NULL`, which is exactly what
-"not deleted" means to the new code.
+**What is lost:** every `income.store_id` value. Because the column was
+`NOT NULL` for most of its life with no foreign key behind it, clients were
+forced to invent a store id for a record that has no store, so most of these
+values are expected to be junk. That is the reason the column is being dropped
+rather than given a relation. It does not change the fact that if any of them
+turn out to have meant something, they are gone.
 
-### Behaviour change to be aware of
+**Reverting the migration does not bring the data back.** Re-adding the column
+gives you a column full of `NULL`.
 
-From the moment the new application deploys, deleting an expense or an income no
-longer removes rows. `DELETE /expenses/:id` sets `deleted_at` on the expense and
-its transaction, and the expense items stay. Anything that counts rows directly
-in SQL — a report, a dashboard query, an export — will start including deleted
-records unless it adds `deleted_at IS NULL`. The application repositories all
-filter; external queries do not.
+### Before you run it, take the values
 
-Two places deliberately still count soft-deleted rows, because the foreign keys
-still point at them and the database would reject the delete anyway:
-`countExpensesByCategory` and the store-deletion guard. A category or store used
-only by a soft-deleted expense therefore remains undeletable.
+```sql
+CREATE TABLE phase3a_income_store_id_backup AS
+  SELECT id, store_id FROM "income" WHERE store_id IS NOT NULL;
+
+SELECT count(*) FROM phase3a_income_store_id_backup;
+```
+
+Worth a look before deciding this is fine — how many of those ids point at a
+store that actually exists:
+
+```sql
+SELECT count(*) FILTER (WHERE s.id IS NOT NULL) AS resolvable,
+       count(*) FILTER (WHERE s.id IS NULL)     AS junk
+FROM phase3a_income_store_id_backup b
+LEFT JOIN "store" s ON s.id = b.store_id;
+```
 
 ### Verify
 
 ```sql
-SELECT table_name FROM information_schema.columns
-WHERE column_name = 'deleted_at' AND table_name IN ('transaction','expense','income')
-ORDER BY table_name;
--- expect 3 rows
-
-SELECT to_regclass('financial_audit_log');   -- expect financial_audit_log, not NULL
-
-SELECT indexname FROM pg_indexes WHERE tablename = 'financial_audit_log' ORDER BY indexname;
--- expect 5 indexes plus financial_audit_log_pkey
-
-SELECT count(*) FROM "transaction" WHERE deleted_at IS NOT NULL;  -- expect 0 immediately after
+SELECT count(*) FROM information_schema.columns
+WHERE table_name = 'income' AND column_name = 'store_id';
 ```
 
-After the application has been live a while, confirm the audit log is actually
-being written — approve or reject a pending expense and check:
-
-```sql
-SELECT entity, action, actor_id, created_at
-FROM financial_audit_log ORDER BY created_at DESC LIMIT 20;
-```
-
-An empty table after real traffic means audit writes are failing silently:
-`RecordFinancialAuditUseCase` swallows repository errors by design so it can
-never fail the financial mutation it is auditing. Check the application logs for
-`RecordFinancialAuditUseCase` errors.
+Expect `0`.
 
 ### Rollback
 
-Fully reversible as a schema change.
+Only meaningful if you took the backup table above.
 
 ```sql
-DROP TABLE "financial_audit_log";
-DROP TYPE "audit_action";
-DROP TYPE "audit_entity";
-ALTER TABLE "transaction" DROP COLUMN "deleted_at";
-ALTER TABLE "expense"     DROP COLUMN "deleted_at";
-ALTER TABLE "income"      DROP COLUMN "deleted_at";
+ALTER TABLE "income" ADD COLUMN "store_id" TEXT;
+UPDATE "income" i SET "store_id" = b."store_id"
+FROM phase3a_income_store_id_backup b WHERE b.id = i.id;
 ```
 
-Two things go with it. Every audit row written since the deploy is destroyed —
-that is the record of who approved and edited what, and it exists nowhere else.
-And every soft-deleted expense, income and transaction becomes visible again,
-because the flag that hid them is gone; users will see records they believe they
-deleted. Export both before rolling back:
-
-```sql
-CREATE TABLE phase3a_audit_log_archive AS SELECT * FROM financial_audit_log;
-CREATE TABLE phase3a_soft_deleted_archive AS
-  SELECT 'transaction' AS entity, id, deleted_at FROM "transaction" WHERE deleted_at IS NOT NULL
-  UNION ALL SELECT 'expense', id, deleted_at FROM "expense" WHERE deleted_at IS NOT NULL
-  UNION ALL SELECT 'income',  id, deleted_at FROM "income"  WHERE deleted_at IS NOT NULL;
-```
+Without that table: unrecoverable short of a full database restore.
 
 ---
 
