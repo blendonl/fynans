@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
+import { TransactionCoreModule } from '../../transaction/core/transaction-core.module';
 import { FamilyCoreModule } from '../../family/core/family-core.module';
 import { PrismaPaymentMethodRepository } from './infrastructure/repositories/prisma-payment-method.repository';
 import { CreatePaymentMethodUseCase } from './application/use-cases/create-payment-method.use-case';
@@ -10,10 +11,15 @@ import { DeletePaymentMethodUseCase } from './application/use-cases/delete-payme
 import { RecalculateBalanceUseCase } from './application/use-cases/recalculate-balance.use-case';
 import { GetBalanceSummaryUseCase } from './application/use-cases/get-balance-summary.use-case';
 import { GetBalanceUseCase } from './application/use-cases/get-balance.use-case';
+import { VerifyPaymentMethodOwnershipUseCase } from './application/use-cases/verify-payment-method-ownership.use-case';
 import { PaymentMethodService } from './application/services/payment-method.service';
 
 @Module({
-  imports: [PrismaModule, FamilyCoreModule],
+  imports: [
+    PrismaModule,
+    FamilyCoreModule,
+    forwardRef(() => TransactionCoreModule),
+  ],
   providers: [
     {
       provide: 'PaymentMethodRepository',
@@ -27,8 +33,21 @@ import { PaymentMethodService } from './application/services/payment-method.serv
     RecalculateBalanceUseCase,
     GetBalanceSummaryUseCase,
     GetBalanceUseCase,
+    VerifyPaymentMethodOwnershipUseCase,
     PaymentMethodService,
   ],
-  exports: [PaymentMethodService, 'PaymentMethodRepository'],
+  exports: [
+    PaymentMethodService,
+    CreatePaymentMethodUseCase,
+    GetPaymentMethodByIdUseCase,
+    ListPaymentMethodsUseCase,
+    UpdatePaymentMethodUseCase,
+    DeletePaymentMethodUseCase,
+    RecalculateBalanceUseCase,
+    GetBalanceSummaryUseCase,
+    GetBalanceUseCase,
+    VerifyPaymentMethodOwnershipUseCase,
+    'PaymentMethodRepository',
+  ],
 })
 export class PaymentMethodCoreModule {}

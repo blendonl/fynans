@@ -9,6 +9,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -17,14 +18,26 @@ import {
   ApiResponse,
   ApiProperty,
 } from '@nestjs/swagger';
-import { IncomeService } from '../../core/application/services/income.service';
-import { CreateIncomeRequestDto } from '../dto/create-income-request.dto';
+import { CreateIncomeUseCase } from '../../core/application/use-cases/create-income.use-case';
+import { RecordIncomeUseCase } from '../../core/application/use-cases/record-income.use-case';
+import { GetIncomeByIdUseCase } from '../../core/application/use-cases/get-income-by-id.use-case';
+import { GetIncomeByTransactionIdUseCase } from '../../core/application/use-cases/get-income-by-transaction-id.use-case';
+import { ListIncomesUseCase } from '../../core/application/use-cases/list-incomes.use-case';
+import { UpdateIncomeUseCase } from '../../core/application/use-cases/update-income.use-case';
+import { DeleteIncomeUseCase } from '../../core/application/use-cases/delete-income.use-case';
+import { RecordIncomeRequestDto } from '../dto/record-income-request.dto';
+import { LinkIncomeRequestDto } from '../dto/link-income-request.dto';
 import { UpdateIncomeRequestDto } from '../dto/update-income-request.dto';
 import { QueryIncomeDto } from '../dto/query-income.dto';
 import { IncomeResponseDto } from '../dto/income-response.dto';
 import { IncomeFilters } from '../../core/application/dto/income-filters.dto';
 import { BaseFilters } from '~common/dto/base-filters.dto';
 import { Pagination } from '~common/dto/pagination.dto';
+import {
+  OwnsResource,
+  RequiresFamilyMembership,
+  ResourceOwnershipGuard,
+} from '~common/authorization';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 
@@ -44,23 +57,48 @@ export class PaginatedIncomeResponseDto {
 
 @ApiTags('Income')
 @ApiBearerAuth('bearer')
+@UseGuards(ResourceOwnershipGuard)
 @Controller('incomes')
 export class IncomeController {
-  constructor(private readonly incomeService: IncomeService) {}
+  constructor(
+    private readonly createIncomeUseCase: CreateIncomeUseCase,
+    private readonly recordIncomeUseCase: RecordIncomeUseCase,
+    private readonly getIncomeByIdUseCase: GetIncomeByIdUseCase,
+    private readonly getIncomeByTransactionIdUseCase: GetIncomeByTransactionIdUseCase,
+    private readonly listIncomesUseCase: ListIncomesUseCase,
+    private readonly updateIncomeUseCase: UpdateIncomeUseCase,
+    private readonly deleteIncomeUseCase: DeleteIncomeUseCase,
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new income' })
+  @ApiOperation({
+    summary: 'Record an income, creating its transaction in the same request',
+  })
   @ApiResponse({ status: 201, type: IncomeResponseDto })
-  async create(
-    @Body() createDto: CreateIncomeRequestDto,
+  async record(
+    @Body() recordDto: RecordIncomeRequestDto,
     @CurrentUser() user: User,
   ) {
-    const income = await this.incomeService.create(createDto.toCoreDto());
+    const income = await this.recordIncomeUseCase.execute(
+      recordDto.toCoreDto(user.id),
+    );
+    return IncomeResponseDto.fromEntity(income);
+  }
+
+  @Post('link')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Attach an income to an existing transaction' })
+  @ApiResponse({ status: 201, type: IncomeResponseDto })
+  async link(@Body() linkDto: LinkIncomeRequestDto, @CurrentUser() user: User) {
+    const income = await this.createIncomeUseCase.execute(
+      linkDto.toCoreDto(user.id),
+    );
     return IncomeResponseDto.fromEntity(income);
   }
 
   @Get()
+  @RequiresFamilyMembership()
   @ApiOperation({ summary: 'List all incomes with pagination and filters' })
   @ApiResponse({ status: 200, type: PaginatedIncomeResponseDto })
   async findAll(@Query() query: QueryIncomeDto, @CurrentUser() user: User) {
@@ -70,11 +108,7 @@ export class IncomeController {
     });
     const pagination = new Pagination(query.page, query.limit);
 
-    const result = await this.incomeService.findAll(
-      user.id,
-      filters,
-      pagination,
-    );
+    const result = await this.listIncomesUseCase.execute(filters, pagination);
 
     return {
       data: IncomeResponseDto.fromEntities(result.data),
@@ -85,41 +119,45 @@ export class IncomeController {
   }
 
   @Get('transaction/:transactionId')
+  @OwnsResource({ resource: 'transaction', key: 'transactionId' })
   @ApiOperation({ summary: 'Get an income by transaction ID' })
   @ApiResponse({ status: 200, type: IncomeResponseDto })
-  async findByTransactionId(
-    @Param('transactionId') transactionId: string,
-    @CurrentUser() user: User,
-  ) {
-    const income = await this.incomeService.findByTransactionId(transactionId, user.id);
+  async findByTransactionId(@Param('transactionId') transactionId: string) {
+    const income =
+      await this.getIncomeByTransactionIdUseCase.execute(transactionId);
     return IncomeResponseDto.fromEntity(income);
   }
 
   @Get(':id')
+  @OwnsResource({ resource: 'income' })
   @ApiOperation({ summary: 'Get an income by ID' })
   @ApiResponse({ status: 200, type: IncomeResponseDto })
-  async findOne(@Param('id') id: string, @CurrentUser() user: User) {
-    const income = await this.incomeService.findById(id, user.id);
+  async findOne(@Param('id') id: string) {
+    const income = await this.getIncomeByIdUseCase.execute(id);
     return IncomeResponseDto.fromEntity(income);
   }
 
   @Put(':id')
+  @OwnsResource({ resource: 'income', ownerOnly: true })
   @ApiOperation({ summary: 'Update an income' })
   @ApiResponse({ status: 200, type: IncomeResponseDto })
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateIncomeRequestDto,
-    @CurrentUser() user: User,
   ) {
-    const updated = await this.incomeService.update(id, updateDto.toCoreDto(), user.id);
+    const updated = await this.updateIncomeUseCase.execute(
+      id,
+      updateDto.toCoreDto(),
+    );
     return IncomeResponseDto.fromEntity(updated);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @OwnsResource({ resource: 'income', ownerOnly: true })
   @ApiOperation({ summary: 'Delete an income' })
   @ApiResponse({ status: 204 })
-  async remove(@Param('id') id: string, @CurrentUser() user: User) {
-    await this.incomeService.delete(id, user.id);
+  async remove(@Param('id') id: string) {
+    await this.deleteIncomeUseCase.execute(id);
   }
 }

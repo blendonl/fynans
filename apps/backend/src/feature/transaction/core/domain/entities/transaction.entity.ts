@@ -1,7 +1,7 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
-import { Transaction as PrismaTransaction } from 'prisma/generated/prisma/client';
 import { TransactionType } from '../value-objects/transaction-type.vo';
 import { TransactionStatus } from '../value-objects/transaction-status.vo';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 export enum TransactionScope {
   PERSONAL = 'PERSONAL',
@@ -41,19 +41,19 @@ export class Transaction {
 
   private validate(props: TransactionProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Transaction ID is required');
+      throw new DomainValidationException('Transaction ID is required');
     }
 
     if (!props.userId || props.userId.trim() === '') {
-      throw new Error('User ID is required');
+      throw new DomainValidationException('User ID is required');
     }
 
     if (!props.type) {
-      throw new Error('Transaction type is required');
+      throw new DomainValidationException('Transaction type is required');
     }
 
     if (!props.value || props.value.toNumber() <= 0) {
-      throw new Error('Transaction value must be positive');
+      throw new DomainValidationException('Transaction value must be positive');
     }
   }
 
@@ -107,41 +107,6 @@ export class Transaction {
 
   get user(): TransactionUser {
     return this.props.user;
-  }
-
-  static fromPrisma(
-    data: PrismaTransaction & {
-      user: { id: string; firstName: string; lastName: string; name: string; image: string | null };
-    },
-  ): Transaction {
-    const user: TransactionUser = {
-      id: data.user.id,
-      firstName:
-        data.user.firstName.length > 0
-          ? data.user.firstName
-          : data.user.name.split(' ')[0],
-      lastName:
-        data.user.lastName.length > 0
-          ? data.user.lastName
-          : data.user.name.split(' ')[0],
-      image: data.user.image,
-    };
-
-    return new Transaction({
-      id: data.id,
-      userId: data.userId,
-      type: data.type as TransactionType,
-      status: data.status as TransactionStatus,
-      value: data.value as Decimal,
-      familyId: data.familyId ?? undefined,
-      paymentMethodId: data.paymentMethodId ?? undefined,
-      rejectionReason: data.rejectionReason ?? undefined,
-      scope: data.scope as any,
-      recordedAt: data.recordedAt,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-      user,
-    });
   }
 
   isPending(): boolean {

@@ -57,10 +57,7 @@ export class PrismaItemRepository implements IItemRepository {
     return item ? ItemMapper.toDomain(item) : null;
   }
 
-  async findBySimilarName(
-    name: string,
-    threshold = 0.3,
-  ): Promise<Item | null> {
+  async findBySimilarName(name: string, threshold = 0.3): Promise<Item | null> {
     const rows = await this.prisma.$queryRaw<
       Array<{
         id: string;
@@ -276,6 +273,14 @@ export class PrismaItemRepository implements IItemRepository {
       create: { userId, itemId },
       update: {},
     });
+  }
+
+  async isLinkedToUser(itemId: string, userId: string): Promise<boolean> {
+    const link = await this.prisma.userItem.findUnique({
+      where: { userId_itemId: { userId, itemId } },
+      select: { userId: true },
+    });
+    return link !== null;
   }
 
   async update(id: string, data: Partial<Item>): Promise<Item> {

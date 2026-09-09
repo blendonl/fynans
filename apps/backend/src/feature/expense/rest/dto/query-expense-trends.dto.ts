@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsDateString,
   IsOptional,
   IsEnum,
@@ -9,7 +10,7 @@ import {
   Min,
   Max,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { TransactionScope } from '../../../transaction/core/domain/entities/transaction.entity';
 
 export enum TrendGroupBy {
@@ -65,4 +66,9 @@ export class QueryExpenseTrendsDto {
   @IsOptional()
   @Type(() => Number)
   maxLabels?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  @Transform(({ value }) => value === true || value === 'true')
+  mine?: boolean;
 }

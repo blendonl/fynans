@@ -67,7 +67,7 @@ export function ScanQueueProvider({ children }: { children: React.ReactNode }) {
           data: { jobId: string; receiptId?: string };
           status: number;
           headers: Headers;
-        }>("/receipts/process", { method: "POST", body: formData });
+        }>("/api/receipt-jobs", { method: "POST", body: formData });
 
         const { jobId, receiptId } = res.data;
 

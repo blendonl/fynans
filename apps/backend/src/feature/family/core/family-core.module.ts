@@ -12,7 +12,7 @@ import { GetFamiliesUseCase } from './application/use-cases/get-families.use-cas
 import { GetPendingInvitationsUseCase } from './application/use-cases/get-pending-invitations.use-case';
 import { GetFamilyWithMembersUseCase } from './application/use-cases/get-family-with-members.use-case';
 import { RemoveFamilyMemberUseCase } from './application/use-cases/remove-family-member.use-case';
-import { VerifyFamilyMembershipUseCase } from './application/use-cases/verify-family-membership.use-case';
+import { ReconcileFamilyBalancesUseCase } from './application/use-cases/reconcile-family-balances.use-case';
 import { GetFamilyPendingInvitationsUseCase } from './application/use-cases/get-family-pending-invitations.use-case';
 import { CancelInvitationUseCase } from './application/use-cases/cancel-invitation.use-case';
 import { FamilyBalanceService } from './application/services/family-balance.service';
@@ -39,15 +39,12 @@ import { UserCoreModule } from '~feature/user/core/user-core.module';
     GetPendingInvitationsUseCase,
     GetFamilyWithMembersUseCase,
     RemoveFamilyMemberUseCase,
-    VerifyFamilyMembershipUseCase,
+    ReconcileFamilyBalancesUseCase,
     GetFamilyPendingInvitationsUseCase,
     CancelInvitationUseCase,
     FamilyBalanceService,
     FamilyService,
   ],
-  exports: [
-    FamilyService,
-    FamilyBalanceService,
-  ],
+  exports: [FamilyService, FamilyBalanceService],
 })
 export class FamilyCoreModule {}

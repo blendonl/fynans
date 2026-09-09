@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { PrismaService } from '~common/prisma/prisma.service';
 import { Pagination, PaginatedResult } from '~common/dto/pagination.dto';
 import {
@@ -91,10 +92,7 @@ export class PrismaStoredReceiptRepository implements IStoredReceiptRepository {
     });
   }
 
-  async verifyOwnership(
-    receiptId: string,
-    userId: string,
-  ): Promise<boolean> {
+  async verifyOwnership(receiptId: string, userId: string): Promise<boolean> {
     const receipt = await this.prisma.receipt.findUnique({
       where: { id: receiptId },
     });
@@ -122,7 +120,11 @@ export class PrismaStoredReceiptRepository implements IStoredReceiptRepository {
   private buildWhereClause(
     filters?: StoredReceiptFilters,
   ): Prisma.ReceiptWhereInput {
-    if (!filters) return {};
+    if (!filters?.userId && !filters?.familyId) {
+      throw new DomainValidationException(
+        'Receipt queries must be scoped to a user or to a verified family',
+      );
+    }
 
     const where: Prisma.ReceiptWhereInput = {};
 

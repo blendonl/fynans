@@ -34,10 +34,7 @@ export interface IItemRepository {
   findById(id: string): Promise<Item | null>;
   findByName(name: string): Promise<Item | null>;
   findBySimilarName(name: string, threshold?: number): Promise<Item | null>;
-  findByNameAndCategory(
-    name: string,
-    categoryId: string,
-  ): Promise<Item | null>;
+  findByNameAndCategory(name: string, categoryId: string): Promise<Item | null>;
   findByCategoryId(
     userId: string,
     categoryId: string,
@@ -49,6 +46,7 @@ export interface IItemRepository {
     pagination?: Pagination,
   ): Promise<PaginatedResult<Item>>;
   linkToUser(itemId: string, userId: string): Promise<void>;
+  isLinkedToUser(itemId: string, userId: string): Promise<boolean>;
   searchWithStores(
     userId: string,
     search?: string,

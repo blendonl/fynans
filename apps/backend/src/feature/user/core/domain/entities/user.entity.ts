@@ -1,9 +1,9 @@
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 interface UserProps {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  balance: number;
   emailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -18,8 +18,10 @@ export class User {
   }
 
   private validate(props: UserProps): void {
-    if (!props.id?.trim()) throw new Error('User ID is required');
-    if (!props.email?.includes('@')) throw new Error('Valid email is required');
+    if (!props.id?.trim())
+      throw new DomainValidationException('User ID is required');
+    if (!props.email?.includes('@'))
+      throw new DomainValidationException('Valid email is required');
     // firstName and lastName can be empty (e.g., OAuth users)
   }
 
@@ -34,9 +36,6 @@ export class User {
   }
   get lastName(): string {
     return this.props.lastName;
-  }
-  get balance(): number {
-    return this.props.balance;
   }
   get emailVerified(): boolean {
     return this.props.emailVerified;

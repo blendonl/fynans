@@ -1,15 +1,25 @@
+import { Injectable } from '@nestjs/common';
 import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-  BadRequestException,
-} from '@nestjs/common';
+  DomainConflictException,
+  DomainUnauthorizedException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import { BetterAuthProvider } from '../../infrastructure/providers/better-auth.provider';
 import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
-import { AuthResultDto } from '../dto/auth-result.dto';
+import { AuthResultDto, AuthSessionDto } from '../dto/auth-result.dto';
 import { User } from '../../../../user/core/domain/entities/user.entity';
+
+const SESSION_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
+
+function toSessionCookies(headers: Headers | null | undefined): string[] {
+  return headers?.getSetCookie() ?? [];
+}
+
+function bearerHeaders(token: string): Headers {
+  return new Headers({ authorization: `Bearer ${token}` });
+}
 
 @Injectable()
 export class AuthService {
@@ -22,30 +32,29 @@ export class AuthService {
     this.betterAuth = betterAuthProvider.auth;
   }
 
-  async register(dto: RegisterDto): Promise<AuthResultDto> {
+  async register(dto: RegisterDto): Promise<AuthSessionDto> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      throw new DomainConflictException('User with this email already exists');
     }
 
-    const response = await this.betterAuth.api.signUpEmail({
+    const { headers, response } = await this.betterAuth.api.signUpEmail({
       body: {
         email: dto.email,
         password: dto.password,
         name: `${dto.firstName} ${dto.lastName}`,
       },
+      returnHeaders: true,
     });
 
     if (!response.token) {
-      throw new BadRequestException('Failed to create user session');
+      throw new DomainValidationException('Failed to create user session');
     }
 
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-
-    return {
+    const result: AuthResultDto = {
       token: response.token,
       user: {
         id: response.user.id,
@@ -53,20 +62,23 @@ export class AuthService {
         firstName: dto.firstName,
         lastName: dto.lastName,
       },
-      expiresAt,
+      expiresAt: new Date(Date.now() + SESSION_LIFETIME_MS),
     };
+
+    return { result, sessionCookies: toSessionCookies(headers) };
   }
 
-  async login(dto: LoginDto): Promise<AuthResultDto> {
-    const response = await this.betterAuth.api.signInEmail({
+  async login(dto: LoginDto): Promise<AuthSessionDto> {
+    const { headers, response } = await this.betterAuth.api.signInEmail({
       body: {
         email: dto.email,
         password: dto.password,
       },
+      returnHeaders: true,
     });
 
     if (!response.token) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new DomainUnauthorizedException('Invalid credentials');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -74,12 +86,10 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new DomainUnauthorizedException('User not found');
     }
 
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-
-    return {
+    const result: AuthResultDto = {
       token: response.token,
       user: {
         id: user.id,
@@ -87,19 +97,34 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
       },
-      expiresAt,
+      expiresAt: new Date(Date.now() + SESSION_LIFETIME_MS),
     };
+
+    return { result, sessionCookies: toSessionCookies(headers) };
   }
 
   async validateSession(token: string): Promise<User> {
-    const response = await this.betterAuth.api.getSession({
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
+    return this.resolveSessionUser(bearerHeaders(token));
+  }
+
+  async validateRequestSession(headers: Headers): Promise<User> {
+    return this.resolveSessionUser(headers);
+  }
+
+  async logout(headers: Headers): Promise<string[]> {
+    const { headers: responseHeaders } = await this.betterAuth.api.signOut({
+      headers,
+      returnHeaders: true,
     });
 
+    return toSessionCookies(responseHeaders);
+  }
+
+  private async resolveSessionUser(headers: Headers): Promise<User> {
+    const response = await this.betterAuth.api.getSession({ headers });
+
     if (!response?.session || !response?.user) {
-      throw new UnauthorizedException('Invalid or expired session');
+      throw new DomainUnauthorizedException('Invalid or expired session');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -107,7 +132,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new DomainUnauthorizedException('User not found');
     }
 
     return {
@@ -115,7 +140,6 @@ export class AuthService {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      balance: Number(user.balance),
       emailVerified: user.emailVerified,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -126,20 +150,11 @@ export class AuthService {
           email: this.email,
           firstName: this.firstName,
           lastName: this.lastName,
-          balance: this.balance,
           emailVerified: this.emailVerified,
           createdAt: this.createdAt,
           updatedAt: this.updatedAt,
         };
       },
     } as User;
-  }
-
-  async logout(token: string): Promise<void> {
-    await this.betterAuth.api.signOut({
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    });
   }
 }

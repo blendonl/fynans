@@ -1,8 +1,8 @@
-import { Prisma } from 'prisma/generated/prisma/client';
 import { ExpenseCategory } from '~feature/expense-category/core';
 import { Store } from '~feature/store/core';
 import { Transaction } from '~feature/transaction/core';
 import { ExpenseItem } from '~feature/expense-item/core/domain/entities/expense-item.entity';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 export interface ExpenseReceiptInfo {
   id: string;
@@ -17,37 +17,12 @@ export interface ExpenseProps {
   transactionId: string;
   storeId: string | null;
   categoryId: string;
+  description: string | null;
   items?: ExpenseItem[];
   receipt?: ExpenseReceiptInfo | null;
   createdAt: Date;
   updatedAt: Date;
 }
-
-type PrismaExpenseWithRelations = Prisma.ExpenseGetPayload<{
-  include: {
-    category: true;
-    store: true;
-    receipt: true;
-    transaction: {
-      include: {
-        user: true;
-      };
-    };
-    items: {
-      include: {
-        item: {
-          include: {
-            item: {
-              include: {
-                category: true;
-              };
-            };
-          };
-        };
-      };
-    };
-  };
-}>;
 
 export class Expense {
   private readonly props: ExpenseProps;
@@ -57,43 +32,25 @@ export class Expense {
     this.props = props;
   }
 
-  static fromPrisma(data: PrismaExpenseWithRelations): Expense {
-    return new Expense({
-      id: data.id,
-      transactionId: data.transactionId,
-      transaction: Transaction.fromPrisma(data.transaction),
-      store: data.store ? Store.fromPrisma(data.store) : null,
-      category: ExpenseCategory.fromPrisma(data.category),
-      storeId: data.storeId,
-      categoryId: data.categoryId,
-      items: data.items.map(ExpenseItem.fromPrisma),
-      receipt: data.receipt
-        ? { id: data.receipt.id, storageKey: data.receipt.storageKey }
-        : null,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-    });
-  }
-
   private validate(props: ExpenseProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Expense ID is required');
+      throw new DomainValidationException('Expense ID is required');
     }
 
     if (!props.transactionId || props.transactionId.trim() === '') {
-      throw new Error('Transaction ID is required');
+      throw new DomainValidationException('Transaction ID is required');
     }
 
     if (!props.categoryId || props.categoryId.trim() === '') {
-      throw new Error('Category ID is required');
+      throw new DomainValidationException('Category ID is required');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 
@@ -111,6 +68,10 @@ export class Expense {
 
   get categoryId(): string {
     return this.props.categoryId;
+  }
+
+  get description(): string | null {
+    return this.props.description;
   }
 
   get createdAt(): Date {
@@ -141,6 +102,16 @@ export class Expense {
     return this.props.receipt ?? null;
   }
 
+  itemsMatching(searchTerm: string): ExpenseItem[] {
+    const needle = searchTerm.trim().toLowerCase();
+    if (needle === '') {
+      return [];
+    }
+    return this.items.filter((item) =>
+      item.itemName.toLowerCase().includes(needle),
+    );
+  }
+
   toJSON() {
     return {
       id: this.props.id,
@@ -150,6 +121,7 @@ export class Expense {
       storeId: this.props.storeId,
       store: this.props.store,
       categoryId: this.props.categoryId,
+      description: this.props.description,
       createdAt: this.props.createdAt,
       updatedAt: this.props.updatedAt,
       items: this.items.map((item) => item.toJSON()),

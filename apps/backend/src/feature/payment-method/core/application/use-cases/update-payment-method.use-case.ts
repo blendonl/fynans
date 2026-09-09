@@ -1,9 +1,8 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { type IPaymentMethodRepository } from '../../domain/repositories/payment-method.repository.interface';
 import { UpdatePaymentMethodDto } from '../dto/update-payment-method.dto';
 import { PaymentMethod } from '../../domain/entities/payment-method.entity';
@@ -25,11 +24,11 @@ export class UpdatePaymentMethodUseCase {
     const paymentMethod = await this.paymentMethodRepository.findById(id);
 
     if (!paymentMethod) {
-      throw new NotFoundException('Payment method not found');
+      throw new DomainNotFoundException('Payment method not found');
     }
 
     if (paymentMethod.userId !== userId) {
-      throw new NotFoundException('Payment method not found');
+      throw new DomainNotFoundException('Payment method not found');
     }
 
     await this.validate(id, userId, dto);
@@ -77,7 +76,7 @@ export class UpdatePaymentMethodUseCase {
         dto.name,
       );
       if (existing && existing.id !== id) {
-        throw new BadRequestException(
+        throw new DomainValidationException(
           'A payment method with this name already exists',
         );
       }

@@ -10,6 +10,9 @@ import { UpdateExpenseDto } from '../dto/update-expense.dto';
 import { type IExpenseCategoryRepository } from '../../../../expense-category/core/domain/repositories/expense-category.repository.interface';
 import { Expense } from '../../domain/entities/expense.entity';
 import { StoreService } from '~feature/store/core';
+import { PaymentMethodService } from '~feature/payment-method/core/application/services/payment-method.service';
+import { FamilyBalanceService } from '~feature/family/core/application/services/family-balance.service';
+import { PrismaService } from '~common/prisma/prisma.service';
 
 @Injectable()
 export class UpdateExpenseUseCase {
@@ -22,6 +25,9 @@ export class UpdateExpenseUseCase {
     private readonly transactionRepository: ITransactionRepository,
     @Inject()
     private readonly storeService: StoreService,
+    private readonly paymentMethodService: PaymentMethodService,
+    private readonly familyBalanceService: FamilyBalanceService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async execute(
@@ -40,6 +46,13 @@ export class UpdateExpenseUseCase {
       throw new DomainForbiddenException('Access denied');
     }
 
+    if (dto.paymentMethodId) {
+      await this.paymentMethodService.verifyOwnership(
+        dto.paymentMethodId,
+        userId,
+      );
+    }
+
     await this.validate(dto);
 
     const updated = await this.expenseRepository.update(id, {
@@ -54,18 +67,36 @@ export class UpdateExpenseUseCase {
     if (dto.paymentMethodId !== undefined)
       txUpdates.paymentMethodId = dto.paymentMethodId ?? undefined;
 
-    if (Object.keys(txUpdates).length > 0) {
+    if (Object.keys(txUpdates).length === 0) {
+      return updated;
+    }
+
+    const previousPaymentMethodId = expense.transaction.paymentMethodId;
+    const familyId = expense.transaction.familyId;
+
+    await this.prisma.runInTransaction(async () => {
       await this.transactionRepository.update(
         expense.transactionId,
         txUpdates as Partial<Transaction>,
       );
+
+      if (familyId) {
+        await this.familyBalanceService.recalculateBalances(familyId);
+      }
+    });
+
+    const affectedPaymentMethods = new Set(
+      [previousPaymentMethodId, dto.paymentMethodId ?? undefined].filter(
+        (paymentMethodId): paymentMethodId is string =>
+          Boolean(paymentMethodId),
+      ),
+    );
+
+    for (const paymentMethodId of affectedPaymentMethods) {
+      await this.paymentMethodService.recalculateBalance(paymentMethodId);
     }
 
-    if (Object.keys(txUpdates).length > 0) {
-      return (await this.expenseRepository.findById(id))!;
-    }
-
-    return updated;
+    return (await this.expenseRepository.findById(id))!;
   }
 
   private async validate(dto: UpdateExpenseDto): Promise<void> {

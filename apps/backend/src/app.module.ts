@@ -1,10 +1,13 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { validateEnv } from './common/config/env.validation';
+import { FamilyVisibilityCacheMiddleware } from './common/helpers/family-visibility.middleware';
 import { BullModule } from '@nestjs/bullmq';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DomainExceptionFilter } from './common/filters/domain-exception.filter';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { AuthCoreModule } from './feature/auth/core/auth-core.module';
 import { AuthRestModule } from './feature/auth/rest/auth-rest.module';
@@ -28,11 +31,16 @@ import { NotificationModule } from './feature/notification/notification.module';
 import { BasketRestModule } from './feature/basket/rest/basket-rest.module';
 import { PaymentMethodRestModule } from './feature/payment-method/rest/payment-method-rest.module';
 import { StorageModule } from './common/storage/storage.module';
+import { AuthorizationModule } from './common/authorization/authorization.module';
+import { FamilyScopeGuard } from './common/authorization/rest/guards/family-scope.guard';
 import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
+    ThrottlerModule.forRoot({
+      throttlers: [{ name: 'default', ttl: 60_000, limit: 120 }],
+    }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -45,6 +53,7 @@ import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
     }),
     PrismaModule,
     StorageModule,
+    AuthorizationModule,
     AuthCoreModule,
     AuthRestModule,
     UserRestModule,
@@ -72,12 +81,24 @@ import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
     AppService,
     {
       provide: APP_FILTER,
-      useClass: DomainExceptionFilter,
+      useClass: AllExceptionsFilter,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    {
+      provide: APP_GUARD,
+      useExisting: FamilyScopeGuard,
+    },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(FamilyVisibilityCacheMiddleware).forRoutes('*path');
+  }
+}

@@ -11,7 +11,9 @@ import {
   IsDateString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
+import { ToBoolean } from '~common/dto/to-boolean.transform';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { CreateExpenseDto } from '../../core/application/dto/create-expense.dto';
 import { CreateExpenseItemDto } from '../../../expense-item/core/application/dto/create-expense-item.dto';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
@@ -63,6 +65,14 @@ export class CreateExpenseRequestDto {
   @IsOptional()
   storeLocation?: string;
 
+  @ApiPropertyOptional({
+    description:
+      'Existing store to attach to, instead of storeName and storeLocation',
+  })
+  @IsUUID()
+  @IsOptional()
+  storeId?: string;
+
   @ApiProperty({ type: [CreateExpenseItemRequestDto], required: false })
   @ValidateNested({ each: true })
   @Type(() => CreateExpenseItemRequestDto)
@@ -82,11 +92,6 @@ export class CreateExpenseRequestDto {
   @IsUUID()
   familyId?: string;
 
-  @ApiProperty({ enum: ['PERSONAL', 'FAMILY'], required: false })
-  @IsOptional()
-  @IsString()
-  scope?: 'PERSONAL' | 'FAMILY';
-
   @IsOptional()
   @IsDateString()
   recordedAt?: string;
@@ -97,7 +102,7 @@ export class CreateExpenseRequestDto {
 
   @IsOptional()
   @IsBoolean()
-  @Type(() => Boolean)
+  @ToBoolean()
   pending?: boolean;
 
   toCoreDto(userId: string): CreateExpenseDto {
@@ -106,8 +111,9 @@ export class CreateExpenseRequestDto {
       categoryId: this.categoryId,
       storeName: this.storeName,
       storeLocation: this.storeLocation,
+      storeId: this.storeId,
       familyId: this.familyId,
-      amount: this.amount,
+      amount: this.amount !== undefined ? new Decimal(this.amount) : undefined,
       note: this.note,
       paymentMethodId: this.paymentMethodId,
       items: this.items?.map(

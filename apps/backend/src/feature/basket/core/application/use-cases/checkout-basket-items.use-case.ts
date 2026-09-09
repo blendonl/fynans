@@ -7,7 +7,9 @@ import { BasketScope } from '../../domain/entities/basket.entity';
 import { CreateExpenseDto } from '../../../../expense/core/application/dto/create-expense.dto';
 import { CreateExpenseItemDto } from '../../../../expense-item/core/application/dto/create-expense-item.dto';
 import { NotificationType } from '../../../../notification/core/domain/value-objects/notification-type.vo';
-import { ExpenseService } from '../../../../expense/core/application/services/expense.service';
+import { CreateExpenseUseCase } from '../../../../expense/core/application/use-cases/create-expense.use-case';
+import { ExpenseTotalCalculator } from '../../../../expense-item/core/domain/services/expense-total.calculator';
+import { PrismaService } from '~common/prisma/prisma.service';
 import {
   DomainNotFoundException,
   DomainForbiddenException,
@@ -22,8 +24,9 @@ export class CheckoutBasketItemsUseCase {
     @Inject('BasketRepository')
     private readonly basketRepository: IBasketRepository,
     private readonly familyService: FamilyService,
-    private readonly expenseService: ExpenseService,
+    private readonly createExpenseUseCase: CreateExpenseUseCase,
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async execute(dto: CheckoutBasketItemsDto): Promise<{ expenseId: string }> {
@@ -53,14 +56,14 @@ export class CheckoutBasketItemsUseCase {
 
     const invalidItems = items.filter((item) => item.basketId !== dto.basketId);
     if (invalidItems.length > 0) {
-      throw new DomainValidationException('Some items do not belong to this basket');
+      throw new DomainValidationException(
+        'Some items do not belong to this basket',
+      );
     }
 
     // Apply item overrides (price/quantity from the checkout dialog)
     if (dto.itemOverrides?.length) {
-      const overrideMap = new Map(
-        dto.itemOverrides.map((o) => [o.id, o]),
-      );
+      const overrideMap = new Map(dto.itemOverrides.map((o) => [o.id, o]));
       for (const item of items) {
         const override = overrideMap.get(item.id);
         if (!override) continue;
@@ -89,46 +92,52 @@ export class CheckoutBasketItemsUseCase {
       );
     }
 
-    const totalValue = items.reduce((sum, item) => {
-      return sum + (item.price! * item.quantity);
-    }, 0);
-
-    // Create expense via ExpenseService (reuse the full flow)
-    const familyId = basket.scope === BasketScope.FAMILY ? basket.familyId : dto.familyId;
-
-    const expense = await this.expenseService.create(
-      new CreateExpenseDto({
-        userId: dto.userId,
-        categoryId: dto.categoryId,
-        storeId: dto.storeId,
-        items: items.map(
-          (item) =>
-            new CreateExpenseItemDto({
-              expenseId: '',
-              categoryId: item.categoryId || dto.categoryId,
-              itemName: item.name,
-              itemPrice: item.price!,
-              quantity: item.quantity,
-            }),
-        ),
-        familyId: familyId ?? undefined,
-        recordedAt: dto.recordedAt,
-      }),
+    const totalValue = ExpenseTotalCalculator.total(
+      items.map((item) => ({ price: item.price!, quantity: item.quantity })),
     );
 
-    await this.basketRepository.removeItemsByIds(dto.itemIds);
+    const familyId =
+      basket.scope === BasketScope.FAMILY ? basket.familyId : dto.familyId;
+
+    const expense = await this.prisma.runInTransaction(async () => {
+      const created = await this.createExpenseUseCase.execute(
+        new CreateExpenseDto({
+          userId: dto.userId,
+          categoryId: dto.categoryId,
+          storeId: dto.storeId,
+          items: items.map(
+            (item) =>
+              new CreateExpenseItemDto({
+                expenseId: '',
+                categoryId: item.categoryId || dto.categoryId,
+                itemName: item.name,
+                itemPrice: item.price!,
+                quantity: item.quantity,
+              }),
+          ),
+          familyId: familyId ?? undefined,
+          recordedAt: dto.recordedAt,
+        }),
+      );
+
+      await this.basketRepository.removeItemsByIds(dto.itemIds);
+
+      return created;
+    });
 
     if (basket.scope === BasketScope.FAMILY && basket.familyId) {
-      await this.notifyFamilyMembersService.notify({
-        familyId: basket.familyId,
-        actorUserId: dto.userId,
-        type: NotificationType.BASKET_ITEMS_BOUGHT,
-        data: {
-          basketId: basket.id,
-          itemCount: items.length,
-          totalAmount: totalValue.toFixed(2),
-        },
-      });
+      await this.prisma.afterCommit(() =>
+        this.notifyFamilyMembersService.notify({
+          familyId: basket.familyId!,
+          actorUserId: dto.userId,
+          type: NotificationType.BASKET_ITEMS_BOUGHT,
+          data: {
+            basketId: basket.id,
+            itemCount: items.length,
+            totalAmount: totalValue.toFixed(2),
+          },
+        }),
+      );
     }
 
     return { expenseId: expense.id };

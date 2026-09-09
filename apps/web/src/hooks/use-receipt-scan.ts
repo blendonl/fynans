@@ -53,7 +53,7 @@ export function useReceiptScan(scanOptions?: ReceiptScanOptions) {
       if (scanOptions?.paymentMethodId) formData.append("paymentMethodId", scanOptions.paymentMethodId);
 
       const res = await customInstance<{ data: { jobId: string; receiptId?: string }; status: number; headers: Headers }>(
-        "/receipts/process",
+        "/api/receipt-jobs",
         { method: "POST", body: formData },
       );
       const { jobId, receiptId } = res.data;

@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/": {
+    "/api": {
       "get": {
         "operationId": "AppController_getHello",
         "parameters": [],
@@ -22,7 +22,7 @@
         ]
       }
     },
-    "/health": {
+    "/api/health": {
       "get": {
         "operationId": "AppController_getHealth",
         "parameters": [],
@@ -147,7 +147,7 @@
         ]
       }
     },
-    "/users/search": {
+    "/api/users/search": {
       "get": {
         "operationId": "UserController_search",
         "parameters": [
@@ -194,7 +194,7 @@
         ]
       }
     },
-    "/users/{id}": {
+    "/api/users/{id}": {
       "get": {
         "operationId": "UserController_findOne",
         "parameters": [
@@ -230,7 +230,7 @@
         ]
       }
     },
-    "/transactions": {
+    "/api/transactions": {
       "post": {
         "operationId": "TransactionController_create",
         "parameters": [],
@@ -269,15 +269,6 @@
       "get": {
         "operationId": "TransactionController_findAll",
         "parameters": [
-          {
-            "name": "userId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
           {
             "name": "type",
             "required": false,
@@ -410,19 +401,10 @@
         ]
       }
     },
-    "/transactions/statistics": {
+    "/api/transactions/statistics": {
       "get": {
         "operationId": "TransactionController_getStatistics",
         "parameters": [
-          {
-            "name": "userId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
           {
             "name": "type",
             "required": false,
@@ -555,19 +537,10 @@
         ]
       }
     },
-    "/transactions/statistics/comparison": {
+    "/api/transactions/statistics/comparison": {
       "get": {
         "operationId": "TransactionController_getStatisticsComparison",
         "parameters": [
-          {
-            "name": "userId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
           {
             "name": "type",
             "required": false,
@@ -700,7 +673,7 @@
         ]
       }
     },
-    "/transactions/{id}": {
+    "/api/transactions/{id}": {
       "get": {
         "operationId": "TransactionController_findOne",
         "parameters": [
@@ -807,7 +780,7 @@
         ]
       }
     },
-    "/notifications": {
+    "/api/notifications": {
       "get": {
         "operationId": "NotificationController_getNotifications",
         "parameters": [
@@ -867,7 +840,7 @@
         ]
       }
     },
-    "/notifications/unread-count": {
+    "/api/notifications/unread-count": {
       "get": {
         "operationId": "NotificationController_getUnreadCount",
         "parameters": [],
@@ -894,7 +867,7 @@
         ]
       }
     },
-    "/notifications/{id}/read": {
+    "/api/notifications/{id}/read": {
       "patch": {
         "operationId": "NotificationController_markAsRead",
         "parameters": [
@@ -923,7 +896,7 @@
         ]
       }
     },
-    "/notifications/mark-all-read": {
+    "/api/notifications/mark-all-read": {
       "post": {
         "operationId": "NotificationController_markAllAsRead",
         "parameters": [],
@@ -943,7 +916,7 @@
         ]
       }
     },
-    "/notifications/{id}": {
+    "/api/notifications/{id}": {
       "delete": {
         "operationId": "NotificationController_deleteNotification",
         "parameters": [
@@ -972,7 +945,7 @@
         ]
       }
     },
-    "/notification-preferences": {
+    "/api/notification-preferences": {
       "get": {
         "operationId": "NotificationPreferenceController_getPreferences",
         "parameters": [],
@@ -1034,7 +1007,7 @@
         ]
       }
     },
-    "/notification-preferences/devices": {
+    "/api/notification-preferences/devices": {
       "post": {
         "operationId": "NotificationPreferenceController_registerDevice",
         "parameters": [],
@@ -1071,7 +1044,7 @@
         ]
       }
     },
-    "/notification-preferences/devices/{token}": {
+    "/api/notification-preferences/devices/{token}": {
       "delete": {
         "operationId": "NotificationPreferenceController_unregisterDevice",
         "parameters": [
@@ -1100,7 +1073,7 @@
         ]
       }
     },
-    "/notification-preferences/web-push/subscribe": {
+    "/api/notification-preferences/web-push/subscribe": {
       "post": {
         "operationId": "NotificationPreferenceController_registerWebPush",
         "parameters": [],
@@ -1155,7 +1128,7 @@
         ]
       }
     },
-    "/notification-preferences/web-push/vapid-key": {
+    "/api/notification-preferences/web-push/vapid-key": {
       "get": {
         "operationId": "NotificationPreferenceController_getVapidKey",
         "parameters": [],
@@ -1182,7 +1155,7 @@
         ]
       }
     },
-    "/expense-categories": {
+    "/api/expense-categories": {
       "post": {
         "operationId": "ExpenseCategoryController_create",
         "parameters": [],
@@ -1277,7 +1250,7 @@
         ]
       }
     },
-    "/expense-categories/tree": {
+    "/api/expense-categories/tree": {
       "get": {
         "operationId": "ExpenseCategoryController_getTree",
         "parameters": [],
@@ -1307,7 +1280,7 @@
         ]
       }
     },
-    "/expense-categories/{id}": {
+    "/api/expense-categories/{id}": {
       "get": {
         "operationId": "ExpenseCategoryController_findOne",
         "parameters": [
@@ -1414,7 +1387,7 @@
         ]
       }
     },
-    "/expense-item-categories": {
+    "/api/expense-item-categories": {
       "post": {
         "operationId": "StoreItemCategoryController_create",
         "parameters": [],
@@ -1501,7 +1474,7 @@
         ]
       }
     },
-    "/expense-item-categories/tree": {
+    "/api/expense-item-categories/tree": {
       "get": {
         "operationId": "StoreItemCategoryController_getTree",
         "parameters": [],
@@ -1531,7 +1504,7 @@
         ]
       }
     },
-    "/expense-item-categories/{id}": {
+    "/api/expense-item-categories/{id}": {
       "get": {
         "operationId": "StoreItemCategoryController_findOne",
         "parameters": [
@@ -1638,7 +1611,7 @@
         ]
       }
     },
-    "/expense-items": {
+    "/api/expense-items": {
       "post": {
         "operationId": "ExpenseItemController_create",
         "parameters": [
@@ -1734,7 +1707,7 @@
         ]
       }
     },
-    "/expense-items/{id}": {
+    "/api/expense-items/{id}": {
       "get": {
         "operationId": "ExpenseItemController_findOne",
         "parameters": [
@@ -1841,7 +1814,7 @@
         ]
       }
     },
-    "/expenses": {
+    "/api/expenses": {
       "post": {
         "operationId": "ExpenseController_create",
         "parameters": [],
@@ -1891,6 +1864,14 @@
                 "PENDING",
                 "REJECTED"
               ]
+            }
+          },
+          {
+            "name": "mine",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -2021,7 +2002,7 @@
         ]
       }
     },
-    "/expenses/statistics": {
+    "/api/expenses/statistics": {
       "get": {
         "operationId": "ExpenseController_getStatistics",
         "parameters": [
@@ -2036,6 +2017,14 @@
                 "PENDING",
                 "REJECTED"
               ]
+            }
+          },
+          {
+            "name": "mine",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -2166,7 +2155,7 @@
         ]
       }
     },
-    "/expenses/trends": {
+    "/api/expenses/trends": {
       "get": {
         "operationId": "ExpenseController_getTrends",
         "parameters": [
@@ -2272,6 +2261,14 @@
               "maximum": 20,
               "type": "number"
             }
+          },
+          {
+            "name": "mine",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -2300,7 +2297,7 @@
         ]
       }
     },
-    "/expenses/{id}": {
+    "/api/expenses/{id}": {
       "get": {
         "operationId": "ExpenseController_findOne",
         "parameters": [
@@ -2407,7 +2404,7 @@
         ]
       }
     },
-    "/expenses/{id}/approve": {
+    "/api/expenses/{id}/approve": {
       "post": {
         "operationId": "ExpenseController_approve",
         "parameters": [
@@ -2443,7 +2440,7 @@
         ]
       }
     },
-    "/expenses/{id}/reject": {
+    "/api/expenses/{id}/reject": {
       "post": {
         "operationId": "ExpenseController_reject",
         "parameters": [
@@ -2489,7 +2486,7 @@
         ]
       }
     },
-    "/expenses/{id}/resubmit": {
+    "/api/expenses/{id}/resubmit": {
       "post": {
         "operationId": "ExpenseController_resubmit",
         "parameters": [
@@ -2535,7 +2532,7 @@
         ]
       }
     },
-    "/expenses/{id}/pending": {
+    "/api/expenses/{id}/pending": {
       "patch": {
         "operationId": "ExpenseController_updatePending",
         "parameters": [
@@ -2581,7 +2578,7 @@
         ]
       }
     },
-    "/stores": {
+    "/api/stores": {
       "post": {
         "operationId": "StoreController_create",
         "parameters": [],
@@ -2670,7 +2667,7 @@
         ]
       }
     },
-    "/stores/{id}": {
+    "/api/stores/{id}": {
       "get": {
         "operationId": "StoreController_findOne",
         "parameters": [
@@ -2777,7 +2774,7 @@
         ]
       }
     },
-    "/store-items": {
+    "/api/store-items": {
       "post": {
         "operationId": "StoreItemController_create",
         "parameters": [],
@@ -2884,7 +2881,7 @@
         ]
       }
     },
-    "/store-items/{id}": {
+    "/api/store-items/{id}": {
       "put": {
         "operationId": "StoreItemController_update",
         "parameters": [
@@ -2957,7 +2954,7 @@
         ]
       }
     },
-    "/stores/{id}/items": {
+    "/api/stores/{id}/items": {
       "get": {
         "operationId": "NestedStoreItemController_findAll",
         "parameters": [
@@ -3037,7 +3034,7 @@
         ]
       }
     },
-    "/income-categories": {
+    "/api/income-categories": {
       "post": {
         "operationId": "IncomeCategoryController_create",
         "parameters": [],
@@ -3124,7 +3121,7 @@
         ]
       }
     },
-    "/income-categories/tree": {
+    "/api/income-categories/tree": {
       "get": {
         "operationId": "IncomeCategoryController_getTree",
         "parameters": [],
@@ -3154,7 +3151,7 @@
         ]
       }
     },
-    "/income-categories/{id}": {
+    "/api/income-categories/{id}": {
       "get": {
         "operationId": "IncomeCategoryController_findOne",
         "parameters": [
@@ -3261,16 +3258,16 @@
         ]
       }
     },
-    "/incomes": {
+    "/api/incomes": {
       "post": {
-        "operationId": "IncomeController_create",
+        "operationId": "IncomeController_record",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateIncomeRequestDto"
+                "$ref": "#/components/schemas/RecordIncomeRequestDto"
               }
             }
           }
@@ -3292,7 +3289,7 @@
             "bearer": []
           }
         ],
-        "summary": "Create a new income",
+        "summary": "Record an income, creating its transaction in the same request",
         "tags": [
           "Income"
         ]
@@ -3441,7 +3438,44 @@
         ]
       }
     },
-    "/incomes/transaction/{transactionId}": {
+    "/api/incomes/link": {
+      "post": {
+        "operationId": "IncomeController_link",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkIncomeRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncomeResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Attach an income to an existing transaction",
+        "tags": [
+          "Income"
+        ]
+      }
+    },
+    "/api/incomes/transaction/{transactionId}": {
       "get": {
         "operationId": "IncomeController_findByTransactionId",
         "parameters": [
@@ -3477,7 +3511,7 @@
         ]
       }
     },
-    "/incomes/{id}": {
+    "/api/incomes/{id}": {
       "get": {
         "operationId": "IncomeController_findOne",
         "parameters": [
@@ -3584,7 +3618,7 @@
         ]
       }
     },
-    "/receipts/process": {
+    "/api/receipt-jobs": {
       "post": {
         "operationId": "ReceiptController_processReceipt",
         "parameters": [],
@@ -3617,11 +3651,11 @@
         ],
         "summary": "Upload and process a receipt image",
         "tags": [
-          "Receipt"
+          "Receipt job"
         ]
       }
     },
-    "/receipts/jobs/{jobId}": {
+    "/api/receipt-jobs/{jobId}": {
       "get": {
         "operationId": "ReceiptController_getJobStatus",
         "parameters": [
@@ -3653,11 +3687,11 @@
         ],
         "summary": "Get receipt processing job status and result",
         "tags": [
-          "Receipt"
+          "Receipt job"
         ]
       }
     },
-    "/receipts/jobs/{jobId}/stream": {
+    "/api/receipt-jobs/{jobId}/stream": {
       "get": {
         "operationId": "ReceiptController_streamJobProgress",
         "parameters": [
@@ -3682,11 +3716,11 @@
         ],
         "summary": "Stream receipt processing job progress via SSE",
         "tags": [
-          "Receipt"
+          "Receipt job"
         ]
       }
     },
-    "/receipts": {
+    "/api/receipts": {
       "get": {
         "operationId": "StoredReceiptController_findAll",
         "parameters": [
@@ -3751,7 +3785,7 @@
         ]
       }
     },
-    "/receipts/{id}": {
+    "/api/receipts/{id}": {
       "get": {
         "operationId": "StoredReceiptController_findOne",
         "parameters": [
@@ -3814,7 +3848,7 @@
         ]
       }
     },
-    "/receipts/{id}/link-expense": {
+    "/api/receipts/{id}/link-expense": {
       "patch": {
         "operationId": "StoredReceiptController_linkToExpense",
         "parameters": [
@@ -3860,7 +3894,7 @@
         ]
       }
     },
-    "/ai/suggest-category": {
+    "/api/ai/suggest-category": {
       "post": {
         "operationId": "AiController_suggestCategory",
         "parameters": [],
@@ -3897,7 +3931,7 @@
         ]
       }
     },
-    "/families": {
+    "/api/families": {
       "post": {
         "operationId": "FamilyController_create",
         "parameters": [],
@@ -3962,12 +3996,12 @@
         ]
       }
     },
-    "/families/{id}": {
+    "/api/families/{familyId}": {
       "get": {
         "operationId": "FamilyController_findOne",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -3998,12 +4032,12 @@
         ]
       }
     },
-    "/families/{id}/invitations": {
+    "/api/families/{familyId}/invitations": {
       "post": {
         "operationId": "FamilyController_inviteMember",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -4044,7 +4078,7 @@
         ]
       }
     },
-    "/families/invitations/pending": {
+    "/api/families/invitations/pending": {
       "get": {
         "operationId": "FamilyController_getPendingInvitations",
         "parameters": [],
@@ -4074,12 +4108,12 @@
         ]
       }
     },
-    "/families/{id}/invitations/pending": {
+    "/api/families/{familyId}/invitations/pending": {
       "get": {
         "operationId": "FamilyController_getFamilyPendingInvitations",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -4113,7 +4147,7 @@
         ]
       }
     },
-    "/families/invitations/{id}/accept": {
+    "/api/families/invitations/{id}/accept": {
       "post": {
         "operationId": "FamilyController_acceptInvitation",
         "parameters": [
@@ -4149,7 +4183,7 @@
         ]
       }
     },
-    "/families/invitations/{id}/decline": {
+    "/api/families/invitations/{id}/decline": {
       "post": {
         "operationId": "FamilyController_declineInvitation",
         "parameters": [
@@ -4178,7 +4212,7 @@
         ]
       }
     },
-    "/families/invitations/{id}/cancel": {
+    "/api/families/invitations/{id}/cancel": {
       "post": {
         "operationId": "FamilyController_cancelInvitation",
         "parameters": [
@@ -4207,12 +4241,41 @@
         ]
       }
     },
-    "/families/{id}/members/{userId}": {
+    "/api/families/{familyId}/members/me": {
+      "delete": {
+        "operationId": "FamilyController_leaveFamily",
+        "parameters": [
+          {
+            "name": "familyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Leave a family",
+        "tags": [
+          "Family"
+        ]
+      }
+    },
+    "/api/families/{familyId}/members/{userId}": {
       "delete": {
         "operationId": "FamilyController_removeMember",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -4244,12 +4307,12 @@
         ]
       }
     },
-    "/families/{id}/members/me": {
-      "delete": {
-        "operationId": "FamilyController_leaveFamily",
+    "/api/families/{familyId}/balances/reconcile": {
+      "post": {
+        "operationId": "FamilyController_reconcileBalances",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -4258,8 +4321,15 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyBalanceReconciliationResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -4267,13 +4337,13 @@
             "bearer": []
           }
         ],
-        "summary": "Leave a family",
+        "summary": "Compare cached family and member balances against the transaction ledger and repair any drift",
         "tags": [
           "Family"
         ]
       }
     },
-    "/items": {
+    "/api/items": {
       "post": {
         "operationId": "ItemController_create",
         "parameters": [],
@@ -4368,7 +4438,7 @@
         ]
       }
     },
-    "/items/with-stores": {
+    "/api/items/with-stores": {
       "get": {
         "operationId": "ItemController_findWithStores",
         "parameters": [
@@ -4420,7 +4490,7 @@
         ]
       }
     },
-    "/items/search": {
+    "/api/items/search": {
       "get": {
         "operationId": "ItemController_search",
         "parameters": [
@@ -4456,7 +4526,7 @@
         ]
       }
     },
-    "/items/{id}": {
+    "/api/items/{id}": {
       "get": {
         "operationId": "ItemController_findOne",
         "parameters": [
@@ -4563,7 +4633,7 @@
         ]
       }
     },
-    "/store-items/{storeItemId}/discounts": {
+    "/api/store-items/{storeItemId}/discounts": {
       "post": {
         "operationId": "StoreItemDiscountController_create",
         "parameters": [
@@ -4659,7 +4729,7 @@
         ]
       }
     },
-    "/store-items/{storeItemId}/discounts/active": {
+    "/api/store-items/{storeItemId}/discounts/active": {
       "get": {
         "operationId": "StoreItemDiscountController_getActive",
         "parameters": [
@@ -4695,7 +4765,7 @@
         ]
       }
     },
-    "/store-items/{storeItemId}/discounts/{id}": {
+    "/api/store-items/{storeItemId}/discounts/{id}": {
       "get": {
         "operationId": "StoreItemDiscountController_findOne",
         "parameters": [
@@ -4826,7 +4896,7 @@
         ]
       }
     },
-    "/store-items/{storeItemId}/discounts/{id}/end": {
+    "/api/store-items/{storeItemId}/discounts/{id}/end": {
       "post": {
         "operationId": "StoreItemDiscountController_end",
         "parameters": [
@@ -4880,7 +4950,7 @@
         ]
       }
     },
-    "/baskets": {
+    "/api/baskets": {
       "get": {
         "operationId": "BasketController_listBaskets",
         "parameters": [],
@@ -4910,7 +4980,7 @@
         ]
       }
     },
-    "/baskets/{basketId}/items": {
+    "/api/baskets/{basketId}/items": {
       "post": {
         "operationId": "BasketController_addItem",
         "parameters": [
@@ -4956,7 +5026,7 @@
         ]
       }
     },
-    "/baskets/items/{itemId}": {
+    "/api/baskets/items/{itemId}": {
       "put": {
         "operationId": "BasketController_updateItem",
         "parameters": [
@@ -5029,7 +5099,7 @@
         ]
       }
     },
-    "/baskets/{basketId}/checkout": {
+    "/api/baskets/{basketId}/checkout": {
       "post": {
         "operationId": "BasketController_checkout",
         "parameters": [
@@ -5075,7 +5145,7 @@
         ]
       }
     },
-    "/payment-methods": {
+    "/api/payment-methods": {
       "post": {
         "operationId": "PaymentMethodController_create",
         "parameters": [],
@@ -5140,7 +5210,7 @@
         ]
       }
     },
-    "/payment-methods/balance": {
+    "/api/payment-methods/balance": {
       "get": {
         "operationId": "PaymentMethodController_getBalance",
         "parameters": [],
@@ -5167,7 +5237,7 @@
         ]
       }
     },
-    "/payment-methods/balance-summary": {
+    "/api/payment-methods/balance-summary": {
       "get": {
         "operationId": "PaymentMethodController_getBalanceSummary",
         "parameters": [],
@@ -5187,7 +5257,7 @@
         ]
       }
     },
-    "/payment-methods/{id}": {
+    "/api/payment-methods/{id}": {
       "get": {
         "operationId": "PaymentMethodController_findOne",
         "parameters": [
@@ -5458,9 +5528,6 @@
           "lastName": {
             "type": "string"
           },
-          "balance": {
-            "type": "string"
-          },
           "emailVerified": {
             "type": "boolean"
           },
@@ -5476,7 +5543,6 @@
           "email",
           "firstName",
           "lastName",
-          "balance",
           "emailVerified",
           "createdAt",
           "updatedAt"
@@ -6465,18 +6531,16 @@
       "CreateExpenseRequestDto": {
         "type": "object",
         "properties": {
+          "storeId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Existing store to attach to, instead of storeName and storeLocation"
+          },
           "items": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreateExpenseItemRequestDto"
             }
-          },
-          "scope": {
-            "type": "string",
-            "enum": [
-              "PERSONAL",
-              "FAMILY"
-            ]
           },
           "categoryId": {
             "type": "string",
@@ -6559,6 +6623,10 @@
             "type": "string",
             "nullable": true
           },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
           "transaction": {
             "$ref": "#/components/schemas/TransactionResponseDto"
           },
@@ -6584,6 +6652,10 @@
             "items": {
               "$ref": "#/components/schemas/ExpenseItemResponseDto"
             }
+          },
+          "total": {
+            "type": "number",
+            "description": "Authoritative expense total, computed server-side"
           },
           "status": {
             "type": "string"
@@ -6612,10 +6684,12 @@
           "transactionId",
           "categoryId",
           "storeId",
+          "description",
           "transaction",
           "category",
           "store",
           "items",
+          "total",
           "status",
           "receiptImages",
           "createdAt",
@@ -7108,26 +7182,38 @@
           }
         }
       },
-      "CreateIncomeRequestDto": {
+      "RecordIncomeRequestDto": {
         "type": "object",
         "properties": {
-          "transactionId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "storeId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "categoryId": {
             "type": "string",
             "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "note": {
+            "type": "string"
+          },
+          "familyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recordedAt": {
+            "type": "string"
+          },
+          "paymentMethodId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pending": {
+            "type": "boolean"
           }
         },
         "required": [
-          "transactionId",
-          "storeId",
-          "categoryId"
+          "categoryId",
+          "amount"
         ]
       },
       "IncomeResponseDto": {
@@ -7140,10 +7226,15 @@
             "type": "string"
           },
           "storeId": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "categoryId": {
             "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
           },
           "transaction": {
             "$ref": "#/components/schemas/TransactionResponseDto"
@@ -7165,8 +7256,30 @@
           "transactionId",
           "storeId",
           "categoryId",
+          "description",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "LinkIncomeRequestDto": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "storeId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "transactionId",
+          "categoryId"
         ]
       },
       "PaginatedIncomeResponseDto": {
@@ -7775,6 +7888,78 @@
           "joinedAt",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "BalanceDriftDto": {
+        "type": "object",
+        "properties": {
+          "cached": {
+            "type": "number"
+          },
+          "computed": {
+            "type": "number"
+          },
+          "drift": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "cached",
+          "computed",
+          "drift"
+        ]
+      },
+      "MemberBalanceDriftDto": {
+        "type": "object",
+        "properties": {
+          "cached": {
+            "type": "number"
+          },
+          "computed": {
+            "type": "number"
+          },
+          "drift": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "cached",
+          "computed",
+          "drift",
+          "userId"
+        ]
+      },
+      "FamilyBalanceReconciliationResponseDto": {
+        "type": "object",
+        "properties": {
+          "familyId": {
+            "type": "string"
+          },
+          "family": {
+            "$ref": "#/components/schemas/BalanceDriftDto"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberBalanceDriftDto"
+            }
+          },
+          "isBalanced": {
+            "type": "boolean"
+          },
+          "repaired": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "familyId",
+          "family",
+          "members",
+          "isBalanced",
+          "repaired"
         ]
       },
       "CreateItemRequestDto": {

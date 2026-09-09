@@ -7,6 +7,7 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { UpdateExpenseDto } from '../../core/application/dto/update-expense.dto';
 
 export class UpdateExpenseRequestDto {
@@ -40,7 +41,7 @@ export class UpdateExpenseRequestDto {
     return new UpdateExpenseDto({
       categoryId: this.categoryId,
       storeId: this.storeId,
-      amount: this.amount,
+      amount: this.amount !== undefined ? new Decimal(this.amount) : undefined,
       note: this.note,
       recordedAt: this.recordedAt ? new Date(this.recordedAt) : undefined,
       paymentMethodId: this.paymentMethodId,

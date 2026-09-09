@@ -26,6 +26,8 @@ import { GetStoredReceiptUseCase } from './application/use-cases/get-stored-rece
 import { DeleteStoredReceiptUseCase } from './application/use-cases/delete-stored-receipt.use-case';
 import { LinkReceiptToExpenseUseCase } from './application/use-cases/link-receipt-to-expense.use-case';
 import { ExpenseCoreModule } from '~feature/expense/core/expense-core.module';
+import { FamilyCoreModule } from '~feature/family/core/family-core.module';
+import { AuthorizationModule } from '~common/authorization';
 import { CopilotTokenService } from '~common/services/copilot-token.service';
 
 @Module({
@@ -35,6 +37,8 @@ import { CopilotTokenService } from '~common/services/copilot-token.service';
     ItemCoreModule,
     StoreItemCategoryCoreModule,
     ExpenseCategoryCoreModule,
+    FamilyCoreModule,
+    AuthorizationModule,
     forwardRef(() => ExpenseCoreModule),
     BullModule.registerQueue({ name: 'receipt-processing' }),
   ],
@@ -69,11 +73,22 @@ import { CopilotTokenService } from '~common/services/copilot-token.service';
         nameNormalizer: ItemNameNormalizerService,
         tokenService: CopilotTokenService,
       ): OpencodeReceiptParser | undefined => {
-        const enabled = config.get<string>('COPILOT_ENABLED', 'true') === 'true';
+        const enabled =
+          config.get<string>('COPILOT_ENABLED', 'true') === 'true';
         if (!enabled) return undefined;
-        return new OpencodeReceiptParser(config, postProcessor, nameNormalizer, tokenService);
+        return new OpencodeReceiptParser(
+          config,
+          postProcessor,
+          nameNormalizer,
+          tokenService,
+        );
       },
-      inject: [ConfigService, ReceiptPostProcessor, ItemNameNormalizerService, CopilotTokenService],
+      inject: [
+        ConfigService,
+        ReceiptPostProcessor,
+        ItemNameNormalizerService,
+        CopilotTokenService,
+      ],
     },
     LlmReceiptParser,
     {

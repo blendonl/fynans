@@ -1,5 +1,6 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { PaymentMethodType } from '../value-objects/payment-method-type.enum';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 export interface PaymentMethodProps {
   id: string;
@@ -23,31 +24,31 @@ export class PaymentMethod {
 
   private validate(props: PaymentMethodProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Payment method ID is required');
+      throw new DomainValidationException('Payment method ID is required');
     }
 
     if (!props.userId || props.userId.trim() === '') {
-      throw new Error('User ID is required');
+      throw new DomainValidationException('User ID is required');
     }
 
     if (!props.name || props.name.trim() === '') {
-      throw new Error('Payment method name is required');
+      throw new DomainValidationException('Payment method name is required');
     }
 
     if (!props.type) {
-      throw new Error('Payment method type is required');
+      throw new DomainValidationException('Payment method type is required');
     }
 
     if (!props.color || props.color.trim() === '') {
-      throw new Error('Payment method color is required');
+      throw new DomainValidationException('Payment method color is required');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 

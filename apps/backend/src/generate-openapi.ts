@@ -8,9 +8,12 @@ dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { applyGlobalPrefix } from './common/config/global-prefix';
 
 async function generate() {
   const app = await NestFactory.create(AppModule, { logger: false });
+
+  applyGlobalPrefix(app);
 
   const config = new DocumentBuilder()
     .setTitle('Fynans API')

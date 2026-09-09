@@ -1,11 +1,21 @@
 export class CreateIncomeDto {
   transactionId: string;
-  storeId: string;
   categoryId: string;
+  userId: string;
+  storeId?: string;
+  description?: string;
 
-  constructor(transactionId: string, storeId: string, categoryId: string) {
+  constructor(
+    transactionId: string,
+    categoryId: string,
+    userId: string,
+    storeId?: string,
+    description?: string,
+  ) {
     this.transactionId = transactionId;
-    this.storeId = storeId;
     this.categoryId = categoryId;
+    this.userId = userId;
+    this.storeId = storeId;
+    this.description = description;
   }
 }

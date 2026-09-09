@@ -2,9 +2,19 @@ import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { PrismaClient } from 'prisma/generated/prisma/client';
 import { bearer } from 'better-auth/plugins';
+import { appEnv, type EnvConfig } from '~common/config/env.validation';
+
+function usesSecureCookies(env: EnvConfig): boolean {
+  return (
+    env.NODE_ENV === 'production' || env.BETTER_AUTH_URL.startsWith('https://')
+  );
+}
 
 export function createBetterAuthInstance(prisma: PrismaClient) {
-  const trustedOrigins = process.env.CORS_ORIGIN?.split(',') || [];
+  const env = appEnv();
+  const trustedOrigins = env.CORS_ORIGIN.split(',');
+  const secureCookies = usesSecureCookies(env);
+  const cookieDomain = env.COOKIE_DOMAIN || undefined;
 
   return betterAuth({
     database: prismaAdapter(prisma, {
@@ -20,14 +30,14 @@ export function createBetterAuthInstance(prisma: PrismaClient) {
     },
     socialProviders: {
       google: {
-        clientId: process.env.GOOGLE_CLIENT_ID || '',
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-        enabled: !!process.env.GOOGLE_CLIENT_ID,
+        clientId: env.GOOGLE_CLIENT_ID,
+        clientSecret: env.GOOGLE_CLIENT_SECRET,
+        enabled: env.GOOGLE_CLIENT_ID !== '',
       },
       apple: {
-        clientId: process.env.APPLE_CLIENT_ID || '',
-        clientSecret: process.env.APPLE_CLIENT_SECRET || '',
-        enabled: !!process.env.APPLE_CLIENT_ID,
+        clientId: env.APPLE_CLIENT_ID,
+        clientSecret: env.APPLE_CLIENT_SECRET,
+        enabled: env.APPLE_CLIENT_ID !== '',
       },
     },
     user: {
@@ -61,20 +71,20 @@ export function createBetterAuthInstance(prisma: PrismaClient) {
     },
     plugins: [bearer()],
     trustedOrigins,
-    secret: process.env.BETTER_AUTH_SECRET,
-    baseURL: process.env.BETTER_AUTH_URL,
+    secret: env.BETTER_AUTH_SECRET,
+    baseURL: env.BETTER_AUTH_URL,
     account: {
       storeStateStrategy: 'cookie',
     },
     advanced: {
       crossSubDomainCookies: {
-        enabled: true,
-        domain: process.env.COOKIE_DOMAIN || undefined,
+        enabled: cookieDomain !== undefined,
+        domain: cookieDomain,
       },
-      useSecureCookies: true,
+      useSecureCookies: secureCookies,
       defaultCookieAttributes: {
-        sameSite: 'none',
-        secure: true,
+        sameSite: secureCookies ? 'none' : 'lax',
+        secure: secureCookies,
       },
     },
   });

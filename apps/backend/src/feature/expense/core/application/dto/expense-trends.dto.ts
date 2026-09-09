@@ -1,10 +1,12 @@
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+
 export class ExpenseTrendPoint {
   date: string;
-  total: number;
+  total: Decimal;
   count: number;
   showLabel: boolean;
 
-  constructor(date: string, total: number, count: number, showLabel = false) {
+  constructor(date: string, total: Decimal, count: number, showLabel = false) {
     this.date = date;
     this.total = total;
     this.count = count;

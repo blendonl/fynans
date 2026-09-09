@@ -22,7 +22,7 @@ export class PrismaBasketRepository implements IBasketRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findByUserId(userId: string): Promise<Basket[]> {
-    const baskets = await this.prisma.basket.findMany({
+    const baskets = await this.prisma.db.basket.findMany({
       where: {
         OR: [
           { userId, scope: 'PERSONAL' },
@@ -43,7 +43,7 @@ export class PrismaBasketRepository implements IBasketRepository {
   }
 
   async findById(id: string): Promise<Basket | null> {
-    const basket = await this.prisma.basket.findUnique({
+    const basket = await this.prisma.db.basket.findUnique({
       where: { id },
       include: BASKET_INCLUDE,
     });
@@ -52,7 +52,7 @@ export class PrismaBasketRepository implements IBasketRepository {
   }
 
   async upsertPersonal(userId: string): Promise<Basket> {
-    const basket = await this.prisma.basket.upsert({
+    const basket = await this.prisma.db.basket.upsert({
       where: {
         personal_basket: {
           userId,
@@ -71,7 +71,7 @@ export class PrismaBasketRepository implements IBasketRepository {
   }
 
   async upsertFamily(familyId: string, userId: string): Promise<Basket> {
-    const basket = await this.prisma.basket.upsert({
+    const basket = await this.prisma.db.basket.upsert({
       where: {
         family_basket: {
           familyId,
@@ -99,7 +99,7 @@ export class PrismaBasketRepository implements IBasketRepository {
     notes?: string | null;
     addedBy: string;
   }): Promise<BasketItem> {
-    const item = await this.prisma.basketItem.create({
+    const item = await this.prisma.db.basketItem.create({
       data: {
         basketId: data.basketId,
         name: data.name,
@@ -134,7 +134,7 @@ export class PrismaBasketRepository implements IBasketRepository {
     if (data.categoryId !== undefined) updateData.categoryId = data.categoryId;
     if (data.notes !== undefined) updateData.notes = data.notes;
 
-    const item = await this.prisma.basketItem.update({
+    const item = await this.prisma.db.basketItem.update({
       where: { id: itemId },
       data: updateData,
       include: {
@@ -146,13 +146,13 @@ export class PrismaBasketRepository implements IBasketRepository {
   }
 
   async removeItem(itemId: string): Promise<void> {
-    await this.prisma.basketItem.delete({
+    await this.prisma.db.basketItem.delete({
       where: { id: itemId },
     });
   }
 
   async findItemById(itemId: string): Promise<BasketItem | null> {
-    const item = await this.prisma.basketItem.findUnique({
+    const item = await this.prisma.db.basketItem.findUnique({
       where: { id: itemId },
       include: {
         category: true,
@@ -163,7 +163,7 @@ export class PrismaBasketRepository implements IBasketRepository {
   }
 
   async findItemsByIds(itemIds: string[]): Promise<BasketItem[]> {
-    const items = await this.prisma.basketItem.findMany({
+    const items = await this.prisma.db.basketItem.findMany({
       where: { id: { in: itemIds } },
       include: {
         category: true,
@@ -174,7 +174,7 @@ export class PrismaBasketRepository implements IBasketRepository {
   }
 
   async removeItemsByIds(itemIds: string[]): Promise<void> {
-    await this.prisma.basketItem.deleteMany({
+    await this.prisma.db.basketItem.deleteMany({
       where: { id: { in: itemIds } },
     });
   }

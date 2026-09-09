@@ -1,6 +1,16 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { cachedVisibleUserIds } from './family-visibility.cache';
 
 export async function getVisibleUserIds(
+  prisma: PrismaService,
+  userId: string,
+): Promise<string[]> {
+  return cachedVisibleUserIds(userId, () =>
+    queryVisibleUserIds(prisma, userId),
+  );
+}
+
+async function queryVisibleUserIds(
   prisma: PrismaService,
   userId: string,
 ): Promise<string[]> {
