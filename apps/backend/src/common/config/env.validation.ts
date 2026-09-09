@@ -18,7 +18,6 @@ const envSchema = z.object({
     .pipe(z.number().int().positive()),
   CORS_ORIGIN: z.string().min(1, 'CORS_ORIGIN is required'),
 
-  // Reporting
   REPORTING_TIMEZONE: z
     .string()
     .optional()
