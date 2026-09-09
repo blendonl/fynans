@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/lib/env";
 import type { ProcessedReceiptResponse } from "@/hooks/use-receipt-scan";
 
 interface JobStreamEvent {
@@ -6,8 +7,6 @@ interface JobStreamEvent {
   error?: string;
   progress?: number;
 }
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 export function getStepLabel(progress: number): string {
   if (progress < 6) return "Loading your items...";
@@ -20,7 +19,7 @@ export async function streamResult(
   onProgress: (progress: number, step: string) => void,
   signal: AbortSignal,
 ): Promise<ProcessedReceiptResponse> {
-  const response = await fetch(`${BASE_URL}/receipts/jobs/${jobId}/stream`, {
+  const response = await fetch(`${API_BASE_URL}/api/receipt-jobs/${jobId}/stream`, {
     headers: { Accept: "text/event-stream" },
     credentials: "include",
     signal,

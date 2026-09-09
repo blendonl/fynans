@@ -13,6 +13,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { BetterAuthProvider } from './feature/auth/core/infrastructure/providers/better-auth.provider';
 import { validateEnv } from './common/config/env.validation';
+import { applyGlobalPrefix } from './common/config/global-prefix';
 
 async function bootstrap() {
   const env = validateEnv();
@@ -30,6 +31,8 @@ async function bootstrap() {
   app.use(helmet());
   app.enableCors(corsOptions);
 
+  applyGlobalPrefix(app);
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -41,7 +44,7 @@ async function bootstrap() {
     }),
   );
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (env.NODE_ENV !== 'production') {
     const swaggerConfig = new DocumentBuilder()
       .setTitle('Fynans API')
       .setDescription('Fynans personal finance API')

@@ -4,6 +4,7 @@ import { PrismaClient } from 'prisma/generated/prisma/client';
 import { Prisma } from 'prisma/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import { appEnv } from '~common/config/env.validation';
 
 type PostCommitHook = () => Promise<unknown>;
 
@@ -25,7 +26,7 @@ export class PrismaService
   private readonly scope = new AsyncLocalStorage<TransactionScope>();
 
   constructor() {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const pool = new Pool({ connectionString: appEnv().DATABASE_URL });
     const adapter = new PrismaPg(pool);
 
     super({
