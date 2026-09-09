@@ -23,10 +23,9 @@ import {
   Zap,
 } from 'lucide-react';
 import { contactEmail } from '@/components/marketing/contact-email';
+import { LandingHeader } from '@/components/marketing/landing-header';
+import { loginHref, registerHref, sectionLinks } from '@/components/marketing/nav-links';
 import { ReceiptPreview } from '@/components/marketing/receipt-preview';
-
-const registerHref = '/register';
-const loginHref = '/login';
 
 export const metadata: Metadata = {
   title: 'Fynans | Receipt-Level Expense Tracking for Households',
@@ -143,7 +142,7 @@ const faqs = [
 export default function Home() {
   return (
     <main className="landing-page overflow-hidden">
-      <Header />
+      <LandingHeader />
       <section className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-7xl items-center gap-12 px-5 py-12 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:px-10 lg:py-20">
         <div className="max-w-2xl">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-muted bg-surface/85 px-3 py-2 text-sm font-medium text-primary-text shadow-sm">
@@ -158,20 +157,20 @@ export default function Home() {
             quantities and prices — and can hold it for your family to approve before it counts.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <a
+            <Link
               href={registerHref}
               className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-base font-semibold text-surface-inverse shadow-lg shadow-primary/20 transition hover:bg-primary-variant"
             >
               Start tracking receipts
               <ArrowRight className="h-4 w-4" aria-hidden />
-            </a>
-            <a
+            </Link>
+            <Link
               href={loginHref}
               className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-surface/85 px-6 py-3 text-base font-semibold text-text transition hover:border-primary/40 hover:text-primary-text"
             >
               Log in
               <ChevronRight className="h-4 w-4" aria-hidden />
-            </a>
+            </Link>
           </div>
           <div className="mt-8 grid max-w-2xl gap-3 sm:grid-cols-3">
             {trustItems.map((item) => (
@@ -338,19 +337,19 @@ export default function Home() {
               </h2>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-              <a
+              <Link
                 href={registerHref}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-primary-light px-6 py-3 font-semibold text-surface-inverse transition hover:bg-primary"
               >
                 Create account
                 <ArrowRight className="h-4 w-4" aria-hidden />
-              </a>
-              <a
+              </Link>
+              <Link
                 href={loginHref}
                 className="inline-flex items-center justify-center rounded-full border border-text-inverse/20 px-6 py-3 font-semibold text-text-inverse transition hover:bg-text-inverse/10"
               >
                 Log in
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -358,44 +357,6 @@ export default function Home() {
 
       <Footer />
     </main>
-  );
-}
-
-function Header() {
-  return (
-    <header className="sticky top-0 z-20 border-b border-border-light bg-background/85 backdrop-blur-xl">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10">
-        <a href="/" className="flex items-center gap-3" aria-label="Fynans home">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-surface-inverse shadow-lg shadow-primary/20">
-            <CircleDollarSign className="h-6 w-6" aria-hidden />
-          </div>
-          <span className="text-xl font-semibold tracking-tight text-text">Fynans</span>
-        </a>
-        <nav className="hidden items-center gap-8 text-sm font-medium text-text-secondary md:flex">
-          <a href="#features" className="transition hover:text-primary-text">
-            Features
-          </a>
-          <a href="#faq" className="transition hover:text-primary-text">
-            FAQ
-          </a>
-          <a href={loginHref} className="transition hover:text-primary-text">
-            Log in
-          </a>
-          <a
-            href={registerHref}
-            className="rounded-full bg-surface-inverse px-5 py-2.5 font-semibold text-text-inverse transition hover:bg-surface-inverse/90"
-          >
-            Get started
-          </a>
-        </nav>
-        <a
-          href={registerHref}
-          className="rounded-full bg-surface-inverse px-4 py-2.5 text-sm font-semibold text-text-inverse transition hover:bg-surface-inverse/90 md:hidden"
-        >
-          Get started
-        </a>
-      </div>
-    </header>
   );
 }
 
@@ -413,12 +374,11 @@ function Footer() {
           <p className="mt-3">Receipt-level expense tracking for shared households.</p>
         </div>
         <nav className="flex flex-wrap gap-5 font-medium">
-          <a href="#features" className="transition hover:text-primary-text">
-            Features
-          </a>
-          <a href="#faq" className="transition hover:text-primary-text">
-            FAQ
-          </a>
+          {sectionLinks.map((link) => (
+            <Link key={link.href} href={link.href} className="transition hover:text-primary-text">
+              {link.label}
+            </Link>
+          ))}
           <Link href="/privacy" className="transition hover:text-primary-text">
             Privacy
           </Link>
