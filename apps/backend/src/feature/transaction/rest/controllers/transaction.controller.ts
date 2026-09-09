@@ -9,8 +9,10 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import { Response } from 'express';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -25,9 +27,11 @@ import { UpdateTransactionUseCase } from '../../core/application/use-cases/updat
 import { DeleteTransactionUseCase } from '../../core/application/use-cases/delete-transaction.use-case';
 import { GetTransactionStatisticsUseCase } from '../../core/application/use-cases/get-transaction-statistics.use-case';
 import { GetTransactionStatisticsComparisonUseCase } from '../../core/application/use-cases/get-transaction-statistics-comparison.use-case';
+import { ExportTransactionsUseCase } from '../../core/application/use-cases/export-transactions.use-case';
 import { CreateTransactionRequestDto } from '../dto/create-transaction-request.dto';
 import { UpdateTransactionRequestDto } from '../dto/update-transaction-request.dto';
 import { QueryTransactionDto } from '../dto/query-transaction.dto';
+import { ExportTransactionQueryDto } from '../dto/export-transaction-query.dto';
 import { TransactionResponseDto } from '../dto/transaction-response.dto';
 import { TransactionStatisticsComparisonResponseDto } from '../dto/transaction-statistics-comparison-response.dto';
 import { TransactionFilters } from '../../core/application/dto/transaction-filters.dto';
@@ -40,6 +44,10 @@ import {
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 import { RecalculateBalanceUseCase } from '../../../payment-method/core/application/use-cases/recalculate-balance.use-case';
+
+function exportFileName(): string {
+  return `fynans-transactions-${new Date().toISOString().slice(0, 10)}.csv`;
+}
 
 export class PaginatedTransactionResponseDto {
   @ApiProperty({ type: () => [TransactionResponseDto] })
@@ -82,6 +90,7 @@ export class TransactionController {
     private readonly deleteTransactionUseCase: DeleteTransactionUseCase,
     private readonly getTransactionStatisticsUseCase: GetTransactionStatisticsUseCase,
     private readonly getTransactionStatisticsComparisonUseCase: GetTransactionStatisticsComparisonUseCase,
+    private readonly exportTransactionsUseCase: ExportTransactionsUseCase,
     private readonly recalculateBalanceUseCase: RecalculateBalanceUseCase,
   ) {}
 
@@ -145,6 +154,41 @@ export class TransactionController {
       page: pagination.page,
       limit: pagination.limit,
     };
+  }
+
+  @Get('export')
+  @RequiresFamilyMembership()
+  @ApiOperation({
+    summary: 'Export transactions as CSV',
+    description:
+      'Streams the transactions the caller can already see through GET /transactions, under the same filters and the same visibility rules. The account is taken from the session, never from a parameter.',
+  })
+  @ApiResponse({ status: 200, description: 'A CSV document' })
+  async export(
+    @Query() query: ExportTransactionQueryDto,
+    @CurrentUser() user: User,
+    @Res() response: Response,
+  ) {
+    response.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    response.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${exportFileName()}"`,
+    );
+
+    try {
+      for await (const chunk of this.exportTransactionsUseCase.execute(
+        this.toFilters(query, user.id),
+      )) {
+        response.write(chunk);
+      }
+    } catch (error) {
+      response.destroy(
+        error instanceof Error ? error : new Error(String(error)),
+      );
+      throw error;
+    }
+
+    response.end();
   }
 
   @Get('statistics')
