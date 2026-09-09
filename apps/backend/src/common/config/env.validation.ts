@@ -47,6 +47,10 @@ const envSchema = z.object({
   // Cookies
   COOKIE_DOMAIN: z.string().optional().default(''),
 
+  // Transactional email (optional - falls back to logging emails to the console)
+  RESEND_API_KEY: z.string().optional().default(''),
+  EMAIL_FROM: z.string().optional().default(''),
+
   // Redis (optional - defaults provided)
   REDIS_HOST: z.string().optional().default('localhost'),
   REDIS_PORT: z
