@@ -15,6 +15,10 @@ function migrationNames(): string[] {
     .sort();
 }
 
+function migrationSql(name: string): string {
+  return readFileSync(join(MIGRATIONS_DIR, name, 'migration.sql'), 'utf8');
+}
+
 function allMigrationSql(): string {
   return readdirSync(MIGRATIONS_DIR)
     .filter((entry) => entry !== 'migration_lock.toml')
@@ -211,6 +215,115 @@ describe('prisma schema', () => {
       const audit = schema('audit.prisma');
       expect(audit).toContain('model FinancialAuditLog {');
       expect(audit).toContain('actor User @relation');
+    });
+  });
+
+  describe('multi-currency columns', () => {
+    const CURRENCY_MIGRATION = '20260909037000_add_currency_columns';
+
+    it('gives a user a reporting currency that is required and undefaulted', () => {
+      const user = schema('schema.prisma').split('model User {')[1];
+      expect(user).toMatch(
+        /reportingCurrency String @map\("reporting_currency"\) @db\.Char\(3\)/,
+      );
+      expect(user).not.toMatch(/reportingCurrency[^\n]*@default/);
+    });
+
+    const nullableCurrencies: [string, RegExp][] = [
+      ['payment-method.prisma', /currency\s+String\?\s+@db\.Char\(3\)/],
+      ['transaction.prisma', /currency\s+String\?\s+@db\.Char\(3\)/],
+    ];
+
+    it.each(nullableCurrencies)(
+      'leaves %s currency nullable',
+      (file, pattern) => {
+        expect(schema(file)).toMatch(pattern);
+      },
+    );
+
+    it('stores the rate at eight decimals and the settled value at two', () => {
+      const transaction = schema('transaction.prisma');
+      expect(transaction).toMatch(
+        /exchangeRate\s+Decimal\?\s+@map\("exchange_rate"\) @db\.Decimal\(18, 8\)/,
+      );
+      expect(transaction).toMatch(
+        /settledValue\s+Decimal\?\s+@map\("settled_value"\) @db\.Decimal\(12, 2\)/,
+      );
+    });
+
+    it('lands between the category re-ownership and the income store drop', () => {
+      const names = migrationNames();
+      expect(names.indexOf(CURRENCY_MIGRATION)).toBeGreaterThan(
+        names.indexOf('20260909036000_own_categories_and_items'),
+      );
+      expect(names.indexOf(CURRENCY_MIGRATION)).toBeLessThan(
+        names.indexOf('20260909040000_drop_income_store_id'),
+      );
+    });
+
+    it('names the deploy-time currency exactly once', () => {
+      expect(migrationSql(CURRENCY_MIGRATION).match(/'EUR'/g)).toHaveLength(1);
+    });
+
+    it('backfills in the order the rollout depends on', () => {
+      const sql = migrationSql(CURRENCY_MIGRATION);
+      const steps = [
+        'SET "reporting_currency" = (SELECT "reporting_currency" FROM "_currency_backfill_parameter")',
+        'UPDATE "payment_method" pm',
+        'UPDATE "transaction" t',
+        'UPDATE "transaction" SET "exchange_rate" = 1;',
+        'UPDATE "transaction" SET "settled_value" = "value";',
+      ].map((step) => sql.indexOf(step));
+
+      expect(steps).not.toContain(-1);
+      expect([...steps].sort((a, b) => a - b)).toEqual(steps);
+    });
+
+    it('derives the dependent currencies from the user row, not the parameter', () => {
+      const sql = migrationSql(CURRENCY_MIGRATION);
+      const derived = sql.match(/SET "currency" = u\."reporting_currency"/g);
+
+      expect(derived).toHaveLength(2);
+      expect(sql.match(/FROM "_currency_backfill_parameter"/g)).toHaveLength(1);
+    });
+
+    it('requires the user reporting currency after the backfill', () => {
+      expect(migrationSql(CURRENCY_MIGRATION)).toContain(
+        'ALTER TABLE "users" ALTER COLUMN "reporting_currency" SET NOT NULL',
+      );
+    });
+
+    const currencyChecks: [string, string][] = [
+      ['users_reporting_currency_check', 'reporting_currency'],
+      ['payment_method_currency_check', 'currency'],
+      ['transaction_currency_check', 'currency'],
+    ];
+
+    it.each(currencyChecks)(
+      'constrains %s to an ISO 4217 shape',
+      (name, column) => {
+        const sql = migrationSql(CURRENCY_MIGRATION);
+        expect(sql).toContain(`CONSTRAINT "${name}"`);
+        expect(sql).toContain(`CHECK ("${column}" ~ '^[A-Z]{3}$')`);
+      },
+    );
+
+    it('pins the exchange rate direction in the migration itself', () => {
+      expect(migrationSql(CURRENCY_MIGRATION)).toContain(
+        'settled_value = value * exchange_rate',
+      );
+    });
+
+    it('states the rule for a transaction with no payment method', () => {
+      const sql = migrationSql(CURRENCY_MIGRATION);
+      expect(sql).toContain('NULL PAYMENT METHOD');
+      expect(sql).toContain('the settlement currency IS the');
+    });
+
+    it('adds no index on any currency column', () => {
+      expect(migrationSql(CURRENCY_MIGRATION)).not.toMatch(
+        /CREATE\s+(UNIQUE\s+)?INDEX[^;]*currency/i,
+      );
     });
   });
 });
