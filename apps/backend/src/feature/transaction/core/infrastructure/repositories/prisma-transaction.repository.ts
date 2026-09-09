@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   ITransactionRepository,
@@ -64,10 +65,9 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     filters?: TransactionFilters,
     pagination?: Pagination,
   ): Promise<PaginatedResult<Transaction>> {
-    const where: Prisma.TransactionWhereInput = {
-      userId,
-      ...this.buildWhereClause(filters),
-    };
+    const where = this.buildWhereClause(
+      new TransactionFilters({ ...filters, userId }),
+    );
 
     const [transactions, total] = await Promise.all([
       this.prisma.transaction.findMany({
@@ -187,13 +187,9 @@ export class PrismaTransactionRepository implements ITransactionRepository {
   }
 
   async getStatistics(
-    userId?: string,
-    filters?: TransactionFilters,
+    filters: TransactionFilters,
   ): Promise<TransactionStatistics> {
-    const where: Prisma.TransactionWhereInput = {
-      ...(userId && { userId }),
-      ...this.buildWhereClause(filters),
-    };
+    const where = this.buildWhereClause(filters);
 
     const confirmedWhere = { ...where, status: PrismaTransactionStatus.CONFIRMED };
 
@@ -229,7 +225,11 @@ export class PrismaTransactionRepository implements ITransactionRepository {
   private buildWhereClause(
     filters?: TransactionFilters,
   ): Prisma.TransactionWhereInput {
-    if (!filters) return {};
+    if (!filters?.userId && !filters?.familyId) {
+      throw new DomainValidationException(
+        'Transaction queries must be scoped to a user or to a verified family',
+      );
+    }
 
     const where: Prisma.TransactionWhereInput = {};
 

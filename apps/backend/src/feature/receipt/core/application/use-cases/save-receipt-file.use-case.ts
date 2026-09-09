@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 import { IStoredReceiptRepository } from '../../domain/repositories/stored-receipt.repository.interface';
 import { IStorageProvider } from '~common/storage/storage-provider.interface';
 import { StoredReceipt } from '../../domain/entities/stored-receipt.entity';
-import { FamilyService } from '~feature/family/core/application/services/family.service';
+import { VerifyFamilyAccessUseCase } from '~common/authorization';
 
 interface SaveReceiptFileInput {
   buffer: Buffer;
@@ -22,12 +22,15 @@ export class SaveReceiptFileUseCase {
     private readonly receiptRepo: IStoredReceiptRepository,
     @Inject('StorageProvider')
     private readonly storage: IStorageProvider,
-    private readonly familyService: FamilyService,
+    private readonly verifyFamilyAccessUseCase: VerifyFamilyAccessUseCase,
   ) {}
 
   async execute(input: SaveReceiptFileInput): Promise<StoredReceipt> {
     if (input.familyId) {
-      await this.familyService.verifyMembership(input.familyId, input.userId);
+      await this.verifyFamilyAccessUseCase.execute(
+        input.familyId,
+        input.userId,
+      );
     }
 
     const id = randomUUID();

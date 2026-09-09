@@ -7,7 +7,7 @@ const outsider = 'outsider-1';
 describe('SaveReceiptFileUseCase', () => {
   let receiptRepo: { create: jest.Mock };
   let storage: { upload: jest.Mock };
-  let familyService: { verifyMembership: jest.Mock };
+  let verifyFamilyAccess: { execute: jest.Mock };
   let useCase: SaveReceiptFileUseCase;
 
   const inputFor = (userId: string, familyId?: string) => ({
@@ -21,8 +21,8 @@ describe('SaveReceiptFileUseCase', () => {
   beforeEach(() => {
     receiptRepo = { create: jest.fn().mockResolvedValue({ id: 'receipt-1' }) };
     storage = { upload: jest.fn().mockResolvedValue(undefined) };
-    familyService = {
-      verifyMembership: jest
+    verifyFamilyAccess = {
+      execute: jest
         .fn()
         .mockImplementation((_familyId: string, userId: string) => {
           if (userId !== member) {
@@ -34,7 +34,7 @@ describe('SaveReceiptFileUseCase', () => {
     useCase = new SaveReceiptFileUseCase(
       receiptRepo as never,
       storage as never,
-      familyService as never,
+      verifyFamilyAccess as never,
     );
   });
 
@@ -50,7 +50,7 @@ describe('SaveReceiptFileUseCase', () => {
   it('stores the receipt for a member of the family', async () => {
     await useCase.execute(inputFor(member, 'family-1'));
 
-    expect(familyService.verifyMembership).toHaveBeenCalledWith(
+    expect(verifyFamilyAccess.execute).toHaveBeenCalledWith(
       'family-1',
       member,
     );
@@ -62,7 +62,7 @@ describe('SaveReceiptFileUseCase', () => {
   it('skips the membership check for a personal receipt', async () => {
     await useCase.execute(inputFor(outsider, undefined));
 
-    expect(familyService.verifyMembership).not.toHaveBeenCalled();
+    expect(verifyFamilyAccess.execute).not.toHaveBeenCalled();
     expect(receiptRepo.create).toHaveBeenCalled();
   });
 });

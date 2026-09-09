@@ -15,14 +15,13 @@ export class GetTransactionStatisticsComparisonUseCase {
   ) {}
 
   async execute(
-    userId?: string,
-    filters?: TransactionFilters,
+    filters: TransactionFilters,
   ): Promise<TransactionStatisticsComparison> {
     const previousFilters = this.buildPreviousFilters(filters);
 
     const [current, previous] = await Promise.all([
-      this.transactionRepository.getStatistics(userId, filters),
-      this.transactionRepository.getStatistics(userId, previousFilters),
+      this.transactionRepository.getStatistics(filters),
+      this.transactionRepository.getStatistics(previousFilters),
     ]);
 
     const comparison = new StatisticsComparison(
@@ -34,8 +33,8 @@ export class GetTransactionStatisticsComparisonUseCase {
     return new TransactionStatisticsComparison(current, previous, comparison);
   }
 
-  private buildPreviousFilters(filters?: TransactionFilters): TransactionFilters {
-    if (!filters?.dateFrom || !filters?.dateTo) {
+  private buildPreviousFilters(filters: TransactionFilters): TransactionFilters {
+    if (!filters.dateFrom || !filters.dateTo) {
       return new TransactionFilters({ ...filters });
     }
 

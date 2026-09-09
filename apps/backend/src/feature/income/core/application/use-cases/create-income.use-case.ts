@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { type IIncomeRepository } from '../../domain/repositories/income.repository.interface';
 import { type IIncomeCategoryRepository } from '../../../../income-category/core/domain/repositories/income-category.repository.interface';
-import { TransactionService } from '../../../../transaction/core/application/services/transaction.service';
+import { GetTransactionByIdUseCase } from '../../../../transaction/core/application/use-cases/get-transaction-by-id.use-case';
 import { NotifyFamilyMembersService } from '~common/services/notify-family-members.service';
 import { CreateIncomeDto } from '../dto/create-income.dto';
 import { Income } from '../../domain/entities/income.entity';
@@ -10,6 +10,7 @@ import {
   DomainValidationException,
   DomainNotFoundException,
   DomainConflictException,
+  DomainForbiddenException,
 } from '~common/exceptions/domain.exceptions';
 
 @Injectable()
@@ -19,17 +20,20 @@ export class CreateIncomeUseCase {
     private readonly incomeRepository: IIncomeRepository,
     @Inject('IncomeCategoryRepository')
     private readonly incomeCategoryRepository: IIncomeCategoryRepository,
-    private readonly transactionService: TransactionService,
+    private readonly getTransactionByIdUseCase: GetTransactionByIdUseCase,
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
   ) {}
 
   async execute(dto: CreateIncomeDto): Promise<Income> {
     await this.validate(dto);
 
-    const transaction = await this.transactionService.findById(
+    const transaction = await this.getTransactionByIdUseCase.execute(
       dto.transactionId,
-      dto.userId,
     );
+
+    if (transaction.userId !== dto.userId) {
+      throw new DomainForbiddenException('Access denied');
+    }
 
     const income = await this.incomeRepository.create({
       transactionId: dto.transactionId,

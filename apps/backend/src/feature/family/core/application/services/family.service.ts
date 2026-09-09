@@ -10,7 +10,6 @@ import { GetFamilyWithMembersUseCase } from '../use-cases/get-family-with-member
 import { RemoveFamilyMemberUseCase } from '../use-cases/remove-family-member.use-case';
 import { GetFamilyPendingInvitationsUseCase } from '../use-cases/get-family-pending-invitations.use-case';
 import { CancelInvitationUseCase } from '../use-cases/cancel-invitation.use-case';
-import { VerifyFamilyMembershipUseCase } from '../use-cases/verify-family-membership.use-case';
 import { CreateFamilyDto } from '../dto/create-family.dto';
 import { InviteMemberDto } from '../dto/invite-member.dto';
 import { Family } from '../../domain/entities/family.entity';
@@ -37,7 +36,6 @@ export class FamilyService {
     private readonly removeFamilyMemberUseCase: RemoveFamilyMemberUseCase,
     private readonly getFamilyPendingInvitationsUseCase: GetFamilyPendingInvitationsUseCase,
     private readonly cancelInvitationUseCase: CancelInvitationUseCase,
-    private readonly verifyFamilyMembershipUseCase: VerifyFamilyMembershipUseCase,
   ) {}
 
   async findById(id: string): Promise<Family | null> {
@@ -59,10 +57,6 @@ export class FamilyService {
     return this.familyRepository.findByUserId(userId);
   }
 
-  async verifyMembership(familyId: string, userId: string): Promise<void> {
-    return this.verifyFamilyMembershipUseCase.execute(familyId, userId);
-  }
-
   async create(dto: CreateFamilyDto, ownerId: string): Promise<Family> {
     return this.createFamilyUseCase.execute(dto, ownerId);
   }
@@ -73,9 +67,8 @@ export class FamilyService {
 
   async findOneWithMembers(
     familyId: string,
-    userId: string,
   ): Promise<FamilyWithMembersAndUsers> {
-    return this.getFamilyWithMembersUseCase.execute(familyId, userId);
+    return this.getFamilyWithMembersUseCase.execute(familyId);
   }
 
   async inviteMember(
@@ -93,9 +86,8 @@ export class FamilyService {
 
   async getFamilyPendingInvitations(
     familyId: string,
-    userId: string,
   ): Promise<FamilyInvitation[]> {
-    return this.getFamilyPendingInvitationsUseCase.execute(familyId, userId);
+    return this.getFamilyPendingInvitationsUseCase.execute(familyId);
   }
 
   async acceptInvitation(

@@ -7,24 +7,15 @@ const admin = 'admin-1';
 const plainMember = 'member-1';
 const outsider = 'outsider-1';
 
-const memberFor = (userId: string) => {
-  const roles: Record<string, FamilyMemberRole> = {
+const roleFor = (userId: string): FamilyMemberRole | null =>
+  ({
     [admin]: FamilyMemberRole.ADMIN,
     [submitter]: FamilyMemberRole.OWNER,
     [plainMember]: FamilyMemberRole.MEMBER,
-  };
-  const role = roles[userId];
-  if (!role) return null;
-  return {
-    userId,
-    role,
-    canManageMembers: () =>
-      role === FamilyMemberRole.OWNER || role === FamilyMemberRole.ADMIN,
-  };
-};
+  })[userId] ?? null;
 
 describe('ExpenseAuthService.verifyApprovalAuthority', () => {
-  let familyService: { findMember: jest.Mock };
+  let familyMembershipRepository: { findRole: jest.Mock };
   let service: ExpenseAuthService;
 
   const familyTransaction = {
@@ -34,14 +25,14 @@ describe('ExpenseAuthService.verifyApprovalAuthority', () => {
   };
 
   beforeEach(() => {
-    familyService = {
-      findMember: jest
+    familyMembershipRepository = {
+      findRole: jest
         .fn()
         .mockImplementation((_familyId: string, userId: string) =>
-          Promise.resolve(memberFor(userId)),
+          Promise.resolve(roleFor(userId)),
         ),
     };
-    service = new ExpenseAuthService(familyService as never);
+    service = new ExpenseAuthService(familyMembershipRepository as never);
   });
 
   it('rejects the submitter approving their own expense even as OWNER', async () => {

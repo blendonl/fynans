@@ -10,10 +10,7 @@ export class GetTransactionStatisticsUseCase {
     private readonly transactionRepository: ITransactionRepository,
   ) { }
 
-  async execute(
-    userId?: string,
-    filters?: TransactionFilters,
-  ): Promise<TransactionStatistics> {
-    return this.transactionRepository.getStatistics(userId, filters);
+  async execute(filters: TransactionFilters): Promise<TransactionStatistics> {
+    return this.transactionRepository.getStatistics(filters);
   }
 }

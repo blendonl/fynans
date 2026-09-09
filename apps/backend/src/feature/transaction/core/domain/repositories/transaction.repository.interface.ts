@@ -24,8 +24,5 @@ export interface ITransactionRepository {
   update(id: string, data: Partial<Transaction>): Promise<Transaction>;
   updateStatus(id: string, status: TransactionStatus, rejectionReason?: string): Promise<Transaction>;
   delete(id: string): Promise<void>;
-  getStatistics(
-    userId?: string,
-    filters?: TransactionFilters,
-  ): Promise<TransactionStatistics>;
+  getStatistics(filters: TransactionFilters): Promise<TransactionStatistics>;
 }

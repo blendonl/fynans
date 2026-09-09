@@ -2,7 +2,6 @@ import {
   Injectable,
   Inject,
   NotFoundException,
-  ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
@@ -28,21 +27,6 @@ export class RemoveFamilyMemberUseCase {
     targetUserId: string,
     requestingUserId: string,
   ): Promise<void> {
-    const requestingMember = await this.familyRepository.findMember(
-      familyId,
-      requestingUserId,
-    );
-
-    if (!requestingMember) {
-      throw new NotFoundException('You are not a member of this family');
-    }
-
-    if (!requestingMember.canManageMembers()) {
-      throw new ForbiddenException(
-        'Only owners and admins can remove family members',
-      );
-    }
-
     if (targetUserId === requestingUserId) {
       throw new BadRequestException(
         'You cannot remove yourself. Use the leave family endpoint instead.',

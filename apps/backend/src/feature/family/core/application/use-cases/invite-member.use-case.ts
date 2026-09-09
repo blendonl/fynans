@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { DomainForbiddenException, DomainConflictException } from '~common/exceptions/domain.exceptions';
+import { DomainConflictException } from '~common/exceptions/domain.exceptions';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
 import { IFamilyInvitationRepository } from '../../domain/repositories/family-invitation.repository.interface';
 import { InviteMemberDto } from '../dto/invite-member.dto';
@@ -31,17 +31,6 @@ export class InviteMemberUseCase {
     dto: InviteMemberDto,
     inviterId: string,
   ): Promise<FamilyInvitation> {
-    const member = await this.familyRepository.findMember(
-      dto.familyId,
-      inviterId,
-    );
-    if (!member) {
-      throw new DomainForbiddenException('Not a family member');
-    }
-    if (!member.canManageMembers()) {
-      throw new DomainForbiddenException('No permission to invite members');
-    }
-
     const inviteeUser = await this.userService.findByEmail(dto.inviteeEmail);
     if (inviteeUser) {
       const existingMember = await this.familyRepository.findMember(
