@@ -1,9 +1,8 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
 import { CreateNotificationUseCase } from '../../../../notification/core/application/use-cases/create-notification.use-case';
 import {
@@ -28,7 +27,7 @@ export class RemoveFamilyMemberUseCase {
     requestingUserId: string,
   ): Promise<void> {
     if (targetUserId === requestingUserId) {
-      throw new BadRequestException(
+      throw new DomainValidationException(
         'You cannot remove yourself. Use the leave family endpoint instead.',
       );
     }
@@ -39,13 +38,13 @@ export class RemoveFamilyMemberUseCase {
     );
 
     if (!targetMember) {
-      throw new NotFoundException(
+      throw new DomainNotFoundException(
         `User with ID ${targetUserId} is not a member of this family`,
       );
     }
 
     if (targetMember.isOwner()) {
-      throw new BadRequestException('The family owner cannot be removed');
+      throw new DomainValidationException('The family owner cannot be removed');
     }
 
     await this.familyRepository.removeMember(familyId, targetUserId);

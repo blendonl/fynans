@@ -2,6 +2,7 @@ import { ExpenseCategory } from '~feature/expense-category/core';
 import { Store } from '~feature/store/core';
 import { Transaction } from '~feature/transaction/core';
 import { ExpenseItem } from '~feature/expense-item/core/domain/entities/expense-item.entity';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 export interface ExpenseReceiptInfo {
   id: string;
@@ -32,23 +33,23 @@ export class Expense {
 
   private validate(props: ExpenseProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Expense ID is required');
+      throw new DomainValidationException('Expense ID is required');
     }
 
     if (!props.transactionId || props.transactionId.trim() === '') {
-      throw new Error('Transaction ID is required');
+      throw new DomainValidationException('Transaction ID is required');
     }
 
     if (!props.categoryId || props.categoryId.trim() === '') {
-      throw new Error('Category ID is required');
+      throw new DomainValidationException('Category ID is required');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 

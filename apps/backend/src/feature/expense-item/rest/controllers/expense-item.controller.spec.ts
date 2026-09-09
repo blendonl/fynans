@@ -7,7 +7,8 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
-import { DomainExceptionFilter } from '~common/filters/domain-exception.filter';
+import { AllExceptionsFilter } from '~common/filters/all-exceptions.filter';
+import { withoutCorrelationId } from '~common/filters/testing/without-correlation-id';
 import { VerifyResourceAccessUseCase } from '~common/authorization/application/use-cases/verify-resource-access.use-case';
 import { ResourceOwnershipGuard } from '~common/authorization/rest/guards/resource-ownership.guard';
 import {
@@ -149,7 +150,7 @@ describe('ExpenseItemController authorization', () => {
       (req as Request & { user: { id: string } }).user = { id: currentUserId };
       next();
     });
-    app.useGlobalFilters(new DomainExceptionFilter());
+    app.useGlobalFilters(new AllExceptionsFilter());
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -228,7 +229,10 @@ describe('ExpenseItemController authorization', () => {
       );
 
       expect(unknown.status).toBe(forbidden.status);
-      expect(unknown.body).toEqual(forbidden.body);
+      expect(withoutCorrelationId(unknown.body)).toEqual(
+        withoutCorrelationId(forbidden.body),
+      );
+      expect(unknown.body.correlationId).toEqual(expect.any(String));
     });
   });
 

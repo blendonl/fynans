@@ -1,6 +1,7 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { TransactionType } from '../value-objects/transaction-type.vo';
 import { TransactionStatus } from '../value-objects/transaction-status.vo';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 export enum TransactionScope {
   PERSONAL = 'PERSONAL',
@@ -40,19 +41,19 @@ export class Transaction {
 
   private validate(props: TransactionProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Transaction ID is required');
+      throw new DomainValidationException('Transaction ID is required');
     }
 
     if (!props.userId || props.userId.trim() === '') {
-      throw new Error('User ID is required');
+      throw new DomainValidationException('User ID is required');
     }
 
     if (!props.type) {
-      throw new Error('Transaction type is required');
+      throw new DomainValidationException('Transaction type is required');
     }
 
     if (!props.value || props.value.toNumber() <= 0) {
-      throw new Error('Transaction value must be positive');
+      throw new DomainValidationException('Transaction value must be positive');
     }
   }
 
