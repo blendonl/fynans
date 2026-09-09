@@ -34,12 +34,23 @@ const SESSION_COOKIE_NAMES = [
 ];
 
 export function sessionCacheKey(request: Request): string | null {
-  const [scheme, token] = request.headers.authorization?.split(' ') ?? [];
+  const bearer = bearerToken(request);
+  const cookie = sessionCookieValue(request);
 
-  if (scheme === 'Bearer' && token) {
-    return token;
+  if (!bearer && !cookie) {
+    return null;
   }
 
+  return `cookie=${cookie ?? ''}|bearer=${bearer ?? ''}`;
+}
+
+function bearerToken(request: Request): string | null {
+  const [scheme, token] = request.headers.authorization?.split(' ') ?? [];
+
+  return scheme === 'Bearer' && token ? token : null;
+}
+
+function sessionCookieValue(request: Request): string | null {
   const cookieHeader = request.headers.cookie;
 
   if (!cookieHeader) {
