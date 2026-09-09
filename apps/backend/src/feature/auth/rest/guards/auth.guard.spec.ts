@@ -7,6 +7,7 @@ import { SessionCacheService } from '../../core/application/services/session-cac
 import { AuthGuard } from './auth.guard';
 
 const TOKEN = 'a-session-token';
+const COOKIE_VALUE = 'a-session-cookie-value';
 
 const user = new User({
   id: 'user-1',
@@ -39,19 +40,26 @@ function authenticatedRequest(): FakeRequest {
   return { method: 'GET', headers: { authorization: `Bearer ${TOKEN}` } };
 }
 
+function cookieRequest(name: string): FakeRequest {
+  return {
+    method: 'GET',
+    headers: { cookie: `other=1; ${name}=${COOKIE_VALUE}; another=2` },
+  };
+}
+
 describe('AuthGuard session caching', () => {
   let guard: AuthGuard;
-  let validateSession: jest.Mock;
+  let validateRequestSession: jest.Mock;
   let cacheGet: jest.Mock;
   let cacheSet: jest.Mock;
 
   beforeEach(() => {
-    validateSession = jest.fn().mockResolvedValue(user);
+    validateRequestSession = jest.fn().mockResolvedValue(user);
     cacheGet = jest.fn().mockResolvedValue(null);
     cacheSet = jest.fn().mockResolvedValue(undefined);
 
     guard = new AuthGuard(
-      { validateSession } as unknown as AuthService,
+      { validateRequestSession } as unknown as AuthService,
       { get: cacheGet, set: cacheSet } as unknown as SessionCacheService,
       new Reflector(),
     );
@@ -62,7 +70,7 @@ describe('AuthGuard session caching', () => {
 
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
 
-    expect(validateSession).toHaveBeenCalledWith(TOKEN);
+    expect(validateRequestSession).toHaveBeenCalled();
     expect(cacheSet).toHaveBeenCalledWith(TOKEN, user);
     expect(request.user).toBe(user);
   });
@@ -73,7 +81,7 @@ describe('AuthGuard session caching', () => {
 
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
 
-    expect(validateSession).not.toHaveBeenCalled();
+    expect(validateRequestSession).not.toHaveBeenCalled();
     expect(cacheSet).not.toHaveBeenCalled();
     expect(request.user).toBe(user);
   });
@@ -85,11 +93,65 @@ describe('AuthGuard session caching', () => {
 
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
 
-    expect(validateSession).toHaveBeenCalledWith(TOKEN);
+    expect(validateRequestSession).toHaveBeenCalled();
+  });
+
+  it('authenticates a cookie-only request and caches it under the cookie value', async () => {
+    const request = cookieRequest('better-auth.session_token');
+
+    await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
+
+    expect(validateRequestSession).toHaveBeenCalled();
+    expect(cacheSet).toHaveBeenCalledWith(COOKIE_VALUE, user);
+    expect(request.user).toBe(user);
+  });
+
+  it('recognises the secure cookie name', async () => {
+    const request = cookieRequest('__Secure-better-auth.session_token');
+
+    await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
+
+    expect(cacheSet).toHaveBeenCalledWith(COOKIE_VALUE, user);
+  });
+
+  it('serves a cookie-authenticated hit from the cache', async () => {
+    cacheGet.mockResolvedValue(user);
+    const request = cookieRequest('better-auth.session_token');
+
+    await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
+
+    expect(cacheGet).toHaveBeenCalledWith(COOKIE_VALUE);
+    expect(validateRequestSession).not.toHaveBeenCalled();
+  });
+
+  it('prefers the bearer token over a cookie when both are present', async () => {
+    const request: FakeRequest = {
+      method: 'GET',
+      headers: {
+        authorization: `Bearer ${TOKEN}`,
+        cookie: `better-auth.session_token=${COOKIE_VALUE}`,
+      },
+    };
+
+    await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
+
+    expect(cacheSet).toHaveBeenCalledWith(TOKEN, user);
+  });
+
+  it('still validates when a cookie carries no recognised session name', async () => {
+    const request: FakeRequest = {
+      method: 'GET',
+      headers: { cookie: 'unrelated=1' },
+    };
+
+    await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
+
+    expect(validateRequestSession).toHaveBeenCalled();
+    expect(cacheSet).not.toHaveBeenCalled();
   });
 
   it('does not cache a session better-auth rejected', async () => {
-    validateSession.mockRejectedValue(new Error('expired'));
+    validateRequestSession.mockRejectedValue(new Error('expired'));
 
     await expect(
       guard.canActivate(contextFor(authenticatedRequest())),
@@ -98,7 +160,7 @@ describe('AuthGuard session caching', () => {
     expect(cacheSet).not.toHaveBeenCalled();
   });
 
-  it('rejects a request with no bearer token before consulting the cache', async () => {
+  it('rejects a request with no credentials before consulting the cache', async () => {
     await expect(
       guard.canActivate(contextFor({ method: 'GET', headers: {} })),
     ).rejects.toBeInstanceOf(UnauthorizedException);

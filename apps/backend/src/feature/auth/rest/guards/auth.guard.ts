@@ -10,6 +10,11 @@ import { AuthService } from '../../core/application/services/auth.service';
 import { SessionCacheService } from '../../core/application/services/session-cache.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { AuthenticatedRequest } from '../../../../common/types/authenticated-request';
+import {
+  hasSessionCredentials,
+  sessionCacheKey,
+  toSessionHeaders,
+} from '../http/session-http';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -31,34 +36,36 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    const token = this.extractTokenFromHeader(request);
-
-    if (!token) {
+    if (!hasSessionCredentials(request)) {
       throw new UnauthorizedException('Authentication required');
     }
 
-    const cached = await this.sessionCache.get(token);
+    const cacheKey = sessionCacheKey(request);
 
-    if (cached) {
-      (request as AuthenticatedRequest).user = cached;
-      return true;
+    if (cacheKey) {
+      const cached = await this.sessionCache.get(cacheKey);
+
+      if (cached) {
+        (request as AuthenticatedRequest).user = cached;
+        return true;
+      }
     }
 
     let user;
     try {
-      user = await this.authService.validateSession(token);
+      user = await this.authService.validateRequestSession(
+        toSessionHeaders(request),
+      );
     } catch {
       throw new UnauthorizedException('Invalid or expired session');
     }
 
     (request as AuthenticatedRequest).user = user;
-    await this.sessionCache.set(token, user);
+
+    if (cacheKey) {
+      await this.sessionCache.set(cacheKey, user);
+    }
 
     return true;
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }
