@@ -183,7 +183,7 @@ export class ExpenseController {
   }
 
   @Put(':id')
-  @OwnsResource({ resource: 'expense' })
+  @OwnsResource({ resource: 'expense', ownerOnly: true })
   @ApiOperation({ summary: 'Update an expense' })
   @ApiResponse({ status: 200, type: ExpenseResponseDto })
   async update(
@@ -232,7 +232,7 @@ export class ExpenseController {
 
   @Post(':id/resubmit')
   @HttpCode(HttpStatus.OK)
-  @OwnsResource({ resource: 'expense' })
+  @OwnsResource({ resource: 'expense', ownerOnly: true })
   @ApiOperation({ summary: 'Re-submit a rejected expense for review' })
   @ApiResponse({ status: 200, type: ExpenseResponseDto })
   async resubmit(
@@ -249,7 +249,7 @@ export class ExpenseController {
   }
 
   @Patch(':id/pending')
-  @OwnsResource({ resource: 'expense' })
+  @OwnsResource({ resource: 'expense', ownerOnly: true })
   @ApiOperation({ summary: 'Update a pending expense' })
   @ApiResponse({ status: 200, type: ExpenseResponseDto })
   async updatePending(
@@ -267,7 +267,7 @@ export class ExpenseController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @OwnsResource({ resource: 'expense' })
+  @OwnsResource({ resource: 'expense', ownerOnly: true })
   @ApiOperation({ summary: 'Delete an expense' })
   @ApiResponse({ status: 204 })
   async remove(@Param('id') id: string, @CurrentUser() user: User) {

@@ -99,6 +99,35 @@ describe('VerifyResourceAccessUseCase', () => {
     ).rejects.toBeInstanceOf(DomainNotFoundException);
   });
 
+  it('denies a family co-member when the rule is owner-only', async () => {
+    await expect(
+      useCase.execute('expenseItem', 'item-family', CO_MEMBER, true),
+    ).rejects.toBeInstanceOf(DomainNotFoundException);
+  });
+
+  it('still allows the owner when the rule is owner-only', async () => {
+    await expect(
+      useCase.execute('expenseItem', 'item-family', USER_A, true),
+    ).resolves.toBeUndefined();
+  });
+
+  it('denies an unrelated user when the rule is owner-only', async () => {
+    await expect(
+      useCase.execute('expenseItem', 'item-family', USER_B, true),
+    ).rejects.toBeInstanceOf(DomainNotFoundException);
+  });
+
+  it('hides an owner-only denial behind the same message as a miss', async () => {
+    const missing = await useCase
+      .execute('expenseItem', 'does-not-exist', USER_A, true)
+      .catch((error: Error) => error);
+    const denied = await useCase
+      .execute('expenseItem', 'item-family', CO_MEMBER, true)
+      .catch((error: Error) => error);
+
+    expect((denied as Error).message).toBe((missing as Error).message);
+  });
+
   it('reports a missing resource the same way as a forbidden one', async () => {
     const missing = await useCase
       .execute('expenseItem', 'does-not-exist', USER_A)

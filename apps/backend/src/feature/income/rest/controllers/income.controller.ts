@@ -122,7 +122,7 @@ export class IncomeController {
   }
 
   @Put(':id')
-  @OwnsResource({ resource: 'income' })
+  @OwnsResource({ resource: 'income', ownerOnly: true })
   @ApiOperation({ summary: 'Update an income' })
   @ApiResponse({ status: 200, type: IncomeResponseDto })
   async update(
@@ -138,7 +138,7 @@ export class IncomeController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @OwnsResource({ resource: 'income' })
+  @OwnsResource({ resource: 'income', ownerOnly: true })
   @ApiOperation({ summary: 'Delete an income' })
   @ApiResponse({ status: 204 })
   async remove(@Param('id') id: string) {

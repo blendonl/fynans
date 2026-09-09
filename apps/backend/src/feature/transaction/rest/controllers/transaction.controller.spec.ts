@@ -291,4 +291,61 @@ describe('TransactionController authorization', () => {
         .expect(404);
     });
   });
+
+  describe('writes stay owner-only even inside the family', () => {
+    beforeEach(() => {
+      currentUserId = CO_MEMBER;
+    });
+
+    it('refuses to let a co-member rewrite a family transaction', async () => {
+      await request(server)
+        .put(`/transactions/${FAMILY_TRANSACTION}`)
+        .send({ value: 999 })
+        .expect(404);
+
+      expect(updateTransactionUseCase.execute).not.toHaveBeenCalled();
+    });
+
+    it('refuses to let a co-member delete a family transaction', async () => {
+      await request(server)
+        .delete(`/transactions/${FAMILY_TRANSACTION}`)
+        .expect(404);
+
+      expect(deleteTransactionUseCase.execute).not.toHaveBeenCalled();
+    });
+
+    it('still lets the owner rewrite their family transaction', async () => {
+      currentUserId = MEMBER;
+
+      await request(server)
+        .put(`/transactions/${FAMILY_TRANSACTION}`)
+        .send({ value: 999 })
+        .expect(200);
+
+      expect(updateTransactionUseCase.execute).toHaveBeenCalled();
+    });
+
+    it('still lets the owner delete their family transaction', async () => {
+      currentUserId = MEMBER;
+
+      await request(server)
+        .delete(`/transactions/${FAMILY_TRANSACTION}`)
+        .expect(204);
+
+      expect(deleteTransactionUseCase.execute).toHaveBeenCalledWith(
+        FAMILY_TRANSACTION,
+      );
+    });
+
+    it('refuses a complete stranger', async () => {
+      currentUserId = OUTSIDER;
+
+      await request(server)
+        .put(`/transactions/${FAMILY_TRANSACTION}`)
+        .send({ value: 999 })
+        .expect(404);
+
+      expect(updateTransactionUseCase.execute).not.toHaveBeenCalled();
+    });
+  });
 });
