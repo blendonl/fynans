@@ -269,6 +269,7 @@ export const IncomeScalarFieldEnum = {
   transactionId: 'transactionId',
   storeId: 'storeId',
   categoryId: 'categoryId',
+  description: 'description',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -409,7 +410,6 @@ export const UserScalarFieldEnum = {
   firstName: 'firstName',
   lastName: 'lastName',
   image: 'image',
-  balance: 'balance',
   emailVerified: 'emailVerified',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
