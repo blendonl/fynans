@@ -17,6 +17,7 @@ import {
   DomainNotFoundException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
+import { PrismaService } from '~common/prisma/prisma.service';
 
 @Injectable()
 export class ApprovePendingExpenseUseCase {
@@ -30,6 +31,7 @@ export class ApprovePendingExpenseUseCase {
     private readonly paymentMethodService: PaymentMethodService,
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
     private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly prisma: PrismaService,
   ) {}
 
   async execute(expenseId: string, userId: string): Promise<Expense> {
@@ -47,26 +49,29 @@ export class ApprovePendingExpenseUseCase {
 
     await this.expenseAuthService.verifyApprovalAuthority(transaction, userId);
 
-    const updatedTransaction = await this.transactionRepository.updateStatus(
-      transaction.id,
-      TransactionStatus.CONFIRMED,
-    );
-
-    // Run balance updates (same as direct add)
-    if (transaction.familyId) {
-      await this.familyBalanceService.updateBalancesAfterTransaction(
-        transaction.familyId,
-        transaction.userId,
-        updatedTransaction,
+    await this.prisma.runInTransaction(async () => {
+      const updatedTransaction = await this.transactionRepository.updateStatus(
+        transaction.id,
+        TransactionStatus.CONFIRMED,
       );
 
+      if (transaction.familyId) {
+        await this.familyBalanceService.updateBalancesAfterTransaction(
+          transaction.familyId,
+          transaction.userId,
+          updatedTransaction,
+        );
+      }
+    });
+
+    if (transaction.familyId) {
       await this.notifyFamilyMembersService.notify({
         familyId: transaction.familyId,
         actorUserId: userId,
         type: NotificationType.FAMILY_EXPENSE_CREATED,
         data: {
           expenseId: expense.id,
-          amount: transaction.value.toNumber().toFixed(2),
+          amount: transaction.value.toFixed(2),
         },
       });
     }
@@ -83,7 +88,7 @@ export class ApprovePendingExpenseUseCase {
         type: NotificationType.TRANSACTION_APPROVED,
         data: {
           expenseId: expense.id,
-          amount: transaction.value.toNumber().toFixed(2),
+          amount: transaction.value.toFixed(2),
         },
         deliveryMethods: [DeliveryMethod.IN_APP, DeliveryMethod.PUSH],
         priority: NotificationPriority.MEDIUM,

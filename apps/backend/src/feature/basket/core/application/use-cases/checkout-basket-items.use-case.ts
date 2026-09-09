@@ -8,6 +8,8 @@ import { CreateExpenseDto } from '../../../../expense/core/application/dto/creat
 import { CreateExpenseItemDto } from '../../../../expense-item/core/application/dto/create-expense-item.dto';
 import { NotificationType } from '../../../../notification/core/domain/value-objects/notification-type.vo';
 import { CreateExpenseUseCase } from '../../../../expense/core/application/use-cases/create-expense.use-case';
+import { ExpenseTotalCalculator } from '../../../../expense-item/core/domain/services/expense-total.calculator';
+import { PrismaService } from '~common/prisma/prisma.service';
 import {
   DomainNotFoundException,
   DomainForbiddenException,
@@ -24,6 +26,7 @@ export class CheckoutBasketItemsUseCase {
     private readonly familyService: FamilyService,
     private readonly createExpenseUseCase: CreateExpenseUseCase,
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async execute(dto: CheckoutBasketItemsDto): Promise<{ expenseId: string }> {
@@ -89,47 +92,52 @@ export class CheckoutBasketItemsUseCase {
       );
     }
 
-    const totalValue = items.reduce((sum, item) => {
-      return sum + item.price! * item.quantity;
-    }, 0);
+    const totalValue = ExpenseTotalCalculator.total(
+      items.map((item) => ({ price: item.price!, quantity: item.quantity })),
+    );
 
-    // Create expense via ExpenseService (reuse the full flow)
     const familyId =
       basket.scope === BasketScope.FAMILY ? basket.familyId : dto.familyId;
 
-    const expense = await this.createExpenseUseCase.execute(
-      new CreateExpenseDto({
-        userId: dto.userId,
-        categoryId: dto.categoryId,
-        storeId: dto.storeId,
-        items: items.map(
-          (item) =>
-            new CreateExpenseItemDto({
-              expenseId: '',
-              categoryId: item.categoryId || dto.categoryId,
-              itemName: item.name,
-              itemPrice: item.price!,
-              quantity: item.quantity,
-            }),
-        ),
-        familyId: familyId ?? undefined,
-        recordedAt: dto.recordedAt,
-      }),
-    );
+    const expense = await this.prisma.runInTransaction(async () => {
+      const created = await this.createExpenseUseCase.execute(
+        new CreateExpenseDto({
+          userId: dto.userId,
+          categoryId: dto.categoryId,
+          storeId: dto.storeId,
+          items: items.map(
+            (item) =>
+              new CreateExpenseItemDto({
+                expenseId: '',
+                categoryId: item.categoryId || dto.categoryId,
+                itemName: item.name,
+                itemPrice: item.price!,
+                quantity: item.quantity,
+              }),
+          ),
+          familyId: familyId ?? undefined,
+          recordedAt: dto.recordedAt,
+        }),
+      );
 
-    await this.basketRepository.removeItemsByIds(dto.itemIds);
+      await this.basketRepository.removeItemsByIds(dto.itemIds);
+
+      return created;
+    });
 
     if (basket.scope === BasketScope.FAMILY && basket.familyId) {
-      await this.notifyFamilyMembersService.notify({
-        familyId: basket.familyId,
-        actorUserId: dto.userId,
-        type: NotificationType.BASKET_ITEMS_BOUGHT,
-        data: {
-          basketId: basket.id,
-          itemCount: items.length,
-          totalAmount: totalValue.toFixed(2),
-        },
-      });
+      await this.prisma.afterCommit(() =>
+        this.notifyFamilyMembersService.notify({
+          familyId: basket.familyId!,
+          actorUserId: dto.userId,
+          type: NotificationType.BASKET_ITEMS_BOUGHT,
+          data: {
+            basketId: basket.id,
+            itemCount: items.length,
+            totalAmount: totalValue.toFixed(2),
+          },
+        }),
+      );
     }
 
     return { expenseId: expense.id };

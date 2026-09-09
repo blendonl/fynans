@@ -4,6 +4,7 @@ import { ResubmitRejectedExpenseUseCase } from './resubmit-rejected-expense.use-
 import { UpdateExpenseDto } from '../dto/update-expense.dto';
 import { UpdatePendingExpenseDto } from '../dto/update-pending-expense.dto';
 import { ResubmitExpenseDto } from '../dto/resubmit-expense.dto';
+import { createPrismaServiceDouble } from '~test/prisma-service.double';
 import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
 
 const owner = 'owner-1';
@@ -17,6 +18,7 @@ describe('expense update paths verify payment method ownership', () => {
   let storeService: Record<string, jest.Mock>;
   let notifyFamilyMembersService: Record<string, jest.Mock>;
   let paymentMethodService: { verifyOwnership: jest.Mock };
+  let familyBalanceService: Record<string, jest.Mock>;
 
   const transaction = {
     id: 'transaction-1',
@@ -44,6 +46,9 @@ describe('expense update paths verify payment method ownership', () => {
       findById: jest.fn().mockResolvedValue({ id: 'category-1' }),
     };
     storeService = { findById: jest.fn().mockResolvedValue({ id: 'store-1' }) };
+    familyBalanceService = {
+      recalculateBalances: jest.fn().mockResolvedValue(undefined),
+    };
     notifyFamilyMembersService = {
       notify: jest.fn().mockResolvedValue(undefined),
     };
@@ -68,6 +73,8 @@ describe('expense update paths verify payment method ownership', () => {
       transactionRepository as never,
       storeService as never,
       paymentMethodService as never,
+      familyBalanceService as never,
+      createPrismaServiceDouble(),
     );
 
   const updatePending = () =>

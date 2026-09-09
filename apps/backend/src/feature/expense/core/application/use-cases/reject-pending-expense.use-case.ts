@@ -57,7 +57,7 @@ export class RejectPendingExpenseUseCase {
         type: NotificationType.TRANSACTION_REJECTED,
         data: {
           expenseId: expense.id,
-          amount: transaction.value.toNumber().toFixed(2),
+          amount: transaction.value.toFixed(2),
           rejectionReason,
         },
         deliveryMethods: [DeliveryMethod.IN_APP, DeliveryMethod.PUSH],

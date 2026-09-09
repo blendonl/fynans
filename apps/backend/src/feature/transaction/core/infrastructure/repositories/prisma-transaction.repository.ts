@@ -18,13 +18,14 @@ import {
 } from 'prisma/generated/prisma/client';
 import { TransactionStatus } from '../../domain/value-objects/transaction-status.vo';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+import { TransactionAmountNormalizer } from '../../domain/services/transaction-amount.normalizer';
 
 @Injectable()
 export class PrismaTransactionRepository implements ITransactionRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: Partial<Transaction>): Promise<Transaction> {
-    const transaction = await this.prisma.transaction.create({
+    const transaction = await this.prisma.db.transaction.create({
       data: {
         userId: data.userId!,
         familyId: data.familyId,
@@ -50,7 +51,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
   }
 
   async findById(id: string): Promise<Transaction | null> {
-    const transaction = await this.prisma.transaction.findUnique({
+    const transaction = await this.prisma.db.transaction.findUnique({
       where: { id },
       include: {
         user: true,
@@ -72,7 +73,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     );
 
     const [transactions, total] = await Promise.all([
-      this.prisma.transaction.findMany({
+      this.prisma.db.transaction.findMany({
         where,
         include: {
           user: true,
@@ -83,7 +84,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
         skip: pagination?.skip,
         take: pagination?.take,
       }),
-      this.prisma.transaction.count({ where }),
+      this.prisma.db.transaction.count({ where }),
     ]);
 
     return {
@@ -99,7 +100,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     const where = this.buildWhereClause(filters);
 
     const [transactions, total] = await Promise.all([
-      this.prisma.transaction.findMany({
+      this.prisma.db.transaction.findMany({
         where,
         include: {
           user: true,
@@ -110,7 +111,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
         skip: pagination?.skip,
         take: pagination?.take,
       }),
-      this.prisma.transaction.count({ where }),
+      this.prisma.db.transaction.count({ where }),
     ]);
 
     return {
@@ -124,7 +125,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     status: TransactionStatus,
     rejectionReason?: string,
   ): Promise<Transaction> {
-    const transaction = await this.prisma.transaction.update({
+    const transaction = await this.prisma.db.transaction.update({
       where: { id },
       data: {
         status: status as PrismaTransactionStatus,
@@ -169,7 +170,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
         : { disconnect: true };
     }
 
-    const transaction = await this.prisma.transaction.update({
+    const transaction = await this.prisma.db.transaction.update({
       where: { id },
       data: updateData,
       include: {
@@ -183,7 +184,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.transaction.delete({
+    await this.prisma.db.transaction.delete({
       where: { id },
     });
   }
@@ -199,32 +200,40 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     };
 
     const [incomeResult, expenseResult, count] = await Promise.all([
-      this.prisma.transaction.aggregate({
+      this.prisma.db.transaction.aggregate({
         where: {
           ...confirmedWhere,
           type: PrismaTransactionType.INCOME,
         },
         _sum: {
-          value: true,
+          [TransactionAmountNormalizer.sumField]: true,
         },
       }),
-      this.prisma.transaction.aggregate({
+      this.prisma.db.transaction.aggregate({
         where: {
           ...confirmedWhere,
           type: PrismaTransactionType.EXPENSE,
         },
         _sum: {
-          value: true,
+          [TransactionAmountNormalizer.sumField]: true,
         },
       }),
-      this.prisma.transaction.count({ where: confirmedWhere }),
+      this.prisma.db.transaction.count({ where: confirmedWhere }),
     ]);
 
-    const totalIncome = incomeResult._sum.value?.toNumber() || 0;
-    const totalExpense = expenseResult._sum.value?.toNumber() || 0;
-    const balance = totalIncome - totalExpense;
+    const totalIncome = TransactionAmountNormalizer.normalizeSum(
+      incomeResult._sum.value,
+    );
+    const totalExpense = TransactionAmountNormalizer.normalizeSum(
+      expenseResult._sum.value,
+    );
 
-    return new TransactionStatistics(totalIncome, totalExpense, balance, count);
+    return new TransactionStatistics(
+      totalIncome.toNumber(),
+      totalExpense.toNumber(),
+      totalIncome.minus(totalExpense).toNumber(),
+      count,
+    );
   }
 
   private buildWhereClause(

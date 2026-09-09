@@ -1,3 +1,4 @@
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { CreateExpenseItemDto } from '../../../../expense-item/core/application/dto/create-expense-item.dto';
 import { TransactionStatus } from '../../../../transaction/core/domain/value-objects/transaction-status.vo';
 
@@ -8,7 +9,7 @@ export class CreateExpenseDto {
   storeLocation?: string;
   storeId?: string;
   items?: CreateExpenseItemDto[];
-  amount?: number;
+  amount?: Decimal;
   note?: string;
   familyId?: string;
   recordedAt?: Date;
@@ -22,7 +23,7 @@ export class CreateExpenseDto {
     storeLocation?: string;
     storeId?: string;
     items?: CreateExpenseItemDto[];
-    amount?: number;
+    amount?: Decimal;
     note?: string;
     familyId?: string;
     recordedAt?: Date;

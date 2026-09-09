@@ -13,7 +13,6 @@ const user = new User({
   email: 'a@b.test',
   firstName: 'Ada',
   lastName: 'Lovelace',
-  balance: 0,
   emailVerified: true,
   createdAt: new Date('2026-01-01T00:00:00.000Z'),
   updatedAt: new Date('2026-01-01T00:00:00.000Z'),

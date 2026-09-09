@@ -4,8 +4,9 @@ import { IncomeCategory } from '~feature/income-category/core';
 interface IncomeProps {
   id: string;
   transactionId: string;
-  storeId: string;
+  storeId?: string | null;
   categoryId: string;
+  description?: string | null;
   transaction?: Transaction;
   category?: IncomeCategory;
   createdAt: Date;
@@ -29,10 +30,6 @@ export class Income {
       throw new Error('Transaction ID is required');
     }
 
-    if (!props.storeId || props.storeId.trim() === '') {
-      throw new Error('Store ID is required');
-    }
-
     if (!props.categoryId || props.categoryId.trim() === '') {
       throw new Error('Category ID is required');
     }
@@ -54,12 +51,16 @@ export class Income {
     return this.props.transactionId;
   }
 
-  get storeId(): string {
-    return this.props.storeId;
+  get storeId(): string | null {
+    return this.props.storeId ?? null;
   }
 
   get categoryId(): string {
     return this.props.categoryId;
+  }
+
+  get description(): string | null {
+    return this.props.description ?? null;
   }
 
   get createdAt(): Date {
@@ -82,8 +83,9 @@ export class Income {
     return {
       id: this.props.id,
       transactionId: this.props.transactionId,
-      storeId: this.props.storeId,
+      storeId: this.storeId,
       categoryId: this.props.categoryId,
+      description: this.description,
       transaction: this.props.transaction?.toJSON(),
       category: this.props.category?.toJSON(),
       createdAt: this.props.createdAt,

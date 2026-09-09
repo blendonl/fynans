@@ -102,6 +102,7 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
+      "^~test/(.*)$": "<rootDir>/../test/$1",
       "^~(.*)$": "<rootDir>/$1",
       "^prisma/(.*)$": "<rootDir>/../prisma/$1",
       "^better-auth$": "<rootDir>/../test/stubs/better-auth.ts",

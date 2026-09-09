@@ -113,6 +113,7 @@ export class ExpenseController {
   async findAll(@Query() query: QueryExpenseDto, @CurrentUser() user: User) {
     const filters = new ExpenseFilters({
       ...BaseFilters.fromQuery(query, user.id),
+      ...(query.mine ? { userId: user.id } : {}),
       status: query.status,
     });
     const pagination = new Pagination(query.page, query.limit);
@@ -149,8 +150,12 @@ export class ExpenseController {
     @Query() query: QueryExpenseDto,
     @CurrentUser() user: User,
   ) {
-    const filters = new ExpenseFilters(BaseFilters.fromQuery(query, user.id));
-    return this.getExpenseStatisticsUseCase.execute(filters);
+    const filters = new ExpenseFilters({
+      ...BaseFilters.fromQuery(query, user.id),
+      ...(query.mine ? { userId: user.id } : {}),
+    });
+    const statistics = await this.getExpenseStatisticsUseCase.execute(filters);
+    return ExpenseStatisticsResponseDto.fromStatistics(statistics);
   }
 
   @Get('trends')
@@ -161,9 +166,12 @@ export class ExpenseController {
     @Query() query: QueryExpenseTrendsDto,
     @CurrentUser() user: User,
   ) {
-    const filters = new ExpenseFilters(BaseFilters.fromQuery(query, user.id));
+    const filters = new ExpenseFilters({
+      ...BaseFilters.fromQuery(query, user.id),
+      ...(query.mine ? { userId: user.id } : {}),
+    });
 
-    return this.getExpenseTrendsUseCase.execute(
+    const points = await this.getExpenseTrendsUseCase.execute(
       user.id,
       new Date(query.dateFrom),
       new Date(query.dateTo),
@@ -171,6 +179,8 @@ export class ExpenseController {
       filters,
       query.maxLabels,
     );
+
+    return ExpenseTrendPointResponseDto.fromPoints(points);
   }
 
   @Get(':id')

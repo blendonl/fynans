@@ -1,25 +1,25 @@
-import { IsUUID, IsNotEmpty } from 'class-validator';
+import { IsUUID, IsNotEmpty, IsOptional } from 'class-validator';
 import { CreateIncomeDto } from '../../core/application/dto/create-income.dto';
 
-export class CreateIncomeRequestDto {
+export class LinkIncomeRequestDto {
   @IsUUID()
   @IsNotEmpty()
   transactionId!: string;
 
   @IsUUID()
   @IsNotEmpty()
-  storeId!: string;
+  categoryId!: string;
 
   @IsUUID()
-  @IsNotEmpty()
-  categoryId!: string;
+  @IsOptional()
+  storeId?: string;
 
   toCoreDto(userId: string): CreateIncomeDto {
     return new CreateIncomeDto(
       this.transactionId,
-      this.storeId,
       this.categoryId,
       userId,
+      this.storeId,
     );
   }
 }
