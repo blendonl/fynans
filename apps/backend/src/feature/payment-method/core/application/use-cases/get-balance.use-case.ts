@@ -81,6 +81,7 @@ export class GetBalanceUseCase {
       this.prisma.transaction.aggregate({
         where: {
           userId,
+          deletedAt: null,
           scope: TransactionScope.PERSONAL,
           status: PrismaTransactionStatus.CONFIRMED,
           type: PrismaTransactionType.INCOME,
@@ -90,6 +91,7 @@ export class GetBalanceUseCase {
       this.prisma.transaction.aggregate({
         where: {
           userId,
+          deletedAt: null,
           scope: TransactionScope.PERSONAL,
           status: PrismaTransactionStatus.CONFIRMED,
           type: PrismaTransactionType.EXPENSE,

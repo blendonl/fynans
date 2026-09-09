@@ -13,6 +13,11 @@ import {
   DomainForbiddenException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class ResubmitRejectedExpenseUseCase {
@@ -23,6 +28,7 @@ export class ResubmitRejectedExpenseUseCase {
     private readonly transactionRepository: ITransactionRepository,
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
     private readonly paymentMethodService: PaymentMethodService,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(
@@ -83,6 +89,16 @@ export class ResubmitRejectedExpenseUseCase {
       transaction.id,
       TransactionStatus.PENDING,
     );
+
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.EXPENSE,
+      entityId: expense.id,
+      action: AuditAction.RESUBMITTED,
+      actorId: userId,
+      transactionId: transaction.id,
+      familyId: transaction.familyId,
+      changes: transactionUpdates,
+    });
 
     if (transaction.familyId) {
       await this.notifyFamilyMembersService.notify({

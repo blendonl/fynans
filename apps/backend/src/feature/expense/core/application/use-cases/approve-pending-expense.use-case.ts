@@ -18,6 +18,11 @@ import {
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
 import { PrismaService } from '~common/prisma/prisma.service';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class ApprovePendingExpenseUseCase {
@@ -32,6 +37,7 @@ export class ApprovePendingExpenseUseCase {
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
     private readonly createNotificationUseCase: CreateNotificationUseCase,
     private readonly prisma: PrismaService,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(expenseId: string, userId: string): Promise<Expense> {
@@ -62,6 +68,19 @@ export class ApprovePendingExpenseUseCase {
           updatedTransaction,
         );
       }
+    });
+
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.EXPENSE,
+      entityId: expense.id,
+      action: AuditAction.APPROVED,
+      actorId: userId,
+      transactionId: transaction.id,
+      familyId: transaction.familyId,
+      changes: {
+        submittedBy: transaction.userId,
+        value: transaction.value.toFixed(2),
+      },
     });
 
     if (transaction.familyId) {

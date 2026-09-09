@@ -50,6 +50,8 @@ model User {
   // Receipts
   receipts Receipt[]
 
+  financialAuditLogs FinancialAuditLog[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

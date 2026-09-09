@@ -1,4 +1,5 @@
 import { createPrismaServiceDouble } from '~test/prisma-service.double';
+import { createRecordFinancialAuditDouble } from '~test/financial-audit.double';
 import { CreateIncomeUseCase } from './create-income.use-case';
 import { CreateIncomeDto } from '../dto/create-income.dto';
 import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
@@ -40,6 +41,7 @@ describe('CreateIncomeUseCase', () => {
       getTransactionByIdUseCase as never,
       notifyFamilyMembersService as never,
       createPrismaServiceDouble(),
+      createRecordFinancialAuditDouble(),
     );
   });
 

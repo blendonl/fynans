@@ -51,8 +51,8 @@ export class PrismaTransactionRepository implements ITransactionRepository {
   }
 
   async findById(id: string): Promise<Transaction | null> {
-    const transaction = await this.prisma.db.transaction.findUnique({
-      where: { id },
+    const transaction = await this.prisma.db.transaction.findFirst({
+      where: { id, deletedAt: null },
       include: {
         user: true,
         expense: true,
@@ -184,8 +184,9 @@ export class PrismaTransactionRepository implements ITransactionRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.db.transaction.delete({
+    await this.prisma.db.transaction.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
   }
 
@@ -245,7 +246,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
       );
     }
 
-    const where: Prisma.TransactionWhereInput = {};
+    const where: Prisma.TransactionWhereInput = { deletedAt: null };
 
     if (filters.userId) {
       where.userId = filters.userId;
