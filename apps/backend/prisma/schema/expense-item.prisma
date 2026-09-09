@@ -8,7 +8,7 @@ model ExpenseItem {
   quantity Decimal @default(1) @db.Decimal(12, 3)
 
   item     StoreItem           @relation(fields: [itemId], references: [id])
-  expense  Expense             @relation(fields: [expenseId], references: [id])
+  expense  Expense             @relation(fields: [expenseId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

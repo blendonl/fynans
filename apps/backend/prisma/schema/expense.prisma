@@ -1,5 +1,5 @@
 model Expense {
-  id            String
+  id            String @id @default(uuid())
   transactionId String @unique @map("transaction_id")
   storeId       String? @map("store_id")
   categoryId    String @map("category_id")
@@ -15,7 +15,6 @@ model Expense {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@id([id])
   @@index([categoryId])
   @@index([storeId])
   @@map("expense")

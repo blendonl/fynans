@@ -1,5 +1,5 @@
 model Income {
-  id            String
+  id            String @id @default(uuid())
   transactionId String @unique @map("transaction_id")
   categoryId    String @map("category_id")
 
@@ -11,7 +11,6 @@ model Income {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@id([id])
   @@index([categoryId])
   @@map("income")
 }
