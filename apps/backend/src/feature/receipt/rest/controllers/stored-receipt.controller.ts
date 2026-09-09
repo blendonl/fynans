@@ -65,8 +65,10 @@ export class StoredReceiptController {
   @ApiOperation({ summary: 'Get a stored receipt with download URL' })
   @ApiResponse({ status: 200, type: StoredReceiptResponseDto })
   async findOne(@Param('id') id: string, @CurrentUser() user: User) {
-    const { receipt, downloadUrl } =
-      await this.getStoredReceiptUseCase.execute(id, user.id);
+    const { receipt, downloadUrl } = await this.getStoredReceiptUseCase.execute(
+      id,
+      user.id,
+    );
 
     return StoredReceiptResponseDto.fromEntity(receipt, downloadUrl);
   }

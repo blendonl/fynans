@@ -2875,6 +2875,7 @@ __metadata:
     "@nestjs/schematics": "npm:^11.0.0"
     "@nestjs/swagger": "npm:^11.2.6"
     "@nestjs/testing": "npm:^11.0.1"
+    "@nestjs/throttler": "npm:^6.5.0"
     "@nestjs/websockets": "npm:^11.1.11"
     "@prisma/adapter-pg": "npm:^7.1.0"
     "@prisma/client": "npm:^7.1.0"
@@ -2898,6 +2899,7 @@ __metadata:
     eslint-plugin-prettier: "npm:^5.2.2"
     expo-server-sdk: "npm:^4.0.0"
     globals: "npm:^16.0.0"
+    helmet: "npm:^8.3.0"
     ioredis: "npm:^5.9.3"
     jest: "npm:^30.0.0"
     multer: "npm:^2.0.2"
@@ -4570,6 +4572,17 @@ __metadata:
     "@nestjs/platform-express":
       optional: true
   checksum: 10c0/bde7b90fead08ca3a5a7f44331e5c4ccf2904bcba5b95bbfa4fe22fc278f3e22beadbe4c4408ec4ea2fcd6dea267faeef502ccc0d3276bd838f3723f0eba7148
+  languageName: node
+  linkType: hard
+
+"@nestjs/throttler@npm:^6.5.0":
+  version: 6.5.0
+  resolution: "@nestjs/throttler@npm:6.5.0"
+  peerDependencies:
+    "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+    "@nestjs/core": ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+    reflect-metadata: ^0.1.13 || ^0.2.0
+  checksum: 10c0/bd755e765d020189b24fd8cb8a5989b47d7856abdc8efc881d73dd76e71b8e6e4466e532464434fd1199a106bf4752bda3d0036ef4aa13aa61e9317f60658da8
   languageName: node
   linkType: hard
 
@@ -12279,6 +12292,13 @@ __metadata:
   dependencies:
     function-bind: "npm:^1.1.2"
   checksum: 10c0/3769d434703b8ac66b209a4cca0737519925bbdb61dd887f93a16372b14694c63ff4e797686d87c90f08168e81082248b9b028bad60d4da9e0d1148766f56eb9
+  languageName: node
+  linkType: hard
+
+"helmet@npm:^8.3.0":
+  version: 8.3.0
+  resolution: "helmet@npm:8.3.0"
+  checksum: 10c0/69f33ca716ed3ce34f1f2f48ce8618846dfa9c89e3a15d6bccefc882541e8b028517448c6b0e7450792fd23e5580bfe6d410d4f22bedc2a94f6b1188817a059a
   languageName: node
   linkType: hard
 

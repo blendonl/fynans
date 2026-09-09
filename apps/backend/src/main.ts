@@ -9,6 +9,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { toNodeHandler } from 'better-auth/node';
 import cors from 'cors';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { BetterAuthProvider } from './feature/auth/core/infrastructure/providers/better-auth.provider';
 import { validateEnv } from './common/config/env.validation';
@@ -26,6 +27,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
   };
 
+  app.use(helmet());
   app.enableCors(corsOptions);
 
   app.useGlobalPipes(
