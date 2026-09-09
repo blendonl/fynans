@@ -15,7 +15,6 @@ model User {
   firstName String  @default("") @map("first_name")
   lastName  String  @default("") @map("last_name")
   image     String?
-  balance   Decimal @default(0)
 
   emailVerified Boolean @default(false) @map("email_verified")
 

@@ -20,18 +20,8 @@ export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayloa
 
 export type AggregateUser = {
   _count: UserCountAggregateOutputType | null
-  _avg: UserAvgAggregateOutputType | null
-  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
-}
-
-export type UserAvgAggregateOutputType = {
-  balance: runtime.Decimal | null
-}
-
-export type UserSumAggregateOutputType = {
-  balance: runtime.Decimal | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -41,7 +31,6 @@ export type UserMinAggregateOutputType = {
   firstName: string | null
   lastName: string | null
   image: string | null
-  balance: runtime.Decimal | null
   emailVerified: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -54,7 +43,6 @@ export type UserMaxAggregateOutputType = {
   firstName: string | null
   lastName: string | null
   image: string | null
-  balance: runtime.Decimal | null
   emailVerified: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -67,21 +55,12 @@ export type UserCountAggregateOutputType = {
   firstName: number
   lastName: number
   image: number
-  balance: number
   emailVerified: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
-
-export type UserAvgAggregateInputType = {
-  balance?: true
-}
-
-export type UserSumAggregateInputType = {
-  balance?: true
-}
 
 export type UserMinAggregateInputType = {
   id?: true
@@ -90,7 +69,6 @@ export type UserMinAggregateInputType = {
   firstName?: true
   lastName?: true
   image?: true
-  balance?: true
   emailVerified?: true
   createdAt?: true
   updatedAt?: true
@@ -103,7 +81,6 @@ export type UserMaxAggregateInputType = {
   firstName?: true
   lastName?: true
   image?: true
-  balance?: true
   emailVerified?: true
   createdAt?: true
   updatedAt?: true
@@ -116,7 +93,6 @@ export type UserCountAggregateInputType = {
   firstName?: true
   lastName?: true
   image?: true
-  balance?: true
   emailVerified?: true
   createdAt?: true
   updatedAt?: true
@@ -161,18 +137,6 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: UserAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: UserSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserMinAggregateInputType
@@ -203,8 +167,6 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: UserCountAggregateInputType | true
-  _avg?: UserAvgAggregateInputType
-  _sum?: UserSumAggregateInputType
   _min?: UserMinAggregateInputType
   _max?: UserMaxAggregateInputType
 }
@@ -216,13 +178,10 @@ export type UserGroupByOutputType = {
   firstName: string
   lastName: string
   image: string | null
-  balance: runtime.Decimal
   emailVerified: boolean
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
-  _avg: UserAvgAggregateOutputType | null
-  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
 }
@@ -252,7 +211,6 @@ export type UserWhereInput = {
   firstName?: Prisma.StringFilter<"User"> | string
   lastName?: Prisma.StringFilter<"User"> | string
   image?: Prisma.StringNullableFilter<"User"> | string | null
-  balance?: Prisma.DecimalFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -284,7 +242,6 @@ export type UserOrderByWithRelationInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   image?: Prisma.SortOrderInput | Prisma.SortOrder
-  balance?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -319,7 +276,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   firstName?: Prisma.StringFilter<"User"> | string
   lastName?: Prisma.StringFilter<"User"> | string
   image?: Prisma.StringNullableFilter<"User"> | string | null
-  balance?: Prisma.DecimalFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -351,15 +307,12 @@ export type UserOrderByWithAggregationInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   image?: Prisma.SortOrderInput | Prisma.SortOrder
-  balance?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
-  _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
-  _sum?: Prisma.UserSumOrderByAggregateInput
 }
 
 export type UserScalarWhereWithAggregatesInput = {
@@ -372,7 +325,6 @@ export type UserScalarWhereWithAggregatesInput = {
   firstName?: Prisma.StringWithAggregatesFilter<"User"> | string
   lastName?: Prisma.StringWithAggregatesFilter<"User"> | string
   image?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
-  balance?: Prisma.DecimalWithAggregatesFilter<"User"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -385,7 +337,6 @@ export type UserCreateInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -417,7 +368,6 @@ export type UserUncheckedCreateInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -449,7 +399,6 @@ export type UserUpdateInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -481,7 +430,6 @@ export type UserUncheckedUpdateInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -513,7 +461,6 @@ export type UserCreateManyInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -526,7 +473,6 @@ export type UserUpdateManyMutationInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -539,7 +485,6 @@ export type UserUncheckedUpdateManyInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -562,14 +507,9 @@ export type UserCountOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   image?: Prisma.SortOrder
-  balance?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type UserAvgOrderByAggregateInput = {
-  balance?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -579,7 +519,6 @@ export type UserMaxOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   image?: Prisma.SortOrder
-  balance?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -592,14 +531,9 @@ export type UserMinOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   image?: Prisma.SortOrder
-  balance?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type UserSumOrderByAggregateInput = {
-  balance?: Prisma.SortOrder
 }
 
 export type UserCreateNestedOneWithoutAccountsInput = {
@@ -877,7 +811,6 @@ export type UserCreateWithoutAccountsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -908,7 +841,6 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -955,7 +887,6 @@ export type UserUpdateWithoutAccountsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -986,7 +917,6 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1017,7 +947,6 @@ export type UserCreateWithoutSessionsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1048,7 +977,6 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1095,7 +1023,6 @@ export type UserUpdateWithoutSessionsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1126,7 +1053,6 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1157,7 +1083,6 @@ export type UserCreateWithoutBasketsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1188,7 +1113,6 @@ export type UserUncheckedCreateWithoutBasketsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1235,7 +1159,6 @@ export type UserUpdateWithoutBasketsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1266,7 +1189,6 @@ export type UserUncheckedUpdateWithoutBasketsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1297,7 +1219,6 @@ export type UserCreateWithoutUserExpenseCategoriesInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1328,7 +1249,6 @@ export type UserUncheckedCreateWithoutUserExpenseCategoriesInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1375,7 +1295,6 @@ export type UserUpdateWithoutUserExpenseCategoriesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1406,7 +1325,6 @@ export type UserUncheckedUpdateWithoutUserExpenseCategoriesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1437,7 +1355,6 @@ export type UserCreateWithoutFamilyMembershipsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1468,7 +1385,6 @@ export type UserUncheckedCreateWithoutFamilyMembershipsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1515,7 +1431,6 @@ export type UserUpdateWithoutFamilyMembershipsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1546,7 +1461,6 @@ export type UserUncheckedUpdateWithoutFamilyMembershipsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1577,7 +1491,6 @@ export type UserCreateWithoutSentInvitationsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1608,7 +1521,6 @@ export type UserUncheckedCreateWithoutSentInvitationsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1644,7 +1556,6 @@ export type UserCreateWithoutReceivedInvitationsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1675,7 +1586,6 @@ export type UserUncheckedCreateWithoutReceivedInvitationsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1722,7 +1632,6 @@ export type UserUpdateWithoutSentInvitationsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1753,7 +1662,6 @@ export type UserUncheckedUpdateWithoutSentInvitationsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1795,7 +1703,6 @@ export type UserUpdateWithoutReceivedInvitationsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1826,7 +1733,6 @@ export type UserUncheckedUpdateWithoutReceivedInvitationsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1857,7 +1763,6 @@ export type UserCreateWithoutUserIncomeCategoriesInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1888,7 +1793,6 @@ export type UserUncheckedCreateWithoutUserIncomeCategoriesInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1935,7 +1839,6 @@ export type UserUpdateWithoutUserIncomeCategoriesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1966,7 +1869,6 @@ export type UserUncheckedUpdateWithoutUserIncomeCategoriesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1997,7 +1899,6 @@ export type UserCreateWithoutNotificationsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2028,7 +1929,6 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2075,7 +1975,6 @@ export type UserUpdateWithoutNotificationsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2106,7 +2005,6 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2137,7 +2035,6 @@ export type UserCreateWithoutNotificationPreferenceInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2168,7 +2065,6 @@ export type UserUncheckedCreateWithoutNotificationPreferenceInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2215,7 +2111,6 @@ export type UserUpdateWithoutNotificationPreferenceInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2246,7 +2141,6 @@ export type UserUncheckedUpdateWithoutNotificationPreferenceInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2277,7 +2171,6 @@ export type UserCreateWithoutDeviceTokensInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2308,7 +2201,6 @@ export type UserUncheckedCreateWithoutDeviceTokensInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2355,7 +2247,6 @@ export type UserUpdateWithoutDeviceTokensInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2386,7 +2277,6 @@ export type UserUncheckedUpdateWithoutDeviceTokensInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2417,7 +2307,6 @@ export type UserCreateWithoutWebPushSubscriptionsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2448,7 +2337,6 @@ export type UserUncheckedCreateWithoutWebPushSubscriptionsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2495,7 +2383,6 @@ export type UserUpdateWithoutWebPushSubscriptionsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2526,7 +2413,6 @@ export type UserUncheckedUpdateWithoutWebPushSubscriptionsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2557,7 +2443,6 @@ export type UserCreateWithoutPaymentMethodsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2588,7 +2473,6 @@ export type UserUncheckedCreateWithoutPaymentMethodsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2635,7 +2519,6 @@ export type UserUpdateWithoutPaymentMethodsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2666,7 +2549,6 @@ export type UserUncheckedUpdateWithoutPaymentMethodsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2697,7 +2579,6 @@ export type UserCreateWithoutReceiptsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2728,7 +2609,6 @@ export type UserUncheckedCreateWithoutReceiptsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2775,7 +2655,6 @@ export type UserUpdateWithoutReceiptsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2806,7 +2685,6 @@ export type UserUncheckedUpdateWithoutReceiptsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2837,7 +2715,6 @@ export type UserCreateWithoutUserStoresInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2868,7 +2745,6 @@ export type UserUncheckedCreateWithoutUserStoresInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2915,7 +2791,6 @@ export type UserUpdateWithoutUserStoresInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2946,7 +2821,6 @@ export type UserUncheckedUpdateWithoutUserStoresInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2977,7 +2851,6 @@ export type UserCreateWithoutUserItemsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3008,7 +2881,6 @@ export type UserUncheckedCreateWithoutUserItemsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3055,7 +2927,6 @@ export type UserUpdateWithoutUserItemsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3086,7 +2957,6 @@ export type UserUncheckedUpdateWithoutUserItemsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3117,7 +2987,6 @@ export type UserCreateWithoutUserStoreItemsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3148,7 +3017,6 @@ export type UserUncheckedCreateWithoutUserStoreItemsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3195,7 +3063,6 @@ export type UserUpdateWithoutUserStoreItemsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3226,7 +3093,6 @@ export type UserUncheckedUpdateWithoutUserStoreItemsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3257,7 +3123,6 @@ export type UserCreateWithoutUserItemCategoriesInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3288,7 +3153,6 @@ export type UserUncheckedCreateWithoutUserItemCategoriesInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3335,7 +3199,6 @@ export type UserUpdateWithoutUserItemCategoriesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3366,7 +3229,6 @@ export type UserUncheckedUpdateWithoutUserItemCategoriesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3397,7 +3259,6 @@ export type UserCreateWithoutTransactionsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3428,7 +3289,6 @@ export type UserUncheckedCreateWithoutTransactionsInput = {
   firstName?: string
   lastName?: string
   image?: string | null
-  balance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -3475,7 +3335,6 @@ export type UserUpdateWithoutTransactionsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3506,7 +3365,6 @@ export type UserUncheckedUpdateWithoutTransactionsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3721,7 +3579,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   firstName?: boolean
   lastName?: boolean
   image?: boolean
-  balance?: boolean
   emailVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -3754,7 +3611,6 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   firstName?: boolean
   lastName?: boolean
   image?: boolean
-  balance?: boolean
   emailVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -3767,7 +3623,6 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   firstName?: boolean
   lastName?: boolean
   image?: boolean
-  balance?: boolean
   emailVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -3780,13 +3635,12 @@ export type UserSelectScalar = {
   firstName?: boolean
   lastName?: boolean
   image?: boolean
-  balance?: boolean
   emailVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "firstName" | "lastName" | "image" | "balance" | "emailVerified" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "firstName" | "lastName" | "image" | "emailVerified" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   transactions?: boolean | Prisma.User$transactionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
@@ -3842,7 +3696,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     firstName: string
     lastName: string
     image: string | null
-    balance: runtime.Decimal
     emailVerified: boolean
     createdAt: Date
     updatedAt: Date
@@ -4294,7 +4147,6 @@ export interface UserFieldRefs {
   readonly firstName: Prisma.FieldRef<"User", 'String'>
   readonly lastName: Prisma.FieldRef<"User", 'String'>
   readonly image: Prisma.FieldRef<"User", 'String'>
-  readonly balance: Prisma.FieldRef<"User", 'Decimal'>
   readonly emailVerified: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
