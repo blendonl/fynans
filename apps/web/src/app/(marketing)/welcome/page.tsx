@@ -1,131 +1,142 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import {
   ArrowRight,
   BadgeCheck,
   Camera,
   Check,
+  CheckCheck,
   ChevronRight,
   CircleDollarSign,
+  Crop,
   EyeOff,
-  FileCheck2,
-  FileText,
-  HandCoins,
+  ListChecks,
   LockKeyhole,
-  PieChart,
-  ReceiptText,
+  ScanLine,
   ShieldCheck,
+  ShoppingBasket,
+  Smartphone,
   Sparkles,
-  Split,
-  Tags,
+  Store,
+  Undo2,
   UsersRound,
+  Zap,
 } from 'lucide-react';
+import { contactEmail } from '@/components/marketing/contact-email';
+import { ReceiptPreview } from '@/components/marketing/receipt-preview';
 
 const registerHref = '/register';
 const loginHref = '/login';
 
 export const metadata: Metadata = {
-  title: 'Fynans | Receipt-Level Household Budgeting',
+  title: 'Fynans | Receipt-Level Expense Tracking for Households',
   description:
-    'Scan receipts, categorize line items, and understand shared household spending without losing personal context.',
+    'Scan a store receipt into an itemised expense, then send it to your family for approval before it counts.',
 };
 
 const features = [
   {
-    icon: Split,
-    title: 'Split receipts by line item',
+    icon: CheckCheck,
+    title: 'Approval, not surveillance',
     description:
-      "Put groceries, household supplies, kids' purchases, and one-off items where they actually belong.",
+      'Send an expense to the family instead of straight to the ledger. Sign-off belongs to an owner or admin, and never to the person who submitted it — nobody approves their own spending.',
+  },
+  {
+    icon: Undo2,
+    title: 'Rejections come back with a reason',
+    description:
+      'A rejected expense keeps the note explaining why. Fix the store, the amount or the items and resubmit it for another look.',
   },
   {
     icon: EyeOff,
-    title: 'Coordinate without exposing everything',
+    title: 'Personal and family stay separate',
     description:
-      'Keep shared household planning separate from personal spending that does not need a group discussion.',
+      'Every expense is either personal or family. The dashboard and the transaction list both filter on it, so shared planning never exposes private spending.',
   },
   {
-    icon: Tags,
-    title: 'Use categories that match real life',
+    icon: ShoppingBasket,
+    title: 'A shopping list the household shares',
     description:
-      'Track Costco runs, school supplies, pets, dining, and recurring household patterns without spreadsheet cleanup.',
+      'Keep a personal basket and a family basket. Items show up for everyone as they are added, and checking out at the till turns the basket into an expense.',
   },
   {
-    icon: HandCoins,
-    title: 'Review spending before it becomes friction',
+    icon: Store,
+    title: 'What things cost, store by store',
     description:
-      'See what changed, which shared budgets moved, and what needs a conversation while the context is still fresh.',
+      'Every scanned product is filed against the shop you bought it in, with its price and any discount you are tracking, so you can see where it is cheaper.',
+  },
+  {
+    icon: Zap,
+    title: 'Live updates and push notifications',
+    description:
+      'Baskets sync over a live connection, and scans report their progress from anywhere in the app. Push tells you when an expense is waiting on the family, and when one of yours has been approved or sent back.',
   },
 ];
 
 const workflow = [
   {
     icon: Camera,
-    title: 'Scan the receipt',
-    description: 'Capture the purchase when it happens instead of reconstructing it later.',
-  },
-  {
-    icon: ReceiptText,
-    title: 'Review parsed items',
-    description: 'Check line items, totals, and merchants before they hit your household view.',
-  },
-  {
-    icon: Tags,
-    title: 'Assign real categories',
+    title: 'Point and shoot',
     description:
-      'Separate groceries, home, kids, dining, and personal items from the same receipt.',
+      'A guided camera finds the edges of the receipt on your phone and straightens the photo before it is uploaded.',
   },
   {
-    icon: PieChart,
-    title: 'See the budget impact',
-    description: 'Understand how one purchase affected shared and personal spending.',
+    icon: ScanLine,
+    title: 'Text is extracted, then structured',
+    description:
+      'Text recognition runs on our own servers. Only the extracted text goes to an AI model, which returns the shop, the date, the total and every line.',
+  },
+  {
+    icon: ListChecks,
+    title: 'Check what came back',
+    description:
+      'Items, quantities, sizes and unit prices are all editable. Set the shop, the payment method and the spending category before you file it.',
+  },
+  {
+    icon: BadgeCheck,
+    title: 'Approve or send it back',
+    description:
+      'Record it confirmed, or leave it pending for the family. Sign-off falls to an owner or admin other than you, and the family balance does not move until it is approved.',
   },
 ];
 
 const trustItems = [
-  { icon: ShieldCheck, title: 'Personal and shared views stay separate' },
-  { icon: LockKeyhole, title: 'Receipt data stays tied to your household' },
-  { icon: BadgeCheck, title: 'Built for collaboration, not surveillance' },
-];
-
-const receiptItems = [
-  { item: 'Organic milk', price: '$5.49', category: 'Groceries', owner: 'Shared' },
-  { item: 'Laundry soap', price: '$13.99', category: 'Household', owner: 'Shared' },
-  { item: 'School snacks', price: '$9.45', category: 'Kids', owner: 'Shared' },
-  { item: 'Headphones', price: '$24.99', category: 'Personal', owner: 'Mia' },
-];
-
-const categoryRows = [
-  { label: 'Groceries', value: '$684', color: 'bg-primary', width: 'w-[86%]' },
-  { label: 'Household', value: '$312', color: 'bg-secondary', width: 'w-[58%]' },
-  { label: 'Kids', value: '$226', color: 'bg-info', width: 'w-[42%]' },
-  { label: 'Dining', value: '$168', color: 'bg-warning', width: 'w-[32%]' },
+  { icon: ShieldCheck, title: 'Personal and family spending stay apart' },
+  { icon: LockKeyhole, title: 'Receipt images live in private storage' },
+  { icon: BadgeCheck, title: 'Nobody signs off their own spending' },
 ];
 
 const audiences = [
-  'Couples who plan shared spending together',
-  'Families tracking groceries, kids, school, and household costs',
-  'Roommates or households that want shared visibility without blurred ownership',
+  'Couples who want to agree on shared spending rather than audit it afterwards',
+  'Families splitting groceries, household supplies and school costs',
+  'Housemates who need shared visibility without giving up personal privacy',
 ];
 
 const faqs = [
   {
     question: 'Do I need to connect a bank account?',
     answer:
-      'No. Fynans can start from receipts, which makes it useful before any account syncing is added or required.',
+      'No. Fynans starts from receipts and manual entry. You set up your own payment methods — cash or a debit card — with an opening balance, and Fynans keeps the running balance from the transactions you record.',
   },
   {
-    question: 'Can my partner see personal spending?',
+    question: 'Does Fynans do budgets?',
     answer:
-      'The product is designed around distinct shared and personal views, so household planning does not have to expose every private purchase.',
+      'No. There is no budget, limit or target anywhere in Fynans. What it does is record what a household actually spent, itemised down to the line on the receipt, and show it back to you by category and against the period before. If what you need is spending limits and alerts, this is not that product.',
+  },
+  {
+    question: 'Can my partner see my personal spending?',
+    answer:
+      'Only what you mark as shared. Every expense carries one scope, personal or family, chosen when you record it. Family expenses go to the family; personal ones stay with you.',
   },
   {
     question: 'What happens to receipt images?',
     answer:
-      'Receipt data should be treated as household financial data. The landing page now states that receipts stay tied to your household and should link to a full privacy policy before launch.',
+      'Images are stored in private object storage under a key scoped to your account, and are only ever served through short-lived signed links to you and to members of the family a receipt is shared with. Text extraction runs on our own infrastructure; only the extracted text, never the image, is sent to an AI service to structure the line items. Delete a receipt and both the file and its record are removed.',
   },
   {
-    question: 'Is this budgeting or expense splitting?',
+    question: 'Which receipts can it read?',
     answer:
-      'It is receipt-first household budgeting. Splitting can be part of the workflow, but the core value is understanding where real purchases went.',
+      'Scanning is tuned for Kosovo store receipts printed in Albanian — the quantity headers, the glued prices, the bag fee, the fiscal footer. Amounts are in euro. Anything the parser gets wrong you can correct on the review screen before filing it.',
   },
 ];
 
@@ -137,19 +148,19 @@ export default function Home() {
         <div className="max-w-2xl">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-muted bg-surface/85 px-3 py-2 text-sm font-medium text-primary-variant shadow-sm">
             <Sparkles className="h-4 w-4" aria-hidden />
-            Receipt-first finance for shared households
+            Receipt-first expense tracking for shared households
           </div>
           <h1 className="text-5xl font-semibold tracking-tight text-text sm:text-6xl lg:text-7xl">
-            Receipt-level budgeting for households.
+            Scan the receipt. Let the household agree on it.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-8 text-text-secondary">
-            Fynans helps households scan receipts, categorize line items, and understand shared
-            spending without losing personal context.
+            Fynans turns a photo of a store receipt into an itemised expense — shop, date, products,
+            quantities and prices — and can hold it for your family to approve before it counts.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a
               href={registerHref}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-base font-semibold text-white shadow-lg shadow-primary/20 transition hover:bg-primary-variant"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-base font-semibold text-surface-inverse shadow-lg shadow-primary/20 transition hover:bg-primary-variant"
             >
               Start tracking receipts
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -174,7 +185,7 @@ export default function Home() {
             ))}
           </div>
         </div>
-        <ProductPreview />
+        <ReceiptPreview />
       </section>
 
       <section id="features" className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
@@ -183,10 +194,10 @@ export default function Home() {
             Built around real purchases
           </p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-text sm:text-4xl">
-            Household budgeting gets easier when every receipt keeps its context.
+            Shared money works better when everyone can see the receipt and say something about it.
           </h2>
         </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => (
             <article
               key={feature.title}
@@ -209,7 +220,7 @@ export default function Home() {
               How it works
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-text sm:text-4xl">
-              Go from a messy purchase to a household-ready budget update.
+              From a paper receipt to an agreed expense in four steps.
             </h2>
           </div>
           <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -238,12 +249,12 @@ export default function Home() {
             Designed for shared money
           </p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-text sm:text-4xl">
-            See what belongs to the household and what should stay personal.
+            A household is people, not one merged account.
           </h2>
           <p className="mt-5 leading-8 text-text-secondary">
-            Most finance apps treat a purchase as one transaction. Fynans starts one level deeper,
-            so a single store run can become useful categories, clear ownership, and a better
-            household conversation.
+            Invite the people you actually share costs with, give them a role, and let the
+            transactions carry their own history — who recorded it, whether it was approved, and
+            what was said if it went back.
           </p>
           <div className="mt-8 space-y-3">
             {audiences.map((audience) => (
@@ -257,22 +268,35 @@ export default function Home() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-[var(--radius)] border border-border-light bg-surface p-6 soft-shadow">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary/10 text-secondary">
-              <FileCheck2 className="h-5 w-5" aria-hidden />
+              <UsersRound className="h-5 w-5" aria-hidden />
             </div>
-            <h3 className="mt-5 text-xl font-semibold text-text">Receipt details stay useful.</h3>
+            <h3 className="mt-5 text-xl font-semibold text-text">Roles that mean something.</h3>
             <p className="mt-3 leading-7 text-text-secondary">
-              Preserve merchant, item, category, and ownership context instead of flattening every
-              purchase into one total.
+              Invite by email and the invitation lapses on its own if nobody acts on it. Owners and
+              admins hold the sign-off; members record spending against the same shared balance.
             </p>
           </div>
           <div className="rounded-[var(--radius)] border border-border-light bg-surface p-6 soft-shadow">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-muted text-primary">
-              <UsersRound className="h-5 w-5" aria-hidden />
+              <Crop className="h-5 w-5" aria-hidden />
             </div>
-            <h3 className="mt-5 text-xl font-semibold text-text">Shared does not mean exposed.</h3>
+            <h3 className="mt-5 text-xl font-semibold text-text">Capture built for a phone.</h3>
             <p className="mt-3 leading-7 text-text-secondary">
-              Household budgets can stay collaborative while personal purchases keep the right level
-              of privacy.
+              Edge detection and cropping run in the browser, on the phone, before anything is
+              uploaded. Queue several receipts at once and keep using the app while they process.
+            </p>
+          </div>
+          <div className="rounded-[var(--radius)] border border-border-light bg-surface p-6 soft-shadow sm:col-span-2">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-info/10 text-info">
+              <Smartphone className="h-5 w-5" aria-hidden />
+            </div>
+            <h3 className="mt-5 text-xl font-semibold text-text">
+              Installs to your home screen.
+            </h3>
+            <p className="mt-3 leading-7 text-text-secondary">
+              Fynans is a progressive web app. Add it to your home screen and it opens like any
+              other app, with the capture engine cached so it is ready the moment you are standing
+              at the till.
             </p>
           </div>
         </div>
@@ -303,27 +327,27 @@ export default function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
-        <div className="rounded-[1.5rem] bg-text px-6 py-12 text-white sm:px-10 lg:px-14">
+        <div className="rounded-[1.5rem] bg-surface-inverse px-6 py-12 text-text-inverse sm:px-10 lg:px-14">
           <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto]">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-light">
                 Start with the next receipt
               </p>
               <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight sm:text-5xl">
-                Turn household purchases into spending clarity while the context is still fresh.
+                Keep the receipt. Skip the argument about what it was for.
               </h2>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
               <a
                 href={registerHref}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary-light px-6 py-3 font-semibold text-text transition hover:bg-white"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary-light px-6 py-3 font-semibold text-surface-inverse transition hover:bg-primary"
               >
                 Create account
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </a>
               <a
                 href={loginHref}
-                className="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-full border border-text-inverse/20 px-6 py-3 font-semibold text-text-inverse transition hover:bg-text-inverse/10"
               >
                 Log in
               </a>
@@ -342,7 +366,7 @@ function Header() {
     <header className="sticky top-0 z-20 border-b border-border-light bg-background/85 backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10">
         <a href="/" className="flex items-center gap-3" aria-label="Fynans home">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-surface-inverse shadow-lg shadow-primary/20">
             <CircleDollarSign className="h-6 w-6" aria-hidden />
           </div>
           <span className="text-xl font-semibold tracking-tight text-text">Fynans</span>
@@ -359,106 +383,19 @@ function Header() {
           </a>
           <a
             href={registerHref}
-            className="rounded-full bg-text px-5 py-2.5 font-semibold text-white transition hover:bg-primary-variant"
+            className="rounded-full bg-surface-inverse px-5 py-2.5 font-semibold text-text-inverse transition hover:bg-surface-inverse/90"
           >
             Get started
           </a>
         </nav>
         <a
           href={registerHref}
-          className="rounded-full bg-text px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-variant md:hidden"
+          className="rounded-full bg-surface-inverse px-4 py-2.5 text-sm font-semibold text-text-inverse transition hover:bg-surface-inverse/90 md:hidden"
         >
           Get started
         </a>
       </div>
     </header>
-  );
-}
-
-function ProductPreview() {
-  return (
-    <div className="relative mx-auto w-full max-w-2xl">
-      <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-primary/15 via-white/40 to-secondary/20 blur-2xl" />
-      <div className="relative rounded-[1.75rem] border border-white/70 bg-glass-bg-strong p-4 soft-shadow backdrop-blur sm:p-5">
-        <div className="rounded-[1.25rem] border border-border-light bg-surface p-5">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-sm text-text-secondary">Receipt captured</p>
-              <p className="mt-1 text-4xl font-semibold tracking-tight text-text">Fresh Market</p>
-            </div>
-            <div className="rounded-full bg-success/10 px-3 py-1.5 text-sm font-semibold text-success">
-              4 items parsed
-            </div>
-          </div>
-          <div className="mt-6 rounded-[var(--radius)] bg-surface-variant p-4">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-semibold text-text">Line-item review</h3>
-              <span className="text-sm text-text-secondary">$53.92 total</span>
-            </div>
-            <div className="space-y-3">
-              {receiptItems.map((item) => (
-                <div
-                  key={item.item}
-                  className="grid gap-3 rounded-xl bg-surface p-3 sm:grid-cols-[1fr_auto] sm:items-center"
-                >
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-success" aria-hidden />
-                      <span className="font-medium text-text">{item.item}</span>
-                    </div>
-                    <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold">
-                      <span className="rounded-full bg-primary-muted px-2.5 py-1 text-primary-variant">
-                        {item.category}
-                      </span>
-                      <span className="rounded-full bg-surface-variant px-2.5 py-1 text-text-secondary">
-                        {item.owner}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="font-semibold text-text">{item.price}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="mt-5 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-            <div className="rounded-[var(--radius)] bg-text p-4 text-white">
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/12">
-                  <FileText className="h-5 w-5" aria-hidden />
-                </div>
-                <span className="rounded-full bg-primary-light px-2.5 py-1 text-xs font-semibold text-text">
-                  Shared
-                </span>
-              </div>
-              <p className="text-sm text-white/60">Household impact</p>
-              <p className="mt-1 text-2xl font-semibold">$28.93</p>
-              <p className="mt-4 text-sm leading-6 text-white/70">
-                Groceries, household, and kids' items move into shared budgets.
-              </p>
-            </div>
-            <div className="rounded-[var(--radius)] bg-surface-variant p-4">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-text">Month by category</h3>
-                <span className="text-sm text-text-secondary">May</span>
-              </div>
-              <div className="space-y-4">
-                {categoryRows.slice(0, 3).map((row) => (
-                  <div key={row.label}>
-                    <div className="mb-2 flex items-center justify-between text-sm">
-                      <span className="text-text-secondary">{row.label}</span>
-                      <span className="font-medium text-text">{row.value}</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-white">
-                      <div className={row.color + ' ' + row.width + ' h-2 rounded-full'} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -468,12 +405,12 @@ function Footer() {
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-10 text-sm text-text-secondary sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
         <div>
           <div className="flex items-center gap-3 text-text">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-surface-inverse">
               <CircleDollarSign className="h-5 w-5" aria-hidden />
             </div>
             <span className="font-semibold">Fynans</span>
           </div>
-          <p className="mt-3">Receipt-level budgeting for shared households.</p>
+          <p className="mt-3">Receipt-level expense tracking for shared households.</p>
         </div>
         <nav className="flex flex-wrap gap-5 font-medium">
           <a href="#features" className="transition hover:text-primary-variant">
@@ -482,15 +419,20 @@ function Footer() {
           <a href="#faq" className="transition hover:text-primary-variant">
             FAQ
           </a>
-          <a href="/privacy" className="transition hover:text-primary-variant">
+          <Link href="/privacy" className="transition hover:text-primary-variant">
             Privacy
-          </a>
-          <a href="/terms" className="transition hover:text-primary-variant">
+          </Link>
+          <Link href="/terms" className="transition hover:text-primary-variant">
             Terms
-          </a>
-          <a href="mailto:hello@fynans.app" className="transition hover:text-primary-variant">
-            Contact
-          </a>
+          </Link>
+          {contactEmail ? (
+            <a
+              href={`mailto:${contactEmail}`}
+              className="transition hover:text-primary-variant"
+            >
+              Contact
+            </a>
+          ) : null}
         </nav>
       </div>
     </footer>
