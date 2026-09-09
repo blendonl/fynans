@@ -18,6 +18,8 @@ model User {
 
   emailVerified Boolean @default(false) @map("email_verified")
 
+  reportingCurrency String @map("reporting_currency") @db.Char(3)
+
   transactions Transaction[]
   accounts     Account[]
   sessions     Session[]

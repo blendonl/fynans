@@ -44,6 +44,7 @@ export type PaymentMethodMinAggregateOutputType = {
   color: string | null
   initialBalance: runtime.Decimal | null
   currentBalance: runtime.Decimal | null
+  currency: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,6 +57,7 @@ export type PaymentMethodMaxAggregateOutputType = {
   color: string | null
   initialBalance: runtime.Decimal | null
   currentBalance: runtime.Decimal | null
+  currency: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -68,6 +70,7 @@ export type PaymentMethodCountAggregateOutputType = {
   color: number
   initialBalance: number
   currentBalance: number
+  currency: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -92,6 +95,7 @@ export type PaymentMethodMinAggregateInputType = {
   color?: true
   initialBalance?: true
   currentBalance?: true
+  currency?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -104,6 +108,7 @@ export type PaymentMethodMaxAggregateInputType = {
   color?: true
   initialBalance?: true
   currentBalance?: true
+  currency?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -116,6 +121,7 @@ export type PaymentMethodCountAggregateInputType = {
   color?: true
   initialBalance?: true
   currentBalance?: true
+  currency?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -215,6 +221,7 @@ export type PaymentMethodGroupByOutputType = {
   color: string
   initialBalance: runtime.Decimal
   currentBalance: runtime.Decimal
+  currency: string | null
   createdAt: Date
   updatedAt: Date
   _count: PaymentMethodCountAggregateOutputType | null
@@ -250,6 +257,7 @@ export type PaymentMethodWhereInput = {
   color?: Prisma.StringFilter<"PaymentMethod"> | string
   initialBalance?: Prisma.DecimalFilter<"PaymentMethod"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: Prisma.DecimalFilter<"PaymentMethod"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.StringNullableFilter<"PaymentMethod"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentMethod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PaymentMethod"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -264,6 +272,7 @@ export type PaymentMethodOrderByWithRelationInput = {
   color?: Prisma.SortOrder
   initialBalance?: Prisma.SortOrder
   currentBalance?: Prisma.SortOrder
+  currency?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -281,6 +290,7 @@ export type PaymentMethodWhereUniqueInput = Prisma.AtLeast<{
   color?: Prisma.StringFilter<"PaymentMethod"> | string
   initialBalance?: Prisma.DecimalFilter<"PaymentMethod"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: Prisma.DecimalFilter<"PaymentMethod"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.StringNullableFilter<"PaymentMethod"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentMethod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PaymentMethod"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -295,6 +305,7 @@ export type PaymentMethodOrderByWithAggregationInput = {
   color?: Prisma.SortOrder
   initialBalance?: Prisma.SortOrder
   currentBalance?: Prisma.SortOrder
+  currency?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PaymentMethodCountOrderByAggregateInput
@@ -315,6 +326,7 @@ export type PaymentMethodScalarWhereWithAggregatesInput = {
   color?: Prisma.StringWithAggregatesFilter<"PaymentMethod"> | string
   initialBalance?: Prisma.DecimalWithAggregatesFilter<"PaymentMethod"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: Prisma.DecimalWithAggregatesFilter<"PaymentMethod"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.StringNullableWithAggregatesFilter<"PaymentMethod"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentMethod"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentMethod"> | Date | string
 }
@@ -326,6 +338,7 @@ export type PaymentMethodCreateInput = {
   color?: string
   initialBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPaymentMethodsInput
@@ -340,6 +353,7 @@ export type PaymentMethodUncheckedCreateInput = {
   color?: string
   initialBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutPaymentMethodInput
@@ -352,6 +366,7 @@ export type PaymentMethodUpdateInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   initialBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPaymentMethodsNestedInput
@@ -366,6 +381,7 @@ export type PaymentMethodUncheckedUpdateInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   initialBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutPaymentMethodNestedInput
@@ -379,6 +395,7 @@ export type PaymentMethodCreateManyInput = {
   color?: string
   initialBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -390,6 +407,7 @@ export type PaymentMethodUpdateManyMutationInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   initialBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -402,6 +420,7 @@ export type PaymentMethodUncheckedUpdateManyInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   initialBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -414,6 +433,7 @@ export type PaymentMethodCountOrderByAggregateInput = {
   color?: Prisma.SortOrder
   initialBalance?: Prisma.SortOrder
   currentBalance?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -431,6 +451,7 @@ export type PaymentMethodMaxOrderByAggregateInput = {
   color?: Prisma.SortOrder
   initialBalance?: Prisma.SortOrder
   currentBalance?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -443,6 +464,7 @@ export type PaymentMethodMinOrderByAggregateInput = {
   color?: Prisma.SortOrder
   initialBalance?: Prisma.SortOrder
   currentBalance?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -536,6 +558,7 @@ export type PaymentMethodCreateWithoutUserInput = {
   color?: string
   initialBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionCreateNestedManyWithoutPaymentMethodInput
@@ -548,6 +571,7 @@ export type PaymentMethodUncheckedCreateWithoutUserInput = {
   color?: string
   initialBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutPaymentMethodInput
@@ -590,6 +614,7 @@ export type PaymentMethodScalarWhereInput = {
   color?: Prisma.StringFilter<"PaymentMethod"> | string
   initialBalance?: Prisma.DecimalFilter<"PaymentMethod"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: Prisma.DecimalFilter<"PaymentMethod"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.StringNullableFilter<"PaymentMethod"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PaymentMethod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PaymentMethod"> | Date | string
 }
@@ -601,6 +626,7 @@ export type PaymentMethodCreateWithoutTransactionsInput = {
   color?: string
   initialBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPaymentMethodsInput
@@ -614,6 +640,7 @@ export type PaymentMethodUncheckedCreateWithoutTransactionsInput = {
   color?: string
   initialBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -641,6 +668,7 @@ export type PaymentMethodUpdateWithoutTransactionsInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   initialBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPaymentMethodsNestedInput
@@ -654,6 +682,7 @@ export type PaymentMethodUncheckedUpdateWithoutTransactionsInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   initialBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -665,6 +694,7 @@ export type PaymentMethodCreateManyUserInput = {
   color?: string
   initialBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -676,6 +706,7 @@ export type PaymentMethodUpdateWithoutUserInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   initialBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUpdateManyWithoutPaymentMethodNestedInput
@@ -688,6 +719,7 @@ export type PaymentMethodUncheckedUpdateWithoutUserInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   initialBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutPaymentMethodNestedInput
@@ -700,6 +732,7 @@ export type PaymentMethodUncheckedUpdateManyWithoutUserInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   initialBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currentBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -743,6 +776,7 @@ export type PaymentMethodSelect<ExtArgs extends runtime.Types.Extensions.Interna
   color?: boolean
   initialBalance?: boolean
   currentBalance?: boolean
+  currency?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -758,6 +792,7 @@ export type PaymentMethodSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   color?: boolean
   initialBalance?: boolean
   currentBalance?: boolean
+  currency?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -771,6 +806,7 @@ export type PaymentMethodSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   color?: boolean
   initialBalance?: boolean
   currentBalance?: boolean
+  currency?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -784,11 +820,12 @@ export type PaymentMethodSelectScalar = {
   color?: boolean
   initialBalance?: boolean
   currentBalance?: boolean
+  currency?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PaymentMethodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "type" | "color" | "initialBalance" | "currentBalance" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentMethod"]>
+export type PaymentMethodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "type" | "color" | "initialBalance" | "currentBalance" | "currency" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentMethod"]>
 export type PaymentMethodInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   transactions?: boolean | Prisma.PaymentMethod$transactionsArgs<ExtArgs>
@@ -815,6 +852,7 @@ export type $PaymentMethodPayload<ExtArgs extends runtime.Types.Extensions.Inter
     color: string
     initialBalance: runtime.Decimal
     currentBalance: runtime.Decimal
+    currency: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["paymentMethod"]>
@@ -1249,6 +1287,7 @@ export interface PaymentMethodFieldRefs {
   readonly color: Prisma.FieldRef<"PaymentMethod", 'String'>
   readonly initialBalance: Prisma.FieldRef<"PaymentMethod", 'Decimal'>
   readonly currentBalance: Prisma.FieldRef<"PaymentMethod", 'Decimal'>
+  readonly currency: Prisma.FieldRef<"PaymentMethod", 'String'>
   readonly createdAt: Prisma.FieldRef<"PaymentMethod", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PaymentMethod", 'DateTime'>
 }

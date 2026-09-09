@@ -3042,6 +3042,7 @@ export const PaymentMethodScalarFieldEnum = {
   color: 'color',
   initialBalance: 'initialBalance',
   currentBalance: 'currentBalance',
+  currency: 'currency',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3074,6 +3075,7 @@ export const UserScalarFieldEnum = {
   lastName: 'lastName',
   image: 'image',
   emailVerified: 'emailVerified',
+  reportingCurrency: 'reportingCurrency',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3192,6 +3194,9 @@ export const TransactionScalarFieldEnum = {
   type: 'type',
   status: 'status',
   value: 'value',
+  currency: 'currency',
+  exchangeRate: 'exchangeRate',
+  settledValue: 'settledValue',
   rejectionReason: 'rejectionReason',
   recordedAt: 'recordedAt',
   deletedAt: 'deletedAt',
