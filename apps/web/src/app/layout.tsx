@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "Fynans",
-  description: "Personal finance management",
+  description: "Receipt-level expense tracking for households",
   icons: {
     icon: "/icon.svg",
     apple: "/apple-touch-icon.png",
