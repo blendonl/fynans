@@ -1,9 +1,4 @@
-import {
-  IsOptional,
-  IsString,
-  MaxLength,
-  ValidateIf,
-} from 'class-validator';
+import { IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 const MAX_NAME_LENGTH = 100;
