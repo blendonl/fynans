@@ -1,42 +1,21 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { useAuth } from "@/providers/auth-provider";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/providers/auth-provider";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL!;
-
-function AuthCallback() {
-  const searchParams = useSearchParams();
-  const { handleOAuthCallback } = useAuth();
+export default function AuthCallbackPage() {
+  const { completeOAuthSignIn } = useAuth();
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    const tokenFromParams = searchParams.get("token");
-    if (tokenFromParams) {
-      handleOAuthCallback(tokenFromParams);
-      return;
-    }
-
-    fetch(`${API_URL}/api/auth/get-session`, {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.session?.token) {
-          handleOAuthCallback(data.session.token);
-        } else {
-          setError(true);
-        }
-      })
-      .catch(() => setError(true));
-  }, [searchParams, handleOAuthCallback]);
+    completeOAuthSignIn().catch(() => setError(true));
+  }, [completeOAuthSignIn]);
 
   if (error) {
     return (
       <div className="text-center space-y-4">
-        <p className="text-error">Authentication failed. No token received.</p>
+        <p className="text-error">Authentication failed. No session was created.</p>
         <Link href="/login" className="text-primary hover:underline font-medium">
           Back to login
         </Link>
@@ -48,19 +27,5 @@ function AuthCallback() {
     <div className="text-center">
       <p className="text-text-secondary">Signing you in...</p>
     </div>
-  );
-}
-
-export default function AuthCallbackPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="text-center">
-          <p className="text-text-secondary">Loading...</p>
-        </div>
-      }
-    >
-      <AuthCallback />
-    </Suspense>
   );
 }
