@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IItemRepository,
@@ -11,11 +11,18 @@ import {
 import { Item } from '../../domain/entities/item.entity';
 import { Pagination } from '~common/dto/pagination.dto';
 import { ItemMapper } from '../mappers/item.mapper';
-import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
+import {
+  FAMILY_MEMBERSHIP_REPOSITORY,
+  type IFamilyMembershipRepository,
+} from '~common/authorization/domain/repositories/family-membership.repository.interface';
 
 @Injectable()
 export class PrismaItemRepository implements IItemRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(FAMILY_MEMBERSHIP_REPOSITORY)
+    private readonly familyMembershipRepository: IFamilyMembershipRepository,
+  ) {}
 
   async create(data: CreateItemData): Promise<Item> {
     const item = await this.prisma.item.create({
@@ -45,7 +52,8 @@ export class PrismaItemRepository implements IItemRepository {
   }
 
   async findVisibleById(id: string, userId: string): Promise<Item | null> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const item = await this.prisma.item.findFirst({
       where: { id, userId: { in: visibleUserIds } },
       include: {
@@ -117,7 +125,8 @@ export class PrismaItemRepository implements IItemRepository {
     categoryId: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<Item>> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const where = {
       categoryId,
       userId: { in: visibleUserIds },
@@ -149,7 +158,8 @@ export class PrismaItemRepository implements IItemRepository {
     filters?: { search?: string },
     pagination?: Pagination,
   ): Promise<PaginatedResult<Item>> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const where: any = {
       userId: { in: visibleUserIds },
     };
@@ -241,7 +251,8 @@ export class PrismaItemRepository implements IItemRepository {
     id: string,
     userId: string,
   ): Promise<ItemDetailResult | null> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const item = await this.prisma.item.findFirst({
       where: { id, userId: { in: visibleUserIds } },
       include: {

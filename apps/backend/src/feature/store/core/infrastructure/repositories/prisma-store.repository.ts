@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IStoreRepository,
@@ -7,11 +7,18 @@ import {
 import { Store } from '../../domain/entities/store.entity';
 import { Pagination } from '~common/dto/pagination.dto';
 import { StoreMapper } from '../mappers/store.mapper';
-import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
+import {
+  FAMILY_MEMBERSHIP_REPOSITORY,
+  type IFamilyMembershipRepository,
+} from '~common/authorization/domain/repositories/family-membership.repository.interface';
 
 @Injectable()
 export class PrismaStoreRepository implements IStoreRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(FAMILY_MEMBERSHIP_REPOSITORY)
+    private readonly familyMembershipRepository: IFamilyMembershipRepository,
+  ) {}
 
   async create(data: Partial<Store>): Promise<Store> {
     const store = await this.prisma.store.create({
@@ -67,7 +74,8 @@ export class PrismaStoreRepository implements IStoreRepository {
     filters?: { search?: string },
     pagination?: Pagination,
   ): Promise<PaginatedResult<Store>> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const where: any = {
       users: { some: { userId: { in: visibleUserIds } } },
     };

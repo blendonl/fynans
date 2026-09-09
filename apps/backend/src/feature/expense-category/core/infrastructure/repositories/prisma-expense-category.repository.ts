@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IExpenseCategoryRepository,
@@ -8,11 +8,18 @@ import {
 } from '../../domain/repositories/expense-category.repository.interface';
 import { ExpenseCategory } from '../../domain/entities/expense-category.entity';
 import { Pagination } from '~common/dto/pagination.dto';
-import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
+import {
+  FAMILY_MEMBERSHIP_REPOSITORY,
+  type IFamilyMembershipRepository,
+} from '~common/authorization/domain/repositories/family-membership.repository.interface';
 
 @Injectable()
 export class PrismaExpenseCategoryRepository implements IExpenseCategoryRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(FAMILY_MEMBERSHIP_REPOSITORY)
+    private readonly familyMembershipRepository: IFamilyMembershipRepository,
+  ) {}
 
   async create(data: CreateExpenseCategoryData): Promise<ExpenseCategory> {
     const category = await this.prisma.expenseCategory.create({
@@ -39,7 +46,8 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
     id: string,
     userId: string,
   ): Promise<ExpenseCategory | null> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const category = await this.prisma.expenseCategory.findFirst({
       where: { id, userId: { in: visibleUserIds } },
     });
@@ -63,7 +71,8 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
     pagination?: Pagination,
     filters?: { search?: string },
   ): Promise<PaginatedResult<ExpenseCategory>> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const where: any = {
       userId: { in: visibleUserIds },
     };
@@ -93,7 +102,8 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
     parentId: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<ExpenseCategory>> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const where = {
       parentId,
       userId: { in: visibleUserIds },
@@ -119,7 +129,8 @@ export class PrismaExpenseCategoryRepository implements IExpenseCategoryReposito
     parentId: string,
     userId: string,
   ): Promise<ExpenseCategory[]> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const categories = await this.prisma.expenseCategory.findMany({
       where: { parentId, userId: { in: visibleUserIds } },
       orderBy: { name: 'asc' },
