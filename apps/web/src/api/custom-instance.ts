@@ -1,11 +1,9 @@
-import { getToken } from '@/lib/auth';
 import { API_BASE_URL } from '@/lib/env';
 
 export const customInstance = async <T>(
   url: string,
   init: RequestInit,
 ): Promise<T> => {
-  const token = getToken();
   const requestHeaders: Record<string, string> = {};
 
   if (init.headers) {
@@ -23,14 +21,12 @@ export const customInstance = async <T>(
   if (isFormData) {
     delete requestHeaders['Content-Type'];
   }
-  if (token) {
-    requestHeaders['Authorization'] = `Bearer ${token}`;
-  }
 
   const fullUrl = `${API_BASE_URL}${url}`;
 
   const response = await fetch(fullUrl, {
     ...init,
+    credentials: 'include',
     headers: requestHeaders,
   });
 

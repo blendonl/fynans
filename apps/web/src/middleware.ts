@@ -1,31 +1,49 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const AUTH_PAGES = ["/login", "/register", "/auth/callback"];
-const PROTECTED_PREFIX = "/";
+const SESSION_COOKIES = [
+  "better-auth.session_token",
+  "__Secure-better-auth.session_token",
+];
+
+const SIGNED_OUT_ONLY_ROUTES = ["/login", "/register"];
+
+const PUBLIC_ROUTES = [
+  ...SIGNED_OUT_ONLY_ROUTES,
+  "/auth/callback",
+  "/welcome",
+  "/privacy",
+  "/terms",
+];
+
+function hasSession(request: NextRequest) {
+  return SESSION_COOKIES.some((name) => Boolean(request.cookies.get(name)?.value));
+}
+
+function matches(pathname: string, routes: string[]) {
+  return routes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+}
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
+  const signedIn = hasSession(request);
 
   if (pathname === "/") {
-    if (!token) {
-      return NextResponse.rewrite(new URL("/welcome", request.url));
-    }
+    return signedIn
+      ? NextResponse.next()
+      : NextResponse.rewrite(new URL("/welcome", request.url));
+  }
+
+  if (signedIn && matches(pathname, SIGNED_OUT_ONLY_ROUTES)) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  if (matches(pathname, PUBLIC_ROUTES)) {
     return NextResponse.next();
   }
 
-  if (AUTH_PAGES.some((p) => pathname.startsWith(p))) {
-    if (token) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-    return NextResponse.next();
-  }
-
-  if (pathname === PROTECTED_PREFIX || pathname.startsWith("/transactions") || pathname.startsWith("/add") || pathname.startsWith("/analytics") || pathname.startsWith("/families") || pathname.startsWith("/notifications") || pathname.startsWith("/profile")) {
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
+  if (!signedIn) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.next();
