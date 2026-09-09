@@ -82,7 +82,7 @@ describe('ExpenseItemController authorization', () => {
   let server: Server;
   let currentUserId: string;
   let expenseItemService: {
-    create: jest.Mock;
+    addToExpense: jest.Mock;
     findAll: jest.Mock;
     findById: jest.Mock;
     update: jest.Mock;
@@ -120,7 +120,7 @@ describe('ExpenseItemController authorization', () => {
 
   beforeAll(async () => {
     expenseItemService = {
-      create: jest.fn(() => Promise.resolve(expenseItemOf(ITEM_A))),
+      addToExpense: jest.fn(() => Promise.resolve(expenseItemOf(ITEM_A))),
       findAll: jest.fn(() => Promise.resolve({ data: [], total: 0 })),
       findById: jest.fn((id: string) => Promise.resolve(expenseItemOf(id))),
       update: jest.fn((id: string) => Promise.resolve(expenseItemOf(id))),
@@ -214,7 +214,7 @@ describe('ExpenseItemController authorization', () => {
         .send(createBody(EXPENSE_A))
         .expect(404);
 
-      expect(expenseItemService.create).not.toHaveBeenCalled();
+      expect(expenseItemService.addToExpense).not.toHaveBeenCalled();
     });
 
     it('cannot read a family-attributed line item of a family it does not belong to', async () => {
@@ -278,7 +278,7 @@ describe('ExpenseItemController authorization', () => {
         .send(createBody(EXPENSE_A))
         .expect(201);
 
-      expect(expenseItemService.create).toHaveBeenCalled();
+      expect(expenseItemService.addToExpense).toHaveBeenCalled();
     });
   });
 
