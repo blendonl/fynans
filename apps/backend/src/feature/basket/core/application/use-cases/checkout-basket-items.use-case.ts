@@ -7,7 +7,7 @@ import { BasketScope } from '../../domain/entities/basket.entity';
 import { CreateExpenseDto } from '../../../../expense/core/application/dto/create-expense.dto';
 import { CreateExpenseItemDto } from '../../../../expense-item/core/application/dto/create-expense-item.dto';
 import { NotificationType } from '../../../../notification/core/domain/value-objects/notification-type.vo';
-import { ExpenseService } from '../../../../expense/core/application/services/expense.service';
+import { CreateExpenseUseCase } from '../../../../expense/core/application/use-cases/create-expense.use-case';
 import {
   DomainNotFoundException,
   DomainForbiddenException,
@@ -22,7 +22,7 @@ export class CheckoutBasketItemsUseCase {
     @Inject('BasketRepository')
     private readonly basketRepository: IBasketRepository,
     private readonly familyService: FamilyService,
-    private readonly expenseService: ExpenseService,
+    private readonly createExpenseUseCase: CreateExpenseUseCase,
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
   ) {}
 
@@ -96,7 +96,7 @@ export class CheckoutBasketItemsUseCase {
     // Create expense via ExpenseService (reuse the full flow)
     const familyId = basket.scope === BasketScope.FAMILY ? basket.familyId : dto.familyId;
 
-    const expense = await this.expenseService.create(
+    const expense = await this.createExpenseUseCase.execute(
       new CreateExpenseDto({
         userId: dto.userId,
         categoryId: dto.categoryId,

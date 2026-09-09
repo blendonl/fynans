@@ -27,6 +27,7 @@ import { DeleteStoredReceiptUseCase } from './application/use-cases/delete-store
 import { LinkReceiptToExpenseUseCase } from './application/use-cases/link-receipt-to-expense.use-case';
 import { ExpenseCoreModule } from '~feature/expense/core/expense-core.module';
 import { FamilyCoreModule } from '~feature/family/core/family-core.module';
+import { AuthorizationModule } from '~common/authorization';
 import { CopilotTokenService } from '~common/services/copilot-token.service';
 
 @Module({
@@ -37,6 +38,7 @@ import { CopilotTokenService } from '~common/services/copilot-token.service';
     StoreItemCategoryCoreModule,
     ExpenseCategoryCoreModule,
     FamilyCoreModule,
+    AuthorizationModule,
     forwardRef(() => ExpenseCoreModule),
     BullModule.registerQueue({ name: 'receipt-processing' }),
   ],

@@ -21,6 +21,11 @@ import { FamilyResponseDto } from '../dto/family-response.dto';
 import { FamilyWithMembersResponseDto } from '../dto/family-with-members-response.dto';
 import { FamilyInvitationResponseDto } from '../dto/family-invitation-response.dto';
 import { FamilyMemberResponseDto } from '../dto/family-member-response.dto';
+import {
+  FamilyMemberRole,
+  RequiresFamilyMembership,
+  RequiresFamilyRole,
+} from '~common/authorization';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 
@@ -50,26 +55,25 @@ export class FamilyController {
     return FamilyResponseDto.fromEntities(families);
   }
 
-  @Get(':id')
+  @Get(':familyId')
+  @RequiresFamilyMembership({ required: true })
   @ApiOperation({ summary: 'Get a family with its members' })
   @ApiResponse({ status: 200, type: FamilyWithMembersResponseDto })
-  async findOne(@Param('id') familyId: string, @CurrentUser() user: User) {
-    const result = await this.familyService.findOneWithMembers(
-      familyId,
-      user.id,
-    );
+  async findOne(@Param('familyId') familyId: string) {
+    const result = await this.familyService.findOneWithMembers(familyId);
     return FamilyWithMembersResponseDto.fromFamilyAndMembers(
       result.family,
       result.membersWithUsers,
     );
   }
 
-  @Post(':id/invitations')
+  @Post(':familyId/invitations')
   @HttpCode(HttpStatus.CREATED)
+  @RequiresFamilyRole(FamilyMemberRole.OWNER, FamilyMemberRole.ADMIN)
   @ApiOperation({ summary: 'Invite a member to a family' })
   @ApiResponse({ status: 201, type: FamilyInvitationResponseDto })
   async inviteMember(
-    @Param('id') familyId: string,
+    @Param('familyId') familyId: string,
     @Body() dto: InviteMemberRequestDto,
     @CurrentUser() user: User,
   ) {
@@ -90,17 +94,13 @@ export class FamilyController {
     return FamilyInvitationResponseDto.fromEntities(invitations);
   }
 
-  @Get(':id/invitations/pending')
+  @Get(':familyId/invitations/pending')
+  @RequiresFamilyMembership({ required: true })
   @ApiOperation({ summary: 'Get pending invitations for a family' })
   @ApiResponse({ status: 200, type: [FamilyInvitationResponseDto] })
-  async getFamilyPendingInvitations(
-    @Param('id') familyId: string,
-    @CurrentUser() user: User,
-  ) {
-    const invitations = await this.familyService.getFamilyPendingInvitations(
-      familyId,
-      user.id,
-    );
+  async getFamilyPendingInvitations(@Param('familyId') familyId: string) {
+    const invitations =
+      await this.familyService.getFamilyPendingInvitations(familyId);
     return FamilyInvitationResponseDto.fromEntities(invitations);
   }
 
@@ -141,23 +141,28 @@ export class FamilyController {
     await this.familyService.cancelInvitation(invitationId, user.id);
   }
 
-  @Delete(':id/members/:userId')
+  @Delete(':familyId/members/me')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @RequiresFamilyMembership({ required: true })
+  @ApiOperation({ summary: 'Leave a family' })
+  @ApiResponse({ status: 204 })
+  async leaveFamily(
+    @Param('familyId') familyId: string,
+    @CurrentUser() user: User,
+  ) {
+    await this.familyService.leave(familyId, user.id);
+  }
+
+  @Delete(':familyId/members/:userId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @RequiresFamilyRole(FamilyMemberRole.OWNER, FamilyMemberRole.ADMIN)
   @ApiOperation({ summary: 'Remove a member from a family' })
   @ApiResponse({ status: 204 })
   async removeMember(
-    @Param('id') familyId: string,
+    @Param('familyId') familyId: string,
     @Param('userId') targetUserId: string,
     @CurrentUser() user: User,
   ) {
     await this.familyService.removeMember(familyId, targetUserId, user.id);
-  }
-
-  @Delete(':id/members/me')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Leave a family' })
-  @ApiResponse({ status: 204 })
-  async leaveFamily(@Param('id') familyId: string, @CurrentUser() user: User) {
-    await this.familyService.leave(familyId, user.id);
   }
 }

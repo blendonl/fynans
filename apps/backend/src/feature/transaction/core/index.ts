@@ -1,7 +1,5 @@
 export * from './transaction-core.module';
 
-export * from './application/services/transaction.service';
-
 export * from './application/use-cases/create-transaction.use-case';
 export * from './application/use-cases/get-transaction-by-id.use-case';
 export * from './application/use-cases/list-transactions.use-case';

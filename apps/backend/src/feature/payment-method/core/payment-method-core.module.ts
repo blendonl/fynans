@@ -31,6 +31,18 @@ import { PaymentMethodService } from './application/services/payment-method.serv
     VerifyPaymentMethodOwnershipUseCase,
     PaymentMethodService,
   ],
-  exports: [PaymentMethodService, 'PaymentMethodRepository'],
+  exports: [
+    PaymentMethodService,
+    CreatePaymentMethodUseCase,
+    GetPaymentMethodByIdUseCase,
+    ListPaymentMethodsUseCase,
+    UpdatePaymentMethodUseCase,
+    DeletePaymentMethodUseCase,
+    RecalculateBalanceUseCase,
+    GetBalanceSummaryUseCase,
+    GetBalanceUseCase,
+    VerifyPaymentMethodOwnershipUseCase,
+    'PaymentMethodRepository',
+  ],
 })
 export class PaymentMethodCoreModule {}

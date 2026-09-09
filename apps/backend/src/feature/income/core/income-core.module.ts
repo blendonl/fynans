@@ -11,7 +11,6 @@ import { GetIncomeByTransactionIdUseCase } from './application/use-cases/get-inc
 import { ListIncomesUseCase } from './application/use-cases/list-incomes.use-case';
 import { UpdateIncomeUseCase } from './application/use-cases/update-income.use-case';
 import { DeleteIncomeUseCase } from './application/use-cases/delete-income.use-case';
-import { IncomeService } from './application/services/income.service';
 
 @Module({
   imports: [
@@ -32,8 +31,15 @@ import { IncomeService } from './application/services/income.service';
     ListIncomesUseCase,
     UpdateIncomeUseCase,
     DeleteIncomeUseCase,
-    IncomeService,
   ],
-  exports: [IncomeService, 'IncomeRepository'],
+  exports: [
+    CreateIncomeUseCase,
+    GetIncomeByIdUseCase,
+    GetIncomeByTransactionIdUseCase,
+    ListIncomesUseCase,
+    UpdateIncomeUseCase,
+    DeleteIncomeUseCase,
+    'IncomeRepository',
+  ],
 })
 export class IncomeCoreModule {}

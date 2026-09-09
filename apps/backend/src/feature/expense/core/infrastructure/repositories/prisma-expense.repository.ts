@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IExpenseRepository,
@@ -296,8 +297,11 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   private buildWhereClause(
     filters?: ExpenseFiltersInterface,
   ): Prisma.ExpenseWhereInput {
-    if (!filters)
-      return { transaction: { status: PrismaTransactionStatus.CONFIRMED } };
+    if (!filters?.userId && !filters?.familyId) {
+      throw new DomainValidationException(
+        'Expense queries must be scoped to a user or to a verified family',
+      );
+    }
 
     const where: Prisma.ExpenseWhereInput = {};
 

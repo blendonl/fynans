@@ -8,7 +8,7 @@ const attacker = 'attacker-1';
 describe('CreateIncomeUseCase', () => {
   let incomeRepository: { create: jest.Mock; findByTransactionId: jest.Mock };
   let incomeCategoryRepository: { findById: jest.Mock; linkToUser: jest.Mock };
-  let transactionService: { findById: jest.Mock };
+  let getTransactionByIdUseCase: { execute: jest.Mock };
   let notifyFamilyMembersService: { notify: jest.Mock };
   let useCase: CreateIncomeUseCase;
 
@@ -21,17 +21,12 @@ describe('CreateIncomeUseCase', () => {
       findById: jest.fn().mockResolvedValue({ id: 'category-1' }),
       linkToUser: jest.fn().mockResolvedValue(undefined),
     };
-    transactionService = {
-      findById: jest.fn().mockImplementation((_id: string, userId?: string) => {
-        if (userId && userId !== owner) {
-          throw new DomainForbiddenException('Access denied');
-        }
-        return Promise.resolve({
-          id: 'transaction-1',
-          userId: owner,
-          familyId: null,
-          value: 100,
-        });
+    getTransactionByIdUseCase = {
+      execute: jest.fn().mockResolvedValue({
+        id: 'transaction-1',
+        userId: owner,
+        familyId: null,
+        value: 100,
       }),
     };
     notifyFamilyMembersService = {
@@ -41,7 +36,7 @@ describe('CreateIncomeUseCase', () => {
     useCase = new CreateIncomeUseCase(
       incomeRepository as never,
       incomeCategoryRepository as never,
-      transactionService as never,
+      getTransactionByIdUseCase as never,
       notifyFamilyMembersService as never,
     );
   });
@@ -73,9 +68,8 @@ describe('CreateIncomeUseCase', () => {
 
     await expect(useCase.execute(dto)).resolves.toEqual({ id: 'income-1' });
 
-    expect(transactionService.findById).toHaveBeenCalledWith(
+    expect(getTransactionByIdUseCase.execute).toHaveBeenCalledWith(
       'transaction-1',
-      owner,
     );
     expect(incomeRepository.create).toHaveBeenCalled();
   });

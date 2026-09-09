@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
-import { TransactionService } from '../../../../transaction/core/application/services/transaction.service';
+import { CreateTransactionUseCase } from '../../../../transaction/core/application/use-cases/create-transaction.use-case';
 import { StoreService } from '../../../../store/core/application/services/store.service';
 import { ExpenseItemService } from '../../../../expense-item/core/application/services/expense-item.service';
 import { ExpenseCategoryService } from '../../../../expense-category/core/application/services/expense-category.service';
@@ -25,7 +25,7 @@ export class CreateExpenseUseCase {
     @Inject('ExpenseRepository')
     private readonly expenseRepository: IExpenseRepository,
     private readonly expenseCategoryService: ExpenseCategoryService,
-    private readonly transactionService: TransactionService,
+    private readonly createTransactionUseCase: CreateTransactionUseCase,
     private readonly storeService: StoreService,
     private readonly expenseItemService: ExpenseItemService,
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
@@ -70,7 +70,7 @@ export class CreateExpenseUseCase {
     const status = dto.status ?? TransactionStatus.CONFIRMED;
     const isPending = status === TransactionStatus.PENDING;
 
-    const transaction = await this.transactionService.create(
+    const transaction = await this.createTransactionUseCase.execute(
       new CreateTransactionDto(
         dto.userId,
         TransactionType.EXPENSE,

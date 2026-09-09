@@ -15,7 +15,13 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { PaymentMethodService } from '../../core/application/services/payment-method.service';
+import { CreatePaymentMethodUseCase } from '../../core/application/use-cases/create-payment-method.use-case';
+import { GetPaymentMethodByIdUseCase } from '../../core/application/use-cases/get-payment-method-by-id.use-case';
+import { ListPaymentMethodsUseCase } from '../../core/application/use-cases/list-payment-methods.use-case';
+import { UpdatePaymentMethodUseCase } from '../../core/application/use-cases/update-payment-method.use-case';
+import { DeletePaymentMethodUseCase } from '../../core/application/use-cases/delete-payment-method.use-case';
+import { GetBalanceUseCase } from '../../core/application/use-cases/get-balance.use-case';
+import { GetBalanceSummaryUseCase } from '../../core/application/use-cases/get-balance-summary.use-case';
 import { CreatePaymentMethodRequestDto } from '../dto/create-payment-method-request.dto';
 import { UpdatePaymentMethodRequestDto } from '../dto/update-payment-method-request.dto';
 import { PaymentMethodResponseDto } from '../dto/payment-method-response.dto';
@@ -30,7 +36,13 @@ import { User } from '../../../user/core/domain/entities/user.entity';
 @Controller('payment-methods')
 export class PaymentMethodController {
   constructor(
-    private readonly paymentMethodService: PaymentMethodService,
+    private readonly createPaymentMethodUseCase: CreatePaymentMethodUseCase,
+    private readonly getPaymentMethodByIdUseCase: GetPaymentMethodByIdUseCase,
+    private readonly listPaymentMethodsUseCase: ListPaymentMethodsUseCase,
+    private readonly updatePaymentMethodUseCase: UpdatePaymentMethodUseCase,
+    private readonly deletePaymentMethodUseCase: DeletePaymentMethodUseCase,
+    private readonly getBalanceUseCase: GetBalanceUseCase,
+    private readonly getBalanceSummaryUseCase: GetBalanceSummaryUseCase,
   ) {}
 
   @Post()
@@ -49,7 +61,7 @@ export class PaymentMethodController {
       createDto.initialBalance,
     );
 
-    const paymentMethod = await this.paymentMethodService.create(coreDto);
+    const paymentMethod = await this.createPaymentMethodUseCase.execute(coreDto);
     return PaymentMethodResponseDto.fromEntity(paymentMethod);
   }
 
@@ -57,7 +69,7 @@ export class PaymentMethodController {
   @ApiOperation({ summary: 'Get all payment methods' })
   @ApiResponse({ status: 200, type: [PaymentMethodResponseDto] })
   async findAll(@CurrentUser() user: User) {
-    const paymentMethods = await this.paymentMethodService.findAll(user.id);
+    const paymentMethods = await this.listPaymentMethodsUseCase.execute(user.id);
     return PaymentMethodResponseDto.fromEntities(paymentMethods);
   }
 
@@ -65,14 +77,14 @@ export class PaymentMethodController {
   @ApiOperation({ summary: 'Get unified balance with payment method breakdown and family balances' })
   @ApiResponse({ status: 200, type: BalanceResponseDto })
   async getBalance(@CurrentUser() user: User) {
-    return this.paymentMethodService.getBalance(user.id);
+    return this.getBalanceUseCase.execute(user.id);
   }
 
   @Get('balance-summary')
   @ApiOperation({ summary: 'Get balance summary' })
   @ApiResponse({ status: 200 })
   async getBalanceSummary(@CurrentUser() user: User) {
-    const summary = await this.paymentMethodService.getBalanceSummary(user.id);
+    const summary = await this.getBalanceSummaryUseCase.execute(user.id);
     return summary.map((item) => ({
       id: item.id,
       name: item.name,
@@ -85,7 +97,7 @@ export class PaymentMethodController {
   @ApiOperation({ summary: 'Get a payment method by ID' })
   @ApiResponse({ status: 200, type: PaymentMethodResponseDto })
   async findOne(@Param('id') id: string, @CurrentUser() user: User) {
-    const paymentMethod = await this.paymentMethodService.findById(id, user.id);
+    const paymentMethod = await this.getPaymentMethodByIdUseCase.execute(id, user.id);
     return PaymentMethodResponseDto.fromEntity(paymentMethod);
   }
 
@@ -104,7 +116,7 @@ export class PaymentMethodController {
       initialBalance: updateDto.initialBalance,
     });
 
-    const paymentMethod = await this.paymentMethodService.update(
+    const paymentMethod = await this.updatePaymentMethodUseCase.execute(
       id,
       user.id,
       coreDto,
@@ -117,6 +129,6 @@ export class PaymentMethodController {
   @ApiOperation({ summary: 'Delete a payment method' })
   @ApiResponse({ status: 204 })
   async remove(@Param('id') id: string, @CurrentUser() user: User) {
-    await this.paymentMethodService.delete(id, user.id);
+    await this.deletePaymentMethodUseCase.execute(id, user.id);
   }
 }
