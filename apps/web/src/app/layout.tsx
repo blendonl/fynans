@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { ToastProvider } from "@/providers/toast-provider";
 import { ServiceWorkerRegister } from "@/components/pwa/sw-register";
+import { siteDescription, siteName, siteTagline, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -22,8 +23,20 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Fynans",
-  description: "Receipt-level expense tracking for households",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: siteName,
+    template: `%s | ${siteName}`,
+  },
+  description: siteTagline,
+  applicationName: siteName,
+  keywords: [
+    "receipt scanning",
+    "expense tracking",
+    "household budgeting",
+    "shared expenses",
+    "family finance",
+  ],
   icons: {
     icon: "/icon.svg",
     apple: "/apple-touch-icon.png",
@@ -31,7 +44,20 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Fynans",
+    title: siteName,
+  },
+  openGraph: {
+    type: "website",
+    siteName,
+    title: `${siteName} | ${siteTagline}`,
+    description: siteDescription,
+    url: "/",
+    locale: "en_GB",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteName} | ${siteTagline}`,
+    description: siteDescription,
   },
 };
 

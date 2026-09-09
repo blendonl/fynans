@@ -8,9 +8,10 @@ import {
 } from '@/components/marketing/legal-page';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Fynans',
+  title: 'Privacy Policy',
   description:
     'What Fynans collects, how receipts are stored and processed, who can see your household data, and how to have it deleted.',
+  alternates: { canonical: '/privacy' },
 };
 
 export default function PrivacyPolicy() {
