@@ -4,7 +4,7 @@ import {
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
-import { CreateNotificationUseCase } from '../../../../notification/core/application/use-cases/create-notification.use-case';
+import { CreateNotificationsUseCase } from '../../../../notification/core/application/use-cases/create-notifications.use-case';
 import {
   NotificationType,
   DeliveryMethod,
@@ -17,7 +17,7 @@ export class RemoveFamilyMemberUseCase {
   constructor(
     @Inject('FamilyRepository')
     private readonly familyRepository: IFamilyRepository,
-    private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly createNotificationsUseCase: CreateNotificationsUseCase,
     private readonly userService: UserService,
   ) {}
 
@@ -55,36 +55,36 @@ export class RemoveFamilyMemberUseCase {
     const removedUser = await this.userService.findById(targetUserId);
 
     const remainingMembers = await this.familyRepository.findMembers(familyId);
-    for (const familyMember of remainingMembers) {
-      if (familyMember.userId === requestingUserId) continue;
 
-      await this.createNotificationUseCase.execute({
-        userId: familyMember.userId,
+    await this.createNotificationsUseCase.execute([
+      ...remainingMembers
+        .filter((familyMember) => familyMember.userId !== requestingUserId)
+        .map((familyMember) => ({
+          userId: familyMember.userId,
+          type: NotificationType.FAMILY_MEMBER_LEFT,
+          data: {
+            familyId: familyId,
+            familyName: family?.name,
+            memberName: removedUser?.fullName,
+            memberId: targetUserId,
+          },
+          deliveryMethods: [DeliveryMethod.IN_APP, DeliveryMethod.PUSH],
+          priority: NotificationPriority.LOW,
+          familyId: familyId,
+        })),
+      {
+        userId: targetUserId,
         type: NotificationType.FAMILY_MEMBER_LEFT,
         data: {
           familyId: familyId,
           familyName: family?.name,
-          memberName: removedUser?.fullName,
+          memberName: 'You were',
           memberId: targetUserId,
         },
         deliveryMethods: [DeliveryMethod.IN_APP, DeliveryMethod.PUSH],
-        priority: NotificationPriority.LOW,
+        priority: NotificationPriority.MEDIUM,
         familyId: familyId,
-      });
-    }
-
-    await this.createNotificationUseCase.execute({
-      userId: targetUserId,
-      type: NotificationType.FAMILY_MEMBER_LEFT,
-      data: {
-        familyId: familyId,
-        familyName: family?.name,
-        memberName: 'You were',
-        memberId: targetUserId,
       },
-      deliveryMethods: [DeliveryMethod.IN_APP, DeliveryMethod.PUSH],
-      priority: NotificationPriority.MEDIUM,
-      familyId: familyId,
-    });
+    ]);
   }
 }

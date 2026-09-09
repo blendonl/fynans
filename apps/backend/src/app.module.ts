@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validateEnv } from './common/config/env.validation';
+import { FamilyVisibilityCacheMiddleware } from './common/helpers/family-visibility.middleware';
 import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
@@ -96,4 +97,8 @@ import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(FamilyVisibilityCacheMiddleware).forRoutes('*path');
+  }
+}

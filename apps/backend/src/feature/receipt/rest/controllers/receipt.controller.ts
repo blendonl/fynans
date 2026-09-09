@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  ServiceUnavailableException,
   HttpCode,
   HttpStatus,
   Inject,
@@ -146,7 +147,8 @@ export class ReceiptController {
       );
     }
 
-    let receiptId: string | undefined;
+    let receiptId: string;
+    let storageKey: string;
     try {
       const stored = await this.saveReceiptFileUseCase.execute({
         buffer: file.buffer,
@@ -156,6 +158,7 @@ export class ReceiptController {
         familyId: body.familyId,
       });
       receiptId = stored.id;
+      storageKey = stored.storageKey;
     } catch (error) {
       if (error instanceof DomainForbiddenException) {
         throw error;
@@ -163,10 +166,13 @@ export class ReceiptController {
       this.logger.error(
         `Failed to store receipt file: ${error instanceof Error ? error.message : String(error)}`,
       );
+      throw new ServiceUnavailableException(
+        'Receipt storage is unavailable; please try again',
+      );
     }
 
     const jobId = await this.receiptJobQueue.addJob(
-      file.buffer,
+      storageKey,
       user.id,
       {
         autoCreatePending:
