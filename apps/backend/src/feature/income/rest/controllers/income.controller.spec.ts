@@ -50,7 +50,6 @@ const CATEGORY = '55555555-5555-4555-8555-555555555555';
 const incomeOf = (id: string) => ({
   id,
   transactionId: 'transaction-1',
-  storeId: 'store-1',
   categoryId: 'category-1',
   createdAt: new Date('2026-01-01T00:00:00.000Z'),
   updatedAt: new Date('2026-01-01T00:00:00.000Z'),
@@ -187,7 +186,10 @@ describe('IncomeController authorization', () => {
 
       await request(server).delete(`/incomes/${FAMILY_INCOME}`).expect(204);
 
-      expect(deleteIncomeUseCase.execute).toHaveBeenCalledWith(FAMILY_INCOME);
+      expect(deleteIncomeUseCase.execute).toHaveBeenCalledWith(
+        FAMILY_INCOME,
+        OWNER,
+      );
     });
 
     it('refuses a complete stranger', async () => {

@@ -1,5 +1,6 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { createPrismaServiceDouble } from '~test/prisma-service.double';
+import { createRecordFinancialAuditDouble } from '~test/financial-audit.double';
 import { UpdateExpenseUseCase } from './update-expense.use-case';
 import { DeleteExpenseUseCase } from './delete-expense.use-case';
 import { ApprovePendingExpenseUseCase } from './approve-pending-expense.use-case';
@@ -50,9 +51,11 @@ describe('expense mutations keep denormalized balances current', () => {
         .mockResolvedValue(expenseWith(TransactionStatus.CONFIRMED)),
       verifyOwnership: jest.fn().mockResolvedValue(true),
       update: jest.fn().mockResolvedValue({ id: 'expense-1' }),
+      delete: jest.fn().mockResolvedValue(undefined),
     };
     transactionRepository = {
       update: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
       updateStatus: jest
         .fn()
         .mockResolvedValue(familyTransaction(TransactionStatus.CONFIRMED)),
@@ -78,11 +81,7 @@ describe('expense mutations keep denormalized balances current', () => {
     createNotificationUseCase = {
       execute: jest.fn().mockResolvedValue(undefined),
     };
-    prismaModels = {
-      expenseItem: { deleteMany: jest.fn().mockResolvedValue(undefined) },
-      expense: { delete: jest.fn().mockResolvedValue(undefined) },
-      transaction: { delete: jest.fn().mockResolvedValue(undefined) },
-    };
+    prismaModels = {};
   });
 
   const updateExpense = () =>
@@ -94,14 +93,17 @@ describe('expense mutations keep denormalized balances current', () => {
       paymentMethodService as never,
       familyBalanceService as never,
       createPrismaServiceDouble(),
+      createRecordFinancialAuditDouble(),
     );
 
   const deleteExpense = () =>
     new DeleteExpenseUseCase(
       expenseRepository as never,
+      transactionRepository as never,
       createPrismaServiceDouble(prismaModels),
       paymentMethodService as never,
       familyBalanceService as never,
+      createRecordFinancialAuditDouble(),
     );
 
   const approveExpense = () =>
@@ -114,6 +116,7 @@ describe('expense mutations keep denormalized balances current', () => {
       notifyFamilyMembersService as never,
       createNotificationUseCase as never,
       createPrismaServiceDouble(),
+      createRecordFinancialAuditDouble(),
     );
 
   const rejectExpense = () =>
@@ -122,6 +125,7 @@ describe('expense mutations keep denormalized balances current', () => {
       transactionRepository as never,
       expenseAuthService as never,
       createNotificationUseCase as never,
+      createRecordFinancialAuditDouble(),
     );
 
   it('recalculates family and payment method balances on update', async () => {
@@ -176,12 +180,11 @@ describe('expense mutations keep denormalized balances current', () => {
     );
   });
 
-  it('deletes items, expense and transaction together', async () => {
+  it('soft deletes the expense and its transaction together', async () => {
     await deleteExpense().execute('expense-1', OWNER);
 
-    expect(prismaModels.expenseItem.deleteMany).toHaveBeenCalled();
-    expect(prismaModels.expense.delete).toHaveBeenCalled();
-    expect(prismaModels.transaction.delete).toHaveBeenCalled();
+    expect(expenseRepository.delete).toHaveBeenCalledWith('expense-1');
+    expect(transactionRepository.delete).toHaveBeenCalledWith('transaction-1');
   });
 
   it('increments family balances when a pending expense is approved', async () => {

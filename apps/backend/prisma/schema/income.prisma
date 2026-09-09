@@ -4,6 +4,7 @@ model Income {
   categoryId    String @map("category_id")
 
   description String?
+  deletedAt   DateTime? @map("deleted_at")
 
   category    IncomeCategory @relation(fields: [categoryId], references: [id])
   transaction Transaction    @relation(fields: [transactionId], references: [id])
@@ -12,6 +13,7 @@ model Income {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([categoryId])
+  @@index([deletedAt])
   @@map("income")
 }
 

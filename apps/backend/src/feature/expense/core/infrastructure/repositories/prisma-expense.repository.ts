@@ -69,7 +69,6 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   async create(data: CreateExpenseData): Promise<Expense> {
     const expense = await this.prisma.db.expense.create({
       data: {
-        id: data.id,
         transactionId: data.transactionId,
         storeId: data.storeId ?? null,
         categoryId: data.categoryId,
@@ -81,8 +80,8 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   }
 
   async findById(id: string): Promise<Expense | null> {
-    const expense = await this.prisma.db.expense.findUnique({
-      where: { id },
+    const expense = await this.prisma.db.expense.findFirst({
+      where: { id, deletedAt: null, transaction: { deletedAt: null } },
       include: EXPENSE_INCLUDE,
     });
 
@@ -90,8 +89,12 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   }
 
   async findByTransactionId(transactionId: string): Promise<Expense | null> {
-    const expense = await this.prisma.db.expense.findUnique({
-      where: { transactionId },
+    const expense = await this.prisma.db.expense.findFirst({
+      where: {
+        transactionId,
+        deletedAt: null,
+        transaction: { deletedAt: null },
+      },
       include: EXPENSE_INCLUDE,
     });
 
@@ -170,8 +173,9 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.db.expense.delete({
+    await this.prisma.db.expense.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
   }
 
@@ -284,6 +288,8 @@ export class PrismaExpenseRepository implements IExpenseRepository {
     }
 
     const conditions: Prisma.Sql[] = [
+      Prisma.sql`e."deleted_at" IS NULL`,
+      Prisma.sql`t."deleted_at" IS NULL`,
       Prisma.sql`t."status"::text = ${(filters?.status ?? TransactionStatus.CONFIRMED) as string}`,
     ];
 
@@ -362,7 +368,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       );
     }
 
-    const where: Prisma.ExpenseWhereInput = {};
+    const where: Prisma.ExpenseWhereInput = { deletedAt: null };
 
     if (filters.categoryId) {
       where.categoryId = filters.categoryId;
@@ -373,7 +379,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
     }
 
     // Always initialize transaction filter to apply status default
-    where.transaction = {};
+    where.transaction = { deletedAt: null };
 
     // Default to CONFIRMED if no status filter provided (backward compat)
     const statusFilter = filters.status ?? TransactionStatus.CONFIRMED;

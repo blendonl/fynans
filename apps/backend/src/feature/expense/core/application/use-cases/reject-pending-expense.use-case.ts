@@ -14,6 +14,11 @@ import {
   DomainNotFoundException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class RejectPendingExpenseUseCase {
@@ -24,6 +29,7 @@ export class RejectPendingExpenseUseCase {
     private readonly transactionRepository: ITransactionRepository,
     private readonly expenseAuthService: ExpenseAuthService,
     private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(
@@ -50,6 +56,20 @@ export class RejectPendingExpenseUseCase {
       TransactionStatus.REJECTED,
       rejectionReason,
     );
+
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.EXPENSE,
+      entityId: expense.id,
+      action: AuditAction.REJECTED,
+      actorId: userId,
+      transactionId: transaction.id,
+      familyId: transaction.familyId,
+      changes: {
+        submittedBy: transaction.userId,
+        value: transaction.value.toFixed(2),
+        rejectionReason,
+      },
+    });
 
     if (userId !== transaction.userId) {
       await this.createNotificationUseCase.execute({

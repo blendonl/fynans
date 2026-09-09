@@ -23,9 +23,7 @@ export class PrismaIncomeRepository implements IIncomeRepository {
   async create(data: Partial<Income>): Promise<Income> {
     const income = await this.prisma.income.create({
       data: {
-        id: data.transactionId!,
         transactionId: data.transactionId!,
-        storeId: data.storeId ?? null,
         categoryId: data.categoryId!,
         description: data.description ?? null,
       },
@@ -51,8 +49,8 @@ export class PrismaIncomeRepository implements IIncomeRepository {
   }
 
   async findById(id: string): Promise<Income | null> {
-    const income = await this.prisma.income.findUnique({
-      where: { id },
+    const income = await this.prisma.income.findFirst({
+      where: { id, deletedAt: null, transaction: { deletedAt: null } },
       include: {
         transaction: {
           include: {
@@ -75,8 +73,12 @@ export class PrismaIncomeRepository implements IIncomeRepository {
   }
 
   async findByTransactionId(transactionId: string): Promise<Income | null> {
-    const income = await this.prisma.income.findUnique({
-      where: { transactionId },
+    const income = await this.prisma.income.findFirst({
+      where: {
+        transactionId,
+        deletedAt: null,
+        transaction: { deletedAt: null },
+      },
       include: {
         transaction: {
           include: {
@@ -166,8 +168,9 @@ export class PrismaIncomeRepository implements IIncomeRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.income.delete({
+    await this.prisma.income.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
   }
 
@@ -180,18 +183,14 @@ export class PrismaIncomeRepository implements IIncomeRepository {
       );
     }
 
-    const where: Prisma.IncomeWhereInput = {};
+    const where: Prisma.IncomeWhereInput = { deletedAt: null };
 
     if (filters.categoryId) {
       where.categoryId = filters.categoryId;
     }
 
-    if (filters.storeId) {
-      where.storeId = filters.storeId;
-    }
-
     // Always initialize transaction filter to apply status default
-    where.transaction = {};
+    where.transaction = { deletedAt: null };
 
     // Default to CONFIRMED if no status filter provided (matching expense behavior)
     const statusFilter = filters.status ?? TransactionStatus.CONFIRMED;

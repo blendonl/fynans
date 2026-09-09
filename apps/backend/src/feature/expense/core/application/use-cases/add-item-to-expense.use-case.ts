@@ -7,6 +7,11 @@ import { CreateExpenseItemDto } from '../../../../expense-item/core/application/
 import { UpdateTransactionDto } from '../../../../transaction/core/application/dto/update-transaction.dto';
 import { Expense } from '../../domain/entities/expense.entity';
 import { PrismaService } from '~common/prisma/prisma.service';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class AddItemToExpenseUseCase {
@@ -16,6 +21,7 @@ export class AddItemToExpenseUseCase {
     private readonly updateTransactionUseCase: UpdateTransactionUseCase,
     private readonly expenseItemService: ExpenseItemService,
     private readonly prisma: PrismaService,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(
@@ -39,6 +45,16 @@ export class AddItemToExpenseUseCase {
         expense.transactionId,
         new UpdateTransactionDto({ value: newTotal }),
       );
+    });
+
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.EXPENSE,
+      entityId: expenseId,
+      action: AuditAction.UPDATED,
+      actorId: userId,
+      transactionId: expense.transactionId,
+      familyId: expense.transaction.familyId,
+      changes: { addedItem: itemDto.itemName },
     });
 
     return this.expenseRepository.findById(expenseId) as Promise<Expense>;

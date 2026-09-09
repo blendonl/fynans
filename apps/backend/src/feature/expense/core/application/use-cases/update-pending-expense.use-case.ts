@@ -10,6 +10,11 @@ import {
   DomainForbiddenException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class UpdatePendingExpenseUseCase {
@@ -19,6 +24,7 @@ export class UpdatePendingExpenseUseCase {
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
     private readonly paymentMethodService: PaymentMethodService,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(
@@ -80,6 +86,16 @@ export class UpdatePendingExpenseUseCase {
         transactionUpdates as Partial<Transaction>,
       );
     }
+
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.EXPENSE,
+      entityId: expenseId,
+      action: AuditAction.UPDATED,
+      actorId: userId,
+      transactionId: transaction.id,
+      familyId: transaction.familyId,
+      changes: { ...expenseUpdates, ...transactionUpdates },
+    });
 
     return this.expenseRepository.findById(expenseId) as Promise<Expense>;
   }

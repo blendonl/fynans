@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DomainExceptionFilter } from './common/filters/domain-exception.filter';
 import { PrismaModule } from './common/prisma/prisma.module';
+import { AuditModule } from './common/audit';
 import { AuthCoreModule } from './feature/auth/core/auth-core.module';
 import { AuthRestModule } from './feature/auth/rest/auth-rest.module';
 import { UserRestModule } from './feature/user/rest/user-rest.module';
@@ -50,6 +51,7 @@ import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
       }),
     }),
     PrismaModule,
+    AuditModule,
     StorageModule,
     AuthorizationModule,
     AuthCoreModule,

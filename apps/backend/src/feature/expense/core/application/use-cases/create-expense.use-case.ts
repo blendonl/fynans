@@ -20,7 +20,11 @@ import {
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
-import { v4 as uuid } from 'uuid';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class CreateExpenseUseCase {
@@ -34,6 +38,7 @@ export class CreateExpenseUseCase {
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
     private readonly paymentMethodService: PaymentMethodService,
     private readonly prisma: PrismaService,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(dto: CreateExpenseDto): Promise<Expense> {
@@ -104,7 +109,6 @@ export class CreateExpenseUseCase {
       );
 
       const expense = await this.expenseRepository.create({
-        id: uuid(),
         transactionId: transaction.id,
         storeId: store?.id,
         categoryId: dto.categoryId,
@@ -129,6 +133,20 @@ export class CreateExpenseUseCase {
       }
 
       return expense.id;
+    });
+
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.EXPENSE,
+      entityId: expenseId,
+      action: AuditAction.CREATED,
+      actorId: dto.userId,
+      familyId: dto.familyId,
+      changes: {
+        categoryId: dto.categoryId,
+        storeId: store?.id ?? null,
+        value: totalValue.toFixed(2),
+        status,
+      },
     });
 
     if (dto.familyId) {

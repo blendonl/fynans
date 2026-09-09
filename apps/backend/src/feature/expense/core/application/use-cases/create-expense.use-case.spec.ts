@@ -1,5 +1,6 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { createPrismaServiceDouble } from '~test/prisma-service.double';
+import { createRecordFinancialAuditDouble } from '~test/financial-audit.double';
 import { CreateExpenseUseCase } from './create-expense.use-case';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { CreateExpenseItemDto } from '../../../../expense-item/core/application/dto/create-expense-item.dto';
@@ -39,6 +40,7 @@ describe('CreateExpenseUseCase', () => {
       notifyFamilyMembersService as never,
       paymentMethodService as never,
       createPrismaServiceDouble(),
+      createRecordFinancialAuditDouble(),
     );
 
   beforeEach(() => {
@@ -96,6 +98,7 @@ describe('CreateExpenseUseCase', () => {
       notifyFamilyMembersService as never,
       paymentMethodService as never,
       prisma,
+      createRecordFinancialAuditDouble(),
     ).execute(
       new CreateExpenseDto({
         userId: USER,
@@ -242,6 +245,7 @@ describe('CreateExpenseUseCase', () => {
       notifyFamilyMembersService as never,
       paymentMethodService as never,
       prisma,
+      createRecordFinancialAuditDouble(),
     ).execute(
       new CreateExpenseDto({
         userId: USER,

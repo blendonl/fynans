@@ -13,6 +13,11 @@ import {
   DomainConflictException,
   DomainForbiddenException,
 } from '~common/exceptions/domain.exceptions';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class CreateIncomeUseCase {
@@ -24,6 +29,7 @@ export class CreateIncomeUseCase {
     private readonly getTransactionByIdUseCase: GetTransactionByIdUseCase,
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
     private readonly prisma: PrismaService,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(dto: CreateIncomeDto): Promise<Income> {
@@ -39,7 +45,6 @@ export class CreateIncomeUseCase {
 
     const income = await this.incomeRepository.create({
       transactionId: dto.transactionId,
-      storeId: dto.storeId,
       categoryId: dto.categoryId,
       description: dto.description,
     } as Partial<Income>);
@@ -48,6 +53,19 @@ export class CreateIncomeUseCase {
       dto.categoryId,
       transaction.userId,
     );
+
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.INCOME,
+      entityId: income.id,
+      action: AuditAction.CREATED,
+      actorId: dto.userId,
+      transactionId: transaction.id,
+      familyId: transaction.familyId,
+      changes: {
+        categoryId: dto.categoryId,
+        value: transaction.value.toFixed(2),
+      },
+    });
 
     if (transaction.familyId) {
       await this.prisma.afterCommit(() =>

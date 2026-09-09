@@ -5,6 +5,7 @@ import { UpdateExpenseDto } from '../dto/update-expense.dto';
 import { UpdatePendingExpenseDto } from '../dto/update-pending-expense.dto';
 import { ResubmitExpenseDto } from '../dto/resubmit-expense.dto';
 import { createPrismaServiceDouble } from '~test/prisma-service.double';
+import { createRecordFinancialAuditDouble } from '~test/financial-audit.double';
 import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
 
 const owner = 'owner-1';
@@ -75,6 +76,7 @@ describe('expense update paths verify payment method ownership', () => {
       paymentMethodService as never,
       familyBalanceService as never,
       createPrismaServiceDouble(),
+      createRecordFinancialAuditDouble(),
     );
 
   const updatePending = () =>
@@ -82,6 +84,7 @@ describe('expense update paths verify payment method ownership', () => {
       expenseRepository as never,
       transactionRepository as never,
       paymentMethodService as never,
+      createRecordFinancialAuditDouble(),
     );
 
   const resubmit = () =>
@@ -90,6 +93,7 @@ describe('expense update paths verify payment method ownership', () => {
       transactionRepository as never,
       notifyFamilyMembersService as never,
       paymentMethodService as never,
+      createRecordFinancialAuditDouble(),
     );
 
   it("rejects moving an expense onto another user's payment method", async () => {

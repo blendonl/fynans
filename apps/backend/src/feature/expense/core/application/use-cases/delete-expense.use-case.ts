@@ -5,17 +5,26 @@ import {
 } from '~common/exceptions/domain.exceptions';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
+import { type ITransactionRepository } from '../../../../transaction/core/domain/repositories/transaction.repository.interface';
 import { PaymentMethodService } from '../../../../payment-method/core/application/services/payment-method.service';
 import { FamilyBalanceService } from '../../../../family/core/application/services/family-balance.service';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class DeleteExpenseUseCase {
   constructor(
     @Inject('ExpenseRepository')
     private readonly expenseRepository: IExpenseRepository,
+    @Inject('TransactionRepository')
+    private readonly transactionRepository: ITransactionRepository,
     private readonly prisma: PrismaService,
     private readonly paymentMethodService: PaymentMethodService,
     private readonly familyBalanceService: FamilyBalanceService,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(id: string, userId: string): Promise<void> {
@@ -35,23 +44,22 @@ export class DeleteExpenseUseCase {
     const familyId = transaction.familyId;
 
     await this.prisma.runInTransaction(async () => {
-      const tx = this.prisma.db;
-
-      await tx.expenseItem.deleteMany({
-        where: { expenseId: id },
-      });
-
-      await tx.expense.delete({
-        where: { id },
-      });
-
-      await tx.transaction.delete({
-        where: { id: expense.transactionId },
-      });
+      await this.expenseRepository.delete(id);
+      await this.transactionRepository.delete(expense.transactionId);
 
       if (familyId) {
         await this.familyBalanceService.recalculateBalances(familyId);
       }
+    });
+
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.EXPENSE,
+      entityId: id,
+      action: AuditAction.DELETED,
+      actorId: userId,
+      transactionId: expense.transactionId,
+      familyId,
+      changes: { value: transaction.value.toFixed(2) },
     });
 
     if (paymentMethodId) {

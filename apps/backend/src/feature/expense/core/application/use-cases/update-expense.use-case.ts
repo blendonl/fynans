@@ -13,6 +13,11 @@ import { StoreService } from '~feature/store/core';
 import { PaymentMethodService } from '~feature/payment-method/core/application/services/payment-method.service';
 import { FamilyBalanceService } from '~feature/family/core/application/services/family-balance.service';
 import { PrismaService } from '~common/prisma/prisma.service';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class UpdateExpenseUseCase {
@@ -28,6 +33,7 @@ export class UpdateExpenseUseCase {
     private readonly paymentMethodService: PaymentMethodService,
     private readonly familyBalanceService: FamilyBalanceService,
     private readonly prisma: PrismaService,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(
@@ -59,6 +65,16 @@ export class UpdateExpenseUseCase {
       categoryId: dto.categoryId,
       storeId: dto.storeId,
       description: dto.note,
+    });
+
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.EXPENSE,
+      entityId: id,
+      action: AuditAction.UPDATED,
+      actorId: userId,
+      transactionId: expense.transactionId,
+      familyId: expense.transaction.familyId,
+      changes: this.changeSet(dto),
     });
 
     const txUpdates: Record<string, unknown> = {};
@@ -97,6 +113,21 @@ export class UpdateExpenseUseCase {
     }
 
     return (await this.expenseRepository.findById(id))!;
+  }
+
+  private changeSet(dto: UpdateExpenseDto): Record<string, unknown> {
+    const changes: Record<string, unknown> = {};
+
+    if (dto.categoryId !== undefined) changes.categoryId = dto.categoryId;
+    if (dto.storeId !== undefined) changes.storeId = dto.storeId;
+    if (dto.note !== undefined) changes.note = dto.note;
+    if (dto.amount !== undefined) changes.value = dto.amount.toFixed(2);
+    if (dto.recordedAt !== undefined)
+      changes.recordedAt = dto.recordedAt.toISOString();
+    if (dto.paymentMethodId !== undefined)
+      changes.paymentMethodId = dto.paymentMethodId;
+
+    return changes;
   }
 
   private async validate(dto: UpdateExpenseDto): Promise<void> {
