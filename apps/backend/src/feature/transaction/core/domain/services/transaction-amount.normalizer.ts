@@ -9,15 +9,6 @@ export interface NormalizableTransaction extends NormalizableAmount {
   type: TransactionType;
 }
 
-/**
- * Single source of truth for the amount that denormalized balances
- * (`Family.balance`, `FamilyMember.balance`) are expressed in.
- *
- * Those columns carry no currency, so every balance increment and every
- * reconciliation sum must go through here rather than reading `value`
- * directly. Once `Transaction.settledValue` exists, this is the only place
- * that changes.
- */
 export class TransactionAmountNormalizer {
   static readonly sumField = 'value' as const;
 
