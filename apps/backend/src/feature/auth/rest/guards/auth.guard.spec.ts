@@ -126,7 +126,9 @@ describe('AuthGuard session caching', () => {
 
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
 
-    expect(cacheGet).toHaveBeenCalledWith(expect.stringContaining(COOKIE_VALUE));
+    expect(cacheGet).toHaveBeenCalledWith(
+      expect.stringContaining(COOKIE_VALUE),
+    );
     expect(validateRequestSession).not.toHaveBeenCalled();
   });
 
@@ -141,14 +143,16 @@ describe('AuthGuard session caching', () => {
 
     await expect(guard.canActivate(contextFor(both))).resolves.toBe(true);
 
-    const combinedKey = cacheSet.mock.calls[0][0] as string;
+    const combinedCalls = cacheSet.mock.calls as [string, User][];
+    const combinedKey = combinedCalls[0][0];
 
     cacheSet.mockClear();
     await expect(
       guard.canActivate(contextFor(authenticatedRequest())),
     ).resolves.toBe(true);
 
-    const bearerOnlyKey = cacheSet.mock.calls[0][0] as string;
+    const bearerCalls = cacheSet.mock.calls as [string, User][];
+    const bearerOnlyKey = bearerCalls[0][0];
 
     expect(bearerOnlyKey).not.toBe(combinedKey);
   });
@@ -164,7 +168,8 @@ describe('AuthGuard session caching', () => {
 
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
 
-    const key = cacheSet.mock.calls[0][0] as string;
+    const calls = cacheSet.mock.calls as [string, User][];
+    const key = calls[0][0];
 
     expect(key).toContain(COOKIE_VALUE);
     expect(key).toContain(TOKEN);
