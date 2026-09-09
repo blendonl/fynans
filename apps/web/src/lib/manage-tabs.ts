@@ -1,7 +1,7 @@
 export const MANAGE_TABS = {
-  items: "items",
-  stores: "stores",
-  categories: "categories",
+  items: 'items',
+  stores: 'stores',
+  categories: 'categories',
 } as const;
 
 export type ManageTab = (typeof MANAGE_TABS)[keyof typeof MANAGE_TABS];
