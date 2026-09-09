@@ -35,7 +35,6 @@ export interface ExpenseStatistics {
 }
 
 export interface CreateExpenseData {
-  id: string;
   transactionId: string;
   categoryId: string;
   storeId?: string | null;

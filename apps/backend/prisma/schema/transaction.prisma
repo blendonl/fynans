@@ -42,7 +42,7 @@ model Transaction {
   expense       Expense?
   income        Income?
   user          User           @relation(fields: [userId], references: [id])
-  family        Family?        @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  family        Family?        @relation(fields: [familyId], references: [id], onDelete: Restrict)
   notifications Notification[]
 
   createdAt DateTime @default(now()) @map("created_at")
