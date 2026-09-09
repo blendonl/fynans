@@ -18,6 +18,7 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { AuthService } from '../../core/application/services/auth.service';
+import { OnboardingService } from '~feature/onboarding/core/application/services/onboarding.service';
 import { SessionCacheService } from '../../core/application/services/session-cache.service';
 import {
   applySessionCookies,
@@ -97,6 +98,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly sessionCache: SessionCacheService,
+    private readonly onboardingService: OnboardingService,
   ) {}
 
   @Public()
@@ -117,6 +119,8 @@ export class AuthController {
 
     const { result, sessionCookies } = await this.authService.register(coreDto);
     applySessionCookies(res, sessionCookies);
+
+    await this.onboardingService.seedStarterCatalog(result.user.id);
 
     return result;
   }

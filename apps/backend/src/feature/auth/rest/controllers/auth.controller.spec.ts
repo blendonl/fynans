@@ -10,6 +10,7 @@ import request from 'supertest';
 import { ValidationPipe } from '@nestjs/common';
 import { AuthService } from '../../core/application/services/auth.service';
 import { SessionCacheService } from '../../core/application/services/session-cache.service';
+import { OnboardingService } from '~feature/onboarding/core/application/services/onboarding.service';
 import { AuthController } from './auth.controller';
 
 const GLOBAL_THROTTLE_LIMIT = 120;
@@ -44,12 +45,15 @@ describe('AuthController password reset and verification', () => {
 
   const sessionCache = { invalidate: () => Promise.resolve() };
 
+  const onboardingService = { seedStarterCatalog: () => Promise.resolve() };
+
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
         { provide: AuthService, useValue: authService },
         { provide: SessionCacheService, useValue: sessionCache },
+        { provide: OnboardingService, useValue: onboardingService },
       ],
     }).compile();
 

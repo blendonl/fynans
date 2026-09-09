@@ -29,6 +29,7 @@ import { StoreItemDiscountRestModule } from './feature/store-item-discount/rest/
 import { NotificationModule } from './feature/notification/notification.module';
 import { BasketRestModule } from './feature/basket/rest/basket-rest.module';
 import { PaymentMethodRestModule } from './feature/payment-method/rest/payment-method-rest.module';
+import { OnboardingRestModule } from './feature/onboarding/rest/onboarding-rest.module';
 import { StorageModule } from './common/storage/storage.module';
 import { AuthorizationModule } from './common/authorization/authorization.module';
 import { FamilyScopeGuard } from './common/authorization/rest/guards/family-scope.guard';
@@ -75,6 +76,7 @@ import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
     NotificationModule,
     BasketRestModule,
     PaymentMethodRestModule,
+    OnboardingRestModule,
   ],
   controllers: [AppController],
   providers: [

@@ -14,6 +14,7 @@ import { ManualEntrySection } from "@/components/add-transaction/manual-entry-se
 import { IncomeForm } from "@/components/add-transaction/income-form";
 import { ScopeSelector } from "@/components/add-transaction/scope-selector";
 import { PaymentMethodSelector } from "@/components/add-transaction/payment-method-selector";
+import { SetupPrompts } from "@/components/onboarding/setup-prompts";
 
 const LS_SCOPE_KEY = "fynans:lastScope";
 const LS_PAYMENT_KEY = "fynans:lastPaymentMethod";
@@ -68,6 +69,8 @@ export default function AddTransactionPage() {
         title="Add Transaction"
         className="dash-animate-in"
       />
+
+      <SetupPrompts />
 
       <TransactionTypeTabs value={tab} onChange={setTab} />
 

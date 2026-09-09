@@ -13,6 +13,7 @@ import { TopExpenses } from "@/components/dashboard/top-expenses";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
+import { OnboardingChecklist } from "@/components/onboarding/onboarding-checklist";
 
 function DashboardContent() {
   const { dateRange, paymentMethodId, scope } = useDashboardFilter();
@@ -37,6 +38,10 @@ function DashboardContent() {
   return (
     <div className="space-y-6">
       <DashboardHeader />
+
+      <div className="dash-animate-in dash-delay-1">
+        <OnboardingChecklist />
+      </div>
 
       <div className="dash-animate-in dash-delay-1">
         <DashboardDateFilter />
