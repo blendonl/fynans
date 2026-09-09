@@ -1,5 +1,4 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
-import { Transaction as PrismaTransaction } from 'prisma/generated/prisma/client';
 import { TransactionType } from '../value-objects/transaction-type.vo';
 import { TransactionStatus } from '../value-objects/transaction-status.vo';
 
@@ -107,41 +106,6 @@ export class Transaction {
 
   get user(): TransactionUser {
     return this.props.user;
-  }
-
-  static fromPrisma(
-    data: PrismaTransaction & {
-      user: { id: string; firstName: string; lastName: string; name: string; image: string | null };
-    },
-  ): Transaction {
-    const user: TransactionUser = {
-      id: data.user.id,
-      firstName:
-        data.user.firstName.length > 0
-          ? data.user.firstName
-          : data.user.name.split(' ')[0],
-      lastName:
-        data.user.lastName.length > 0
-          ? data.user.lastName
-          : data.user.name.split(' ')[0],
-      image: data.user.image,
-    };
-
-    return new Transaction({
-      id: data.id,
-      userId: data.userId,
-      type: data.type as TransactionType,
-      status: data.status as TransactionStatus,
-      value: data.value as Decimal,
-      familyId: data.familyId ?? undefined,
-      paymentMethodId: data.paymentMethodId ?? undefined,
-      rejectionReason: data.rejectionReason ?? undefined,
-      scope: data.scope as any,
-      recordedAt: data.recordedAt,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-      user,
-    });
   }
 
   isPending(): boolean {

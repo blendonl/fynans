@@ -1,5 +1,4 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
-import { Prisma } from 'prisma/generated/prisma/client';
 
 export interface ExpenseItemProps {
   id: string;
@@ -14,41 +13,12 @@ export interface ExpenseItemProps {
   updatedAt: Date;
 }
 
-type PrismaExpenseItemWithRelations = Prisma.ExpenseItemGetPayload<{
-  include: {
-    item: {
-      include: {
-        item: {
-          include: {
-            category: true;
-          };
-        };
-      };
-    };
-  };
-}>;
-
 export class ExpenseItem {
   private readonly props: ExpenseItemProps;
 
   constructor(props: ExpenseItemProps) {
     this.validate(props);
     this.props = props;
-  }
-
-  static fromPrisma(data: PrismaExpenseItemWithRelations): ExpenseItem {
-    return new ExpenseItem({
-      id: data.id,
-      itemId: data.itemId,
-      itemName: data.item.item.name,
-      expenseId: data.expenseId,
-      categoryId: data.item.item.categoryId,
-      price: data.price,
-      discount: data.discount,
-      quantity: data.quantity,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-    });
   }
 
   private validate(props: ExpenseItemProps): void {
@@ -138,7 +108,9 @@ export class ExpenseItem {
   }
 
   getFinalPrice(): Decimal {
-    return this.props.price.minus(this.props.discount).times(this.props.quantity);
+    return this.props.price
+      .minus(this.props.discount)
+      .times(this.props.quantity);
   }
 
   getDiscountPercentage(): number {
