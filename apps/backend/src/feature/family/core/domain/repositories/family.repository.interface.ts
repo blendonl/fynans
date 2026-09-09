@@ -1,5 +1,8 @@
 import { Family } from '../entities/family.entity';
-import { FamilyMember, FamilyMemberRole } from '../entities/family-member.entity';
+import {
+  FamilyMember,
+  FamilyMemberRole,
+} from '../entities/family-member.entity';
 import { User } from '../../../../user/core/domain/entities/user.entity';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 

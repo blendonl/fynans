@@ -176,13 +176,19 @@ export class CreateExpenseUseCase {
     if (dto.items) {
       for (const item of dto.items) {
         if (item.itemPrice < 0) {
-          throw new DomainValidationException('Item price must be non-negative');
+          throw new DomainValidationException(
+            'Item price must be non-negative',
+          );
         }
         if (item.discount !== undefined && item.discount < 0) {
-          throw new DomainValidationException('Item discount must be non-negative');
+          throw new DomainValidationException(
+            'Item discount must be non-negative',
+          );
         }
         if (item.discount !== undefined && item.discount > item.itemPrice) {
-          throw new DomainValidationException('Item discount cannot exceed price');
+          throw new DomainValidationException(
+            'Item discount cannot exceed price',
+          );
         }
       }
     }

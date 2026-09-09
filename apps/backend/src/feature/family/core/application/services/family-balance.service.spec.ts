@@ -183,7 +183,9 @@ describe('FamilyBalanceService balance invariant', () => {
 
   it('holds across many concurrent creates', async () => {
     const transactions = Array.from({ length: 20 }, (_, index) =>
-      ledger.record(expense(`t${index}`, index % 2 === 0 ? ALICE : BOB, '3.33')),
+      ledger.record(
+        expense(`t${index}`, index % 2 === 0 ? ALICE : BOB, '3.33'),
+      ),
     );
 
     await Promise.all(
@@ -254,7 +256,9 @@ describe('FamilyBalanceService balance invariant', () => {
     const report = await service.inspect(FAMILY);
     expect(report.family.cached.toString()).toBe('-10');
     expect(
-      report.members.find((member) => member.userId === ALICE)!.cached.toString(),
+      report.members
+        .find((member) => member.userId === ALICE)!
+        .cached.toString(),
     ).toBe('0');
   });
 

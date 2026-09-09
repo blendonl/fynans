@@ -47,10 +47,15 @@ export class ExpenseController {
     @Inject('StorageProvider') private readonly storage: IStorageProvider,
   ) {}
 
-  private async withReceiptUrl(dto: ExpenseResponseDto, expense: Expense): Promise<ExpenseResponseDto> {
+  private async withReceiptUrl(
+    dto: ExpenseResponseDto,
+    expense: Expense,
+  ): Promise<ExpenseResponseDto> {
     if (expense.receipt) {
       try {
-        const url = await this.storage.getPresignedDownloadUrl(expense.receipt.storageKey);
+        const url = await this.storage.getPresignedDownloadUrl(
+          expense.receipt.storageKey,
+        );
         dto.receiptImages = [url];
       } catch {
         // Storage unavailable — leave empty
@@ -67,7 +72,9 @@ export class ExpenseController {
     @Body() createDto: CreateExpenseRequestDto,
     @CurrentUser() user: User,
   ) {
-    const expense = await this.expenseService.create(createDto.toCoreDto(user.id));
+    const expense = await this.expenseService.create(
+      createDto.toCoreDto(user.id),
+    );
     return this.withReceiptUrl(ExpenseResponseDto.fromEntity(expense), expense);
   }
 
@@ -94,8 +101,8 @@ export class ExpenseController {
         await this.withReceiptUrl(dto, expense);
         if (query.search && dto.items?.length) {
           const searchLower = query.search.toLowerCase();
-          dto.matchedItems = dto.items.filter(
-            (item) => item.name.toLowerCase().includes(searchLower),
+          dto.matchedItems = dto.items.filter((item) =>
+            item.name.toLowerCase().includes(searchLower),
           );
         }
         return dto;
@@ -168,7 +175,11 @@ export class ExpenseController {
     @Body() updateDto: UpdateExpenseRequestDto,
     @CurrentUser() user: User,
   ) {
-    const expense = await this.expenseService.update(id, user.id, updateDto.toCoreDto());
+    const expense = await this.expenseService.update(
+      id,
+      user.id,
+      updateDto.toCoreDto(),
+    );
     return this.withReceiptUrl(ExpenseResponseDto.fromEntity(expense), expense);
   }
 

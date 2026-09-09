@@ -35,10 +35,7 @@ export class FamilyController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new family' })
   @ApiResponse({ status: 201, type: FamilyResponseDto })
-  async create(
-    @Body() dto: CreateFamilyRequestDto,
-    @CurrentUser() user: User,
-  ) {
+  async create(@Body() dto: CreateFamilyRequestDto, @CurrentUser() user: User) {
     const family = await this.familyService.create(dto.toCoreDto(), user.id);
     return FamilyResponseDto.fromEntity(family);
   }
@@ -157,7 +154,8 @@ export class FamilyController {
   @Post(':id/balances/reconcile')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Compare cached family and member balances against the transaction ledger and repair any drift',
+    summary:
+      'Compare cached family and member balances against the transaction ledger and repair any drift',
   })
   @ApiResponse({ status: 200, type: FamilyBalanceReconciliationResponseDto })
   async reconcileBalances(

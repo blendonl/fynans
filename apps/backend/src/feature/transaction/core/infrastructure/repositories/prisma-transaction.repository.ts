@@ -17,6 +17,7 @@ import {
 } from 'prisma/generated/prisma/client';
 import { TransactionStatus } from '../../domain/value-objects/transaction-status.vo';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+import { TransactionAmountNormalizer } from '../../domain/services/transaction-amount.normalizer';
 
 @Injectable()
 export class PrismaTransactionRepository implements ITransactionRepository {
@@ -28,7 +29,9 @@ export class PrismaTransactionRepository implements ITransactionRepository {
         userId: data.userId!,
         familyId: data.familyId,
         type: data.type as PrismaTransactionType,
-        status: (data.status as PrismaTransactionStatus) ?? PrismaTransactionStatus.CONFIRMED,
+        status:
+          (data.status as PrismaTransactionStatus) ??
+          PrismaTransactionStatus.CONFIRMED,
         scope: data.familyId
           ? TransactionScope.FAMILY
           : TransactionScope.PERSONAL,
@@ -195,7 +198,10 @@ export class PrismaTransactionRepository implements ITransactionRepository {
       ...this.buildWhereClause(filters),
     };
 
-    const confirmedWhere = { ...where, status: PrismaTransactionStatus.CONFIRMED };
+    const confirmedWhere = {
+      ...where,
+      status: PrismaTransactionStatus.CONFIRMED,
+    };
 
     const [incomeResult, expenseResult, count] = await Promise.all([
       this.prisma.db.transaction.aggregate({
@@ -204,7 +210,7 @@ export class PrismaTransactionRepository implements ITransactionRepository {
           type: PrismaTransactionType.INCOME,
         },
         _sum: {
-          value: true,
+          [TransactionAmountNormalizer.sumField]: true,
         },
       }),
       this.prisma.db.transaction.aggregate({
@@ -213,17 +219,25 @@ export class PrismaTransactionRepository implements ITransactionRepository {
           type: PrismaTransactionType.EXPENSE,
         },
         _sum: {
-          value: true,
+          [TransactionAmountNormalizer.sumField]: true,
         },
       }),
       this.prisma.db.transaction.count({ where: confirmedWhere }),
     ]);
 
-    const totalIncome = incomeResult._sum.value?.toNumber() || 0;
-    const totalExpense = expenseResult._sum.value?.toNumber() || 0;
-    const balance = totalIncome - totalExpense;
+    const totalIncome = TransactionAmountNormalizer.normalizeSum(
+      incomeResult._sum.value,
+    );
+    const totalExpense = TransactionAmountNormalizer.normalizeSum(
+      expenseResult._sum.value,
+    );
 
-    return new TransactionStatistics(totalIncome, totalExpense, balance, count);
+    return new TransactionStatistics(
+      totalIncome.toNumber(),
+      totalExpense.toNumber(),
+      totalIncome.minus(totalExpense).toNumber(),
+      count,
+    );
   }
 
   private buildWhereClause(

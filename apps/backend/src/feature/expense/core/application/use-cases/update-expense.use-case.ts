@@ -87,7 +87,8 @@ export class UpdateExpenseUseCase {
 
     const affectedPaymentMethods = new Set(
       [previousPaymentMethodId, dto.paymentMethodId ?? undefined].filter(
-        (paymentMethodId): paymentMethodId is string => Boolean(paymentMethodId),
+        (paymentMethodId): paymentMethodId is string =>
+          Boolean(paymentMethodId),
       ),
     );
 

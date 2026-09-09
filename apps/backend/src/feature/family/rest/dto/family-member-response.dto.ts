@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { FamilyMember, FamilyMemberRole } from '../../core/domain/entities/family-member.entity';
+import {
+  FamilyMember,
+  FamilyMemberRole,
+} from '../../core/domain/entities/family-member.entity';
 
 export class FamilyMemberResponseDto {
   @ApiProperty()

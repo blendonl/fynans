@@ -117,7 +117,10 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
 
       const groupResult = await tx.transaction.groupBy({
         by: ['type'],
-        where: { paymentMethodId: id, status: PrismaTransactionStatus.CONFIRMED },
+        where: {
+          paymentMethodId: id,
+          status: PrismaTransactionStatus.CONFIRMED,
+        },
         _sum: { value: true },
       });
 

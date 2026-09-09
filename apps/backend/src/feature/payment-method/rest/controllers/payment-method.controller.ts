@@ -29,9 +29,7 @@ import { User } from '../../../user/core/domain/entities/user.entity';
 @ApiBearerAuth('bearer')
 @Controller('payment-methods')
 export class PaymentMethodController {
-  constructor(
-    private readonly paymentMethodService: PaymentMethodService,
-  ) {}
+  constructor(private readonly paymentMethodService: PaymentMethodService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -62,7 +60,10 @@ export class PaymentMethodController {
   }
 
   @Get('balance')
-  @ApiOperation({ summary: 'Get unified balance with payment method breakdown and family balances' })
+  @ApiOperation({
+    summary:
+      'Get unified balance with payment method breakdown and family balances',
+  })
   @ApiResponse({ status: 200, type: BalanceResponseDto })
   async getBalance(@CurrentUser() user: User) {
     const balance = await this.paymentMethodService.getBalance(user.id);

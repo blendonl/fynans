@@ -59,7 +59,9 @@ export class IncomeController {
     @Body() recordDto: RecordIncomeRequestDto,
     @CurrentUser() user: User,
   ) {
-    const income = await this.incomeService.record(recordDto.toCoreDto(user.id));
+    const income = await this.incomeService.record(
+      recordDto.toCoreDto(user.id),
+    );
     return IncomeResponseDto.fromEntity(income);
   }
 
@@ -67,10 +69,7 @@ export class IncomeController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Attach an income to an existing transaction' })
   @ApiResponse({ status: 201, type: IncomeResponseDto })
-  async link(
-    @Body() linkDto: LinkIncomeRequestDto,
-    @CurrentUser() user: User,
-  ) {
+  async link(@Body() linkDto: LinkIncomeRequestDto, @CurrentUser() user: User) {
     const income = await this.incomeService.linkToTransaction(
       linkDto.toCoreDto(user.id),
     );

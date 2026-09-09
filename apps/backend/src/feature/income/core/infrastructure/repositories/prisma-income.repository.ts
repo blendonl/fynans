@@ -8,7 +8,10 @@ import {
 import { Income } from '../../domain/entities/income.entity';
 import { Pagination } from '~common/dto/pagination.dto';
 import { IncomeMapper } from '../mappers/income.mapper';
-import { Prisma, TransactionStatus as PrismaTransactionStatus } from 'prisma/generated/prisma/client';
+import {
+  Prisma,
+  TransactionStatus as PrismaTransactionStatus,
+} from 'prisma/generated/prisma/client';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
@@ -170,7 +173,8 @@ export class PrismaIncomeRepository implements IIncomeRepository {
   private buildWhereClause(
     filters?: IncomeFiltersInterface,
   ): Prisma.IncomeWhereInput {
-    if (!filters) return { transaction: { status: PrismaTransactionStatus.CONFIRMED } };
+    if (!filters)
+      return { transaction: { status: PrismaTransactionStatus.CONFIRMED } };
 
     const where: Prisma.IncomeWhereInput = {};
 
@@ -227,7 +231,9 @@ export class PrismaIncomeRepository implements IIncomeRepository {
 
     if (filters.search) {
       const searchOr: Prisma.IncomeWhereInput[] = [
-        { category: { name: { contains: filters.search, mode: 'insensitive' } } },
+        {
+          category: { name: { contains: filters.search, mode: 'insensitive' } },
+        },
       ];
 
       if (Object.keys(where).length > 0) {

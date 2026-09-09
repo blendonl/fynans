@@ -18,7 +18,7 @@ const EXPENSE_ITEM_INCLUDE = {
 
 @Injectable()
 export class PrismaExpenseItemRepository implements IExpenseItemRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateExpenseItemData): Promise<ExpenseItem> {
     const item = await this.prisma.db.expenseItem.create({

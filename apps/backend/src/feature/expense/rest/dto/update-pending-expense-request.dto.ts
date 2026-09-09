@@ -1,4 +1,10 @@
-import { IsUUID, IsNumber, IsDateString, IsOptional, Min } from 'class-validator';
+import {
+  IsUUID,
+  IsNumber,
+  IsDateString,
+  IsOptional,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { UpdatePendingExpenseDto } from '../../core/application/dto/update-pending-expense.dto';

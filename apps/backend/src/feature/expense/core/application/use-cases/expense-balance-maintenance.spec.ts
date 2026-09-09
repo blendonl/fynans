@@ -45,7 +45,9 @@ describe('expense mutations keep denormalized balances current', () => {
 
   beforeEach(() => {
     expenseRepository = {
-      findById: jest.fn().mockResolvedValue(expenseWith(TransactionStatus.CONFIRMED)),
+      findById: jest
+        .fn()
+        .mockResolvedValue(expenseWith(TransactionStatus.CONFIRMED)),
       verifyOwnership: jest.fn().mockResolvedValue(true),
       update: jest.fn().mockResolvedValue({ id: 'expense-1' }),
     };
@@ -70,8 +72,12 @@ describe('expense mutations keep denormalized balances current', () => {
     expenseAuthService = {
       verifyApprovalAuthority: jest.fn().mockResolvedValue(undefined),
     };
-    notifyFamilyMembersService = { notify: jest.fn().mockResolvedValue(undefined) };
-    createNotificationUseCase = { execute: jest.fn().mockResolvedValue(undefined) };
+    notifyFamilyMembersService = {
+      notify: jest.fn().mockResolvedValue(undefined),
+    };
+    createNotificationUseCase = {
+      execute: jest.fn().mockResolvedValue(undefined),
+    };
     prismaModels = {
       expenseItem: { deleteMany: jest.fn().mockResolvedValue(undefined) },
       expense: { delete: jest.fn().mockResolvedValue(undefined) },
@@ -125,7 +131,9 @@ describe('expense mutations keep denormalized balances current', () => {
       new UpdateExpenseDto({ amount: new Decimal('99') }),
     );
 
-    expect(familyBalanceService.recalculateBalances).toHaveBeenCalledWith(FAMILY);
+    expect(familyBalanceService.recalculateBalances).toHaveBeenCalledWith(
+      FAMILY,
+    );
     expect(paymentMethodService.recalculateBalance).toHaveBeenCalledWith(
       PAYMENT_METHOD,
     );
@@ -160,7 +168,9 @@ describe('expense mutations keep denormalized balances current', () => {
   it('recalculates family and payment method balances on delete', async () => {
     await deleteExpense().execute('expense-1', OWNER);
 
-    expect(familyBalanceService.recalculateBalances).toHaveBeenCalledWith(FAMILY);
+    expect(familyBalanceService.recalculateBalances).toHaveBeenCalledWith(
+      FAMILY,
+    );
     expect(paymentMethodService.recalculateBalance).toHaveBeenCalledWith(
       PAYMENT_METHOD,
     );
@@ -181,11 +191,9 @@ describe('expense mutations keep denormalized balances current', () => {
 
     await approveExpense().execute('expense-1', 'admin-1');
 
-    expect(familyBalanceService.updateBalancesAfterTransaction).toHaveBeenCalledWith(
-      FAMILY,
-      OWNER,
-      expect.anything(),
-    );
+    expect(
+      familyBalanceService.updateBalancesAfterTransaction,
+    ).toHaveBeenCalledWith(FAMILY, OWNER, expect.anything());
     expect(paymentMethodService.recalculateBalance).toHaveBeenCalledWith(
       PAYMENT_METHOD,
     );

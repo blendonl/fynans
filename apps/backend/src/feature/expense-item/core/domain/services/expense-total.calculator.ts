@@ -8,7 +8,10 @@ export interface ExpenseLineItem {
   quantity?: MoneyInput | null;
 }
 
-function toDecimal(value: MoneyInput | null | undefined, fallback: string): Decimal {
+function toDecimal(
+  value: MoneyInput | null | undefined,
+  fallback: string,
+): Decimal {
   if (value === null || value === undefined) {
     return new Decimal(fallback);
   }
