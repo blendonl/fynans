@@ -114,6 +114,28 @@ describe('PrismaExpenseRepository reporting queries', () => {
       expect(queries[2].text).toContain('GROUP BY e."store_id"');
     });
 
+    it('binds the family to every grouped query, not just the first', async () => {
+      const { queries, repository } = captureQueries();
+
+      await repository.getStatistics({ familyId: 'family-1' });
+
+      expect(queries).toHaveLength(3);
+
+      for (const query of queries) {
+        expect(query.values).toContain('family-1');
+      }
+    });
+
+    it('never binds a family the caller did not ask for', async () => {
+      const { queries, repository } = captureQueries();
+
+      await repository.getStatistics({ familyId: 'family-1' });
+
+      for (const query of queries) {
+        expect(query.values).not.toContain('family-2');
+      }
+    });
+
     it('scopes to the family the same way trends do', async () => {
       const { queries, repository } = captureQueries();
 
