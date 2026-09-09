@@ -14,11 +14,13 @@ import {
   ChevronsUpDown,
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
+import { useProfile } from "@/hooks/use-profile";
 import { useUnreadCount } from "@/hooks/use-unread-count";
 import { usePendingTransactionCount } from "@/hooks/use-pending-transactions";
 import { usePendingInvitations } from "@/hooks/use-families";
 import { cn } from "@/lib/utils";
 import { FynansLogo } from "@/components/icons/fynans-logo";
+import { UserAvatar } from "@/components/profile/user-avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   DropdownMenu,
@@ -40,6 +42,7 @@ const NAV_ITEMS = [
 export function AppSidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { profile } = useProfile();
   const { unreadCount } = useUnreadCount();
   const { data: pendingTxCount } = usePendingTransactionCount();
   const { pendingInvitations } = usePendingInvitations();
@@ -95,12 +98,11 @@ export function AppSidebar() {
           <DropdownMenuTrigger asChild>
             <button className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm hover:bg-sidebar-accent/50 transition-colors">
               <div className="relative h-8 w-8 shrink-0">
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-sm font-medium text-primary">
-                    {user?.firstName?.[0] ?? "A"}
-                    {user?.lastName?.[0]}
-                  </span>
-                </div>
+                <UserAvatar
+                  image={profile?.image}
+                  firstName={profile?.firstName ?? user?.firstName}
+                  lastName={profile?.lastName ?? user?.lastName}
+                />
                 {pendingInvitationCount > 0 && (
                   <span className="absolute -top-1 -right-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-error px-1 text-[10px] font-semibold text-white">
                     {pendingInvitationCount > 99 ? "99+" : pendingInvitationCount}
