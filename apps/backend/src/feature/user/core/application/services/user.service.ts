@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { IUserRepository } from '../../domain/repositories/user.repository.interface';
+import { GetVisibleUserUseCase } from '../use-cases/get-visible-user.use-case';
 import { User } from '../../domain/entities/user.entity';
 
 @Injectable()
@@ -8,12 +9,17 @@ export class UserService {
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: IUserRepository,
+    private readonly getVisibleUserUseCase: GetVisibleUserUseCase,
   ) {}
 
   async findById(id: string): Promise<User> {
     const user = await this.userRepository.findById(id);
     if (!user) throw new DomainNotFoundException('User not found');
     return user;
+  }
+
+  async findVisibleTo(id: string, requesterId: string): Promise<User> {
+    return this.getVisibleUserUseCase.execute(id, requesterId);
   }
 
   async findByEmail(email: string): Promise<User | null> {
