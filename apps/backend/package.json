@@ -108,6 +108,9 @@
       "^better-auth$": "<rootDir>/../test/stubs/better-auth.ts",
       "^better-auth/(.*)$": "<rootDir>/../test/stubs/better-auth.ts",
       "^uuid$": "<rootDir>/../test/stubs/uuid.ts"
-    }
+    },
+    "setupFiles": [
+      "<rootDir>/../test/jest.setup.ts"
+    ]
   }
 }

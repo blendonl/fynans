@@ -67,7 +67,7 @@ export class CreateExpenseRequestDto {
 
   @ApiPropertyOptional({
     description:
-      'Existing store to attach to, instead of storeName/storeLocation',
+      'Existing store to attach to, instead of storeName and storeLocation',
   })
   @IsUUID()
   @IsOptional()

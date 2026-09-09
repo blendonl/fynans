@@ -1,4 +1,5 @@
 import { Prisma } from 'prisma/generated/prisma/client';
+import { resetAppEnv } from '~common/config/env.validation';
 import { PrismaExpenseRepository } from './prisma-expense.repository';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 
@@ -25,6 +26,7 @@ describe('PrismaExpenseRepository reporting queries', () => {
   describe('getTrends', () => {
     it('buckets by the configured reporting time zone', async () => {
       process.env.REPORTING_TIMEZONE = 'Europe/Belgrade';
+      resetAppEnv();
       const { queries, repository } = captureQueries();
 
       await repository.getTrends(dateFrom, dateTo, 'day', { userId: USER });
@@ -36,6 +38,7 @@ describe('PrismaExpenseRepository reporting queries', () => {
 
     it('uses one time zone for day, week and month buckets', async () => {
       process.env.REPORTING_TIMEZONE = 'UTC';
+      resetAppEnv();
       const { queries, repository } = captureQueries();
 
       await repository.getTrends(dateFrom, dateTo, 'day', { userId: USER });
