@@ -25,5 +25,5 @@ export interface IExpenseItemRepository {
   findAll(pagination?: Pagination): Promise<PaginatedResult<ExpenseItem>>;
   update(id: string, data: UpdateExpenseItemData): Promise<ExpenseItem>;
   delete(id: string): Promise<void>;
-  calculateExpenseTotal(expenseId: string): Promise<number>;
+  calculateExpenseTotal(expenseId: string): Promise<Decimal>;
 }

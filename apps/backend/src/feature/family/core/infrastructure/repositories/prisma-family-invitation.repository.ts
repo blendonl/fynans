@@ -11,7 +11,7 @@ export class PrismaFamilyInvitationRepository
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: Partial<FamilyInvitation>): Promise<FamilyInvitation> {
-    const invitation = await this.prisma.familyInvitation.create({
+    const invitation = await this.prisma.db.familyInvitation.create({
       data: {
         familyId: data.familyId!,
         inviterId: data.inviterId!,
@@ -26,7 +26,7 @@ export class PrismaFamilyInvitationRepository
   }
 
   async findById(id: string): Promise<FamilyInvitation | null> {
-    const invitation = await this.prisma.familyInvitation.findUnique({
+    const invitation = await this.prisma.db.familyInvitation.findUnique({
       where: { id },
     });
 
@@ -34,7 +34,7 @@ export class PrismaFamilyInvitationRepository
   }
 
   async findByFamilyId(familyId: string): Promise<FamilyInvitation[]> {
-    const invitations = await this.prisma.familyInvitation.findMany({
+    const invitations = await this.prisma.db.familyInvitation.findMany({
       where: { familyId },
       orderBy: { createdAt: 'desc' },
     });
@@ -43,7 +43,7 @@ export class PrismaFamilyInvitationRepository
   }
 
   async findByInviteeEmail(email: string): Promise<FamilyInvitation[]> {
-    const invitations = await this.prisma.familyInvitation.findMany({
+    const invitations = await this.prisma.db.familyInvitation.findMany({
       where: {
         inviteeEmail: email,
         status: 'PENDING',
@@ -58,7 +58,7 @@ export class PrismaFamilyInvitationRepository
   }
 
   async findByInviteeId(userId: string): Promise<FamilyInvitation[]> {
-    const invitations = await this.prisma.familyInvitation.findMany({
+    const invitations = await this.prisma.db.familyInvitation.findMany({
       where: { inviteeId: userId },
       orderBy: { createdAt: 'desc' },
     });
@@ -67,7 +67,7 @@ export class PrismaFamilyInvitationRepository
   }
 
   async findPendingByFamilyId(familyId: string): Promise<FamilyInvitation[]> {
-    const invitations = await this.prisma.familyInvitation.findMany({
+    const invitations = await this.prisma.db.familyInvitation.findMany({
       where: {
         familyId,
         status: 'PENDING',
@@ -82,7 +82,7 @@ export class PrismaFamilyInvitationRepository
   }
 
   async findPendingByEmailAndFamily(email: string, familyId: string): Promise<FamilyInvitation | null> {
-    const invitation = await this.prisma.familyInvitation.findFirst({
+    const invitation = await this.prisma.db.familyInvitation.findFirst({
       where: {
         inviteeEmail: email,
         familyId: familyId,
@@ -107,7 +107,7 @@ export class PrismaFamilyInvitationRepository
       updateData.inviteeId = data.inviteeId;
     }
 
-    const invitation = await this.prisma.familyInvitation.update({
+    const invitation = await this.prisma.db.familyInvitation.update({
       where: { id },
       data: updateData,
     });
@@ -116,7 +116,7 @@ export class PrismaFamilyInvitationRepository
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.familyInvitation.delete({
+    await this.prisma.db.familyInvitation.delete({
       where: { id },
     });
   }

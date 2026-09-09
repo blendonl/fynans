@@ -43,7 +43,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateExpenseData): Promise<Expense> {
-    const expense = await this.prisma.expense.create({
+    const expense = await this.prisma.db.expense.create({
       data: {
         id: data.id,
         transactionId: data.transactionId,
@@ -57,7 +57,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   }
 
   async findById(id: string): Promise<Expense | null> {
-    const expense = await this.prisma.expense.findUnique({
+    const expense = await this.prisma.db.expense.findUnique({
       where: { id },
       include: EXPENSE_INCLUDE,
     });
@@ -66,7 +66,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   }
 
   async findByTransactionId(transactionId: string): Promise<Expense | null> {
-    const expense = await this.prisma.expense.findUnique({
+    const expense = await this.prisma.db.expense.findUnique({
       where: { transactionId },
       include: EXPENSE_INCLUDE,
     });
@@ -81,7 +81,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
     const where = this.buildWhereClause(filters);
 
     const [expenses, total] = await Promise.all([
-      this.prisma.expense.findMany({
+      this.prisma.db.expense.findMany({
         where,
         include: {
           category: true,
@@ -110,7 +110,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
         skip: pagination?.skip,
         take: pagination?.take,
       }),
-      this.prisma.expense.count({ where }),
+      this.prisma.db.expense.count({ where }),
     ]);
 
     return {
@@ -136,7 +136,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       updateData.description = data.description;
     }
 
-    const expense = await this.prisma.expense.update({
+    const expense = await this.prisma.db.expense.update({
       where: { id },
       data: updateData,
       include: EXPENSE_INCLUDE,
@@ -146,13 +146,13 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.expense.delete({
+    await this.prisma.db.expense.delete({
       where: { id },
     });
   }
 
   async verifyOwnership(expenseId: string, userId: string): Promise<boolean> {
-    const expense = await this.prisma.expense.findUnique({
+    const expense = await this.prisma.db.expense.findUnique({
       where: { id: expenseId },
       include: { transaction: { select: { userId: true } } },
     });
@@ -165,9 +165,9 @@ export class PrismaExpenseRepository implements IExpenseRepository {
   ): Promise<ExpenseStatistics> {
     const where = this.buildWhereClause(filters);
 
-    const count = await this.prisma.expense.count({ where });
+    const count = await this.prisma.db.expense.count({ where });
 
-    const allExpenses = await this.prisma.expense.findMany({
+    const allExpenses = await this.prisma.db.expense.findMany({
       where,
       include: {
         transaction: {
@@ -244,7 +244,7 @@ export class PrismaExpenseRepository implements IExpenseRepository {
       dateTo,
     });
 
-    const expenses = await this.prisma.expense.findMany({
+    const expenses = await this.prisma.db.expense.findMany({
       where,
       include: {
         transaction: {
