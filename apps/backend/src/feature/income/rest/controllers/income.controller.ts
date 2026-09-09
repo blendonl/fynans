@@ -19,12 +19,14 @@ import {
   ApiProperty,
 } from '@nestjs/swagger';
 import { CreateIncomeUseCase } from '../../core/application/use-cases/create-income.use-case';
+import { RecordIncomeUseCase } from '../../core/application/use-cases/record-income.use-case';
 import { GetIncomeByIdUseCase } from '../../core/application/use-cases/get-income-by-id.use-case';
 import { GetIncomeByTransactionIdUseCase } from '../../core/application/use-cases/get-income-by-transaction-id.use-case';
 import { ListIncomesUseCase } from '../../core/application/use-cases/list-incomes.use-case';
 import { UpdateIncomeUseCase } from '../../core/application/use-cases/update-income.use-case';
 import { DeleteIncomeUseCase } from '../../core/application/use-cases/delete-income.use-case';
-import { CreateIncomeRequestDto } from '../dto/create-income-request.dto';
+import { RecordIncomeRequestDto } from '../dto/record-income-request.dto';
+import { LinkIncomeRequestDto } from '../dto/link-income-request.dto';
 import { UpdateIncomeRequestDto } from '../dto/update-income-request.dto';
 import { QueryIncomeDto } from '../dto/query-income.dto';
 import { IncomeResponseDto } from '../dto/income-response.dto';
@@ -60,6 +62,7 @@ export class PaginatedIncomeResponseDto {
 export class IncomeController {
   constructor(
     private readonly createIncomeUseCase: CreateIncomeUseCase,
+    private readonly recordIncomeUseCase: RecordIncomeUseCase,
     private readonly getIncomeByIdUseCase: GetIncomeByIdUseCase,
     private readonly getIncomeByTransactionIdUseCase: GetIncomeByTransactionIdUseCase,
     private readonly listIncomesUseCase: ListIncomesUseCase,
@@ -69,14 +72,27 @@ export class IncomeController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new income' })
+  @ApiOperation({
+    summary: 'Record an income, creating its transaction in the same request',
+  })
   @ApiResponse({ status: 201, type: IncomeResponseDto })
-  async create(
-    @Body() createDto: CreateIncomeRequestDto,
+  async record(
+    @Body() recordDto: RecordIncomeRequestDto,
     @CurrentUser() user: User,
   ) {
+    const income = await this.recordIncomeUseCase.execute(
+      recordDto.toCoreDto(user.id),
+    );
+    return IncomeResponseDto.fromEntity(income);
+  }
+
+  @Post('link')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Attach an income to an existing transaction' })
+  @ApiResponse({ status: 201, type: IncomeResponseDto })
+  async link(@Body() linkDto: LinkIncomeRequestDto, @CurrentUser() user: User) {
     const income = await this.createIncomeUseCase.execute(
-      createDto.toCoreDto(user.id),
+      linkDto.toCoreDto(user.id),
     );
     return IncomeResponseDto.fromEntity(income);
   }

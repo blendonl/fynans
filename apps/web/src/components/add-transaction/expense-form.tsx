@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { MapPin } from "lucide-react";
-import { calculateExpenseItemsTotal } from "@/utils/calculations";
+import { expenseLinesTotal } from "@/utils/expense-total";
 import type { Category, Store } from "@/types";
 import { useCategories } from "@/hooks/use-categories";
 import { useStores } from "@/hooks/use-stores";
@@ -76,7 +76,7 @@ export function ExpenseForm({ onSuccess, onSaveForReview, scope, familyId, defau
   const categoryDialog = useCreateDialog();
   const itemCategoryDialog = useCreateDialog();
 
-  const itemsTotal = calculateExpenseItemsTotal(expenseItems.items);
+  const itemsTotal = expenseLinesTotal(expenseItems.items);
 
   const { ai, activeSuggestion, isSuggestionLoading } = useExpenseAiSuggestions({
     isItemized,

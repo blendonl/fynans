@@ -3,7 +3,15 @@ import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IFamilyRepository,
   FamilyWithMembersAndUsers,
+  FamilyBalanceSnapshot,
 } from '../../domain/repositories/family.repository.interface';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
+import {
+  TransactionScope,
+  TransactionStatus as PrismaTransactionStatus,
+} from 'prisma/generated/prisma/client';
+import { TransactionAmountNormalizer } from '~feature/transaction/core/domain/services/transaction-amount.normalizer';
+import { TransactionType } from '~feature/transaction/core/domain/value-objects/transaction-type.vo';
 import { Family } from '../../domain/entities/family.entity';
 import {
   FamilyMember,
@@ -19,10 +27,10 @@ export class PrismaFamilyRepository implements IFamilyRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: Partial<Family>): Promise<Family> {
-    const family = await this.prisma.family.create({
+    const family = await this.prisma.db.family.create({
       data: {
         name: data.name!,
-        balance: new Decimal(data.balance || 0),
+        balance: data.balance ?? new Decimal(0),
       },
     });
 
@@ -30,7 +38,7 @@ export class PrismaFamilyRepository implements IFamilyRepository {
   }
 
   async findById(id: string): Promise<Family | null> {
-    const family = await this.prisma.family.findUnique({
+    const family = await this.prisma.db.family.findUnique({
       where: { id },
     });
 
@@ -40,7 +48,7 @@ export class PrismaFamilyRepository implements IFamilyRepository {
   async findByIdWithMembers(
     id: string,
   ): Promise<FamilyWithMembersAndUsers | null> {
-    const familyWithMembers = await this.prisma.family.findUnique({
+    const familyWithMembers = await this.prisma.db.family.findUnique({
       where: { id },
       include: {
         members: {
@@ -69,7 +77,7 @@ export class PrismaFamilyRepository implements IFamilyRepository {
   }
 
   async findByUserId(userId: string): Promise<Family[]> {
-    const families = await this.prisma.family.findMany({
+    const families = await this.prisma.db.family.findMany({
       where: {
         members: {
           some: { userId },
@@ -89,10 +97,10 @@ export class PrismaFamilyRepository implements IFamilyRepository {
     }
 
     if (data.balance !== undefined) {
-      updateData.balance = new Decimal(data.balance);
+      updateData.balance = data.balance;
     }
 
-    const family = await this.prisma.family.update({
+    const family = await this.prisma.db.family.update({
       where: { id },
       data: updateData,
     });
@@ -101,18 +109,18 @@ export class PrismaFamilyRepository implements IFamilyRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.family.delete({
+    await this.prisma.db.family.delete({
       where: { id },
     });
   }
 
   async addMember(member: Partial<FamilyMember>): Promise<FamilyMember> {
-    const created = await this.prisma.familyMember.create({
+    const created = await this.prisma.db.familyMember.create({
       data: {
         familyId: member.familyId!,
         userId: member.userId!,
         role: member.role as any,
-        balance: new Decimal(member.balance || 0),
+        balance: member.balance ?? new Decimal(0),
       },
     });
 
@@ -120,7 +128,7 @@ export class PrismaFamilyRepository implements IFamilyRepository {
   }
 
   async removeMember(familyId: string, userId: string): Promise<void> {
-    await this.prisma.familyMember.delete({
+    await this.prisma.db.familyMember.delete({
       where: {
         familyId_userId: { familyId, userId },
       },
@@ -131,7 +139,7 @@ export class PrismaFamilyRepository implements IFamilyRepository {
     familyId: string,
     userId: string,
   ): Promise<FamilyMember | null> {
-    const member = await this.prisma.familyMember.findUnique({
+    const member = await this.prisma.db.familyMember.findUnique({
       where: {
         familyId_userId: { familyId, userId },
       },
@@ -141,7 +149,7 @@ export class PrismaFamilyRepository implements IFamilyRepository {
   }
 
   async findMembers(familyId: string): Promise<FamilyMember[]> {
-    const members = await this.prisma.familyMember.findMany({
+    const members = await this.prisma.db.familyMember.findMany({
       where: { familyId },
       orderBy: { joinedAt: 'asc' },
     });
@@ -154,7 +162,7 @@ export class PrismaFamilyRepository implements IFamilyRepository {
     userId: string,
     role: FamilyMemberRole,
   ): Promise<FamilyMember> {
-    const member = await this.prisma.familyMember.update({
+    const member = await this.prisma.db.familyMember.update({
       where: {
         familyId_userId: { familyId, userId },
       },
@@ -166,44 +174,121 @@ export class PrismaFamilyRepository implements IFamilyRepository {
     return FamilyMemberMapper.toDomain(member);
   }
 
-  async updateMemberBalance(
+  async incrementBalances(
     familyId: string,
     userId: string,
-    balance: number,
+    delta: Decimal,
   ): Promise<void> {
-    await this.prisma.familyMember.update({
-      where: {
-        familyId_userId: { familyId, userId },
-      },
-      data: {
-        balance: new Decimal(balance),
-      },
+    await this.prisma.runInTransaction(async () => {
+      const tx = this.prisma.db;
+
+      const memberUpdate = await tx.familyMember.updateMany({
+        where: { familyId, userId },
+        data: { balance: { increment: delta } },
+      });
+
+      if (memberUpdate.count === 0) {
+        throw new DomainNotFoundException('Not a family member');
+      }
+
+      const familyUpdate = await tx.family.updateMany({
+        where: { id: familyId },
+        data: { balance: { increment: delta } },
+      });
+
+      if (familyUpdate.count === 0) {
+        throw new DomainNotFoundException('Family not found');
+      }
     });
   }
 
-  async updateFamilyBalance(familyId: string, balance: number): Promise<void> {
-    await this.prisma.family.update({
+  async recalculateBalances(familyId: string): Promise<FamilyBalanceSnapshot> {
+    return this.prisma.runInTransaction(async () => {
+      const tx = this.prisma.db;
+      const computed = await this.computeBalances(familyId);
+
+      for (const [userId, balance] of computed.memberBalances) {
+        await tx.familyMember.updateMany({
+          where: { familyId, userId },
+          data: { balance },
+        });
+      }
+
+      await tx.family.update({
+        where: { id: familyId },
+        data: { balance: computed.balance },
+      });
+
+      return computed;
+    });
+  }
+
+  async readBalances(familyId: string): Promise<FamilyBalanceSnapshot> {
+    const family = await this.prisma.db.family.findUnique({
       where: { id: familyId },
-      data: {
-        balance: new Decimal(balance),
+      select: {
+        balance: true,
+        members: { select: { userId: true, balance: true } },
       },
     });
+
+    if (!family) {
+      throw new DomainNotFoundException('Family not found');
+    }
+
+    return {
+      familyId,
+      balance: family.balance,
+      memberBalances: new Map(
+        family.members.map((member) => [member.userId, member.balance]),
+      ),
+    };
   }
 
-  async calculateFamilyBalance(familyId: string): Promise<number> {
-    const incomeSum = await this.prisma.transaction.aggregate({
-      where: { familyId, scope: 'FAMILY', type: 'INCOME' },
-      _sum: { value: true },
-    });
+  async computeBalances(familyId: string): Promise<FamilyBalanceSnapshot> {
+    const tx = this.prisma.db;
 
-    const expenseSum = await this.prisma.transaction.aggregate({
-      where: { familyId, scope: 'FAMILY', type: 'EXPENSE' },
-      _sum: { value: true },
-    });
+    const [members, grouped] = await Promise.all([
+      tx.familyMember.findMany({
+        where: { familyId },
+        select: { userId: true },
+      }),
+      tx.transaction.groupBy({
+        by: ['userId', 'type'],
+        where: {
+          familyId,
+          scope: TransactionScope.FAMILY,
+          status: PrismaTransactionStatus.CONFIRMED,
+        },
+        _sum: { [TransactionAmountNormalizer.sumField]: true },
+      }),
+    ]);
 
-    return (
-      (incomeSum._sum.value?.toNumber() || 0) -
-      (expenseSum._sum.value?.toNumber() || 0)
+    const memberBalances = new Map<string, Decimal>(
+      members.map((member) => [member.userId, new Decimal(0)]),
     );
+    let balance = new Decimal(0);
+
+    for (const group of grouped) {
+      const signed = TransactionAmountNormalizer.signedTotal(
+        group.type as TransactionType,
+        TransactionAmountNormalizer.normalizeSum(group._sum.value),
+      );
+
+      const current = memberBalances.get(group.userId) ?? new Decimal(0);
+      memberBalances.set(group.userId, current.plus(signed));
+      balance = balance.plus(signed);
+    }
+
+    return { familyId, balance, memberBalances };
+  }
+
+  async findAllIds(): Promise<string[]> {
+    const families = await this.prisma.db.family.findMany({
+      select: { id: true },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return families.map((family) => family.id);
   }
 }

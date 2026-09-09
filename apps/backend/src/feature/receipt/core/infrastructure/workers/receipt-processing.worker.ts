@@ -8,6 +8,7 @@ import { ProgressTracker } from '../../application/services/progress-tracker';
 import { IStoredReceiptRepository } from '../../domain/repositories/stored-receipt.repository.interface';
 import { CreateExpenseUseCase } from '~feature/expense/core/application/use-cases/create-expense.use-case';
 import { CreateExpenseDto } from '~feature/expense/core/application/dto/create-expense.dto';
+import { ExpenseTotalCalculator } from '~feature/expense-item/core/domain/services/expense-total.calculator';
 import { CreateExpenseItemDto } from '~feature/expense-item/core/application/dto/create-expense-item.dto';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 
@@ -102,9 +103,11 @@ export class ReceiptProcessingWorker extends WorkerHost {
       try {
         const categoryId = enrichedResult.suggestedExpenseCategoryId;
         if (categoryId) {
-          const totalAmount = enrichedResult.items.reduce(
-            (sum, item) => sum + item.price * item.quantity,
-            0,
+          const totalAmount = ExpenseTotalCalculator.total(
+            enrichedResult.items.map((item) => ({
+              price: item.price,
+              quantity: item.quantity,
+            })),
           );
 
           const items = enrichedResult.items.map(

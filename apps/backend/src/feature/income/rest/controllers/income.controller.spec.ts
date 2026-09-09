@@ -22,6 +22,7 @@ import {
   IResourceOwnerRepository,
 } from '~common/authorization/domain/repositories/resource-owner.repository.interface';
 import { CreateIncomeUseCase } from '../../core/application/use-cases/create-income.use-case';
+import { RecordIncomeUseCase } from '../../core/application/use-cases/record-income.use-case';
 import { GetIncomeByIdUseCase } from '../../core/application/use-cases/get-income-by-id.use-case';
 import { GetIncomeByTransactionIdUseCase } from '../../core/application/use-cases/get-income-by-transaction-id.use-case';
 import { ListIncomesUseCase } from '../../core/application/use-cases/list-incomes.use-case';
@@ -89,6 +90,7 @@ describe('IncomeController authorization', () => {
       controllers: [IncomeController],
       providers: [
         { provide: CreateIncomeUseCase, useValue: { execute: jest.fn() } },
+        { provide: RecordIncomeUseCase, useValue: { execute: jest.fn() } },
         { provide: GetIncomeByIdUseCase, useValue: getIncomeByIdUseCase },
         {
           provide: GetIncomeByTransactionIdUseCase,

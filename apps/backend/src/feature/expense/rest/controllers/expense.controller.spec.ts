@@ -33,6 +33,7 @@ import { RejectPendingExpenseUseCase } from '../../core/application/use-cases/re
 import { ResubmitRejectedExpenseUseCase } from '../../core/application/use-cases/resubmit-rejected-expense.use-case';
 import { UpdatePendingExpenseUseCase } from '../../core/application/use-cases/update-pending-expense.use-case';
 import { ExpenseController } from './expense.controller';
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
 const MEMBER = '11111111-1111-4111-8111-111111111111';
 const OUTSIDER = '22222222-2222-4222-8222-222222222222';
@@ -185,9 +186,9 @@ describe('ExpenseController authorization', () => {
     jest.clearAllMocks();
     listExpensesUseCase.execute.mockResolvedValue({ data: [], total: 0 });
     getExpenseStatisticsUseCase.execute.mockResolvedValue({
-      totalExpenses: 100,
+      totalExpenses: new Decimal(100),
       expenseCount: 2,
-      averageExpense: 50,
+      averageExpense: new Decimal(50),
       expensesByCategory: [],
       expensesByStore: [],
     });

@@ -83,7 +83,8 @@ export class PaymentMethodController {
   })
   @ApiResponse({ status: 200, type: BalanceResponseDto })
   async getBalance(@CurrentUser() user: User) {
-    return this.getBalanceUseCase.execute(user.id);
+    const balance = await this.getBalanceUseCase.execute(user.id);
+    return BalanceResponseDto.fromResult(balance);
   }
 
   @Get('balance-summary')

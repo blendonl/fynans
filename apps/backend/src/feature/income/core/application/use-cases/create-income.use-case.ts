@@ -3,6 +3,7 @@ import { type IIncomeRepository } from '../../domain/repositories/income.reposit
 import { type IIncomeCategoryRepository } from '../../../../income-category/core/domain/repositories/income-category.repository.interface';
 import { GetTransactionByIdUseCase } from '../../../../transaction/core/application/use-cases/get-transaction-by-id.use-case';
 import { NotifyFamilyMembersService } from '~common/services/notify-family-members.service';
+import { PrismaService } from '~common/prisma/prisma.service';
 import { CreateIncomeDto } from '../dto/create-income.dto';
 import { Income } from '../../domain/entities/income.entity';
 import { NotificationType } from '../../../../notification/core/domain/value-objects/notification-type.vo';
@@ -22,6 +23,7 @@ export class CreateIncomeUseCase {
     private readonly incomeCategoryRepository: IIncomeCategoryRepository,
     private readonly getTransactionByIdUseCase: GetTransactionByIdUseCase,
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async execute(dto: CreateIncomeDto): Promise<Income> {
@@ -39,6 +41,7 @@ export class CreateIncomeUseCase {
       transactionId: dto.transactionId,
       storeId: dto.storeId,
       categoryId: dto.categoryId,
+      description: dto.description,
     } as Partial<Income>);
 
     await this.incomeCategoryRepository.linkToUser(
@@ -47,15 +50,17 @@ export class CreateIncomeUseCase {
     );
 
     if (transaction.familyId) {
-      await this.notifyFamilyMembersService.notify({
-        familyId: transaction.familyId,
-        actorUserId: transaction.userId,
-        type: NotificationType.FAMILY_INCOME_CREATED,
-        data: {
-          incomeId: income.id,
-          amount: transaction.value.toString(),
-        },
-      });
+      await this.prisma.afterCommit(() =>
+        this.notifyFamilyMembersService.notify({
+          familyId: transaction.familyId!,
+          actorUserId: transaction.userId,
+          type: NotificationType.FAMILY_INCOME_CREATED,
+          data: {
+            incomeId: income.id,
+            amount: transaction.value.toFixed(2),
+          },
+        }),
+      );
     }
 
     return income;
@@ -68,10 +73,6 @@ export class CreateIncomeUseCase {
 
     if (!dto.userId || dto.userId.trim() === '') {
       throw new DomainValidationException('User ID is required');
-    }
-
-    if (!dto.storeId || dto.storeId.trim() === '') {
-      throw new DomainValidationException('Store ID is required');
     }
 
     if (!dto.categoryId || dto.categoryId.trim() === '') {

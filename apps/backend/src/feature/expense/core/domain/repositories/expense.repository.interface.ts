@@ -3,6 +3,7 @@ import { Pagination, PaginatedResult } from '~common/dto/pagination.dto';
 import { TransactionScope } from '../../../../transaction/core/domain/entities/transaction.entity';
 import { TransactionStatus } from '../../../../transaction/core/domain/value-objects/transaction-status.vo';
 import { ExpenseTrendPoint } from '../../application/dto/expense-trends.dto';
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
 export { PaginatedResult };
 
@@ -22,15 +23,15 @@ export interface ExpenseFilters {
 }
 
 export interface ExpenseStatistics {
-  totalExpenses: number;
+  totalExpenses: Decimal;
   expenseCount: number;
-  averageExpense: number;
+  averageExpense: Decimal;
   expensesByCategory: {
     categoryId: string;
     categoryName: string;
-    total: number;
+    total: Decimal;
   }[];
-  expensesByStore: { storeId: string; total: number }[];
+  expensesByStore: { storeId: string; total: Decimal }[];
 }
 
 export interface CreateExpenseData {
@@ -59,7 +60,6 @@ export interface IExpenseRepository {
   verifyOwnership(expenseId: string, userId: string): Promise<boolean>;
   getStatistics(filters?: ExpenseFilters): Promise<ExpenseStatistics>;
   getTrends(
-    userId: string,
     dateFrom: Date,
     dateTo: Date,
     groupBy: string,

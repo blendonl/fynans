@@ -1,3 +1,4 @@
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { CreateTransactionUseCase } from './create-transaction.use-case';
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { TransactionType } from '../../domain/value-objects/transaction-type.vo';
@@ -16,7 +17,7 @@ describe('CreateTransactionUseCase payment method ownership', () => {
     new CreateTransactionDto(
       owner,
       TransactionType.EXPENSE,
-      25,
+      new Decimal(25),
       undefined,
       undefined,
       paymentMethodId,

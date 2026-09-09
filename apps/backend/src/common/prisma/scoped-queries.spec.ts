@@ -27,7 +27,7 @@ function prismaReturningNothing(): PrismaService {
     count: jest.fn().mockResolvedValue(0),
   };
 
-  return {
+  const db = {
     expense: model,
     income: model,
     transaction: {
@@ -35,7 +35,10 @@ function prismaReturningNothing(): PrismaService {
       aggregate: jest.fn().mockResolvedValue({ _sum: {} }),
     },
     receipt: model,
-  } as unknown as PrismaService;
+    $queryRaw: jest.fn().mockResolvedValue([]),
+  };
+
+  return { ...db, db } as unknown as PrismaService;
 }
 
 describe('queries fail closed without an explicit scope', () => {

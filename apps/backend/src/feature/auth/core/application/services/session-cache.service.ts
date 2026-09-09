@@ -12,7 +12,6 @@ interface CachedSession {
   email: string;
   firstName: string;
   lastName: string;
-  balance: number;
   emailVerified: boolean;
   createdAt: string;
   updatedAt: string;
@@ -83,7 +82,6 @@ export class SessionCacheService {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      balance: user.balance,
       emailVerified: user.emailVerified,
       createdAt: new Date(user.createdAt).toISOString(),
       updatedAt: new Date(user.updatedAt).toISOString(),
@@ -96,7 +94,6 @@ export class SessionCacheService {
       email: cached.email,
       firstName: cached.firstName,
       lastName: cached.lastName,
-      balance: cached.balance,
       emailVerified: cached.emailVerified,
       createdAt: new Date(cached.createdAt),
       updatedAt: new Date(cached.updatedAt),

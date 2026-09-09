@@ -1,5 +1,14 @@
 import { z } from 'zod';
 
+function isSupportedTimeZone(timeZone: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const envSchema = z.object({
   // Server
   PORT: z
@@ -9,8 +18,19 @@ const envSchema = z.object({
     .pipe(z.number().int().positive()),
   CORS_ORIGIN: z.string().min(1, 'CORS_ORIGIN is required'),
 
+  REPORTING_TIMEZONE: z
+    .string()
+    .optional()
+    .default('Europe/Belgrade')
+    .refine(
+      isSupportedTimeZone,
+      'REPORTING_TIMEZONE must be an IANA time zone',
+    ),
+
   // Database
-  DATABASE_URL: z.string().url('DATABASE_URL must be a valid connection string'),
+  DATABASE_URL: z
+    .string()
+    .url('DATABASE_URL must be a valid connection string'),
 
   // Auth
   BETTER_AUTH_SECRET: z
