@@ -3,9 +3,9 @@ model ExpenseItem {
   itemId     String @map("item_id")
   expenseId  String @map("expense_id")
 
-  price    Decimal
-  discount Decimal
-  quantity Decimal @default(1)
+  price    Decimal @db.Decimal(12, 2)
+  discount Decimal @db.Decimal(12, 2)
+  quantity Decimal @default(1) @db.Decimal(12, 3)
 
   item     StoreItem           @relation(fields: [itemId], references: [id])
   expense  Expense             @relation(fields: [expenseId], references: [id])
