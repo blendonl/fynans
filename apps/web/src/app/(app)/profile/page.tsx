@@ -10,6 +10,7 @@ import { AccountSection } from "@/components/profile/account-section";
 import { ChangePasswordSection } from "@/components/profile/change-password-section";
 import { NotificationPreferencesSection } from "@/components/profile/notification-preferences-section";
 import { PaymentMethodsSection } from "@/components/profile/payment-methods-section";
+import { YourDataSection } from "@/components/profile/your-data-section";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -128,6 +129,8 @@ export default function ProfilePage() {
       </Card>
 
       <PaymentMethodsSection />
+
+      <YourDataSection />
 
       <Button variant="destructive" className="w-full" onClick={logout}>
         <LogOut className="h-4 w-4 mr-2" /> Logout

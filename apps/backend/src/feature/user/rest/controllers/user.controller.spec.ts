@@ -9,10 +9,12 @@ import {
   FAMILY_MEMBERSHIP_REPOSITORY,
   IFamilyMembershipRepository,
 } from '~common/authorization/domain/repositories/family-membership.repository.interface';
+import { FamilyBalanceService } from '~feature/family/core/application/services/family-balance.service';
 import { UserService } from '../../core/application/services/user.service';
 import { GetVisibleUserUseCase } from '../../core/application/use-cases/get-visible-user.use-case';
 import { UpdateProfileUseCase } from '../../core/application/use-cases/update-profile.use-case';
 import { ChangePasswordUseCase } from '../../core/application/use-cases/change-password.use-case';
+import { DeleteAccountUseCase } from '../../core/application/use-cases/delete-account.use-case';
 import {
   ChangePasswordCommand,
   IPasswordChanger,
@@ -22,6 +24,19 @@ import {
   IUserRepository,
   UserProfileChanges,
 } from '../../core/domain/repositories/user.repository.interface';
+import {
+  ACCOUNT_ERASER,
+  IAccountEraser,
+} from '../../core/domain/repositories/account-eraser.interface';
+import {
+  ACCOUNT_AUTHENTICATOR,
+  IAccountAuthenticator,
+} from '../../core/domain/services/account-authenticator.interface';
+import {
+  ISessionRevoker,
+  RevokeSessionsCommand,
+  SESSION_REVOKER,
+} from '../../core/domain/services/session-revoker.interface';
 import { User } from '../../core/domain/entities/user.entity';
 import { UserController } from './user.controller';
 
@@ -71,6 +86,10 @@ describe('UserController', () => {
   let users: Map<string, User>;
   let passwordChanges: ChangePasswordCommand[];
   let passwordChangerError: Error | null;
+  let erasedUserIds: string[];
+  let revokedUserIds: string[];
+  let deletedStorageKeys: string[];
+  let accountPassword: string | null;
 
   const userRepository: IUserRepository = {
     findById: (id: string) => Promise.resolve(users.get(id) ?? null),
@@ -119,6 +138,43 @@ describe('UserController', () => {
     },
   };
 
+  const accountEraser: IAccountEraser = {
+    erase: (userId: string) => {
+      erasedUserIds.push(userId);
+
+      return Promise.resolve({
+        transactions: 2,
+        receipts: 1,
+        auditEntries: 3,
+        storageKeys: ['receipts/one.jpg'],
+        families: [],
+      });
+    },
+  };
+
+  const accountAuthenticator: IAccountAuthenticator = {
+    hasPassword: () => Promise.resolve(accountPassword !== null),
+    verifyPassword: (_userId: string, password: string) =>
+      Promise.resolve(password === accountPassword),
+  };
+
+  const sessionRevoker: ISessionRevoker = {
+    revokeAll: (command: RevokeSessionsCommand) => {
+      revokedUserIds.push(command.userId);
+
+      return Promise.resolve({
+        clearedCookies: ['better-auth.session_token=; Max-Age=0; Path=/'],
+      });
+    },
+  };
+
+  const storage = {
+    delete: (key: string) => {
+      deletedStorageKeys.push(key);
+      return Promise.resolve();
+    },
+  };
+
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [UserController],
@@ -129,16 +185,25 @@ describe('UserController', () => {
           useValue: familyMembershipRepository,
         },
         { provide: PASSWORD_CHANGER, useValue: passwordChanger },
+        { provide: ACCOUNT_ERASER, useValue: accountEraser },
+        { provide: ACCOUNT_AUTHENTICATOR, useValue: accountAuthenticator },
+        { provide: SESSION_REVOKER, useValue: sessionRevoker },
+        { provide: 'StorageProvider', useValue: storage },
+        {
+          provide: FamilyBalanceService,
+          useValue: { recalculateBalances: () => Promise.resolve() },
+        },
         GetVisibleUserUseCase,
         UpdateProfileUseCase,
         ChangePasswordUseCase,
+        DeleteAccountUseCase,
         UserService,
       ],
     }).compile();
 
     app = moduleRef.createNestApplication();
     app.use((req: Request, _res: Response, next: NextFunction) => {
-      (req as Request & { user: { id: string } }).user = { id: currentUserId };
+      (req as Request & { user: User }).user = userOf(currentUserId);
       next();
     });
     app.useGlobalPipes(
@@ -162,6 +227,10 @@ describe('UserController', () => {
     );
     passwordChanges = [];
     passwordChangerError = null;
+    erasedUserIds = [];
+    revokedUserIds = [];
+    deletedStorageKeys = [];
+    accountPassword = 'correct horse';
   });
 
   afterAll(async () => {
@@ -435,6 +504,106 @@ describe('UserController', () => {
         .post('/users/me/change-password')
         .send({ currentPassword: 'wrong', newPassword: 'new-password' })
         .expect(400);
+    });
+  });
+  describe('DELETE /users/me', () => {
+    it('erases the account resolved from the session', async () => {
+      currentUserId = USER_A;
+
+      await request(server)
+        .delete('/users/me')
+        .send({
+          confirmEmail: `${USER_A}@example.com`,
+          currentPassword: 'correct horse',
+        })
+        .expect(204);
+
+      expect(erasedUserIds).toEqual([USER_A]);
+      expect(revokedUserIds).toEqual([USER_A]);
+      expect(deletedStorageKeys).toEqual(['receipts/one.jpg']);
+    });
+
+    it('sends back an expired session cookie so the browser stops looking signed in', async () => {
+      currentUserId = USER_A;
+
+      const response = await request(server)
+        .delete('/users/me')
+        .send({
+          confirmEmail: `${USER_A}@example.com`,
+          currentPassword: 'correct horse',
+        })
+        .expect(204);
+
+      expect(response.headers['set-cookie']).toEqual([
+        'better-auth.session_token=; Max-Age=0; Path=/',
+      ]);
+    });
+
+    it('ignores a user id in the body and only ever deletes the caller', async () => {
+      currentUserId = USER_A;
+
+      await request(server)
+        .delete('/users/me')
+        .send({
+          confirmEmail: `${USER_A}@example.com`,
+          currentPassword: 'correct horse',
+          userId: USER_B,
+        })
+        .expect(400);
+
+      expect(erasedUserIds).toEqual([]);
+    });
+
+    it('refuses when the confirmation email belongs to another account', async () => {
+      currentUserId = USER_A;
+
+      await request(server)
+        .delete('/users/me')
+        .send({
+          confirmEmail: `${USER_B}@example.com`,
+          currentPassword: 'correct horse',
+        })
+        .expect(400);
+
+      expect(erasedUserIds).toEqual([]);
+      expect(revokedUserIds).toEqual([]);
+    });
+
+    it('refuses a stolen session that cannot produce the password', async () => {
+      currentUserId = USER_A;
+
+      await request(server)
+        .delete('/users/me')
+        .send({
+          confirmEmail: `${USER_A}@example.com`,
+          currentPassword: 'guessing',
+        })
+        .expect(403);
+
+      expect(erasedUserIds).toEqual([]);
+    });
+
+    it('refuses a password account when no password is sent', async () => {
+      currentUserId = USER_A;
+
+      await request(server)
+        .delete('/users/me')
+        .send({ confirmEmail: `${USER_A}@example.com` })
+        .expect(400);
+
+      expect(erasedUserIds).toEqual([]);
+    });
+
+    it('lets an account without a password confirm with its email', async () => {
+      currentUserId = USER_A;
+      accountPassword = null;
+
+      await request(server)
+        .delete('/users/me')
+        .send({ confirmEmail: `${USER_A}@example.com` })
+        .expect(204);
+
+      expect(erasedUserIds).toEqual([USER_A]);
     });
   });
 });

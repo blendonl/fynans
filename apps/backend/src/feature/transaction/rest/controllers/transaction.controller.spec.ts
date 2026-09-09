@@ -1,4 +1,5 @@
 import { Server } from 'http';
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { Test } from '@nestjs/testing';
@@ -29,6 +30,8 @@ import { UpdateTransactionUseCase } from '../../core/application/use-cases/updat
 import { DeleteTransactionUseCase } from '../../core/application/use-cases/delete-transaction.use-case';
 import { GetTransactionStatisticsUseCase } from '../../core/application/use-cases/get-transaction-statistics.use-case';
 import { GetTransactionStatisticsComparisonUseCase } from '../../core/application/use-cases/get-transaction-statistics-comparison.use-case';
+import { ExportTransactionsUseCase } from '../../core/application/use-cases/export-transactions.use-case';
+import { TRANSACTION_DETAIL_REPOSITORY } from '../../core/domain/repositories/transaction-detail.repository.interface';
 import { TransactionController } from './transaction.controller';
 
 const MEMBER = '11111111-1111-4111-8111-111111111111';
@@ -45,7 +48,7 @@ const transactionOf = (id: string) => ({
   type: 'EXPENSE',
   scope: 'PERSONAL',
   status: 'CONFIRMED',
-  value: { toNumber: () => 10 },
+  value: new Decimal('10'),
   paymentMethodId: undefined,
   rejectionReason: undefined,
   recordedAt: new Date('2026-01-01T00:00:00.000Z'),
@@ -119,6 +122,11 @@ describe('TransactionController authorization', () => {
           provide: GetTransactionStatisticsComparisonUseCase,
           useValue: getTransactionStatisticsComparisonUseCase,
         },
+        {
+          provide: TRANSACTION_DETAIL_REPOSITORY,
+          useValue: { findByTransactionIds: () => Promise.resolve(new Map()) },
+        },
+        ExportTransactionsUseCase,
         {
           provide: RecalculateBalanceUseCase,
           useValue: { execute: jest.fn() },
@@ -220,6 +228,77 @@ describe('TransactionController authorization', () => {
         .expect(403);
 
       expect(getTransactionStatisticsUseCase.execute).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('CSV export', () => {
+    it("refuses to export another family's transactions", async () => {
+      currentUserId = OUTSIDER;
+
+      await request(server)
+        .get(`/transactions/export?format=csv&familyId=${FAMILY}`)
+        .expect(403);
+
+      expect(listTransactionsUseCase.execute).not.toHaveBeenCalled();
+    });
+
+    it('scopes an export to the caller, never to a supplied user id', async () => {
+      currentUserId = OUTSIDER;
+      listTransactionsUseCase.execute.mockResolvedValue({
+        data: [],
+        total: 0,
+      });
+
+      await request(server).get('/transactions/export?format=csv').expect(200);
+
+      expect(listTransactionsUseCase.execute).toHaveBeenCalledWith(
+        expect.objectContaining({ userId: OUTSIDER, familyId: undefined }),
+        expect.anything(),
+      );
+    });
+
+    it('exports a family the caller belongs to', async () => {
+      currentUserId = CO_MEMBER;
+      listTransactionsUseCase.execute.mockResolvedValue({
+        data: [],
+        total: 0,
+      });
+
+      await request(server)
+        .get(`/transactions/export?format=csv&familyId=${FAMILY}`)
+        .expect(200);
+
+      expect(listTransactionsUseCase.execute).toHaveBeenCalledWith(
+        expect.objectContaining({ familyId: FAMILY, userId: undefined }),
+        expect.anything(),
+      );
+    });
+
+    it('sends the rows as a downloadable CSV document', async () => {
+      currentUserId = MEMBER;
+      listTransactionsUseCase.execute.mockResolvedValue({
+        data: [transactionOf(PERSONAL_TRANSACTION)],
+        total: 1,
+      });
+
+      const response = await request(server)
+        .get('/transactions/export?format=csv')
+        .expect(200);
+
+      expect(response.headers['content-type']).toContain('text/csv');
+      expect(response.headers['content-disposition']).toMatch(
+        /^attachment; filename="fynans-transactions-\d{4}-\d{2}-\d{2}\.csv"$/,
+      );
+      expect(response.text).toContain('id,recorded_at,type');
+      expect(response.text).toContain(PERSONAL_TRANSACTION);
+    });
+
+    it('rejects a format it cannot produce', async () => {
+      currentUserId = MEMBER;
+
+      await request(server).get('/transactions/export?format=pdf').expect(400);
+
+      expect(listTransactionsUseCase.execute).not.toHaveBeenCalled();
     });
   });
 
