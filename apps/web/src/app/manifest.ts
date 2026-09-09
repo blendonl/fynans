@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "Fynans",
     short_name: "Fynans",
-    description: "Personal finance management",
+    description: "Receipt-level expense tracking for households",
     start_url: "/",
     scope: "/",
     display: "standalone",
