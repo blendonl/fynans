@@ -670,6 +670,129 @@
         ]
       }
     },
+    "/users/me": {
+      "get": {
+        "operationId": "UserController_findMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the signed-in user profile",
+        "tags": [
+          "Users"
+        ]
+      },
+      "patch": {
+        "description": "Updates the display name and avatar of the account resolved from the session. Email is deliberately not editable here: changing the address that password reset keys on requires the email verification flow, which is not yet implemented.",
+        "operationId": "UserController_updateMe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update the signed-in user profile",
+        "tags": [
+          "Users"
+        ]
+      },
+      "delete": {
+        "description": "Irreversible. Removes the account together with its transactions, receipts, receipt images, payment methods, categories, baskets and audit trail. Requires the account password, or — for Google and Apple accounts, which have none — the account email address typed back. Every session is revoked before anything is erased. Families the account belonged to are kept for the remaining members: ownership passes to the longest-standing admin, or to the longest-standing member when there is no admin. A family is removed only when nobody is left in it and no transaction still references it.",
+        "operationId": "UserController_deleteMe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAccountRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Account deleted"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Permanently delete the signed-in account",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/users/me/change-password": {
+      "post": {
+        "description": "Verifies the current password and rotates the session. All other sessions for the account are revoked.",
+        "operationId": "UserController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Password changed"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change the signed-in user password",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
     "/users/{id}": {
       "get": {
         "operationId": "UserController_findOne",
@@ -872,6 +995,148 @@
           }
         ],
         "summary": "List all transactions with pagination and filters",
+        "tags": [
+          "Transaction"
+        ]
+      }
+    },
+    "/transactions/export": {
+      "get": {
+        "description": "Streams the transactions the caller can already see through GET /transactions, under the same filters and the same visibility rules. The account is taken from the session, never from a parameter.",
+        "operationId": "TransactionController_export",
+        "parameters": [
+          {
+            "name": "format",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "csv",
+              "type": "string",
+              "enum": [
+                "csv"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EXPENSE",
+                "INCOME"
+              ]
+            }
+          },
+          {
+            "name": "familyId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PERSONAL",
+                "FAMILY"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CONFIRMED",
+                "PENDING",
+                "REJECTED"
+              ]
+            }
+          },
+          {
+            "name": "paymentMethodId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "valueMin",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "valueMax",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A CSV document"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Export transactions as CSV",
         "tags": [
           "Transaction"
         ]
@@ -6089,6 +6354,10 @@
           "lastName": {
             "type": "string"
           },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
           "emailVerified": {
             "type": "boolean"
           },
@@ -6104,9 +6373,63 @@
           "email",
           "firstName",
           "lastName",
+          "image",
           "emailVerified",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "UpdateProfileRequestDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "image": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2048,
+            "description": "Absolute http(s) avatar URL, or null to clear it"
+          }
+        }
+      },
+      "ChangePasswordRequestDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
+      "DeleteAccountRequestDto": {
+        "type": "object",
+        "properties": {
+          "confirmEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "The email address of the account being deleted, typed by the account holder as confirmation."
+          },
+          "currentPassword": {
+            "type": "string",
+            "description": "Required for accounts that sign in with a password. Accounts created through Google or Apple have no password and confirm with the email address alone."
+          }
+        },
+        "required": [
+          "confirmEmail"
         ]
       },
       "CreateTransactionRequestDto": {
