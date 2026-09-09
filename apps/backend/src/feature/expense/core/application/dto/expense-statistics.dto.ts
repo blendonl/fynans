@@ -11,24 +11,10 @@ export interface ExpenseStoreTotal {
   total: Decimal;
 }
 
-export class ExpenseStatistics {
+export interface ExpenseStatistics {
   totalExpenses: Decimal;
   expenseCount: number;
   averageExpense: Decimal;
   expensesByCategory: ExpenseCategoryTotal[];
   expensesByStore: ExpenseStoreTotal[];
-
-  constructor(
-    totalExpenses: Decimal,
-    expenseCount: number,
-    averageExpense: Decimal,
-    expensesByCategory: ExpenseCategoryTotal[],
-    expensesByStore: ExpenseStoreTotal[],
-  ) {
-    this.totalExpenses = totalExpenses;
-    this.expenseCount = expenseCount;
-    this.averageExpense = averageExpense;
-    this.expensesByCategory = expensesByCategory;
-    this.expensesByStore = expensesByStore;
-  }
 }

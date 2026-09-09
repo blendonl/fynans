@@ -8,6 +8,7 @@ import {
   ExpenseTransactionRef,
 } from '../../domain/repositories/expense-item.repository.interface';
 import { ExpenseItem } from '../../domain/entities/expense-item.entity';
+import { ExpenseItemMapper } from '../mappers/expense-item.mapper';
 import { Pagination } from '~common/dto/pagination.dto';
 import { OwnerScope } from '~common/authorization/domain/owner-scope';
 import { Prisma, TransactionScope } from 'prisma/generated/prisma/client';
@@ -35,7 +36,7 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
       include: EXPENSE_ITEM_INCLUDE,
     });
 
-    return ExpenseItem.fromPrisma(item);
+    return ExpenseItemMapper.toDomain(item);
   }
 
   async findById(id: string): Promise<ExpenseItem | null> {
@@ -44,7 +45,7 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
       include: EXPENSE_ITEM_INCLUDE,
     });
 
-    return item ? ExpenseItem.fromPrisma(item) : null;
+    return item ? ExpenseItemMapper.toDomain(item) : null;
   }
 
   async findByExpenseId(
@@ -57,7 +58,7 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
       orderBy: { createdAt: 'asc' },
     });
 
-    return items.map(ExpenseItem.fromPrisma);
+    return items.map((item) => ExpenseItemMapper.toDomain(item));
   }
 
   async findAll(
@@ -78,7 +79,7 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
     ]);
 
     return {
-      data: items.map(ExpenseItem.fromPrisma),
+      data: items.map((item) => ExpenseItemMapper.toDomain(item)),
       total,
     };
   }
@@ -104,7 +105,7 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
       include: EXPENSE_ITEM_INCLUDE,
     });
 
-    return ExpenseItem.fromPrisma(item);
+    return ExpenseItemMapper.toDomain(item);
   }
 
   async delete(id: string): Promise<void> {

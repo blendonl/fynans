@@ -1,4 +1,8 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { firstValueFrom, toArray } from 'rxjs';
 import { ReceiptController } from './receipt.controller';
 import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
@@ -104,18 +108,36 @@ describe('ReceiptController job scoping', () => {
       expect(receiptJobQueue.addJob).not.toHaveBeenCalled();
     });
 
-    it('still swallows storage failures and queues the job', async () => {
+    it('refuses the upload when storage fails, since the job reads by key', async () => {
       saveReceiptFileUseCase.execute.mockRejectedValue(new Error('minio down'));
+
+      await expect(
+        controller.processReceipt(file as never, {} as never, owner as never),
+      ).rejects.toBeInstanceOf(ServiceUnavailableException);
+
+      expect(receiptJobQueue.addJob).not.toHaveBeenCalled();
+    });
+
+    it('queues the job by storage key rather than by image bytes', async () => {
+      saveReceiptFileUseCase.execute.mockResolvedValue({
+        id: 'receipt-1',
+        storageKey: 'receipts/owner-1/abc.jpg',
+      });
 
       await expect(
         controller.processReceipt(file as never, {} as never, owner as never),
       ).resolves.toEqual({
         jobId: '7',
         status: 'processing',
-        receiptId: undefined,
+        receiptId: 'receipt-1',
       });
 
-      expect(receiptJobQueue.addJob).toHaveBeenCalled();
+      expect(receiptJobQueue.addJob).toHaveBeenCalledWith(
+        'receipts/owner-1/abc.jpg',
+        owner.id,
+        expect.any(Object),
+        expect.objectContaining({ receiptId: 'receipt-1' }),
+      );
     });
   });
 

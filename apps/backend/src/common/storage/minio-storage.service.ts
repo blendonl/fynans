@@ -49,6 +49,21 @@ export class MinioStorageService implements IStorageProvider {
     );
   }
 
+  async download(key: string): Promise<Buffer> {
+    const response = await this.client.send(
+      new GetObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+      }),
+    );
+
+    if (!response.Body) {
+      throw new Error(`Object ${key} has no body`);
+    }
+
+    return Buffer.from(await response.Body.transformToByteArray());
+  }
+
   async getPresignedDownloadUrl(
     key: string,
     expiresInSeconds: number = 3600,

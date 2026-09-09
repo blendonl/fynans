@@ -3,7 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
-import { DomainExceptionFilter } from '~common/filters/domain-exception.filter';
+import { AllExceptionsFilter } from '~common/filters/all-exceptions.filter';
 import { VerifyFamilyAccessUseCase } from '~common/authorization/application/use-cases/verify-family-access.use-case';
 import { VerifyResourceAccessUseCase } from '~common/authorization/application/use-cases/verify-resource-access.use-case';
 import { FamilyScopeGuard } from '~common/authorization/rest/guards/family-scope.guard';
@@ -120,7 +120,7 @@ describe('IncomeController authorization', () => {
       next();
     });
     app.useGlobalGuards(app.get(FamilyScopeGuard));
-    app.useGlobalFilters(new DomainExceptionFilter());
+    app.useGlobalFilters(new AllExceptionsFilter());
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,

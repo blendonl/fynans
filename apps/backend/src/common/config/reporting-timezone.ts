@@ -1,5 +1,5 @@
-const DEFAULT_REPORTING_TIMEZONE = 'Europe/Belgrade';
+import { appEnv } from './env.validation';
 
 export function reportingTimeZone(): string {
-  return process.env.REPORTING_TIMEZONE || DEFAULT_REPORTING_TIMEZONE;
+  return appEnv().REPORTING_TIMEZONE;
 }

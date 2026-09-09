@@ -32,7 +32,10 @@ describe('ReceiptJobQueueService', () => {
       get: jest.fn((key: string, defaultValue: any) => defaultValue),
     };
 
-    service = new ReceiptJobQueueService(mockQueue as any, mockConfigService as any);
+    service = new ReceiptJobQueueService(
+      mockQueue as any,
+      mockConfigService as any,
+    );
   });
 
   it('should be defined', () => {
@@ -40,27 +43,33 @@ describe('ReceiptJobQueueService', () => {
   });
 
   describe('addJob', () => {
-    it('should create job with base64 image data and return job ID', async () => {
-      const imageBuffer = Buffer.from('fake-image-data');
+    it('should reference the stored image by key and return job ID', async () => {
       const userId = 'user-123';
 
-      const jobId = await service.addJob(imageBuffer, userId);
+      const jobId = await service.addJob('receipts/user-123/abc.jpg', userId);
 
       expect(jobId).toBe('test-job-id');
       expect(mockQueue.add).toHaveBeenCalledWith(
         'process-receipt',
         {
-          imageBase64: imageBuffer.toString('base64'),
+          storageKey: 'receipts/user-123/abc.jpg',
           userId,
         },
         expect.any(Object),
       );
     });
 
-    it('should pass correct job options (attempts, backoff, etc.)', async () => {
-      const imageBuffer = Buffer.from('fake-image-data');
+    it('should not put the image itself in the redis payload', async () => {
+      await service.addJob('receipts/user-123/abc.jpg', 'user-123');
 
-      await service.addJob(imageBuffer);
+      const payload = mockQueue.add.mock.calls[0][1] as Record<string, unknown>;
+
+      expect(payload).not.toHaveProperty('imageBase64');
+      expect(JSON.stringify(payload).length).toBeLessThan(200);
+    });
+
+    it('should pass correct job options (attempts, backoff, etc.)', async () => {
+      await service.addJob('receipts/user-123/abc.jpg');
 
       expect(mockQueue.add).toHaveBeenCalledWith(
         'process-receipt',

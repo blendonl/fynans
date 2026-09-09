@@ -29,6 +29,7 @@ export interface IFamilyRepository {
   removeMember(familyId: string, userId: string): Promise<void>;
   findMember(familyId: string, userId: string): Promise<FamilyMember | null>;
   findMembers(familyId: string): Promise<FamilyMember[]>;
+  findMembershipsOfUser(userId: string): Promise<FamilyMember[]>;
   updateMemberRole(
     familyId: string,
     userId: string,

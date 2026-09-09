@@ -1,10 +1,5 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
-import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
 import { IFamilyInvitationRepository } from '../../domain/repositories/family-invitation.repository.interface';
 import {
@@ -24,6 +19,8 @@ import { PrismaService } from '~common/prisma/prisma.service';
 import {
   DomainConflictException,
   DomainForbiddenException,
+  DomainNotFoundException,
+  DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
 
 @Injectable()
@@ -41,11 +38,13 @@ export class AcceptInvitationUseCase {
   async execute(invitationId: string, userId: string): Promise<FamilyMember> {
     const invitation = await this.invitationRepository.findById(invitationId);
     if (!invitation) {
-      throw new NotFoundException('Invitation not found');
+      throw new DomainNotFoundException('Invitation not found');
     }
 
     if (!invitation.canBeAccepted()) {
-      throw new BadRequestException('Invitation expired or already processed');
+      throw new DomainValidationException(
+        'Invitation expired or already processed',
+      );
     }
 
     const invitee = await this.userService.findById(userId);

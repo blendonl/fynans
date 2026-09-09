@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IFamilyInvitationRepository } from '../../domain/repositories/family-invitation.repository.interface';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
 import { FamilyInvitationStatus } from '../../domain/entities/family-invitation.entity';
@@ -14,7 +9,11 @@ import {
   NotificationPriority,
 } from '../../../../notification/core/domain/value-objects/notification-type.vo';
 import { UserService } from '~feature/user/core/application/services/user.service';
-import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
+import {
+  DomainForbiddenException,
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 
 @Injectable()
 export class DeclineInvitationUseCase {
@@ -30,11 +29,13 @@ export class DeclineInvitationUseCase {
   async execute(invitationId: string, userId: string): Promise<void> {
     const invitation = await this.invitationRepository.findById(invitationId);
     if (!invitation) {
-      throw new NotFoundException('Invitation not found');
+      throw new DomainNotFoundException('Invitation not found');
     }
 
     if (!invitation.canBeDeclined()) {
-      throw new BadRequestException('Invitation expired or already processed');
+      throw new DomainValidationException(
+        'Invitation expired or already processed',
+      );
     }
 
     const decliner = await this.userService.findById(userId);

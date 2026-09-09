@@ -1,4 +1,5 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 export interface StoreItemDiscountProps {
   id: string;
@@ -20,31 +21,33 @@ export class StoreItemDiscount {
 
   private validate(props: StoreItemDiscountProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Store item discount ID is required');
+      throw new DomainValidationException('Store item discount ID is required');
     }
 
     if (!props.storeItemId || props.storeItemId.trim() === '') {
-      throw new Error('Store item ID is required');
+      throw new DomainValidationException('Store item ID is required');
     }
 
     if (!props.discount || props.discount.toNumber() <= 0) {
-      throw new Error('Discount amount must be greater than 0');
+      throw new DomainValidationException(
+        'Discount amount must be greater than 0',
+      );
     }
 
     if (!props.startedAt) {
-      throw new Error('Start date is required');
+      throw new DomainValidationException('Start date is required');
     }
 
     if (props.endedAt && props.endedAt < props.startedAt) {
-      throw new Error('End date must be after start date');
+      throw new DomainValidationException('End date must be after start date');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 
@@ -78,7 +81,10 @@ export class StoreItemDiscount {
 
   isActive(): boolean {
     const now = new Date();
-    return this.props.startedAt <= now && (this.props.endedAt === null || this.props.endedAt > now);
+    return (
+      this.props.startedAt <= now &&
+      (this.props.endedAt === null || this.props.endedAt > now)
+    );
   }
 
   getDiscountPercentage(originalPrice: Decimal): number {

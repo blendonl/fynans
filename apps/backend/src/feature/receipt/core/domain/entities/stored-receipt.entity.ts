@@ -1,3 +1,4 @@
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 interface StoredReceiptProps {
   id: string;
   userId: string;
@@ -22,27 +23,27 @@ export class StoredReceipt {
 
   private validate(props: StoredReceiptProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Receipt ID is required');
+      throw new DomainValidationException('Receipt ID is required');
     }
 
     if (!props.userId || props.userId.trim() === '') {
-      throw new Error('User ID is required');
+      throw new DomainValidationException('User ID is required');
     }
 
     if (!props.fileName || props.fileName.trim() === '') {
-      throw new Error('File name is required');
+      throw new DomainValidationException('File name is required');
     }
 
     if (!props.storageKey || props.storageKey.trim() === '') {
-      throw new Error('Storage key is required');
+      throw new DomainValidationException('Storage key is required');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 

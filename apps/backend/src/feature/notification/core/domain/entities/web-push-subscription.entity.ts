@@ -1,3 +1,4 @@
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 export interface WebPushSubscriptionProps {
   id: string;
   userId: string;
@@ -21,31 +22,31 @@ export class WebPushSubscription {
 
   private validate(props: WebPushSubscriptionProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('WebPushSubscription ID is required');
+      throw new DomainValidationException('WebPushSubscription ID is required');
     }
 
     if (!props.userId || props.userId.trim() === '') {
-      throw new Error('User ID is required');
+      throw new DomainValidationException('User ID is required');
     }
 
     if (!props.endpoint || props.endpoint.trim() === '') {
-      throw new Error('Endpoint is required');
+      throw new DomainValidationException('Endpoint is required');
     }
 
     if (!props.p256dh || props.p256dh.trim() === '') {
-      throw new Error('p256dh key is required');
+      throw new DomainValidationException('p256dh key is required');
     }
 
     if (!props.auth || props.auth.trim() === '') {
-      throw new Error('Auth key is required');
+      throw new DomainValidationException('Auth key is required');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 

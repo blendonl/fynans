@@ -1,4 +1,5 @@
 import { Prisma } from 'prisma/generated/prisma/client';
+import { resetAppEnv } from '~common/config/env.validation';
 import { PrismaExpenseRepository } from './prisma-expense.repository';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 
@@ -25,6 +26,7 @@ describe('PrismaExpenseRepository reporting queries', () => {
   describe('getTrends', () => {
     it('buckets by the configured reporting time zone', async () => {
       process.env.REPORTING_TIMEZONE = 'Europe/Belgrade';
+      resetAppEnv();
       const { queries, repository } = captureQueries();
 
       await repository.getTrends(dateFrom, dateTo, 'day', { userId: USER });
@@ -36,6 +38,7 @@ describe('PrismaExpenseRepository reporting queries', () => {
 
     it('uses one time zone for day, week and month buckets', async () => {
       process.env.REPORTING_TIMEZONE = 'UTC';
+      resetAppEnv();
       const { queries, repository } = captureQueries();
 
       await repository.getTrends(dateFrom, dateTo, 'day', { userId: USER });
@@ -62,7 +65,9 @@ describe('PrismaExpenseRepository reporting queries', () => {
     it('falls back to day buckets for an unknown grouping', async () => {
       const { queries, repository } = captureQueries();
 
-      await repository.getTrends(dateFrom, dateTo, 'fortnight', { userId: USER });
+      await repository.getTrends(dateFrom, dateTo, 'fortnight', {
+        userId: USER,
+      });
 
       expect(queries[0].values[0]).toBe('day');
     });
@@ -178,5 +183,49 @@ describe('PrismaExpenseRepository reporting queries', () => {
       expect(statistics.totalExpenses.toString()).toBe('0');
       expect(statistics.averageExpense.toString()).toBe('0');
     });
+  });
+});
+
+describe('PrismaExpenseRepository.deleteWithItemsAndTransaction', () => {
+  function captureDeletes() {
+    const db = {
+      expenseItem: { deleteMany: jest.fn().mockResolvedValue(undefined) },
+      expense: { delete: jest.fn().mockResolvedValue(undefined) },
+      transaction: { delete: jest.fn().mockResolvedValue(undefined) },
+    };
+    return { db, repository: new PrismaExpenseRepository({ db } as never) };
+  }
+
+  it('removes the line items, the expense and its transaction', async () => {
+    const { db, repository } = captureDeletes();
+
+    await repository.deleteWithItemsAndTransaction('expense-1', 'tx-1');
+
+    expect(db.expenseItem.deleteMany).toHaveBeenCalledWith({
+      where: { expenseId: 'expense-1' },
+    });
+    expect(db.expense.delete).toHaveBeenCalledWith({
+      where: { id: 'expense-1' },
+    });
+    expect(db.transaction.delete).toHaveBeenCalledWith({
+      where: { id: 'tx-1' },
+    });
+  });
+
+  it('deletes the line items before the expense they belong to', async () => {
+    const { db, repository } = captureDeletes();
+    const order: string[] = [];
+    db.expenseItem.deleteMany.mockImplementation(() => {
+      order.push('items');
+      return Promise.resolve(undefined);
+    });
+    db.expense.delete.mockImplementation(() => {
+      order.push('expense');
+      return Promise.resolve(undefined);
+    });
+
+    await repository.deleteWithItemsAndTransaction('expense-1', 'tx-1');
+
+    expect(order).toEqual(['items', 'expense']);
   });
 });
