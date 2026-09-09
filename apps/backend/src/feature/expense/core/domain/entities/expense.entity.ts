@@ -97,6 +97,16 @@ export class Expense {
     return this.props.receipt ?? null;
   }
 
+  itemsMatching(searchTerm: string): ExpenseItem[] {
+    const needle = searchTerm.trim().toLowerCase();
+    if (needle === '') {
+      return [];
+    }
+    return this.items.filter((item) =>
+      item.itemName.toLowerCase().includes(needle),
+    );
+  }
+
   toJSON() {
     return {
       id: this.props.id,

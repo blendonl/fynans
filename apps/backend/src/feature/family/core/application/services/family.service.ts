@@ -52,6 +52,10 @@ export class FamilyService {
     return this.familyRepository.findMember(familyId, userId);
   }
 
+  async findMembershipsOfUser(userId: string): Promise<FamilyMember[]> {
+    return this.familyRepository.findMembershipsOfUser(userId);
+  }
+
   async findMembers(familyId: string): Promise<FamilyMember[]> {
     return this.familyRepository.findMembers(familyId);
   }
