@@ -5,7 +5,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DomainExceptionFilter } from './common/filters/domain-exception.filter';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { AuthCoreModule } from './feature/auth/core/auth-core.module';
 import { AuthRestModule } from './feature/auth/rest/auth-rest.module';
@@ -79,7 +79,7 @@ import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
     AppService,
     {
       provide: APP_FILTER,
-      useClass: DomainExceptionFilter,
+      useClass: AllExceptionsFilter,
     },
     {
       provide: APP_GUARD,

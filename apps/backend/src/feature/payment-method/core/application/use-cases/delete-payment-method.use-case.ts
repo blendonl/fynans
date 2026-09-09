@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import { type IPaymentMethodRepository } from '../../domain/repositories/payment-method.repository.interface';
 
 @Injectable()
@@ -12,11 +13,11 @@ export class DeletePaymentMethodUseCase {
     const paymentMethod = await this.paymentMethodRepository.findById(id);
 
     if (!paymentMethod) {
-      throw new NotFoundException('Payment method not found');
+      throw new DomainNotFoundException('Payment method not found');
     }
 
     if (paymentMethod.userId !== userId) {
-      throw new NotFoundException('Payment method not found');
+      throw new DomainNotFoundException('Payment method not found');
     }
 
     await this.paymentMethodRepository.delete(id);

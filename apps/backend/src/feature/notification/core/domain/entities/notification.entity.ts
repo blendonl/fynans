@@ -3,6 +3,7 @@ import {
   NotificationPriority,
   DeliveryMethod,
 } from '../value-objects/notification-type.vo';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 export interface NotificationProps {
   id: string;
@@ -35,35 +36,40 @@ export class Notification {
 
   private validate(props: NotificationProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Notification ID is required');
+      throw new DomainValidationException('Notification ID is required');
     }
 
     if (!props.userId || props.userId.trim() === '') {
-      throw new Error('User ID is required');
+      throw new DomainValidationException('User ID is required');
     }
 
     if (!props.type) {
-      throw new Error('Notification type is required');
+      throw new DomainValidationException('Notification type is required');
     }
 
     if (!props.title || props.title.trim() === '') {
-      throw new Error('Notification title is required');
+      throw new DomainValidationException('Notification title is required');
     }
 
     if (!props.message || props.message.trim() === '') {
-      throw new Error('Notification message is required');
+      throw new DomainValidationException('Notification message is required');
     }
 
-    if (!Array.isArray(props.deliveryMethods) || props.deliveryMethods.length === 0) {
-      throw new Error('At least one delivery method is required');
+    if (
+      !Array.isArray(props.deliveryMethods) ||
+      props.deliveryMethods.length === 0
+    ) {
+      throw new DomainValidationException(
+        'At least one delivery method is required',
+      );
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 

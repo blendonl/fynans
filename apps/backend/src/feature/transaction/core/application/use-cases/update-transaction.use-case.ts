@@ -1,9 +1,8 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { type ITransactionRepository } from '../../domain/repositories/transaction.repository.interface';
 import { UpdateTransactionDto } from '../dto/update-transaction.dto';
 import {
@@ -21,7 +20,7 @@ export class UpdateTransactionUseCase {
   async execute(id: string, dto: UpdateTransactionDto): Promise<Transaction> {
     const existingTransaction = await this.transactionRepository.findById(id);
     if (!existingTransaction) {
-      throw new NotFoundException(`Transaction with ID ${id} not found`);
+      throw new DomainNotFoundException(`Transaction with ID ${id} not found`);
     }
 
     this.validateUpdateData(dto);
@@ -39,7 +38,7 @@ export class UpdateTransactionUseCase {
 
   private validateUpdateData(dto: UpdateTransactionDto): void {
     if (dto.value !== undefined && dto.value.lessThanOrEqualTo(0)) {
-      throw new BadRequestException('Transaction value must be positive');
+      throw new DomainValidationException('Transaction value must be positive');
     }
   }
 }

@@ -1,3 +1,4 @@
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 interface StoreProps {
   id: string;
   name: string;
@@ -16,23 +17,23 @@ export class Store {
 
   private validate(props: StoreProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Store ID is required');
+      throw new DomainValidationException('Store ID is required');
     }
 
     if (!props.name || props.name.trim() === '') {
-      throw new Error('Store name is required');
+      throw new DomainValidationException('Store name is required');
     }
 
     if (!props.location || props.location.trim() === '') {
-      throw new Error('Store location is required');
+      throw new DomainValidationException('Store location is required');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 

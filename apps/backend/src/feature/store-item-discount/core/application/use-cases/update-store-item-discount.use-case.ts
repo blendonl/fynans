@@ -1,9 +1,8 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { type IStoreItemDiscountRepository } from '../../domain/repositories/store-item-discount.repository.interface';
 import { UpdateStoreItemDiscountDto } from '../dto/update-store-item-discount.dto';
 import { StoreItemDiscount } from '../../domain/entities/store-item-discount.entity';
@@ -22,7 +21,7 @@ export class UpdateStoreItemDiscountUseCase {
   ): Promise<StoreItemDiscount> {
     const existingDiscount = await this.discountRepository.findById(id);
     if (!existingDiscount) {
-      throw new NotFoundException(`Discount with ID ${id} not found`);
+      throw new DomainNotFoundException(`Discount with ID ${id} not found`);
     }
 
     await this.validate(existingDiscount, dto);
@@ -40,15 +39,17 @@ export class UpdateStoreItemDiscountUseCase {
     dto: UpdateStoreItemDiscountDto,
   ): Promise<void> {
     if (existingDiscount.endedAt && existingDiscount.endedAt < new Date()) {
-      throw new BadRequestException('Cannot update an already ended discount');
+      throw new DomainValidationException(
+        'Cannot update an already ended discount',
+      );
     }
 
     if (dto.discount !== undefined && dto.discount <= 0) {
-      throw new BadRequestException('Discount must be greater than 0');
+      throw new DomainValidationException('Discount must be greater than 0');
     }
 
     if (dto.endedAt && dto.endedAt < existingDiscount.startedAt) {
-      throw new BadRequestException('End date must be after start date');
+      throw new DomainValidationException('End date must be after start date');
     }
   }
 }
