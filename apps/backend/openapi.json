@@ -1894,6 +1894,14 @@
             }
           },
           {
+            "name": "mine",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "search",
             "required": false,
             "in": "query",
@@ -2036,6 +2044,14 @@
                 "PENDING",
                 "REJECTED"
               ]
+            }
+          },
+          {
+            "name": "mine",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -2271,6 +2287,14 @@
               "minimum": 2,
               "maximum": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "mine",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -4276,6 +4300,42 @@
           }
         ],
         "summary": "Remove a member from a family",
+        "tags": [
+          "Family"
+        ]
+      }
+    },
+    "/families/{id}/balances/reconcile": {
+      "post": {
+        "operationId": "FamilyController_reconcileBalances",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyBalanceReconciliationResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Compare cached family and member balances against the transaction ledger and repair any drift",
         "tags": [
           "Family"
         ]
@@ -6618,6 +6678,10 @@
               "$ref": "#/components/schemas/ExpenseItemResponseDto"
             }
           },
+          "total": {
+            "type": "number",
+            "description": "Authoritative expense total, computed server-side"
+          },
           "status": {
             "type": "string"
           },
@@ -6649,6 +6713,7 @@
           "category",
           "store",
           "items",
+          "total",
           "status",
           "receiptImages",
           "createdAt",
@@ -7847,6 +7912,78 @@
           "joinedAt",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "BalanceDriftDto": {
+        "type": "object",
+        "properties": {
+          "cached": {
+            "type": "number"
+          },
+          "computed": {
+            "type": "number"
+          },
+          "drift": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "cached",
+          "computed",
+          "drift"
+        ]
+      },
+      "MemberBalanceDriftDto": {
+        "type": "object",
+        "properties": {
+          "cached": {
+            "type": "number"
+          },
+          "computed": {
+            "type": "number"
+          },
+          "drift": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "cached",
+          "computed",
+          "drift",
+          "userId"
+        ]
+      },
+      "FamilyBalanceReconciliationResponseDto": {
+        "type": "object",
+        "properties": {
+          "familyId": {
+            "type": "string"
+          },
+          "family": {
+            "$ref": "#/components/schemas/BalanceDriftDto"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberBalanceDriftDto"
+            }
+          },
+          "isBalanced": {
+            "type": "boolean"
+          },
+          "repaired": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "familyId",
+          "family",
+          "members",
+          "isBalanced",
+          "repaired"
         ]
       },
       "CreateItemRequestDto": {

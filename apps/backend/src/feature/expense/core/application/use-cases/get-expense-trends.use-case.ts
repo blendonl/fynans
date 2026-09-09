@@ -3,12 +3,14 @@ import { type IExpenseRepository } from '../../domain/repositories/expense.repos
 import { ExpenseFilters } from '../dto/expense-filters.dto';
 import { ExpenseTrendPoint } from '../dto/expense-trends.dto';
 import { selectLabelIndices } from '../utils/select-label-indices';
+import { FamilyService } from '../../../../family/core/application/services/family.service';
 
 @Injectable()
 export class GetExpenseTrendsUseCase {
   constructor(
     @Inject('ExpenseRepository')
     private readonly expenseRepository: IExpenseRepository,
+    private readonly familyService: FamilyService,
   ) {}
 
   async execute(
@@ -19,8 +21,11 @@ export class GetExpenseTrendsUseCase {
     filters?: ExpenseFilters,
     maxLabels = 7,
   ): Promise<ExpenseTrendPoint[]> {
+    if (filters?.familyId) {
+      await this.familyService.verifyMembership(filters.familyId, userId);
+    }
+
     const points = await this.expenseRepository.getTrends(
-      userId,
       dateFrom,
       dateTo,
       groupBy,

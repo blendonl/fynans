@@ -33,6 +33,9 @@ export class ExpenseResponseDto {
   @ApiProperty({ type: () => [ExpenseItemResponseDto], required: false })
   matchedItems?: ExpenseItemResponseDto[];
 
+  @ApiProperty({ description: 'Authoritative expense total, computed server-side' })
+  total: number;
+
   @ApiProperty()
   status: string;
 
@@ -54,6 +57,7 @@ export class ExpenseResponseDto {
     dto.transactionId = expense.transactionId;
     dto.categoryId = expense.categoryId;
     dto.storeId = expense.storeId;
+    dto.total = expense.transaction.value.toNumber();
     dto.status = expense.transaction.status;
     dto.rejectionReason = expense.transaction.rejectionReason;
     dto.createdAt = expense.createdAt;
