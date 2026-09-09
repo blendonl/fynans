@@ -1,7 +1,6 @@
 model Income {
   id            String
   transactionId String @unique @map("transaction_id")
-  storeId       String? @map("store_id")
   categoryId    String @map("category_id")
 
   description String?

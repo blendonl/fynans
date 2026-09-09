@@ -10,9 +10,6 @@ export class IncomeResponseDto {
   @ApiProperty()
   transactionId: string;
 
-  @ApiProperty({ nullable: true })
-  storeId: string | null;
-
   @ApiProperty()
   categoryId: string;
 
@@ -35,7 +32,6 @@ export class IncomeResponseDto {
     const dto = new IncomeResponseDto();
     dto.id = income.id;
     dto.transactionId = income.transactionId;
-    dto.storeId = income.storeId;
     dto.categoryId = income.categoryId;
     dto.description = income.description;
     dto.transaction = income.transaction
