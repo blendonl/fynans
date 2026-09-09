@@ -10,8 +10,11 @@ import { UpdateTransactionUseCase } from './application/use-cases/update-transac
 import { DeleteTransactionUseCase } from './application/use-cases/delete-transaction.use-case';
 import { GetTransactionStatisticsUseCase } from './application/use-cases/get-transaction-statistics.use-case';
 import { GetTransactionStatisticsComparisonUseCase } from './application/use-cases/get-transaction-statistics-comparison.use-case';
+import { ExportTransactionsUseCase } from './application/use-cases/export-transactions.use-case';
 
 import { PrismaTransactionRepository } from './infrastructure/repositories/prisma-transaction.repository';
+import { PrismaTransactionDetailRepository } from './infrastructure/repositories/prisma-transaction-detail.repository';
+import { TRANSACTION_DETAIL_REPOSITORY } from './domain/repositories/transaction-detail.repository.interface';
 
 @Module({
   imports: [PrismaModule, FamilyCoreModule, PaymentMethodCoreModule],
@@ -20,6 +23,10 @@ import { PrismaTransactionRepository } from './infrastructure/repositories/prism
       provide: 'TransactionRepository',
       useClass: PrismaTransactionRepository,
     },
+    {
+      provide: TRANSACTION_DETAIL_REPOSITORY,
+      useClass: PrismaTransactionDetailRepository,
+    },
     CreateTransactionUseCase,
     GetTransactionByIdUseCase,
     ListTransactionsUseCase,
@@ -27,6 +34,7 @@ import { PrismaTransactionRepository } from './infrastructure/repositories/prism
     DeleteTransactionUseCase,
     GetTransactionStatisticsUseCase,
     GetTransactionStatisticsComparisonUseCase,
+    ExportTransactionsUseCase,
   ],
   exports: [
     CreateTransactionUseCase,
@@ -36,6 +44,7 @@ import { PrismaTransactionRepository } from './infrastructure/repositories/prism
     DeleteTransactionUseCase,
     GetTransactionStatisticsUseCase,
     GetTransactionStatisticsComparisonUseCase,
+    ExportTransactionsUseCase,
     'TransactionRepository',
   ],
 })
