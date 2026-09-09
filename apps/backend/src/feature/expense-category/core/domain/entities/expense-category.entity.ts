@@ -1,5 +1,3 @@
-import { ExpenseCategory as PrismaExpenseCategory } from 'prisma/generated/prisma/client';
-
 export interface ExpenseCategoryProps {
   id: string;
   parentId: string | null;
@@ -15,17 +13,6 @@ export class ExpenseCategory {
   constructor(props: ExpenseCategoryProps) {
     this.validate(props);
     this.props = props;
-  }
-
-  static fromPrisma(data: PrismaExpenseCategory): ExpenseCategory {
-    return new ExpenseCategory({
-      id: data.id,
-      parentId: data.parentId,
-      name: data.name,
-      isConnectedToStore: data.isConnectedToStore,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-    });
   }
 
   private validate(props: ExpenseCategoryProps): void {
@@ -69,5 +56,4 @@ export class ExpenseCategory {
   get isConnectedToStore(): boolean {
     return this.props.isConnectedToStore;
   }
-
 }
