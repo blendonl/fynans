@@ -1,4 +1,5 @@
 import { Prisma } from 'prisma/generated/prisma/client';
+import { firstCallArgument } from '~test/mock-call';
 import { PrismaExpenseRepository } from './prisma-expense.repository';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 
@@ -62,7 +63,9 @@ describe('PrismaExpenseRepository reporting queries', () => {
     it('falls back to day buckets for an unknown grouping', async () => {
       const { queries, repository } = captureQueries();
 
-      await repository.getTrends(dateFrom, dateTo, 'fortnight', { userId: USER });
+      await repository.getTrends(dateFrom, dateTo, 'fortnight', {
+        userId: USER,
+      });
 
       expect(queries[0].values[0]).toBe('day');
     });
@@ -178,5 +181,63 @@ describe('PrismaExpenseRepository reporting queries', () => {
       expect(statistics.totalExpenses.toString()).toBe('0');
       expect(statistics.averageExpense.toString()).toBe('0');
     });
+  });
+});
+
+describe('PrismaExpenseRepository soft delete', () => {
+  it('excludes soft deleted rows from the statistics SQL', async () => {
+    const { queries, repository } = captureQueries();
+
+    await repository.getStatistics({ userId: USER });
+
+    for (const query of queries) {
+      expect(query.text).toContain('e."deleted_at" IS NULL');
+      expect(query.text).toContain('t."deleted_at" IS NULL');
+    }
+  });
+
+  it('excludes soft deleted rows from the trends SQL', async () => {
+    const { queries, repository } = captureQueries();
+
+    await repository.getTrends(
+      new Date('2026-01-01T00:00:00.000Z'),
+      new Date('2026-02-01T00:00:00.000Z'),
+      'day',
+      { userId: USER },
+    );
+
+    expect(queries[0].text).toContain('e."deleted_at" IS NULL');
+    expect(queries[0].text).toContain('t."deleted_at" IS NULL');
+  });
+
+  it('marks a deleted expense instead of removing the row', async () => {
+    const update = jest.fn().mockResolvedValue(null);
+    const repository = new PrismaExpenseRepository({
+      db: { expense: { update } },
+    } as never);
+
+    await repository.delete('expense-1');
+
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'expense-1' },
+      data: { deletedAt: expect.any(Date) },
+    });
+  });
+
+  it('hides soft deleted expenses from listings', async () => {
+    const findMany = jest.fn().mockResolvedValue([]);
+    const count = jest.fn().mockResolvedValue(0);
+    const repository = new PrismaExpenseRepository({
+      db: { expense: { findMany, count } },
+    } as never);
+
+    await repository.findAll({ userId: USER });
+
+    const { where } = firstCallArgument<{
+      where: { deletedAt: Date | null; transaction: { deletedAt: Date | null } };
+    }>(findMany);
+
+    expect(where.deletedAt).toBeNull();
+    expect(where.transaction.deletedAt).toBeNull();
   });
 });

@@ -144,9 +144,11 @@ export class IncomeController {
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateIncomeRequestDto,
+    @CurrentUser() user: User,
   ) {
     const updated = await this.updateIncomeUseCase.execute(
       id,
+      user.id,
       updateDto.toCoreDto(),
     );
     return IncomeResponseDto.fromEntity(updated);
@@ -157,7 +159,7 @@ export class IncomeController {
   @OwnsResource({ resource: 'income', ownerOnly: true })
   @ApiOperation({ summary: 'Delete an income' })
   @ApiResponse({ status: 204 })
-  async remove(@Param('id') id: string) {
-    await this.deleteIncomeUseCase.execute(id);
+  async remove(@Param('id') id: string, @CurrentUser() user: User) {
+    await this.deleteIncomeUseCase.execute(id, user.id);
   }
 }

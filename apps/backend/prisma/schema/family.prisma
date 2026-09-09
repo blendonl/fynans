@@ -20,7 +20,7 @@ model Family {
   name String
 
   // Cached balance for performance
-  balance Decimal @default(0)
+  balance Decimal @default(0) @db.Decimal(12, 2)
 
   members       FamilyMember[]
   invitations   FamilyInvitation[]
@@ -43,7 +43,7 @@ model FamilyMember {
   role FamilyMemberRole @default(MEMBER)
 
   // Individual balance within this family
-  balance Decimal @default(0)
+  balance Decimal @default(0) @db.Decimal(12, 2)
 
   family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

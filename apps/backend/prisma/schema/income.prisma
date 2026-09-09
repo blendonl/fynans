@@ -1,10 +1,10 @@
 model Income {
-  id            String
+  id            String @id @default(uuid())
   transactionId String @unique @map("transaction_id")
-  storeId       String? @map("store_id")
   categoryId    String @map("category_id")
 
   description String?
+  deletedAt   DateTime? @map("deleted_at")
 
   category    IncomeCategory @relation(fields: [categoryId], references: [id])
   transaction Transaction    @relation(fields: [transactionId], references: [id])
@@ -12,7 +12,8 @@ model Income {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@id([id])
+  @@index([categoryId])
+  @@index([deletedAt])
   @@map("income")
 }
 
@@ -30,6 +31,7 @@ model IncomeCategory {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([parentId])
   @@map("income_category")
 }
 

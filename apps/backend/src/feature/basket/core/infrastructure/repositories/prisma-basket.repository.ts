@@ -4,6 +4,16 @@ import { IBasketRepository } from '../../domain/repositories/basket.repository.i
 import { Basket } from '../../domain/entities/basket.entity';
 import { BasketItem } from '../../domain/entities/basket-item.entity';
 import { BasketMapper } from '../mappers/basket.mapper';
+import { Prisma } from 'prisma/generated/prisma/client';
+
+const UNIQUE_VIOLATION = 'P2002';
+
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === UNIQUE_VIOLATION
+  );
+}
 
 const BASKET_INCLUDE = {
   items: {
@@ -52,32 +62,47 @@ export class PrismaBasketRepository implements IBasketRepository {
   }
 
   async upsertPersonal(userId: string): Promise<Basket> {
-    const basket = await this.prisma.db.basket.upsert({
-      where: {
-        personal_basket: {
+    const existing = await this.findPersonal(userId);
+    if (existing) {
+      return existing;
+    }
+
+    try {
+      const basket = await this.prisma.db.basket.create({
+        data: {
           userId,
           scope: 'PERSONAL',
         },
-      },
-      create: {
-        userId,
-        scope: 'PERSONAL',
-      },
-      update: {},
+        include: BASKET_INCLUDE,
+      });
+
+      return BasketMapper.toDomain(basket);
+    } catch (error) {
+      if (!isUniqueViolation(error)) {
+        throw error;
+      }
+
+      const concurrent = await this.findPersonal(userId);
+      if (!concurrent) {
+        throw error;
+      }
+
+      return concurrent;
+    }
+  }
+
+  private async findPersonal(userId: string): Promise<Basket | null> {
+    const basket = await this.prisma.db.basket.findFirst({
+      where: { userId, scope: 'PERSONAL' },
       include: BASKET_INCLUDE,
     });
 
-    return BasketMapper.toDomain(basket);
+    return basket ? BasketMapper.toDomain(basket) : null;
   }
 
   async upsertFamily(familyId: string, userId: string): Promise<Basket> {
     const basket = await this.prisma.db.basket.upsert({
-      where: {
-        family_basket: {
-          familyId,
-          scope: 'FAMILY',
-        },
-      },
+      where: { familyId },
       create: {
         userId,
         familyId,

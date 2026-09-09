@@ -119,6 +119,7 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
         by: ['type'],
         where: {
           paymentMethodId: id,
+          deletedAt: null,
           status: PrismaTransactionStatus.CONFIRMED,
         },
         _sum: { value: true },

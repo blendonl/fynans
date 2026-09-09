@@ -37,7 +37,7 @@ model StoreItem {
   itemId  String @map("item_id")
   storeId String @map("store_id")
 
-  price        Decimal
+  price        Decimal @db.Decimal(12, 2)
   isDiscounted Boolean @map("is_discounted")
 
   store     Store               @relation(fields: [storeId], references: [id])
@@ -49,13 +49,15 @@ model StoreItem {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([itemId])
+  @@index([storeId])
   @@map("store_item")
 }
 
 model ItemSize {
   id     String  @id @default(uuid())
   itemId String  @map("item_id")
-  value  Decimal
+  value  Decimal @db.Decimal(12, 3)
   unit   String
 
   item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
@@ -68,10 +70,10 @@ model ItemSize {
 }
 
 model StoreItemDiscount {
-  id          String @id
+  id          String @id @default(uuid())
   storeItemId String @map("store_item_id")
 
-  discount  Decimal
+  discount  Decimal   @db.Decimal(12, 2)
   startedAt DateTime  @default(now()) @map("started_at")
   endedAt   DateTime? @map("ended_at")
 
@@ -80,6 +82,7 @@ model StoreItemDiscount {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([storeItemId])
   @@map("store_item_discount")
 }
 
@@ -98,6 +101,7 @@ model ItemCategory {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([parentId])
   @@map("item_category")
 }
 

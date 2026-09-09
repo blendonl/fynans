@@ -109,8 +109,15 @@ export class PrismaFamilyRepository implements IFamilyRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.db.family.delete({
-      where: { id },
+    await this.prisma.runInTransaction(async () => {
+      await this.prisma.db.transaction.updateMany({
+        where: { familyId: id },
+        data: { familyId: null, scope: TransactionScope.PERSONAL },
+      });
+
+      await this.prisma.db.family.delete({
+        where: { id },
+      });
     });
   }
 
@@ -257,6 +264,7 @@ export class PrismaFamilyRepository implements IFamilyRepository {
         by: ['userId', 'type'],
         where: {
           familyId,
+          deletedAt: null,
           scope: TransactionScope.FAMILY,
           status: PrismaTransactionStatus.CONFIRMED,
         },

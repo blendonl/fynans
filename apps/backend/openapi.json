@@ -7222,10 +7222,6 @@
           "transactionId": {
             "type": "string"
           },
-          "storeId": {
-            "type": "string",
-            "nullable": true
-          },
           "categoryId": {
             "type": "string"
           },
@@ -7251,7 +7247,6 @@
         "required": [
           "id",
           "transactionId",
-          "storeId",
           "categoryId",
           "description",
           "createdAt",
@@ -7266,10 +7261,6 @@
             "format": "uuid"
           },
           "categoryId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "storeId": {
             "type": "string",
             "format": "uuid"
           }

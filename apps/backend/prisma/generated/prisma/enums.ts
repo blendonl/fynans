@@ -9,6 +9,27 @@
 * 🟢 You can import this file directly.
 */
 
+export const AuditEntity = {
+  TRANSACTION: 'TRANSACTION',
+  EXPENSE: 'EXPENSE',
+  INCOME: 'INCOME'
+} as const
+
+export type AuditEntity = (typeof AuditEntity)[keyof typeof AuditEntity]
+
+
+export const AuditAction = {
+  CREATED: 'CREATED',
+  UPDATED: 'UPDATED',
+  DELETED: 'DELETED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  RESUBMITTED: 'RESUBMITTED'
+} as const
+
+export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction]
+
+
 export const BasketScope = {
   PERSONAL: 'PERSONAL',
   FAMILY: 'FAMILY'

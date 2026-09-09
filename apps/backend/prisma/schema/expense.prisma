@@ -1,10 +1,11 @@
 model Expense {
-  id            String
+  id            String @id @default(uuid())
   transactionId String @unique @map("transaction_id")
   storeId       String? @map("store_id")
   categoryId    String @map("category_id")
 
-  description String? 
+  description String?
+  deletedAt   DateTime? @map("deleted_at")
   category    ExpenseCategory @relation(fields: [categoryId], references: [id])
 
   transaction Transaction   @relation(fields: [transactionId], references: [id])
@@ -15,7 +16,9 @@ model Expense {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@id([id])
+  @@index([categoryId])
+  @@index([storeId])
+  @@index([deletedAt])
   @@map("expense")
 }
 
@@ -35,6 +38,7 @@ model ExpenseCategory {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([parentId])
   @@map("expense_category")
 }
 
