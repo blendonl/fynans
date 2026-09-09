@@ -1,3 +1,5 @@
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+
 export enum FamilyMemberRole {
   OWNER = 'OWNER',
   ADMIN = 'ADMIN',
@@ -9,7 +11,7 @@ interface FamilyMemberProps {
   familyId: string;
   userId: string;
   role: FamilyMemberRole;
-  balance: number;
+  balance: Decimal;
   joinedAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -69,7 +71,7 @@ export class FamilyMember {
     return this.props.role;
   }
 
-  get balance(): number {
+  get balance(): Decimal {
     return this.props.balance;
   }
 

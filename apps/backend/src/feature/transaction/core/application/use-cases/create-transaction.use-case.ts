@@ -6,7 +6,6 @@ import {
   TransactionScope,
 } from '../../domain/entities/transaction.entity';
 import { TransactionStatus } from '../../domain/value-objects/transaction-status.vo';
-import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { FamilyService } from '../../../../family/core/application/services/family.service';
 import { PaymentMethodService } from '../../../../payment-method/core/application/services/payment-method.service';
 import { FamilyBalanceService } from '../../../../family/core/application/services/family-balance.service';
@@ -51,7 +50,7 @@ export class CreateTransactionUseCase {
       userId: dto.userId,
       type: dto.type,
       status,
-      value: new Decimal(dto.value),
+      value: dto.value,
       familyId: dto.familyId,
       scope: dto.familyId ? TransactionScope.FAMILY : TransactionScope.PERSONAL,
       recordedAt: dto.recordedAt || new Date(),
@@ -70,7 +69,7 @@ export class CreateTransactionUseCase {
   }
 
   private validateTransactionData(dto: CreateTransactionDto): void {
-    if (dto.value <= 0) {
+    if (dto.value.lessThanOrEqualTo(0)) {
       throw new DomainValidationException('Transaction value must be positive');
     }
 

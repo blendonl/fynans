@@ -48,7 +48,7 @@ export class FamilyMemberUserDto {
     dto.id = member.id;
     dto.userId = member.userId;
     dto.role = member.role;
-    dto.balance = member.balance;
+    dto.balance = member.balance.toNumber();
     dto.joinedAt = member.joinedAt;
     dto.user = {
       id: user.id,

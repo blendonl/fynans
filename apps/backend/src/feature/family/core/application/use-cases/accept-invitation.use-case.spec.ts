@@ -1,3 +1,4 @@
+import { createPrismaServiceDouble } from '~test/prisma-service.double';
 import { AcceptInvitationUseCase } from './accept-invitation.use-case';
 import { DeclineInvitationUseCase } from './decline-invitation.use-case';
 import {
@@ -79,6 +80,7 @@ describe('invitation identity checks', () => {
       invitationRepository as never,
       createNotificationUseCase as never,
       userService as never,
+      createPrismaServiceDouble(),
     );
     declineInvitation = new DeclineInvitationUseCase(
       invitationRepository as never,

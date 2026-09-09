@@ -66,9 +66,7 @@ export class RemoveFamilyMemberUseCase {
 
     await this.familyRepository.removeMember(familyId, targetUserId);
 
-    const newBalance =
-      await this.familyRepository.calculateFamilyBalance(familyId);
-    await this.familyRepository.updateFamilyBalance(familyId, newBalance);
+    await this.familyRepository.recalculateBalances(familyId);
 
     const family = await this.familyRepository.findById(familyId);
     const removedUser = await this.userService.findById(targetUserId);

@@ -1,4 +1,5 @@
 import { IsEnum, IsNotEmpty, IsNumber, IsUUID, Min, IsOptional, IsDateString } from 'class-validator';
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { TransactionType } from '../../core/domain/value-objects/transaction-type.vo';
 import { CreateTransactionDto } from '../../core/application/dto/create-transaction.dto';
 
@@ -28,7 +29,7 @@ export class CreateTransactionRequestDto {
     return new CreateTransactionDto(
       userId,
       this.type,
-      this.value,
+      new Decimal(this.value),
       this.recordedAt ? new Date(this.recordedAt) : undefined,
       this.familyId,
       this.paymentMethodId,

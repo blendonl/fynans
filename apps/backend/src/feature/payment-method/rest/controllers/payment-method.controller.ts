@@ -65,7 +65,8 @@ export class PaymentMethodController {
   @ApiOperation({ summary: 'Get unified balance with payment method breakdown and family balances' })
   @ApiResponse({ status: 200, type: BalanceResponseDto })
   async getBalance(@CurrentUser() user: User) {
-    return this.paymentMethodService.getBalance(user.id);
+    const balance = await this.paymentMethodService.getBalance(user.id);
+    return BalanceResponseDto.fromResult(balance);
   }
 
   @Get('balance-summary')

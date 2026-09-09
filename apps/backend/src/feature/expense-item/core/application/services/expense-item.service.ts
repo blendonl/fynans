@@ -11,6 +11,7 @@ import { UpdateExpenseItemDto } from '../dto/update-expense-item.dto';
 import { ExpenseItem } from '../../domain/entities/expense-item.entity';
 import { PaginatedResult } from '../../domain/repositories/expense-item.repository.interface';
 import { Pagination } from '~common/dto/pagination.dto';
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
 @Injectable()
 export class ExpenseItemService {
@@ -62,7 +63,7 @@ export class ExpenseItemService {
     return this.deleteExpenseItemUseCase.execute(id);
   }
 
-  async calculateTotal(expenseId: string): Promise<number> {
+  async calculateTotal(expenseId: string): Promise<Decimal> {
     return this.calculateExpenseTotalUseCase.execute(expenseId);
   }
 }

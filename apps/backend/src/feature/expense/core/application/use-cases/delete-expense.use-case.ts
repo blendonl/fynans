@@ -3,6 +3,7 @@ import { DomainNotFoundException, DomainForbiddenException } from '~common/excep
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
 import { PaymentMethodService } from '../../../../payment-method/core/application/services/payment-method.service';
+import { FamilyBalanceService } from '../../../../family/core/application/services/family-balance.service';
 
 @Injectable()
 export class DeleteExpenseUseCase {
@@ -11,6 +12,7 @@ export class DeleteExpenseUseCase {
     private readonly expenseRepository: IExpenseRepository,
     private readonly prisma: PrismaService,
     private readonly paymentMethodService: PaymentMethodService,
+    private readonly familyBalanceService: FamilyBalanceService,
   ) {}
 
   async execute(id: string, userId: string): Promise<void> {
@@ -25,14 +27,13 @@ export class DeleteExpenseUseCase {
       throw new DomainForbiddenException('Access denied');
     }
 
-    const transaction = await this.prisma.transaction.findUnique({
-      where: { id: expense.transactionId },
-      select: { paymentMethodId: true },
-    });
-    const paymentMethodId = transaction?.paymentMethodId;
+    const transaction = expense.transaction;
+    const paymentMethodId = transaction.paymentMethodId;
+    const familyId = transaction.familyId;
 
-    // Use Prisma transaction to delete atomically
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.runInTransaction(async () => {
+      const tx = this.prisma.db;
+
       await tx.expenseItem.deleteMany({
         where: { expenseId: id },
       });
@@ -44,6 +45,10 @@ export class DeleteExpenseUseCase {
       await tx.transaction.delete({
         where: { id: expense.transactionId },
       });
+
+      if (familyId) {
+        await this.familyBalanceService.recalculateBalances(familyId);
+      }
     });
 
     if (paymentMethodId) {

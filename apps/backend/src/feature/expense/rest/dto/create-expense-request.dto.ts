@@ -12,6 +12,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { CreateExpenseDto } from '../../core/application/dto/create-expense.dto';
 import { CreateExpenseItemDto } from '../../../expense-item/core/application/dto/create-expense-item.dto';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
@@ -107,7 +108,7 @@ export class CreateExpenseRequestDto {
       storeName: this.storeName,
       storeLocation: this.storeLocation,
       familyId: this.familyId,
-      amount: this.amount,
+      amount: this.amount !== undefined ? new Decimal(this.amount) : undefined,
       note: this.note,
       paymentMethodId: this.paymentMethodId,
       items: this.items?.map(

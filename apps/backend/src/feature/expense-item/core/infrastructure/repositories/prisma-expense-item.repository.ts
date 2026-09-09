@@ -9,6 +9,7 @@ import {
 import { ExpenseItem } from '../../domain/entities/expense-item.entity';
 import { Pagination } from '~common/dto/pagination.dto';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+import { ExpenseTotalCalculator } from '../../domain/services/expense-total.calculator';
 
 const EXPENSE_ITEM_INCLUDE = {
   item: { include: { item: { include: { category: true } } } },
@@ -20,7 +21,7 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(data: CreateExpenseItemData): Promise<ExpenseItem> {
-    const item = await this.prisma.expenseItem.create({
+    const item = await this.prisma.db.expenseItem.create({
       data: {
         itemId: data.itemId,
         expenseId: data.expenseId,
@@ -35,7 +36,7 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
   }
 
   async findById(id: string): Promise<ExpenseItem | null> {
-    const item = await this.prisma.expenseItem.findUnique({
+    const item = await this.prisma.db.expenseItem.findUnique({
       where: { id },
       include: EXPENSE_ITEM_INCLUDE,
     });
@@ -44,7 +45,7 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
   }
 
   async findByExpenseId(expenseId: string): Promise<ExpenseItem[]> {
-    const items = await this.prisma.expenseItem.findMany({
+    const items = await this.prisma.db.expenseItem.findMany({
       where: { expenseId },
       include: EXPENSE_ITEM_INCLUDE,
       orderBy: { createdAt: 'asc' },
@@ -57,7 +58,7 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
     pagination?: Pagination,
   ): Promise<PaginatedResult<ExpenseItem>> {
     const [items, total] = await Promise.all([
-      this.prisma.expenseItem.findMany({
+      this.prisma.db.expenseItem.findMany({
         include: {
           item: { include: { item: { include: { category: true } } } },
           expense: true,
@@ -66,7 +67,7 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
         skip: pagination?.skip,
         take: pagination?.take,
       }),
-      this.prisma.expenseItem.count(),
+      this.prisma.db.expenseItem.count(),
     ]);
 
     return {
@@ -90,7 +91,7 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
       updateData.discount = new Decimal(data.discount.toString());
     }
 
-    const item = await this.prisma.expenseItem.update({
+    const item = await this.prisma.db.expenseItem.update({
       where: { id },
       data: updateData,
       include: EXPENSE_ITEM_INCLUDE,
@@ -100,13 +101,13 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.expenseItem.delete({
+    await this.prisma.db.expenseItem.delete({
       where: { id },
     });
   }
 
-  async calculateExpenseTotal(expenseId: string): Promise<number> {
-    const items = await this.prisma.expenseItem.findMany({
+  async calculateExpenseTotal(expenseId: string): Promise<Decimal> {
+    const items = await this.prisma.db.expenseItem.findMany({
       where: { expenseId },
       select: {
         price: true,
@@ -115,11 +116,6 @@ export class PrismaExpenseItemRepository implements IExpenseItemRepository {
       },
     });
 
-    const total = items.reduce((sum, item) => {
-      const finalPrice = item.price.minus(item.discount).times(item.quantity);
-      return sum + finalPrice.toNumber();
-    }, 0);
-
-    return total;
+    return ExpenseTotalCalculator.total(items);
   }
 }

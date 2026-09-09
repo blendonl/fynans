@@ -7,7 +7,6 @@ import {
 import { type ITransactionRepository } from '../../domain/repositories/transaction.repository.interface';
 import { UpdateTransactionDto } from '../dto/update-transaction.dto';
 import { Transaction, TransactionProps } from '../../domain/entities/transaction.entity';
-import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
 @Injectable()
 export class UpdateTransactionUseCase {
@@ -29,14 +28,14 @@ export class UpdateTransactionUseCase {
       updateData.type = dto.type;
     }
     if (dto.value !== undefined) {
-      updateData.value = new Decimal(dto.value);
+      updateData.value = dto.value;
     }
 
     return this.transactionRepository.update(id, updateData);
   }
 
   private validateUpdateData(dto: UpdateTransactionDto): void {
-    if (dto.value !== undefined && dto.value <= 0) {
+    if (dto.value !== undefined && dto.value.lessThanOrEqualTo(0)) {
       throw new BadRequestException('Transaction value must be positive');
     }
   }

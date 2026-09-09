@@ -1,3 +1,4 @@
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { Injectable, Inject } from '@nestjs/common';
 import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
@@ -21,7 +22,7 @@ export class CreateFamilyUseCase {
     const family = await this.familyRepository.create({
       id: uuid(),
       name: dto.name.trim(),
-      balance: 0,
+      balance: new Decimal(0),
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -31,7 +32,7 @@ export class CreateFamilyUseCase {
       familyId: family.id,
       userId: ownerId,
       role: FamilyMemberRole.OWNER,
-      balance: 0,
+      balance: new Decimal(0),
       joinedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
