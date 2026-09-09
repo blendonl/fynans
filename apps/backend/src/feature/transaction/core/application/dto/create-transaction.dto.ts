@@ -1,10 +1,11 @@
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { TransactionType } from '../../domain/value-objects/transaction-type.vo';
 import { TransactionStatus } from '../../domain/value-objects/transaction-status.vo';
 
 export class CreateTransactionDto {
   userId: string;
   type: TransactionType;
-  value: number;
+  value: Decimal;
   familyId?: string;
   recordedAt?: Date;
   paymentMethodId?: string;
@@ -13,7 +14,7 @@ export class CreateTransactionDto {
   constructor(
     userId: string,
     type: TransactionType,
-    value: number,
+    value: Decimal,
     recordedAt?: Date,
     familyId?: string,
     paymentMethodId?: string,

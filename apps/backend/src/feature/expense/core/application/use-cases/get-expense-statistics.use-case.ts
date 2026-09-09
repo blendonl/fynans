@@ -10,11 +10,8 @@ export class GetExpenseStatisticsUseCase {
     private readonly expenseRepository: IExpenseRepository,
   ) {}
 
-  async execute(
-    userId: string,
-    filters?: ExpenseFilters,
-  ): Promise<ExpenseStatistics> {
-    const stats = await this.expenseRepository.getStatistics(userId, filters);
+  async execute(filters?: ExpenseFilters): Promise<ExpenseStatistics> {
+    const stats = await this.expenseRepository.getStatistics(filters);
 
     return new ExpenseStatistics(
       stats.totalExpenses,

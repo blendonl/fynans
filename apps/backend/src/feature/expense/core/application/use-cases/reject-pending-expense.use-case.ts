@@ -38,10 +38,12 @@ export class RejectPendingExpenseUseCase {
 
     const transaction = expense.transaction;
     if (!transaction.isPending()) {
-      throw new DomainValidationException('Only pending expenses can be rejected');
+      throw new DomainValidationException(
+        'Only pending expenses can be rejected',
+      );
     }
 
-    await this.expenseAuthService.verifyTransactionAccess(transaction, userId);
+    await this.expenseAuthService.verifyApprovalAuthority(transaction, userId);
 
     await this.transactionRepository.updateStatus(
       transaction.id,
@@ -55,7 +57,7 @@ export class RejectPendingExpenseUseCase {
         type: NotificationType.TRANSACTION_REJECTED,
         data: {
           expenseId: expense.id,
-          amount: transaction.value.toNumber().toFixed(2),
+          amount: transaction.value.toFixed(2),
           rejectionReason,
         },
         deliveryMethods: [DeliveryMethod.IN_APP, DeliveryMethod.PUSH],

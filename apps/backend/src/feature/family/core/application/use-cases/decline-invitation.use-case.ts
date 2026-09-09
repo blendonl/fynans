@@ -14,6 +14,7 @@ import {
   NotificationPriority,
 } from '../../../../notification/core/domain/value-objects/notification-type.vo';
 import { UserService } from '~feature/user/core/application/services/user.service';
+import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
 
 @Injectable()
 export class DeclineInvitationUseCase {
@@ -36,6 +37,17 @@ export class DeclineInvitationUseCase {
       throw new BadRequestException('Invitation expired or already processed');
     }
 
+    const decliner = await this.userService.findById(userId);
+
+    const addressedToDecliner =
+      invitation.inviteeId === userId ||
+      invitation.inviteeEmail.toLowerCase() === decliner.email.toLowerCase();
+    if (!addressedToDecliner) {
+      throw new DomainForbiddenException(
+        'Invitation was not addressed to this user',
+      );
+    }
+
     await this.invitationRepository.update(invitation.id, {
       status: FamilyInvitationStatus.REJECTED,
       id: invitation.id,
@@ -49,7 +61,6 @@ export class DeclineInvitationUseCase {
     });
 
     const family = await this.familyRepository.findById(invitation.familyId);
-    const decliner = await this.userService.findById(userId);
 
     await this.createNotificationUseCase.execute({
       userId: invitation.inviterId,

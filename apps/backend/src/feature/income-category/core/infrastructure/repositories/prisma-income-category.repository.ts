@@ -10,9 +10,7 @@ import { IncomeCategoryMapper } from '../mappers/income-category.mapper';
 import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
 
 @Injectable()
-export class PrismaIncomeCategoryRepository
-  implements IIncomeCategoryRepository
-{
+export class PrismaIncomeCategoryRepository implements IIncomeCategoryRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: Partial<IncomeCategory>): Promise<IncomeCategory> {
@@ -109,6 +107,14 @@ export class PrismaIncomeCategoryRepository
       create: { userId, categoryId },
       update: {},
     });
+  }
+
+  async isLinkedToUser(categoryId: string, userId: string): Promise<boolean> {
+    const link = await this.prisma.userIncomeCategory.findUnique({
+      where: { userId_categoryId: { userId, categoryId } },
+      select: { userId: true },
+    });
+    return link !== null;
   }
 
   async update(

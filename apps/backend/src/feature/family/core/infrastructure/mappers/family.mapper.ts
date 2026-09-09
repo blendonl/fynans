@@ -6,7 +6,7 @@ export class FamilyMapper {
     return new Family({
       id: prismaFamily.id,
       name: prismaFamily.name,
-      balance: prismaFamily.balance.toNumber(),
+      balance: prismaFamily.balance,
       createdAt: prismaFamily.createdAt,
       updatedAt: prismaFamily.updatedAt,
     });

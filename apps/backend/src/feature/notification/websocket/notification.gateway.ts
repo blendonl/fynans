@@ -13,7 +13,8 @@ import { AuthService } from '../../auth/core/application/services/auth.service';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: (process.env.CORS_ORIGIN ?? '').split(',').map((o) => o.trim()),
+    credentials: true,
   },
   namespace: '/notifications',
 })

@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
 import { FamilyCoreModule } from '../../family/core/family-core.module';
-
-import { TransactionService } from './application/services/transaction.service';
+import { PaymentMethodCoreModule } from '../../payment-method/core/payment-method-core.module';
 
 import { CreateTransactionUseCase } from './application/use-cases/create-transaction.use-case';
 import { GetTransactionByIdUseCase } from './application/use-cases/get-transaction-by-id.use-case';
@@ -15,10 +14,7 @@ import { GetTransactionStatisticsComparisonUseCase } from './application/use-cas
 import { PrismaTransactionRepository } from './infrastructure/repositories/prisma-transaction.repository';
 
 @Module({
-  imports: [
-    PrismaModule,
-    FamilyCoreModule,
-  ],
+  imports: [PrismaModule, FamilyCoreModule, PaymentMethodCoreModule],
   providers: [
     {
       provide: 'TransactionRepository',
@@ -31,8 +27,16 @@ import { PrismaTransactionRepository } from './infrastructure/repositories/prism
     DeleteTransactionUseCase,
     GetTransactionStatisticsUseCase,
     GetTransactionStatisticsComparisonUseCase,
-    TransactionService,
   ],
-  exports: [TransactionService, 'TransactionRepository'],
+  exports: [
+    CreateTransactionUseCase,
+    GetTransactionByIdUseCase,
+    ListTransactionsUseCase,
+    UpdateTransactionUseCase,
+    DeleteTransactionUseCase,
+    GetTransactionStatisticsUseCase,
+    GetTransactionStatisticsComparisonUseCase,
+    'TransactionRepository',
+  ],
 })
 export class TransactionCoreModule {}

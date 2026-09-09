@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import {
+  DomainForbiddenException,
   DomainNotFoundException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
@@ -17,11 +18,22 @@ export class UpdateExpenseCategoryUseCase {
   async execute(
     id: string,
     dto: UpdateExpenseCategoryDto,
+    userId: string,
   ): Promise<ExpenseCategory> {
     const category = await this.expenseCategoryRepository.findById(id);
 
     if (!category) {
       throw new DomainNotFoundException('Expense category not found');
+    }
+
+    const linked = await this.expenseCategoryRepository.isLinkedToUser(
+      id,
+      userId,
+    );
+    if (!linked) {
+      throw new DomainForbiddenException(
+        'Expense category does not belong to this user',
+      );
     }
 
     await this.validate(id, dto);
@@ -40,8 +52,9 @@ export class UpdateExpenseCategoryUseCase {
     dto: UpdateExpenseCategoryDto,
   ): Promise<void> {
     if (dto.name) {
-      const existingCategory =
-        await this.expenseCategoryRepository.findByName(dto.name);
+      const existingCategory = await this.expenseCategoryRepository.findByName(
+        dto.name,
+      );
       if (existingCategory && existingCategory.id !== id) {
         throw new DomainValidationException('Category name must be unique');
       }
@@ -49,12 +62,15 @@ export class UpdateExpenseCategoryUseCase {
 
     if (dto.parentId !== undefined) {
       if (dto.parentId === id) {
-        throw new DomainValidationException('Category cannot be its own parent');
+        throw new DomainValidationException(
+          'Category cannot be its own parent',
+        );
       }
 
       if (dto.parentId !== null) {
-        const parent =
-          await this.expenseCategoryRepository.findById(dto.parentId);
+        const parent = await this.expenseCategoryRepository.findById(
+          dto.parentId,
+        );
         if (!parent) {
           throw new DomainValidationException('Parent category not found');
         }

@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import {
+  DomainForbiddenException,
   DomainNotFoundException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
@@ -12,11 +13,21 @@ export class DeleteExpenseCategoryUseCase {
     private readonly expenseCategoryRepository: IExpenseCategoryRepository,
   ) {}
 
-  async execute(id: string): Promise<void> {
+  async execute(id: string, userId: string): Promise<void> {
     const category = await this.expenseCategoryRepository.findById(id);
 
     if (!category) {
       throw new DomainNotFoundException('Expense category not found');
+    }
+
+    const linked = await this.expenseCategoryRepository.isLinkedToUser(
+      id,
+      userId,
+    );
+    if (!linked) {
+      throw new DomainForbiddenException(
+        'Expense category does not belong to this user',
+      );
     }
 
     await this.validate(id);

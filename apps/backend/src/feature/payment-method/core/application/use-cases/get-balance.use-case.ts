@@ -10,22 +10,24 @@ import {
   TransactionScope,
   TransactionStatus as PrismaTransactionStatus,
 } from 'prisma/generated/prisma/client';
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+import { TransactionAmountNormalizer } from '~feature/transaction/core/domain/services/transaction-amount.normalizer';
 
 export interface BalanceResult {
-  totalBalance: number;
-  personalBalance: number;
+  totalBalance: Decimal;
+  personalBalance: Decimal;
   paymentMethods: {
     id: string;
     name: string;
     type: string;
     color: string;
-    currentBalance: number;
+    currentBalance: Decimal;
   }[];
   families: {
     familyId: string;
     familyName: string;
-    totalBalance: number;
-    userContribution: number;
+    totalBalance: Decimal;
+    userContribution: Decimal;
   }[];
 }
 
@@ -50,12 +52,12 @@ export class GetBalanceUseCase {
       name: item.name,
       type: '',
       color: item.color,
-      currentBalance: Number(item.currentBalance),
+      currentBalance: item.currentBalance,
     }));
 
     const totalBalance = paymentMethods.reduce(
-      (sum, pm) => sum + pm.currentBalance,
-      0,
+      (sum, pm) => sum.plus(pm.currentBalance),
+      new Decimal(0),
     );
 
     // Enrich payment methods with type from full entity list
@@ -74,7 +76,7 @@ export class GetBalanceUseCase {
     };
   }
 
-  private async calculatePersonalBalance(userId: string): Promise<number> {
+  private async calculatePersonalBalance(userId: string): Promise<Decimal> {
     const [incomeResult, expenseResult] = await Promise.all([
       this.prisma.transaction.aggregate({
         where: {
@@ -83,7 +85,7 @@ export class GetBalanceUseCase {
           status: PrismaTransactionStatus.CONFIRMED,
           type: PrismaTransactionType.INCOME,
         },
-        _sum: { value: true },
+        _sum: { [TransactionAmountNormalizer.sumField]: true },
       }),
       this.prisma.transaction.aggregate({
         where: {
@@ -92,14 +94,18 @@ export class GetBalanceUseCase {
           status: PrismaTransactionStatus.CONFIRMED,
           type: PrismaTransactionType.EXPENSE,
         },
-        _sum: { value: true },
+        _sum: { [TransactionAmountNormalizer.sumField]: true },
       }),
     ]);
 
-    const totalIncome = incomeResult._sum.value?.toNumber() || 0;
-    const totalExpense = expenseResult._sum.value?.toNumber() || 0;
+    const totalIncome = TransactionAmountNormalizer.normalizeSum(
+      incomeResult._sum.value,
+    );
+    const totalExpense = TransactionAmountNormalizer.normalizeSum(
+      expenseResult._sum.value,
+    );
 
-    return totalIncome - totalExpense;
+    return totalIncome.minus(totalExpense);
   }
 
   private async getFamilyBalances(
@@ -115,7 +121,7 @@ export class GetBalanceUseCase {
           familyId: family.id,
           familyName: family.name,
           totalBalance: family.balance,
-          userContribution: member?.balance ?? 0,
+          userContribution: member?.balance ?? new Decimal(0),
         };
       }),
     );

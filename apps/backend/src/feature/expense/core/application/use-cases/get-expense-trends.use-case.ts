@@ -20,7 +20,6 @@ export class GetExpenseTrendsUseCase {
     maxLabels = 7,
   ): Promise<ExpenseTrendPoint[]> {
     const points = await this.expenseRepository.getTrends(
-      userId,
       dateFrom,
       dateTo,
       groupBy,

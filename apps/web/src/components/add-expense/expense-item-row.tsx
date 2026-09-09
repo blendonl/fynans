@@ -2,7 +2,7 @@
 
 import { Minus, Plus, Pencil, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/utils/currency";
-import { calculateExpenseItemTotal } from "@/utils/calculations";
+import { expenseLineTotal } from "@/utils/expense-total";
 import type { ExpenseItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -17,7 +17,7 @@ interface ExpenseItemRowProps {
 }
 
 export function ExpenseItemRow({ item, index, isEditing, onEdit, onRemove, onQuantityChange }: ExpenseItemRowProps) {
-  const total = calculateExpenseItemTotal(item);
+  const total = expenseLineTotal(item);
 
   return (
     <div

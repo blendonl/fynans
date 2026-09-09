@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -28,11 +29,16 @@ import { NotificationModule } from './feature/notification/notification.module';
 import { BasketRestModule } from './feature/basket/rest/basket-rest.module';
 import { PaymentMethodRestModule } from './feature/payment-method/rest/payment-method-rest.module';
 import { StorageModule } from './common/storage/storage.module';
+import { AuthorizationModule } from './common/authorization/authorization.module';
+import { FamilyScopeGuard } from './common/authorization/rest/guards/family-scope.guard';
 import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot({
+      throttlers: [{ name: 'default', ttl: 60_000, limit: 120 }],
+    }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -45,6 +51,7 @@ import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
     }),
     PrismaModule,
     StorageModule,
+    AuthorizationModule,
     AuthCoreModule,
     AuthRestModule,
     UserRestModule,
@@ -76,7 +83,15 @@ import { AuthGuard } from './feature/auth/rest/guards/auth.guard';
     },
     {
       provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useExisting: FamilyScopeGuard,
     },
   ],
 })

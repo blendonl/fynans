@@ -3,7 +3,6 @@ interface UserProps {
   email: string;
   firstName: string;
   lastName: string;
-  balance: number;
   emailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -34,9 +33,6 @@ export class User {
   }
   get lastName(): string {
     return this.props.lastName;
-  }
-  get balance(): number {
-    return this.props.balance;
   }
   get emailVerified(): boolean {
     return this.props.emailVerified;

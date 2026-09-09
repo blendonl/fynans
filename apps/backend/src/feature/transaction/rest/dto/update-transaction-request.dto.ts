@@ -1,5 +1,6 @@
 import { IsEnum, IsNumber, IsOptional, Min } from 'class-validator';
 import { TransactionType } from '../../core/domain/value-objects/transaction-type.vo';
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { UpdateTransactionDto } from '../../core/application/dto/update-transaction.dto';
 
 export class UpdateTransactionRequestDto {
@@ -15,7 +16,7 @@ export class UpdateTransactionRequestDto {
   toCoreDto(): UpdateTransactionDto {
     return new UpdateTransactionDto({
       type: this.type,
-      value: this.value,
+      value: this.value !== undefined ? new Decimal(this.value) : undefined,
     });
   }
 }

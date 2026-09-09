@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import {
   IPaymentMethodRepository,
   CreatePaymentMethodData,
@@ -19,7 +20,7 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreatePaymentMethodData): Promise<PaymentMethod> {
-    const paymentMethod = await this.prisma.paymentMethod.create({
+    const paymentMethod = await this.prisma.db.paymentMethod.create({
       data: {
         id: data.id,
         userId: data.userId,
@@ -35,7 +36,7 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
   }
 
   async findById(id: string): Promise<PaymentMethod | null> {
-    const paymentMethod = await this.prisma.paymentMethod.findUnique({
+    const paymentMethod = await this.prisma.db.paymentMethod.findUnique({
       where: { id },
     });
 
@@ -46,7 +47,7 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
     userId: string,
     name: string,
   ): Promise<PaymentMethod | null> {
-    const paymentMethod = await this.prisma.paymentMethod.findFirst({
+    const paymentMethod = await this.prisma.db.paymentMethod.findFirst({
       where: { userId, name },
     });
 
@@ -54,7 +55,7 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
   }
 
   async findAllByUserId(userId: string): Promise<PaymentMethod[]> {
-    const paymentMethods = await this.prisma.paymentMethod.findMany({
+    const paymentMethods = await this.prisma.db.paymentMethod.findMany({
       where: { userId },
       orderBy: { name: 'asc' },
     });
@@ -88,7 +89,7 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
       updateData.currentBalance = data.currentBalance;
     }
 
-    const paymentMethod = await this.prisma.paymentMethod.update({
+    const paymentMethod = await this.prisma.db.paymentMethod.update({
       where: { id },
       data: updateData,
     });
@@ -97,24 +98,29 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.paymentMethod.delete({
+    await this.prisma.db.paymentMethod.delete({
       where: { id },
     });
   }
 
   async recalculateBalance(id: string): Promise<PaymentMethod> {
-    const updated = await this.prisma.$transaction(async (tx) => {
+    const updated = await this.prisma.runInTransaction(async () => {
+      const tx = this.prisma.db;
+
       const paymentMethod = await tx.paymentMethod.findUnique({
         where: { id },
       });
 
       if (!paymentMethod) {
-        throw new Error('Payment method not found');
+        throw new DomainNotFoundException('Payment method not found');
       }
 
       const groupResult = await tx.transaction.groupBy({
         by: ['type'],
-        where: { paymentMethodId: id, status: PrismaTransactionStatus.CONFIRMED },
+        where: {
+          paymentMethodId: id,
+          status: PrismaTransactionStatus.CONFIRMED,
+        },
         _sum: { value: true },
       });
 
@@ -143,7 +149,7 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
   }
 
   async getBalanceSummary(userId: string): Promise<BalanceSummaryItem[]> {
-    const paymentMethods = await this.prisma.paymentMethod.findMany({
+    const paymentMethods = await this.prisma.db.paymentMethod.findMany({
       where: { userId },
       orderBy: { name: 'asc' },
       select: {

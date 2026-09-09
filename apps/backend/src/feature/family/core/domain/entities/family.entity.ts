@@ -1,7 +1,9 @@
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+
 interface FamilyProps {
   id: string;
   name: string;
-  balance: number;
+  balance: Decimal;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,7 +46,7 @@ export class Family {
     return this.props.name;
   }
 
-  get balance(): number {
+  get balance(): Decimal {
     return this.props.balance;
   }
 

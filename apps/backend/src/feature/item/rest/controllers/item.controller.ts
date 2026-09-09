@@ -12,7 +12,12 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { ItemService } from '../../core/application/services/item.service';
 import { CreateItemRequestDto } from '../dto/create-item-request.dto';
 import { UpdateItemRequestDto } from '../dto/update-item-request.dto';
@@ -32,9 +37,7 @@ import { User } from '../../../user/core/domain/entities/user.entity';
 @ApiBearerAuth('bearer')
 @Controller('items')
 export class ItemController {
-  constructor(
-    private readonly itemService: ItemService,
-  ) {}
+  constructor(private readonly itemService: ItemService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -62,7 +65,12 @@ export class ItemController {
   ) {
     const pagination = new Pagination(page, limit);
 
-    const result = await this.itemService.findAll(user.id, categoryId, { search }, pagination);
+    const result = await this.itemService.findAll(
+      user.id,
+      categoryId,
+      { search },
+      pagination,
+    );
 
     return {
       data: ItemResponseDto.fromEntities(result.data),
@@ -82,7 +90,11 @@ export class ItemController {
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit?: number,
   ) {
     const pagination = new Pagination(page, limit);
-    const result = await this.itemService.searchWithStores(user.id, search, pagination);
+    const result = await this.itemService.searchWithStores(
+      user.id,
+      search,
+      pagination,
+    );
     return {
       data: result.data,
       total: result.total,
@@ -113,10 +125,11 @@ export class ItemController {
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateItemRequestDto,
+    @CurrentUser() user: User,
   ) {
     const coreDto = new UpdateItemDto(updateDto.name, updateDto.categoryId);
 
-    const item = await this.itemService.update(id, coreDto);
+    const item = await this.itemService.update(id, coreDto, user.id);
     return ItemResponseDto.fromEntity(item);
   }
 
@@ -124,7 +137,7 @@ export class ItemController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete an item' })
   @ApiResponse({ status: 204, description: 'Item deleted successfully' })
-  async delete(@Param('id') id: string) {
-    await this.itemService.delete(id);
+  async delete(@Param('id') id: string, @CurrentUser() user: User) {
+    await this.itemService.delete(id, user.id);
   }
 }

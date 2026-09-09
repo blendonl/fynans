@@ -50,15 +50,20 @@ export class ItemService {
     filters?: { search?: string },
     pagination?: Pagination,
   ): Promise<PaginatedResult<Item>> {
-    return this.listItemsUseCase.execute(userId, categoryId, filters, pagination);
+    return this.listItemsUseCase.execute(
+      userId,
+      categoryId,
+      filters,
+      pagination,
+    );
   }
 
   async findByName(name: string): Promise<Item | null> {
     return this.findItemByNameUseCase.execute(name);
   }
 
-  async update(id: string, dto: UpdateItemDto): Promise<Item> {
-    return this.updateItemUseCase.execute(id, dto);
+  async update(id: string, dto: UpdateItemDto, userId: string): Promise<Item> {
+    return this.updateItemUseCase.execute(id, dto, userId);
   }
 
   async searchWithStores(
@@ -66,10 +71,14 @@ export class ItemService {
     search?: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<ItemWithStoresResult>> {
-    return this.searchItemsWithStoresUseCase.execute(userId, search, pagination);
+    return this.searchItemsWithStoresUseCase.execute(
+      userId,
+      search,
+      pagination,
+    );
   }
 
-  async delete(id: string): Promise<void> {
-    return this.deleteItemUseCase.execute(id);
+  async delete(id: string, userId: string): Promise<void> {
+    return this.deleteItemUseCase.execute(id, userId);
   }
 }

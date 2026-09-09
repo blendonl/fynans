@@ -1,3 +1,4 @@
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import {
   Injectable,
   Inject,
@@ -19,6 +20,11 @@ import {
 } from '../../../../notification/core/domain/value-objects/notification-type.vo';
 import { v4 as uuid } from 'uuid';
 import { UserService } from '~feature/user/core/application/services/user.service';
+import { PrismaService } from '~common/prisma/prisma.service';
+import {
+  DomainConflictException,
+  DomainForbiddenException,
+} from '~common/exceptions/domain.exceptions';
 
 @Injectable()
 export class AcceptInvitationUseCase {
@@ -29,6 +35,7 @@ export class AcceptInvitationUseCase {
     private readonly invitationRepository: IFamilyInvitationRepository,
     private readonly createNotificationUseCase: CreateNotificationUseCase,
     private readonly userService: UserService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async execute(invitationId: string, userId: string): Promise<FamilyMember> {
@@ -41,31 +48,55 @@ export class AcceptInvitationUseCase {
       throw new BadRequestException('Invitation expired or already processed');
     }
 
-    const member = await this.familyRepository.addMember({
-      id: uuid(),
-      familyId: invitation.familyId,
-      userId: userId,
-      role: FamilyMemberRole.MEMBER,
-      balance: 0,
-      joinedAt: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    const invitee = await this.userService.findById(userId);
 
-    await this.invitationRepository.update(invitation.id, {
-      status: FamilyInvitationStatus.ACCEPTED,
-      inviteeId: userId,
-      id: invitation.id,
-      familyId: invitation.familyId,
-      inviterId: invitation.inviterId,
-      inviteeEmail: invitation.inviteeEmail,
-      expiresAt: invitation.expiresAt,
-      createdAt: invitation.createdAt,
-      updatedAt: new Date(),
+    const addressedToInvitee =
+      invitation.inviteeId === userId ||
+      invitation.inviteeEmail.toLowerCase() === invitee.email.toLowerCase();
+    if (!addressedToInvitee) {
+      throw new DomainForbiddenException(
+        'Invitation was not addressed to this user',
+      );
+    }
+
+    const existingMember = await this.familyRepository.findMember(
+      invitation.familyId,
+      userId,
+    );
+    if (existingMember) {
+      throw new DomainConflictException(
+        'User is already a member of this family',
+      );
+    }
+
+    const member = await this.prisma.runInTransaction(async () => {
+      const added = await this.familyRepository.addMember({
+        id: uuid(),
+        familyId: invitation.familyId,
+        userId: userId,
+        role: FamilyMemberRole.MEMBER,
+        balance: new Decimal(0),
+        joinedAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      await this.invitationRepository.update(invitation.id, {
+        status: FamilyInvitationStatus.ACCEPTED,
+        inviteeId: userId,
+        id: invitation.id,
+        familyId: invitation.familyId,
+        inviterId: invitation.inviterId,
+        inviteeEmail: invitation.inviteeEmail,
+        expiresAt: invitation.expiresAt,
+        createdAt: invitation.createdAt,
+        updatedAt: new Date(),
+      });
+
+      return added;
     });
 
     const family = await this.familyRepository.findById(invitation.familyId);
-    const invitee = await this.userService.findById(userId);
 
     await this.createNotificationUseCase.execute({
       userId: invitation.inviterId,

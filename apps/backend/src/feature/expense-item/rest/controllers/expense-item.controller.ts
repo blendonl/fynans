@@ -9,9 +9,15 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
   BadRequestException,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { ExpenseItemService } from '../../core/application/services/expense-item.service';
 import { CreateExpenseItemRequestDto } from '../dto/create-expense-item-request.dto';
 import { UpdateExpenseItemRequestDto } from '../dto/update-expense-item-request.dto';
@@ -22,17 +28,21 @@ import {
 import { CreateExpenseItemDto } from '../../core/application/dto/create-expense-item.dto';
 import { UpdateExpenseItemDto } from '../../core/application/dto/update-expense-item.dto';
 import { Pagination } from '~common/dto/pagination.dto';
+import { OwnsResource } from '~common/authorization/rest/decorators/owns-resource.decorator';
+import { ResourceOwnershipGuard } from '~common/authorization/rest/guards/resource-ownership.guard';
 import { CurrentUser } from '../../../auth/rest/decorators/current-user.decorator';
 import { User } from '../../../user/core/domain/entities/user.entity';
 
 @ApiTags('Expense Items')
 @ApiBearerAuth('bearer')
+@UseGuards(ResourceOwnershipGuard)
 @Controller('expense-items')
 export class ExpenseItemController {
   constructor(private readonly expenseItemService: ExpenseItemService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @OwnsResource({ resource: 'expense', source: 'body', key: 'expenseId' })
   @ApiOperation({ summary: 'Create a new expense item' })
   @ApiResponse({ status: 201, type: ExpenseItemResponseDto })
   async create(
@@ -55,14 +65,25 @@ export class ExpenseItemController {
       sizeUnit: createDto.sizeUnit,
     });
 
-    const item = await this.expenseItemService.create(coreDto, storeId, user.id);
+    const item = await this.expenseItemService.addToExpense(
+      coreDto,
+      storeId,
+      user.id,
+    );
     return ExpenseItemResponseDto.fromEntity(item);
   }
 
   @Get()
+  @OwnsResource({
+    resource: 'expense',
+    source: 'query',
+    key: 'expenseId',
+    optional: true,
+  })
   @ApiOperation({ summary: 'List expense items with pagination' })
   @ApiResponse({ status: 200, type: PaginatedExpenseItemResponseDto })
   async findAll(
+    @CurrentUser() user: User,
     @Query('expenseId') expenseId?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -70,6 +91,7 @@ export class ExpenseItemController {
     const pagination = new Pagination(page, limit);
 
     const result = await this.expenseItemService.findAll(
+      user.id,
       expenseId,
       pagination,
     );
@@ -83,6 +105,7 @@ export class ExpenseItemController {
   }
 
   @Get(':id')
+  @OwnsResource({ resource: 'expenseItem' })
   @ApiOperation({ summary: 'Get an expense item by ID' })
   @ApiResponse({ status: 200, type: ExpenseItemResponseDto })
   async findOne(@Param('id') id: string) {
@@ -91,6 +114,7 @@ export class ExpenseItemController {
   }
 
   @Put(':id')
+  @OwnsResource({ resource: 'expenseItem', ownerOnly: true })
   @ApiOperation({ summary: 'Update an expense item' })
   @ApiResponse({ status: 200, type: ExpenseItemResponseDto })
   async update(
@@ -109,8 +133,12 @@ export class ExpenseItemController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @OwnsResource({ resource: 'expenseItem', ownerOnly: true })
   @ApiOperation({ summary: 'Delete an expense item' })
-  @ApiResponse({ status: 204, description: 'Expense item deleted successfully' })
+  @ApiResponse({
+    status: 204,
+    description: 'Expense item deleted successfully',
+  })
   async remove(@Param('id') id: string) {
     await this.expenseItemService.delete(id);
   }

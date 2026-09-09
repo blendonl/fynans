@@ -10,6 +10,7 @@ import { DeletePaymentMethodUseCase } from './application/use-cases/delete-payme
 import { RecalculateBalanceUseCase } from './application/use-cases/recalculate-balance.use-case';
 import { GetBalanceSummaryUseCase } from './application/use-cases/get-balance-summary.use-case';
 import { GetBalanceUseCase } from './application/use-cases/get-balance.use-case';
+import { VerifyPaymentMethodOwnershipUseCase } from './application/use-cases/verify-payment-method-ownership.use-case';
 import { PaymentMethodService } from './application/services/payment-method.service';
 
 @Module({
@@ -27,8 +28,21 @@ import { PaymentMethodService } from './application/services/payment-method.serv
     RecalculateBalanceUseCase,
     GetBalanceSummaryUseCase,
     GetBalanceUseCase,
+    VerifyPaymentMethodOwnershipUseCase,
     PaymentMethodService,
   ],
-  exports: [PaymentMethodService, 'PaymentMethodRepository'],
+  exports: [
+    PaymentMethodService,
+    CreatePaymentMethodUseCase,
+    GetPaymentMethodByIdUseCase,
+    ListPaymentMethodsUseCase,
+    UpdatePaymentMethodUseCase,
+    DeletePaymentMethodUseCase,
+    RecalculateBalanceUseCase,
+    GetBalanceSummaryUseCase,
+    GetBalanceUseCase,
+    VerifyPaymentMethodOwnershipUseCase,
+    'PaymentMethodRepository',
+  ],
 })
 export class PaymentMethodCoreModule {}

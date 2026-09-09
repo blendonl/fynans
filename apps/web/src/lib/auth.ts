@@ -1,19 +1,22 @@
-import Cookies from "js-cookie";
+import { API_BASE_URL } from "@/lib/env";
 
-const TOKEN_KEY = "token";
-
-export function getToken(): string | null {
-  return Cookies.get(TOKEN_KEY) ?? null;
+interface SessionResponse {
+  session?: { token?: string | null } | null;
 }
 
-export function setToken(token: string) {
-  Cookies.set(TOKEN_KEY, token, {
-    expires: 30,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
-  });
-}
+export async function fetchSessionToken(): Promise<string | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/get-session`, {
+      credentials: "include",
+    });
 
-export function removeToken() {
-  Cookies.remove(TOKEN_KEY);
+    if (!response.ok) {
+      return null;
+    }
+
+    const body = (await response.json()) as SessionResponse | null;
+    return body?.session?.token ?? null;
+  } catch {
+    return null;
+  }
 }
