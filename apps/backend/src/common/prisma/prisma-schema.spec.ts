@@ -9,6 +9,12 @@ function schema(file: string): string {
   return readFileSync(join(SCHEMA_DIR, file), 'utf8');
 }
 
+function migrationNames(): string[] {
+  return readdirSync(MIGRATIONS_DIR)
+    .filter((entry) => entry !== 'migration_lock.toml')
+    .sort();
+}
+
 function allMigrationSql(): string {
   return readdirSync(MIGRATIONS_DIR)
     .filter((entry) => entry !== 'migration_lock.toml')
@@ -114,6 +120,20 @@ describe('prisma schema', () => {
     it('drops the column from the database', () => {
       expect(allMigrationSql()).toContain(
         'ALTER TABLE "income" DROP COLUMN "store_id"',
+      );
+    });
+
+    it('defers the drop until after the soft-delete migration', () => {
+      const names = migrationNames();
+      const drop = names.indexOf('20260909036000_drop_income_store_id');
+      const softDelete = names.indexOf(
+        '20260909035000_add_soft_delete_and_audit_log',
+      );
+
+      expect(drop).toBeGreaterThan(-1);
+      expect(drop).toBeGreaterThan(softDelete);
+      expect(names[names.length - 1]).toBe(
+        '20260909036000_drop_income_store_id',
       );
     });
   });
