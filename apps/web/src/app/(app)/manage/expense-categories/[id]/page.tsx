@@ -2,6 +2,7 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
+import { MANAGE_TABS, manageTabHref } from "@/lib/manage-tabs";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -90,7 +91,7 @@ export default function ExpenseCategoryDetailPage({
       queryClient.invalidateQueries({ queryKey: ["expense-categories"] });
       queryClient.invalidateQueries({ queryKey: ["expense-categories-all"] });
       toast.success("Category deleted");
-      router.push("/manage");
+      router.push(manageTabHref(MANAGE_TABS.categories));
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to delete category");

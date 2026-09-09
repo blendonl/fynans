@@ -2,6 +2,7 @@
 
 import { use } from "react";
 import { useRouter } from "next/navigation";
+import { MANAGE_TABS, manageTabHref } from "@/lib/manage-tabs";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -113,7 +114,7 @@ export default function ItemDetailPage({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
       toast.success("Item deleted");
-      router.push("/manage");
+      router.push(manageTabHref(MANAGE_TABS.items));
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to delete item");
