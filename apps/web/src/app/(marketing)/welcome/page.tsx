@@ -26,11 +26,12 @@ import { contactEmail } from '@/components/marketing/contact-email';
 import { LandingHeader } from '@/components/marketing/landing-header';
 import { loginHref, registerHref, sectionLinks } from '@/components/marketing/nav-links';
 import { ReceiptPreview } from '@/components/marketing/receipt-preview';
+import { siteDescription, siteName } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'Fynans | Receipt-Level Expense Tracking for Households',
-  description:
-    'Scan a store receipt into an itemised expense, then send it to your family for approval before it counts.',
+  title: { absolute: `${siteName} | Receipt-Level Expense Tracking for Households` },
+  description: siteDescription,
+  alternates: { canonical: '/' },
 };
 
 const features = [
