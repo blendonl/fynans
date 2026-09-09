@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  FinancialAuditLog: 'FinancialAuditLog',
   Account: 'Account',
   Session: 'Session',
   Verification: 'Verification',
@@ -100,6 +101,21 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const FinancialAuditLogScalarFieldEnum = {
+  id: 'id',
+  entity: 'entity',
+  entityId: 'entityId',
+  action: 'action',
+  actorId: 'actorId',
+  transactionId: 'transactionId',
+  familyId: 'familyId',
+  changes: 'changes',
+  createdAt: 'createdAt'
+} as const
+
+export type FinancialAuditLogScalarFieldEnum = (typeof FinancialAuditLogScalarFieldEnum)[keyof typeof FinancialAuditLogScalarFieldEnum]
 
 
 export const AccountScalarFieldEnum = {
@@ -195,6 +211,7 @@ export const ExpenseScalarFieldEnum = {
   storeId: 'storeId',
   categoryId: 'categoryId',
   description: 'description',
+  deletedAt: 'deletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -267,9 +284,9 @@ export type FamilyInvitationScalarFieldEnum = (typeof FamilyInvitationScalarFiel
 export const IncomeScalarFieldEnum = {
   id: 'id',
   transactionId: 'transactionId',
-  storeId: 'storeId',
   categoryId: 'categoryId',
   description: 'description',
+  deletedAt: 'deletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -540,6 +557,7 @@ export const TransactionScalarFieldEnum = {
   value: 'value',
   rejectionReason: 'rejectionReason',
   recordedAt: 'recordedAt',
+  deletedAt: 'deletedAt',
   paymentMethodId: 'paymentMethodId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -579,14 +597,6 @@ export const QueryMode = {
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -594,4 +604,12 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

@@ -44,6 +44,7 @@ export type TransactionMinAggregateOutputType = {
   value: runtime.Decimal | null
   rejectionReason: string | null
   recordedAt: Date | null
+  deletedAt: Date | null
   paymentMethodId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -59,6 +60,7 @@ export type TransactionMaxAggregateOutputType = {
   value: runtime.Decimal | null
   rejectionReason: string | null
   recordedAt: Date | null
+  deletedAt: Date | null
   paymentMethodId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -74,6 +76,7 @@ export type TransactionCountAggregateOutputType = {
   value: number
   rejectionReason: number
   recordedAt: number
+  deletedAt: number
   paymentMethodId: number
   createdAt: number
   updatedAt: number
@@ -99,6 +102,7 @@ export type TransactionMinAggregateInputType = {
   value?: true
   rejectionReason?: true
   recordedAt?: true
+  deletedAt?: true
   paymentMethodId?: true
   createdAt?: true
   updatedAt?: true
@@ -114,6 +118,7 @@ export type TransactionMaxAggregateInputType = {
   value?: true
   rejectionReason?: true
   recordedAt?: true
+  deletedAt?: true
   paymentMethodId?: true
   createdAt?: true
   updatedAt?: true
@@ -129,6 +134,7 @@ export type TransactionCountAggregateInputType = {
   value?: true
   rejectionReason?: true
   recordedAt?: true
+  deletedAt?: true
   paymentMethodId?: true
   createdAt?: true
   updatedAt?: true
@@ -231,6 +237,7 @@ export type TransactionGroupByOutputType = {
   value: runtime.Decimal
   rejectionReason: string | null
   recordedAt: Date
+  deletedAt: Date | null
   paymentMethodId: string | null
   createdAt: Date
   updatedAt: Date
@@ -269,6 +276,7 @@ export type TransactionWhereInput = {
   value?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.StringNullableFilter<"Transaction"> | string | null
   recordedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Transaction"> | Date | string | null
   paymentMethodId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
@@ -290,6 +298,7 @@ export type TransactionOrderByWithRelationInput = {
   value?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -314,6 +323,7 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   value?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.StringNullableFilter<"Transaction"> | string | null
   recordedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Transaction"> | Date | string | null
   paymentMethodId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
@@ -335,6 +345,7 @@ export type TransactionOrderByWithAggregationInput = {
   value?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -358,6 +369,7 @@ export type TransactionScalarWhereWithAggregatesInput = {
   value?: Prisma.DecimalWithAggregatesFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   recordedAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Transaction"> | Date | string | null
   paymentMethodId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
@@ -371,6 +383,7 @@ export type TransactionCreateInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentMethod?: Prisma.PaymentMethodCreateNestedOneWithoutTransactionsInput
@@ -391,6 +404,7 @@ export type TransactionUncheckedCreateInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   paymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -407,6 +421,7 @@ export type TransactionUpdateInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethod?: Prisma.PaymentMethodUpdateOneWithoutTransactionsNestedInput
@@ -427,6 +442,7 @@ export type TransactionUncheckedUpdateInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -445,6 +461,7 @@ export type TransactionCreateManyInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   paymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -458,6 +475,7 @@ export type TransactionUpdateManyMutationInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -472,6 +490,7 @@ export type TransactionUncheckedUpdateManyInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -507,6 +526,7 @@ export type TransactionCountOrderByAggregateInput = {
   value?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -526,6 +546,7 @@ export type TransactionMaxOrderByAggregateInput = {
   value?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -541,6 +562,7 @@ export type TransactionMinOrderByAggregateInput = {
   value?: Prisma.SortOrder
   rejectionReason?: Prisma.SortOrder
   recordedAt?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
   paymentMethodId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -740,6 +762,7 @@ export type TransactionCreateWithoutExpenseInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentMethod?: Prisma.PaymentMethodCreateNestedOneWithoutTransactionsInput
@@ -759,6 +782,7 @@ export type TransactionUncheckedCreateWithoutExpenseInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   paymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -790,6 +814,7 @@ export type TransactionUpdateWithoutExpenseInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethod?: Prisma.PaymentMethodUpdateOneWithoutTransactionsNestedInput
@@ -809,6 +834,7 @@ export type TransactionUncheckedUpdateWithoutExpenseInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -824,6 +850,7 @@ export type TransactionCreateWithoutFamilyInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentMethod?: Prisma.PaymentMethodCreateNestedOneWithoutTransactionsInput
@@ -842,6 +869,7 @@ export type TransactionUncheckedCreateWithoutFamilyInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   paymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -889,6 +917,7 @@ export type TransactionScalarWhereInput = {
   value?: Prisma.DecimalFilter<"Transaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.StringNullableFilter<"Transaction"> | string | null
   recordedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"Transaction"> | Date | string | null
   paymentMethodId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
@@ -902,6 +931,7 @@ export type TransactionCreateWithoutIncomeInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentMethod?: Prisma.PaymentMethodCreateNestedOneWithoutTransactionsInput
@@ -921,6 +951,7 @@ export type TransactionUncheckedCreateWithoutIncomeInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   paymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -952,6 +983,7 @@ export type TransactionUpdateWithoutIncomeInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethod?: Prisma.PaymentMethodUpdateOneWithoutTransactionsNestedInput
@@ -971,6 +1003,7 @@ export type TransactionUncheckedUpdateWithoutIncomeInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -986,6 +1019,7 @@ export type TransactionCreateWithoutNotificationsInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentMethod?: Prisma.PaymentMethodCreateNestedOneWithoutTransactionsInput
@@ -1005,6 +1039,7 @@ export type TransactionUncheckedCreateWithoutNotificationsInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   paymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1036,6 +1071,7 @@ export type TransactionUpdateWithoutNotificationsInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethod?: Prisma.PaymentMethodUpdateOneWithoutTransactionsNestedInput
@@ -1055,6 +1091,7 @@ export type TransactionUncheckedUpdateWithoutNotificationsInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1070,6 +1107,7 @@ export type TransactionCreateWithoutPaymentMethodInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   expense?: Prisma.ExpenseCreateNestedOneWithoutTransactionInput
@@ -1089,6 +1127,7 @@ export type TransactionUncheckedCreateWithoutPaymentMethodInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   expense?: Prisma.ExpenseUncheckedCreateNestedOneWithoutTransactionInput
@@ -1130,6 +1169,7 @@ export type TransactionCreateWithoutUserInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentMethod?: Prisma.PaymentMethodCreateNestedOneWithoutTransactionsInput
@@ -1148,6 +1188,7 @@ export type TransactionUncheckedCreateWithoutUserInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   paymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1191,6 +1232,7 @@ export type TransactionCreateManyFamilyInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   paymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1204,6 +1246,7 @@ export type TransactionUpdateWithoutFamilyInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethod?: Prisma.PaymentMethodUpdateOneWithoutTransactionsNestedInput
@@ -1222,6 +1265,7 @@ export type TransactionUncheckedUpdateWithoutFamilyInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1239,6 +1283,7 @@ export type TransactionUncheckedUpdateManyWithoutFamilyInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1254,6 +1299,7 @@ export type TransactionCreateManyPaymentMethodInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1266,6 +1312,7 @@ export type TransactionUpdateWithoutPaymentMethodInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expense?: Prisma.ExpenseUpdateOneWithoutTransactionNestedInput
@@ -1285,6 +1332,7 @@ export type TransactionUncheckedUpdateWithoutPaymentMethodInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expense?: Prisma.ExpenseUncheckedUpdateOneWithoutTransactionNestedInput
@@ -1302,6 +1350,7 @@ export type TransactionUncheckedUpdateManyWithoutPaymentMethodInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1315,6 +1364,7 @@ export type TransactionCreateManyUserInput = {
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: string | null
   recordedAt?: Date | string
+  deletedAt?: Date | string | null
   paymentMethodId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1328,6 +1378,7 @@ export type TransactionUpdateWithoutUserInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentMethod?: Prisma.PaymentMethodUpdateOneWithoutTransactionsNestedInput
@@ -1346,6 +1397,7 @@ export type TransactionUncheckedUpdateWithoutUserInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1363,6 +1415,7 @@ export type TransactionUncheckedUpdateManyWithoutUserInput = {
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1409,6 +1462,7 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   value?: boolean
   rejectionReason?: boolean
   recordedAt?: boolean
+  deletedAt?: boolean
   paymentMethodId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1431,6 +1485,7 @@ export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   value?: boolean
   rejectionReason?: boolean
   recordedAt?: boolean
+  deletedAt?: boolean
   paymentMethodId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1449,6 +1504,7 @@ export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   value?: boolean
   rejectionReason?: boolean
   recordedAt?: boolean
+  deletedAt?: boolean
   paymentMethodId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1467,12 +1523,13 @@ export type TransactionSelectScalar = {
   value?: boolean
   rejectionReason?: boolean
   recordedAt?: boolean
+  deletedAt?: boolean
   paymentMethodId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "familyId" | "scope" | "type" | "status" | "value" | "rejectionReason" | "recordedAt" | "paymentMethodId" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "familyId" | "scope" | "type" | "status" | "value" | "rejectionReason" | "recordedAt" | "deletedAt" | "paymentMethodId" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
 export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   paymentMethod?: boolean | Prisma.Transaction$paymentMethodArgs<ExtArgs>
   expense?: boolean | Prisma.Transaction$expenseArgs<ExtArgs>
@@ -1513,6 +1570,7 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     value: runtime.Decimal
     rejectionReason: string | null
     recordedAt: Date
+    deletedAt: Date | null
     paymentMethodId: string | null
     createdAt: Date
     updatedAt: Date
@@ -1954,6 +2012,7 @@ export interface TransactionFieldRefs {
   readonly value: Prisma.FieldRef<"Transaction", 'Decimal'>
   readonly rejectionReason: Prisma.FieldRef<"Transaction", 'String'>
   readonly recordedAt: Prisma.FieldRef<"Transaction", 'DateTime'>
+  readonly deletedAt: Prisma.FieldRef<"Transaction", 'DateTime'>
   readonly paymentMethodId: Prisma.FieldRef<"Transaction", 'String'>
   readonly createdAt: Prisma.FieldRef<"Transaction", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Transaction", 'DateTime'>

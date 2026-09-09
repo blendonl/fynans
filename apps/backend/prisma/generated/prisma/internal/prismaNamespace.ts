@@ -384,6 +384,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  FinancialAuditLog: 'FinancialAuditLog',
   Account: 'Account',
   Session: 'Session',
   Verification: 'Verification',
@@ -432,10 +433,84 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "account" | "session" | "verification" | "basket" | "basketItem" | "expenseItem" | "expense" | "expenseCategory" | "userExpenseCategory" | "family" | "familyMember" | "familyInvitation" | "income" | "incomeCategory" | "userIncomeCategory" | "notification" | "notificationPreference" | "deviceToken" | "webPushSubscription" | "paymentMethod" | "receipt" | "user" | "store" | "item" | "storeItem" | "itemSize" | "storeItemDiscount" | "itemCategory" | "userStore" | "userItem" | "userStoreItem" | "userItemCategory" | "transaction"
+    modelProps: "financialAuditLog" | "account" | "session" | "verification" | "basket" | "basketItem" | "expenseItem" | "expense" | "expenseCategory" | "userExpenseCategory" | "family" | "familyMember" | "familyInvitation" | "income" | "incomeCategory" | "userIncomeCategory" | "notification" | "notificationPreference" | "deviceToken" | "webPushSubscription" | "paymentMethod" | "receipt" | "user" | "store" | "item" | "storeItem" | "itemSize" | "storeItemDiscount" | "itemCategory" | "userStore" | "userItem" | "userStoreItem" | "userItemCategory" | "transaction"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    FinancialAuditLog: {
+      payload: Prisma.$FinancialAuditLogPayload<ExtArgs>
+      fields: Prisma.FinancialAuditLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinancialAuditLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinancialAuditLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinancialAuditLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinancialAuditLogPayload>
+        }
+        findFirst: {
+          args: Prisma.FinancialAuditLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinancialAuditLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinancialAuditLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinancialAuditLogPayload>
+        }
+        findMany: {
+          args: Prisma.FinancialAuditLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinancialAuditLogPayload>[]
+        }
+        create: {
+          args: Prisma.FinancialAuditLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinancialAuditLogPayload>
+        }
+        createMany: {
+          args: Prisma.FinancialAuditLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinancialAuditLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinancialAuditLogPayload>[]
+        }
+        delete: {
+          args: Prisma.FinancialAuditLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinancialAuditLogPayload>
+        }
+        update: {
+          args: Prisma.FinancialAuditLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinancialAuditLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinancialAuditLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinancialAuditLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinancialAuditLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinancialAuditLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinancialAuditLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinancialAuditLogPayload>
+        }
+        aggregate: {
+          args: Prisma.FinancialAuditLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinancialAuditLog>
+        }
+        groupBy: {
+          args: Prisma.FinancialAuditLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinancialAuditLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinancialAuditLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinancialAuditLogCountAggregateOutputType> | number
+        }
+      }
+    }
     Account: {
       payload: Prisma.$AccountPayload<ExtArgs>
       fields: Prisma.AccountFieldRefs
@@ -2917,6 +2992,21 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const FinancialAuditLogScalarFieldEnum = {
+  id: 'id',
+  entity: 'entity',
+  entityId: 'entityId',
+  action: 'action',
+  actorId: 'actorId',
+  transactionId: 'transactionId',
+  familyId: 'familyId',
+  changes: 'changes',
+  createdAt: 'createdAt'
+} as const
+
+export type FinancialAuditLogScalarFieldEnum = (typeof FinancialAuditLogScalarFieldEnum)[keyof typeof FinancialAuditLogScalarFieldEnum]
+
+
 export const AccountScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -3010,6 +3100,7 @@ export const ExpenseScalarFieldEnum = {
   storeId: 'storeId',
   categoryId: 'categoryId',
   description: 'description',
+  deletedAt: 'deletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3082,9 +3173,9 @@ export type FamilyInvitationScalarFieldEnum = (typeof FamilyInvitationScalarFiel
 export const IncomeScalarFieldEnum = {
   id: 'id',
   transactionId: 'transactionId',
-  storeId: 'storeId',
   categoryId: 'categoryId',
   description: 'description',
+  deletedAt: 'deletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3355,6 +3446,7 @@ export const TransactionScalarFieldEnum = {
   value: 'value',
   rejectionReason: 'rejectionReason',
   recordedAt: 'recordedAt',
+  deletedAt: 'deletedAt',
   paymentMethodId: 'paymentMethodId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -3394,14 +3486,6 @@ export const QueryMode = {
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -3409,6 +3493,14 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -3428,6 +3520,48 @@ export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
  * Reference to a field of type 'String[]'
  */
 export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AuditEntity'
+ */
+export type EnumAuditEntityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AuditEntity'>
+    
+
+
+/**
+ * Reference to a field of type 'AuditEntity[]'
+ */
+export type ListEnumAuditEntityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AuditEntity[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AuditAction'
+ */
+export type EnumAuditActionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AuditAction'>
+    
+
+
+/**
+ * Reference to a field of type 'AuditAction[]'
+ */
+export type ListEnumAuditActionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AuditAction[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -3533,20 +3667,6 @@ export type EnumNotificationPriorityFieldRefInput<$PrismaModel> = FieldRefInputT
  * Reference to a field of type 'NotificationPriority[]'
  */
 export type ListEnumNotificationPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationPriority[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -3742,6 +3862,7 @@ export type PrismaClientOptions = ({
   comments?: runtime.SqlCommenterPlugin[]
 }
 export type GlobalOmitConfig = {
+  financialAuditLog?: Prisma.FinancialAuditLogOmit
   account?: Prisma.AccountOmit
   session?: Prisma.SessionOmit
   verification?: Prisma.VerificationOmit

@@ -27,9 +27,9 @@ export type AggregateIncome = {
 export type IncomeMinAggregateOutputType = {
   id: string | null
   transactionId: string | null
-  storeId: string | null
   categoryId: string | null
   description: string | null
+  deletedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -37,9 +37,9 @@ export type IncomeMinAggregateOutputType = {
 export type IncomeMaxAggregateOutputType = {
   id: string | null
   transactionId: string | null
-  storeId: string | null
   categoryId: string | null
   description: string | null
+  deletedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -47,9 +47,9 @@ export type IncomeMaxAggregateOutputType = {
 export type IncomeCountAggregateOutputType = {
   id: number
   transactionId: number
-  storeId: number
   categoryId: number
   description: number
+  deletedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -59,9 +59,9 @@ export type IncomeCountAggregateOutputType = {
 export type IncomeMinAggregateInputType = {
   id?: true
   transactionId?: true
-  storeId?: true
   categoryId?: true
   description?: true
+  deletedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -69,9 +69,9 @@ export type IncomeMinAggregateInputType = {
 export type IncomeMaxAggregateInputType = {
   id?: true
   transactionId?: true
-  storeId?: true
   categoryId?: true
   description?: true
+  deletedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -79,9 +79,9 @@ export type IncomeMaxAggregateInputType = {
 export type IncomeCountAggregateInputType = {
   id?: true
   transactionId?: true
-  storeId?: true
   categoryId?: true
   description?: true
+  deletedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -162,9 +162,9 @@ export type IncomeGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type IncomeGroupByOutputType = {
   id: string
   transactionId: string
-  storeId: string | null
   categoryId: string
   description: string | null
+  deletedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: IncomeCountAggregateOutputType | null
@@ -193,9 +193,9 @@ export type IncomeWhereInput = {
   NOT?: Prisma.IncomeWhereInput | Prisma.IncomeWhereInput[]
   id?: Prisma.StringFilter<"Income"> | string
   transactionId?: Prisma.StringFilter<"Income"> | string
-  storeId?: Prisma.StringNullableFilter<"Income"> | string | null
   categoryId?: Prisma.StringFilter<"Income"> | string
   description?: Prisma.StringNullableFilter<"Income"> | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"Income"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Income"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Income"> | Date | string
   category?: Prisma.XOR<Prisma.IncomeCategoryScalarRelationFilter, Prisma.IncomeCategoryWhereInput>
@@ -205,9 +205,9 @@ export type IncomeWhereInput = {
 export type IncomeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   transactionId?: Prisma.SortOrder
-  storeId?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   category?: Prisma.IncomeCategoryOrderByWithRelationInput
@@ -220,9 +220,9 @@ export type IncomeWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.IncomeWhereInput | Prisma.IncomeWhereInput[]
   OR?: Prisma.IncomeWhereInput[]
   NOT?: Prisma.IncomeWhereInput | Prisma.IncomeWhereInput[]
-  storeId?: Prisma.StringNullableFilter<"Income"> | string | null
   categoryId?: Prisma.StringFilter<"Income"> | string
   description?: Prisma.StringNullableFilter<"Income"> | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"Income"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Income"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Income"> | Date | string
   category?: Prisma.XOR<Prisma.IncomeCategoryScalarRelationFilter, Prisma.IncomeCategoryWhereInput>
@@ -232,9 +232,9 @@ export type IncomeWhereUniqueInput = Prisma.AtLeast<{
 export type IncomeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   transactionId?: Prisma.SortOrder
-  storeId?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.IncomeCountOrderByAggregateInput
@@ -248,17 +248,17 @@ export type IncomeScalarWhereWithAggregatesInput = {
   NOT?: Prisma.IncomeScalarWhereWithAggregatesInput | Prisma.IncomeScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Income"> | string
   transactionId?: Prisma.StringWithAggregatesFilter<"Income"> | string
-  storeId?: Prisma.StringNullableWithAggregatesFilter<"Income"> | string | null
   categoryId?: Prisma.StringWithAggregatesFilter<"Income"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Income"> | string | null
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Income"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Income"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Income"> | Date | string
 }
 
 export type IncomeCreateInput = {
-  id: string
-  storeId?: string | null
+  id?: string
   description?: string | null
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.IncomeCategoryCreateNestedOneWithoutIncomesInput
@@ -266,19 +266,19 @@ export type IncomeCreateInput = {
 }
 
 export type IncomeUncheckedCreateInput = {
-  id: string
+  id?: string
   transactionId: string
-  storeId?: string | null
   categoryId: string
   description?: string | null
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type IncomeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.IncomeCategoryUpdateOneRequiredWithoutIncomesNestedInput
@@ -288,27 +288,27 @@ export type IncomeUpdateInput = {
 export type IncomeUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type IncomeCreateManyInput = {
-  id: string
+  id?: string
   transactionId: string
-  storeId?: string | null
   categoryId: string
   description?: string | null
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type IncomeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -316,9 +316,9 @@ export type IncomeUpdateManyMutationInput = {
 export type IncomeUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -326,9 +326,9 @@ export type IncomeUncheckedUpdateManyInput = {
 export type IncomeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   transactionId?: Prisma.SortOrder
-  storeId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -336,9 +336,9 @@ export type IncomeCountOrderByAggregateInput = {
 export type IncomeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   transactionId?: Prisma.SortOrder
-  storeId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -346,9 +346,9 @@ export type IncomeMaxOrderByAggregateInput = {
 export type IncomeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   transactionId?: Prisma.SortOrder
-  storeId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -443,19 +443,19 @@ export type IncomeUncheckedUpdateOneWithoutTransactionNestedInput = {
 }
 
 export type IncomeCreateWithoutCategoryInput = {
-  id: string
-  storeId?: string | null
+  id?: string
   description?: string | null
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transaction: Prisma.TransactionCreateNestedOneWithoutIncomeInput
 }
 
 export type IncomeUncheckedCreateWithoutCategoryInput = {
-  id: string
+  id?: string
   transactionId: string
-  storeId?: string | null
   description?: string | null
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -492,27 +492,27 @@ export type IncomeScalarWhereInput = {
   NOT?: Prisma.IncomeScalarWhereInput | Prisma.IncomeScalarWhereInput[]
   id?: Prisma.StringFilter<"Income"> | string
   transactionId?: Prisma.StringFilter<"Income"> | string
-  storeId?: Prisma.StringNullableFilter<"Income"> | string | null
   categoryId?: Prisma.StringFilter<"Income"> | string
   description?: Prisma.StringNullableFilter<"Income"> | string | null
+  deletedAt?: Prisma.DateTimeNullableFilter<"Income"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Income"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Income"> | Date | string
 }
 
 export type IncomeCreateWithoutTransactionInput = {
-  id: string
-  storeId?: string | null
+  id?: string
   description?: string | null
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.IncomeCategoryCreateNestedOneWithoutIncomesInput
 }
 
 export type IncomeUncheckedCreateWithoutTransactionInput = {
-  id: string
-  storeId?: string | null
+  id?: string
   categoryId: string
   description?: string | null
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -535,8 +535,8 @@ export type IncomeUpdateToOneWithWhereWithoutTransactionInput = {
 
 export type IncomeUpdateWithoutTransactionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.IncomeCategoryUpdateOneRequiredWithoutIncomesNestedInput
@@ -544,26 +544,26 @@ export type IncomeUpdateWithoutTransactionInput = {
 
 export type IncomeUncheckedUpdateWithoutTransactionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type IncomeCreateManyCategoryInput = {
-  id: string
+  id?: string
   transactionId: string
-  storeId?: string | null
   description?: string | null
+  deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type IncomeUpdateWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transaction?: Prisma.TransactionUpdateOneRequiredWithoutIncomeNestedInput
@@ -572,8 +572,8 @@ export type IncomeUpdateWithoutCategoryInput = {
 export type IncomeUncheckedUpdateWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -581,8 +581,8 @@ export type IncomeUncheckedUpdateWithoutCategoryInput = {
 export type IncomeUncheckedUpdateManyWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   transactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  storeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -592,9 +592,9 @@ export type IncomeUncheckedUpdateManyWithoutCategoryInput = {
 export type IncomeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   transactionId?: boolean
-  storeId?: boolean
   categoryId?: boolean
   description?: boolean
+  deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.IncomeCategoryDefaultArgs<ExtArgs>
@@ -604,9 +604,9 @@ export type IncomeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type IncomeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   transactionId?: boolean
-  storeId?: boolean
   categoryId?: boolean
   description?: boolean
+  deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.IncomeCategoryDefaultArgs<ExtArgs>
@@ -616,9 +616,9 @@ export type IncomeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type IncomeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   transactionId?: boolean
-  storeId?: boolean
   categoryId?: boolean
   description?: boolean
+  deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.IncomeCategoryDefaultArgs<ExtArgs>
@@ -628,14 +628,14 @@ export type IncomeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type IncomeSelectScalar = {
   id?: boolean
   transactionId?: boolean
-  storeId?: boolean
   categoryId?: boolean
   description?: boolean
+  deletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type IncomeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "transactionId" | "storeId" | "categoryId" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["income"]>
+export type IncomeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "transactionId" | "categoryId" | "description" | "deletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["income"]>
 export type IncomeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.IncomeCategoryDefaultArgs<ExtArgs>
   transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
@@ -658,9 +658,9 @@ export type $IncomePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     transactionId: string
-    storeId: string | null
     categoryId: string
     description: string | null
+    deletedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["income"]>
@@ -1090,9 +1090,9 @@ export interface Prisma__IncomeClient<T, Null = never, ExtArgs extends runtime.T
 export interface IncomeFieldRefs {
   readonly id: Prisma.FieldRef<"Income", 'String'>
   readonly transactionId: Prisma.FieldRef<"Income", 'String'>
-  readonly storeId: Prisma.FieldRef<"Income", 'String'>
   readonly categoryId: Prisma.FieldRef<"Income", 'String'>
   readonly description: Prisma.FieldRef<"Income", 'String'>
+  readonly deletedAt: Prisma.FieldRef<"Income", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Income", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Income", 'DateTime'>
 }

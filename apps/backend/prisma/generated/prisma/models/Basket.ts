@@ -209,20 +209,18 @@ export type BasketOrderByWithRelationInput = {
 
 export type BasketWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  personal_basket?: Prisma.BasketPersonal_basketCompoundUniqueInput
-  family_basket?: Prisma.BasketFamily_basketCompoundUniqueInput
+  familyId?: string
   AND?: Prisma.BasketWhereInput | Prisma.BasketWhereInput[]
   OR?: Prisma.BasketWhereInput[]
   NOT?: Prisma.BasketWhereInput | Prisma.BasketWhereInput[]
   userId?: Prisma.StringFilter<"Basket"> | string
-  familyId?: Prisma.StringNullableFilter<"Basket"> | string | null
   scope?: Prisma.EnumBasketScopeFilter<"Basket"> | $Enums.BasketScope
   createdAt?: Prisma.DateTimeFilter<"Basket"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Basket"> | Date | string
   items?: Prisma.BasketItemListRelationFilter
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   family?: Prisma.XOR<Prisma.FamilyNullableScalarRelationFilter, Prisma.FamilyWhereInput> | null
-}, "id" | "personal_basket" | "family_basket">
+}, "id" | "familyId">
 
 export type BasketOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -311,16 +309,6 @@ export type BasketUncheckedUpdateManyInput = {
   scope?: Prisma.EnumBasketScopeFieldUpdateOperationsInput | $Enums.BasketScope
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type BasketPersonal_basketCompoundUniqueInput = {
-  userId: string
-  scope: $Enums.BasketScope
-}
-
-export type BasketFamily_basketCompoundUniqueInput = {
-  familyId: string
-  scope: $Enums.BasketScope
 }
 
 export type BasketCountOrderByAggregateInput = {

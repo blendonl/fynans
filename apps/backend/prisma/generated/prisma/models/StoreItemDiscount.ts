@@ -289,7 +289,7 @@ export type StoreItemDiscountScalarWhereWithAggregatesInput = {
 }
 
 export type StoreItemDiscountCreateInput = {
-  id: string
+  id?: string
   discount: runtime.Decimal | runtime.DecimalJsLike | number | string
   startedAt?: Date | string
   endedAt?: Date | string | null
@@ -299,7 +299,7 @@ export type StoreItemDiscountCreateInput = {
 }
 
 export type StoreItemDiscountUncheckedCreateInput = {
-  id: string
+  id?: string
   storeItemId: string
   discount: runtime.Decimal | runtime.DecimalJsLike | number | string
   startedAt?: Date | string
@@ -329,7 +329,7 @@ export type StoreItemDiscountUncheckedUpdateInput = {
 }
 
 export type StoreItemDiscountCreateManyInput = {
-  id: string
+  id?: string
   storeItemId: string
   discount: runtime.Decimal | runtime.DecimalJsLike | number | string
   startedAt?: Date | string
@@ -448,7 +448,7 @@ export type StoreItemDiscountUncheckedUpdateManyWithoutStoreItemNestedInput = {
 }
 
 export type StoreItemDiscountCreateWithoutStoreItemInput = {
-  id: string
+  id?: string
   discount: runtime.Decimal | runtime.DecimalJsLike | number | string
   startedAt?: Date | string
   endedAt?: Date | string | null
@@ -457,7 +457,7 @@ export type StoreItemDiscountCreateWithoutStoreItemInput = {
 }
 
 export type StoreItemDiscountUncheckedCreateWithoutStoreItemInput = {
-  id: string
+  id?: string
   discount: runtime.Decimal | runtime.DecimalJsLike | number | string
   startedAt?: Date | string
   endedAt?: Date | string | null
@@ -505,7 +505,7 @@ export type StoreItemDiscountScalarWhereInput = {
 }
 
 export type StoreItemDiscountCreateManyStoreItemInput = {
-  id: string
+  id?: string
   discount: runtime.Decimal | runtime.DecimalJsLike | number | string
   startedAt?: Date | string
   endedAt?: Date | string | null
