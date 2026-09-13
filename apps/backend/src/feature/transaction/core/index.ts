@@ -1,7 +1,5 @@
 export * from './transaction-core.module';
 
-export * from './application/services/transaction.service';
-
 export * from './application/use-cases/create-transaction.use-case';
 export * from './application/use-cases/get-transaction-by-id.use-case';
 export * from './application/use-cases/list-transactions.use-case';
@@ -17,5 +15,6 @@ export * from './application/dto/transaction-statistics.dto';
 
 export * from './domain/entities/transaction.entity';
 export * from './domain/value-objects/transaction-type.vo';
+export * from './domain/services/transaction-amount.normalizer';
 export * from './domain/value-objects/transaction-status.vo';
 export { ITransactionRepository } from './domain/repositories/transaction.repository.interface';

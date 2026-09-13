@@ -1,22 +1,23 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateExpenseCategoryUseCase } from '../use-cases/create-expense-category.use-case';
 import { GetExpenseCategoryByIdUseCase } from '../use-cases/get-expense-category-by-id.use-case';
 import { ListExpenseCategoriesUseCase } from '../use-cases/list-expense-categories.use-case';
-import { GetCategoryTreeUseCase, CategoryTree } from '../use-cases/get-category-tree.use-case';
+import {
+  GetCategoryTreeUseCase,
+  CategoryTree,
+} from '../use-cases/get-category-tree.use-case';
 import { UpdateExpenseCategoryUseCase } from '../use-cases/update-expense-category.use-case';
 import { DeleteExpenseCategoryUseCase } from '../use-cases/delete-expense-category.use-case';
 import { CreateExpenseCategoryDto } from '../dto/create-expense-category.dto';
 import { UpdateExpenseCategoryDto } from '../dto/update-expense-category.dto';
 import { ExpenseCategory } from '../../domain/entities/expense-category.entity';
-import { IExpenseCategoryRepository, PaginatedResult } from '../../domain/repositories/expense-category.repository.interface';
+import { PaginatedResult } from '../../domain/repositories/expense-category.repository.interface';
 import { Pagination } from '~common/dto/pagination.dto';
 import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 @Injectable()
 export class ExpenseCategoryService {
   constructor(
-    @Inject('ExpenseCategoryRepository')
-    private readonly expenseCategoryRepository: IExpenseCategoryRepository,
     private readonly createExpenseCategoryUseCase: CreateExpenseCategoryUseCase,
     private readonly getExpenseCategoryByIdUseCase: GetExpenseCategoryByIdUseCase,
     private readonly listExpenseCategoriesUseCase: ListExpenseCategoriesUseCase,
@@ -38,8 +39,8 @@ export class ExpenseCategoryService {
     return this.createExpenseCategoryUseCase.execute(dto, userId);
   }
 
-  async findById(id: string): Promise<ExpenseCategory> {
-    return this.getExpenseCategoryByIdUseCase.execute(id);
+  async findById(id: string, userId: string): Promise<ExpenseCategory> {
+    return this.getExpenseCategoryByIdUseCase.execute(id, userId);
   }
 
   async findAll(
@@ -48,7 +49,12 @@ export class ExpenseCategoryService {
     pagination?: Pagination,
     filters?: { search?: string },
   ): Promise<PaginatedResult<ExpenseCategory>> {
-    return this.listExpenseCategoriesUseCase.execute(userId, parentId, pagination, filters);
+    return this.listExpenseCategoriesUseCase.execute(
+      userId,
+      parentId,
+      pagination,
+      filters,
+    );
   }
 
   async getTree(userId: string): Promise<CategoryTree[]> {
@@ -58,18 +64,15 @@ export class ExpenseCategoryService {
   async update(
     id: string,
     dto: UpdateExpenseCategoryDto,
+    userId: string,
   ): Promise<ExpenseCategory> {
     if (!id || id.trim() === '') {
       throw new DomainValidationException('Category ID is required');
     }
-    return this.updateExpenseCategoryUseCase.execute(id, dto);
+    return this.updateExpenseCategoryUseCase.execute(id, dto, userId);
   }
 
-  async delete(id: string): Promise<void> {
-    return this.deleteExpenseCategoryUseCase.execute(id);
-  }
-
-  async linkToUser(categoryId: string, userId: string): Promise<void> {
-    return this.expenseCategoryRepository.linkToUser(categoryId, userId);
+  async delete(id: string, userId: string): Promise<void> {
+    return this.deleteExpenseCategoryUseCase.execute(id, userId);
   }
 }

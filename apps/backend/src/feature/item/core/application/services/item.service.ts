@@ -36,12 +36,15 @@ export class ItemService {
     return this.createItemUseCase.execute(dto, userId);
   }
 
-  async findById(id: string): Promise<Item> {
-    return this.getItemByIdUseCase.execute(id);
+  async findById(id: string, userId: string): Promise<Item> {
+    return this.getItemByIdUseCase.execute(id, userId);
   }
 
-  async findByIdWithDetail(id: string): Promise<ItemDetailResult> {
-    return this.getItemByIdWithDetailUseCase.execute(id);
+  async findByIdWithDetail(
+    id: string,
+    userId: string,
+  ): Promise<ItemDetailResult> {
+    return this.getItemByIdWithDetailUseCase.execute(id, userId);
   }
 
   async findAll(
@@ -50,15 +53,20 @@ export class ItemService {
     filters?: { search?: string },
     pagination?: Pagination,
   ): Promise<PaginatedResult<Item>> {
-    return this.listItemsUseCase.execute(userId, categoryId, filters, pagination);
+    return this.listItemsUseCase.execute(
+      userId,
+      categoryId,
+      filters,
+      pagination,
+    );
   }
 
-  async findByName(name: string): Promise<Item | null> {
-    return this.findItemByNameUseCase.execute(name);
+  async findByName(name: string, userId: string): Promise<Item | null> {
+    return this.findItemByNameUseCase.execute(name, userId);
   }
 
-  async update(id: string, dto: UpdateItemDto): Promise<Item> {
-    return this.updateItemUseCase.execute(id, dto);
+  async update(id: string, dto: UpdateItemDto, userId: string): Promise<Item> {
+    return this.updateItemUseCase.execute(id, dto, userId);
   }
 
   async searchWithStores(
@@ -66,10 +74,14 @@ export class ItemService {
     search?: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<ItemWithStoresResult>> {
-    return this.searchItemsWithStoresUseCase.execute(userId, search, pagination);
+    return this.searchItemsWithStoresUseCase.execute(
+      userId,
+      search,
+      pagination,
+    );
   }
 
-  async delete(id: string): Promise<void> {
-    return this.deleteItemUseCase.execute(id);
+  async delete(id: string, userId: string): Promise<void> {
+    return this.deleteItemUseCase.execute(id, userId);
   }
 }

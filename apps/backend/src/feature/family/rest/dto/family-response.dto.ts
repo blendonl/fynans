@@ -21,7 +21,7 @@ export class FamilyResponseDto {
     const dto = new FamilyResponseDto();
     dto.id = family.id;
     dto.name = family.name;
-    dto.balance = family.balance;
+    dto.balance = family.balance.toNumber();
     dto.createdAt = family.createdAt;
     dto.updatedAt = family.updatedAt;
     return dto;

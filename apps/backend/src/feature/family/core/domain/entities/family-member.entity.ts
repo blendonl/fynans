@@ -1,3 +1,6 @@
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
+
 export enum FamilyMemberRole {
   OWNER = 'OWNER',
   ADMIN = 'ADMIN',
@@ -9,7 +12,7 @@ interface FamilyMemberProps {
   familyId: string;
   userId: string;
   role: FamilyMemberRole;
-  balance: number;
+  balance: Decimal;
   joinedAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -25,31 +28,31 @@ export class FamilyMember {
 
   private validate(props: FamilyMemberProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('FamilyMember ID is required');
+      throw new DomainValidationException('FamilyMember ID is required');
     }
 
     if (!props.familyId || props.familyId.trim() === '') {
-      throw new Error('Family ID is required');
+      throw new DomainValidationException('Family ID is required');
     }
 
     if (!props.userId || props.userId.trim() === '') {
-      throw new Error('User ID is required');
+      throw new DomainValidationException('User ID is required');
     }
 
     if (!props.role) {
-      throw new Error('Role is required');
+      throw new DomainValidationException('Role is required');
     }
 
     if (!props.joinedAt) {
-      throw new Error('Joined date is required');
+      throw new DomainValidationException('Joined date is required');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 
@@ -69,7 +72,7 @@ export class FamilyMember {
     return this.props.role;
   }
 
-  get balance(): number {
+  get balance(): Decimal {
     return this.props.balance;
   }
 

@@ -24,16 +24,16 @@ export class CreateOrFindStoreItemUseCase {
   async execute(dto: CreateStoreItemDto, userId: string): Promise<StoreItem> {
     this.validate(dto);
 
-    let item = await this.itemRepository.findByName(dto.name);
+    let item = await this.itemRepository.findOwnedByName(dto.name, userId);
 
     if (!item) {
       item = await this.itemRepository.create({
+        userId,
         name: dto.name,
         categoryId: dto.categoryId,
-      } as any);
+      });
     }
 
-    await this.itemRepository.linkToUser(item.id, userId);
     await this.storeItemCategoryRepository.linkToUser(dto.categoryId, userId);
 
     if (dto.sizeValue && dto.sizeUnit) {
@@ -44,10 +44,8 @@ export class CreateOrFindStoreItemUseCase {
       });
     }
 
-    const existingStoreItem = await this.storeItemRepository.findByStoreAndItemId(
-      dto.storeId,
-      item.id,
-    );
+    const existingStoreItem =
+      await this.storeItemRepository.findByStoreAndItemId(dto.storeId, item.id);
 
     if (existingStoreItem) {
       const newPrice = new Decimal(dto.price);

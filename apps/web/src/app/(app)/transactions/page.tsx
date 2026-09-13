@@ -107,6 +107,13 @@ export default function TransactionsPage() {
     });
   }, [allTransactions, advancedFilters.categories]);
 
+  const hasActiveFilters = useMemo(
+    () =>
+      Object.values(serverFilters).some((value) => value !== undefined) ||
+      advancedFilters.categories.length > 0,
+    [serverFilters, advancedFilters.categories]
+  );
+
   const loadMoreRef = useIntersectionObserver(() => fetchNextPage(), {
     enabled: !!hasNextPage && !isFetchingNextPage,
   });
@@ -195,6 +202,7 @@ export default function TransactionsPage() {
               isFetchingNextPage={isFetchingNextPage}
               searchQuery={debouncedSearch || undefined}
               paymentMethods={paymentMethods}
+              hasActiveFilters={hasActiveFilters}
             />
           </div>
         </div>

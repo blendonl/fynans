@@ -12,8 +12,11 @@ export class GetItemByIdWithDetailUseCase {
     private readonly itemRepository: IItemRepository,
   ) {}
 
-  async execute(id: string): Promise<ItemDetailResult> {
-    const result = await this.itemRepository.findByIdWithDetail(id);
+  async execute(id: string, userId: string): Promise<ItemDetailResult> {
+    const result = await this.itemRepository.findVisibleByIdWithDetail(
+      id,
+      userId,
+    );
     if (!result) {
       throw new DomainNotFoundException(`Item with ID ${id} not found`);
     }

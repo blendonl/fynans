@@ -10,8 +10,11 @@ export class GetExpenseCategoryByIdUseCase {
     private readonly expenseCategoryRepository: IExpenseCategoryRepository,
   ) {}
 
-  async execute(id: string): Promise<ExpenseCategory> {
-    const category = await this.expenseCategoryRepository.findById(id);
+  async execute(id: string, userId: string): Promise<ExpenseCategory> {
+    const category = await this.expenseCategoryRepository.findVisibleById(
+      id,
+      userId,
+    );
 
     if (!category) {
       throw new DomainNotFoundException('Expense category not found');

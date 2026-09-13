@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
 import { Queue, QueueEvents } from 'bullmq';
@@ -11,9 +11,13 @@ import {
 } from '../../application/interfaces/receipt-job-queue.interface';
 
 @Injectable()
-export class ReceiptJobQueueService implements IReceiptJobQueue {
+export class ReceiptJobQueueService
+  implements IReceiptJobQueue, OnModuleDestroy
+{
   private readonly logger = new Logger(ReceiptJobQueueService.name);
   private readonly redisConnection: { host: string; port: number };
+  private queueEvents: QueueEvents | null = null;
+  private queueEventsReady: Promise<QueueEvents> | null = null;
 
   constructor(
     @InjectQueue('receipt-processing')
@@ -26,11 +30,16 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
     };
   }
 
-  async addJob(imageBuffer: Buffer, userId?: string, options?: ReceiptJobOptions, meta?: ReceiptJobMeta): Promise<string> {
+  async addJob(
+    storageKey: string,
+    userId?: string,
+    options?: ReceiptJobOptions,
+    meta?: ReceiptJobMeta,
+  ): Promise<string> {
     const job = await this.queue.add(
       'process-receipt',
       {
-        imageBase64: imageBuffer.toString('base64'),
+        storageKey,
         userId,
         receiptId: meta?.receiptId,
         familyId: options?.familyId ?? meta?.familyId,
@@ -66,6 +75,12 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
     return stateMap[state] ?? 'waiting';
   }
 
+  async findJobOwnerId(jobId: string): Promise<string | null> {
+    const job = await this.queue.getJob(jobId);
+    const userId = (job?.data as { userId?: string } | undefined)?.userId;
+    return userId ?? null;
+  }
+
   async getJobResult(jobId: string): Promise<ReceiptJobResult> {
     const job = await this.queue.getJob(jobId);
     if (!job) {
@@ -95,6 +110,29 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
     return { status, progress };
   }
 
+  private async sharedQueueEvents(): Promise<QueueEvents> {
+    this.queueEventsReady ??= (async () => {
+      const events = new QueueEvents('receipt-processing', {
+        connection: this.redisConnection,
+      });
+      events.setMaxListeners(0);
+      await events.waitUntilReady();
+      this.queueEvents = events;
+      return events;
+    })();
+
+    return this.queueEventsReady;
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    const events = this.queueEvents;
+    this.queueEvents = null;
+    this.queueEventsReady = null;
+    if (events) {
+      await events.close().catch(() => undefined);
+    }
+  }
+
   async streamJobProgress(
     jobId: string,
     onEvent: (event: ReceiptJobResult) => void,
@@ -112,69 +150,96 @@ export class ReceiptJobQueueService implements IReceiptJobQueue {
 
     onEvent(current);
 
-    const queueEvents = new QueueEvents('receipt-processing', {
-      connection: this.redisConnection,
-    });
+    const queueEvents = await this.sharedQueueEvents();
 
-    try {
-      await queueEvents.waitUntilReady();
+    await new Promise<void>((resolve, reject) => {
+      let settled = false;
 
-      await new Promise<void>((resolve, reject) => {
-        const cleanup = () => {
-          queueEvents.removeAllListeners();
-          queueEvents.close().catch(() => {});
-        };
+      const finish = (fail?: Error) => {
+        if (settled) return;
+        settled = true;
+        queueEvents.off('progress', onProgress);
+        queueEvents.off('completed', onCompleted);
+        queueEvents.off('failed', onFailed);
+        queueEvents.off('error', onError);
+        signal?.removeEventListener('abort', onAbort);
+        if (fail) {
+          reject(fail);
+          return;
+        }
+        resolve();
+      };
 
-        signal?.addEventListener('abort', () => {
-          cleanup();
-          resolve();
-        });
+      const onProgress = ({
+        jobId: jId,
+        data,
+      }: {
+        jobId: string;
+        data: unknown;
+      }) => {
+        if (jId !== jobId) return;
 
-        queueEvents.on('progress', ({ jobId: jId, data }) => {
-          if (jId !== jobId) return;
-
-          if (data && typeof data === 'object' && 'type' in data && (data as any).type === 'partial-result') {
-            const structured = data as { type: string; percent: number; data: unknown };
-            onEvent({
-              status: 'active',
-              progress: structured.percent,
-              data: structured.data,
-              isPartial: true,
-            });
-            return;
-          }
-
-          const progress = typeof data === 'number' ? data : undefined;
-          onEvent({ status: 'active', progress });
-        });
-
-        queueEvents.on('completed', async ({ jobId: jId }) => {
-          if (jId !== jobId) return;
-          const result = await this.getJobResult(jobId);
-          onEvent(result);
-          cleanup();
-          resolve();
-        });
-
-        queueEvents.on('failed', async ({ jobId: jId, failedReason }) => {
-          if (jId !== jobId) return;
+        if (
+          data &&
+          typeof data === 'object' &&
+          'type' in data &&
+          (data as { type?: string }).type === 'partial-result'
+        ) {
+          const structured = data as {
+            type: string;
+            percent: number;
+            data: unknown;
+          };
           onEvent({
-            status: 'failed',
-            error: failedReason || 'Unknown error',
+            status: 'active',
+            progress: structured.percent,
+            data: structured.data,
+            isPartial: true,
           });
-          cleanup();
-          resolve();
-        });
+          return;
+        }
 
-        queueEvents.on('error', (err) => {
-          this.logger.error(`QueueEvents error for job ${jobId}: ${err.message}`);
-          cleanup();
-          reject(err);
+        onEvent({
+          status: 'active',
+          progress: typeof data === 'number' ? data : undefined,
         });
-      });
-    } catch (error) {
-      await queueEvents.close().catch(() => {});
-      throw error;
-    }
+      };
+
+      const onCompleted = ({ jobId: jId }: { jobId: string }) => {
+        if (jId !== jobId) return;
+        void this.getJobResult(jobId).then((result) => {
+          onEvent(result);
+          finish();
+        });
+      };
+
+      const onFailed = ({
+        jobId: jId,
+        failedReason,
+      }: {
+        jobId: string;
+        failedReason: string;
+      }) => {
+        if (jId !== jobId) return;
+        onEvent({
+          status: 'failed',
+          error: failedReason || 'Unknown error',
+        });
+        finish();
+      };
+
+      const onError = (err: Error) => {
+        this.logger.error(`QueueEvents error for job ${jobId}: ${err.message}`);
+        finish(err);
+      };
+
+      const onAbort = () => finish();
+
+      signal?.addEventListener('abort', onAbort);
+      queueEvents.on('progress', onProgress);
+      queueEvents.on('completed', onCompleted);
+      queueEvents.on('failed', onFailed);
+      queueEvents.on('error', onError);
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IStoreItemCategoryRepository,
@@ -9,13 +9,18 @@ import {
 import { StoreItemCategory } from '../../domain/entities/store-item-category.entity';
 import { Pagination } from '~common/dto/pagination.dto';
 import { StoreItemCategoryMapper } from '../mappers/store-item-category.mapper';
-import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
+import {
+  FAMILY_MEMBERSHIP_REPOSITORY,
+  type IFamilyMembershipRepository,
+} from '~common/authorization/domain/repositories/family-membership.repository.interface';
 
 @Injectable()
-export class PrismaStoreItemCategoryRepository
-  implements IStoreItemCategoryRepository
-{
-  constructor(private readonly prisma: PrismaService) {}
+export class PrismaStoreItemCategoryRepository implements IStoreItemCategoryRepository {
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(FAMILY_MEMBERSHIP_REPOSITORY)
+    private readonly familyMembershipRepository: IFamilyMembershipRepository,
+  ) {}
 
   async create(data: CreateStoreItemCategoryData): Promise<StoreItemCategory> {
     const category = await this.prisma.itemCategory.create({
@@ -48,7 +53,8 @@ export class PrismaStoreItemCategoryRepository
     userId: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<StoreItemCategory>> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const where = {
       users: { some: { userId: { in: visibleUserIds } } },
     };
@@ -74,7 +80,8 @@ export class PrismaStoreItemCategoryRepository
     parentId: string | null,
     pagination?: Pagination,
   ): Promise<PaginatedResult<StoreItemCategory>> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const where = {
       parentId,
       users: { some: { userId: { in: visibleUserIds } } },

@@ -98,8 +98,8 @@ export class ExpenseCategoryController {
   @Get(':id')
   @ApiOperation({ summary: 'Get an expense category by ID' })
   @ApiResponse({ status: 200, type: ExpenseCategoryResponseDto })
-  async findOne(@Param('id') id: string) {
-    const category = await this.expenseCategoryService.findById(id);
+  async findOne(@Param('id') id: string, @CurrentUser() user: User) {
+    const category = await this.expenseCategoryService.findById(id, user.id);
     return ExpenseCategoryResponseDto.fromEntity(category);
   }
 
@@ -109,6 +109,7 @@ export class ExpenseCategoryController {
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateExpenseCategoryRequestDto,
+    @CurrentUser() user: User,
   ) {
     const coreDto = new UpdateExpenseCategoryDto({
       name: updateDto.name,
@@ -116,7 +117,11 @@ export class ExpenseCategoryController {
       isConnectedToStore: updateDto.isConnectedToStore,
     });
 
-    const category = await this.expenseCategoryService.update(id, coreDto);
+    const category = await this.expenseCategoryService.update(
+      id,
+      coreDto,
+      user.id,
+    );
     return ExpenseCategoryResponseDto.fromEntity(category);
   }
 
@@ -124,7 +129,7 @@ export class ExpenseCategoryController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete an expense category' })
   @ApiResponse({ status: 204 })
-  async remove(@Param('id') id: string) {
-    await this.expenseCategoryService.delete(id);
+  async remove(@Param('id') id: string, @CurrentUser() user: User) {
+    await this.expenseCategoryService.delete(id, user.id);
   }
 }

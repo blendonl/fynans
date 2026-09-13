@@ -9,7 +9,7 @@ export class FindItemByNameUseCase {
     private readonly itemRepository: IItemRepository,
   ) {}
 
-  async execute(name: string): Promise<Item | null> {
-    return await this.itemRepository.findByName(name);
+  async execute(name: string, userId: string): Promise<Item | null> {
+    return await this.itemRepository.findOwnedByName(name, userId);
   }
 }

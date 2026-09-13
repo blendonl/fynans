@@ -8,6 +8,7 @@ export interface OwnsResourceRule {
   source?: ResourceIdSource;
   key?: string;
   optional?: boolean;
+  ownerOnly?: boolean;
 }
 
 export const OWNS_RESOURCE_KEY = 'owns_resource_rules';

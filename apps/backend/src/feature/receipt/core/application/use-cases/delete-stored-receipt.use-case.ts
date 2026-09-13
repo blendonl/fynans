@@ -1,10 +1,8 @@
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
-  Inject,
-  Injectable,
-  Logger,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+  DomainForbiddenException,
+  DomainNotFoundException,
+} from '~common/exceptions/domain.exceptions';
 import { IStoredReceiptRepository } from '../../domain/repositories/stored-receipt.repository.interface';
 import { IStorageProvider } from '~common/storage/storage-provider.interface';
 
@@ -22,12 +20,14 @@ export class DeleteStoredReceiptUseCase {
   async execute(receiptId: string, userId: string): Promise<void> {
     const receipt = await this.receiptRepo.findById(receiptId);
     if (!receipt) {
-      throw new NotFoundException('Receipt not found');
+      throw new DomainNotFoundException('Receipt not found');
     }
 
     const isOwner = await this.receiptRepo.verifyOwnership(receiptId, userId);
     if (!isOwner) {
-      throw new ForbiddenException('You do not have access to this receipt');
+      throw new DomainForbiddenException(
+        'You do not have access to this receipt',
+      );
     }
 
     await this.storage.delete(receipt.storageKey);

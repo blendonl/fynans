@@ -14,10 +14,6 @@ import { TransactionStatus } from '../../core/domain/value-objects/transaction-s
 import { TransactionScope } from '../../core/domain/entities/transaction.entity';
 
 export class QueryTransactionDto {
-  @IsUUID()
-  @IsOptional()
-  userId?: string;
-
   @IsEnum(TransactionType)
   @IsOptional()
   type?: TransactionType;

@@ -1,0 +1,42 @@
+enum AuditEntity {
+  TRANSACTION
+  EXPENSE
+  INCOME
+
+  @@map("audit_entity")
+}
+
+enum AuditAction {
+  CREATED
+  UPDATED
+  DELETED
+  APPROVED
+  REJECTED
+  RESUBMITTED
+
+  @@map("audit_action")
+}
+
+model FinancialAuditLog {
+  id       String      @id @default(uuid())
+  entity   AuditEntity
+  entityId String      @map("entity_id")
+  action   AuditAction
+
+  actorId       String  @map("actor_id")
+  transactionId String? @map("transaction_id")
+  familyId      String? @map("family_id")
+
+  changes Json?
+
+  actor User @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([entity, entityId])
+  @@index([actorId])
+  @@index([transactionId])
+  @@index([familyId])
+  @@index([createdAt])
+  @@map("financial_audit_log")
+}

@@ -14,7 +14,7 @@ export class FamilyMemberMapper {
       familyId: prismaMember.familyId,
       userId: prismaMember.userId,
       role: this.mapRoleToDomain(prismaMember.role),
-      balance: prismaMember.balance.toNumber(),
+      balance: prismaMember.balance,
       joinedAt: prismaMember.joinedAt,
       createdAt: prismaMember.createdAt,
       updatedAt: prismaMember.updatedAt,

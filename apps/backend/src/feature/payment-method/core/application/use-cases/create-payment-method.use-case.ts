@@ -1,8 +1,5 @@
-import {
-  Injectable,
-  Inject,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { type IPaymentMethodRepository } from '../../domain/repositories/payment-method.repository.interface';
 import { CreatePaymentMethodDto } from '../dto/create-payment-method.dto';
 import { PaymentMethod } from '../../domain/entities/payment-method.entity';
@@ -18,11 +15,11 @@ export class CreatePaymentMethodUseCase {
 
   async execute(dto: CreatePaymentMethodDto): Promise<PaymentMethod> {
     if (!dto.userId || dto.userId.trim() === '') {
-      throw new BadRequestException('User ID is required');
+      throw new DomainValidationException('User ID is required');
     }
 
     if (!dto.name || dto.name.trim() === '') {
-      throw new BadRequestException('Payment method name is required');
+      throw new DomainValidationException('Payment method name is required');
     }
 
     const existing = await this.paymentMethodRepository.findByUserIdAndName(
@@ -30,7 +27,7 @@ export class CreatePaymentMethodUseCase {
       dto.name,
     );
     if (existing) {
-      throw new BadRequestException(
+      throw new DomainValidationException(
         'A payment method with this name already exists',
       );
     }

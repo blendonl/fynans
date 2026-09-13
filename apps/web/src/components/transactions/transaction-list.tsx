@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { Receipt, Plus, Loader2 } from "lucide-react";
+import { Receipt, Loader2 } from "lucide-react";
+import { EmptyState } from "@/components/onboarding/empty-state";
 import type { Transaction } from "@/types";
 import type { PaymentMethod } from "@/hooks/use-payment-methods";
 import { groupByMonth } from "@/hooks/use-transactions";
@@ -14,6 +14,7 @@ interface TransactionListProps {
   isFetchingNextPage?: boolean;
   searchQuery?: string;
   paymentMethods?: PaymentMethod[];
+  hasActiveFilters?: boolean;
 }
 
 function TransactionListSkeleton() {
@@ -53,30 +54,27 @@ export function TransactionList({
   isFetchingNextPage,
   searchQuery,
   paymentMethods = [],
+  hasActiveFilters = false,
 }: TransactionListProps) {
   if (isLoading) {
     return <TransactionListSkeleton />;
   }
 
   if (transactions.length === 0) {
-    return (
-      <div className="py-20 px-8 text-center">
-        <div className="relative mx-auto mb-6 h-20 w-20 flex items-center justify-center">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10" />
-          <Receipt className="h-10 w-10 text-text-disabled relative" />
-        </div>
-        <p className="text-base font-medium text-text-secondary">No transactions found</p>
-        <p className="text-sm text-text-disabled mt-1 mb-6">
-          Try adjusting your filters or add a new transaction
-        </p>
-        <Link
-          href="/add"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-variant transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          Add Transaction
-        </Link>
-      </div>
+    return hasActiveFilters ? (
+      <EmptyState
+        icon={Receipt}
+        title="No transactions match these filters"
+        description="Widen the date range, clear the search, or pick a different category."
+      />
+    ) : (
+      <EmptyState
+        icon={Receipt}
+        title="No transactions yet"
+        description="Scan a receipt and Fynans reads the store, the date and every line item for you. You can also just type an amount."
+        actionLabel="Add your first transaction"
+        actionHref="/add"
+      />
     );
   }
 

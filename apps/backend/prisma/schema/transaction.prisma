@@ -30,10 +30,14 @@ model Transaction {
 
   type            TransactionType
   status          TransactionStatus @default(CONFIRMED) @map("status")
-  value           Decimal
+  value           Decimal           @db.Decimal(12, 2)
+  currency        String?           @db.Char(3)
+  exchangeRate    Decimal?          @map("exchange_rate") @db.Decimal(18, 8)
+  settledValue    Decimal?          @map("settled_value") @db.Decimal(12, 2)
   rejectionReason String?           @map("rejection_reason")
 
-  recordedAt DateTime @default(now()) @map("recorded_at")
+  recordedAt DateTime  @default(now()) @map("recorded_at")
+  deletedAt  DateTime? @map("deleted_at")
 
   // Payment method
   paymentMethodId String?        @map("payment_method_id")
@@ -42,7 +46,7 @@ model Transaction {
   expense       Expense?
   income        Income?
   user          User           @relation(fields: [userId], references: [id])
-  family        Family?        @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  family        Family?        @relation(fields: [familyId], references: [id], onDelete: Restrict)
   notifications Notification[]
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -54,5 +58,7 @@ model Transaction {
   @@index([scope])
   @@index([status])
   @@index([userId, status])
+  @@index([recordedAt])
+  @@index([deletedAt])
   @@map("transaction")
 }

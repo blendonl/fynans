@@ -1,7 +1,7 @@
-import { ExpenseCategory as PrismaExpenseCategory } from 'prisma/generated/prisma/client';
-
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 export interface ExpenseCategoryProps {
   id: string;
+  userId: string;
   parentId: string | null;
   name: string;
   isConnectedToStore: boolean;
@@ -17,37 +17,34 @@ export class ExpenseCategory {
     this.props = props;
   }
 
-  static fromPrisma(data: PrismaExpenseCategory): ExpenseCategory {
-    return new ExpenseCategory({
-      id: data.id,
-      parentId: data.parentId,
-      name: data.name,
-      isConnectedToStore: data.isConnectedToStore,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-    });
-  }
-
   private validate(props: ExpenseCategoryProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Expense category ID is required');
+      throw new DomainValidationException('Expense category ID is required');
+    }
+
+    if (!props.userId || props.userId.trim() === '') {
+      throw new DomainValidationException('Expense category owner is required');
     }
 
     if (!props.name || props.name.trim() === '') {
-      throw new Error('Expense category name is required');
+      throw new DomainValidationException('Expense category name is required');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 
   get id(): string {
     return this.props.id;
+  }
+
+  get userId(): string {
+    return this.props.userId;
   }
 
   get parentId(): string | null {
@@ -69,5 +66,4 @@ export class ExpenseCategory {
   get isConnectedToStore(): boolean {
     return this.props.isConnectedToStore;
   }
-
 }

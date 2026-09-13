@@ -12,12 +12,21 @@ describe('ReceiptProcessingWorker', () => {
   };
   let job: Partial<Job>;
 
-  const imageBase64 = Buffer.from('fake-image').toString('base64');
+  const imageBuffer = Buffer.from('fake-image');
+  const storageKey = 'receipts/user-1/fake-image.jpg';
+  let storage: { download: jest.Mock };
 
   const mockProcessedResult = {
     storeName: 'Test Store',
     storeLocation: '123 Main St',
-    items: [{ name: 'Item 1', price: 9.99, quantity: 1, suggestedItemCategory: 'Produce' }],
+    items: [
+      {
+        name: 'Item 1',
+        price: 9.99,
+        quantity: 1,
+        suggestedItemCategory: 'Produce',
+      },
+    ],
     recordedAt: new Date('2026-01-15'),
     extractedText: 'raw receipt text',
     confidence: 0.92,
@@ -27,7 +36,12 @@ describe('ReceiptProcessingWorker', () => {
   const mockPartialResult = {
     store: { id: 'store-1', name: 'Test Store', location: '123 Main St' },
     items: [
-      { name: 'Item 1', price: 9.99, quantity: 1, suggestedItemCategory: 'Produce' },
+      {
+        name: 'Item 1',
+        price: 9.99,
+        quantity: 1,
+        suggestedItemCategory: 'Produce',
+      },
     ],
     recordedAt: new Date('2026-01-15'),
     extractedText: 'raw receipt text',
@@ -50,22 +64,28 @@ describe('ReceiptProcessingWorker', () => {
     };
 
     const configService = { get: jest.fn().mockReturnValue(undefined) };
+    storage = { download: jest.fn().mockResolvedValue(imageBuffer) };
 
     worker = new ReceiptProcessingWorker(
       processReceiptUseCase as any as ProcessReceiptUseCase,
       enrichReceiptDataUseCase as any as EnrichReceiptDataUseCase,
+      storage as any,
       configService as any,
     );
 
     job = {
       id: 'test-job-1',
-      data: { imageBase64, userId: 'user-1' },
+      data: { storageKey, userId: 'user-1' },
       updateProgress: jest.fn(),
     };
 
     processReceiptUseCase.execute.mockResolvedValue(mockProcessedResult);
-    enrichReceiptDataUseCase.resolveStoreAndItems.mockResolvedValue(mockPartialResult);
-    enrichReceiptDataUseCase.resolveCategories.mockResolvedValue(mockCategoryResult);
+    enrichReceiptDataUseCase.resolveStoreAndItems.mockResolvedValue(
+      mockPartialResult,
+    );
+    enrichReceiptDataUseCase.resolveCategories.mockResolvedValue(
+      mockCategoryResult,
+    );
   });
 
   it('should be defined', () => {
@@ -73,12 +93,12 @@ describe('ReceiptProcessingWorker', () => {
   });
 
   describe('process', () => {
-    it('should decode base64 buffer and call processReceiptUseCase.execute', async () => {
+    it('should fetch the image by storage key and call processReceiptUseCase.execute', async () => {
       await worker.process(job as Job);
 
-      const expectedBuffer = Buffer.from(imageBase64, 'base64');
+      expect(storage.download).toHaveBeenCalledWith(storageKey);
       expect(processReceiptUseCase.execute).toHaveBeenCalledWith(
-        expectedBuffer,
+        imageBuffer,
         'user-1',
         expect.anything(),
         { skipOcr: false },
@@ -88,10 +108,9 @@ describe('ReceiptProcessingWorker', () => {
     it('should call resolveStoreAndItems and resolveCategories', async () => {
       await worker.process(job as Job);
 
-      expect(enrichReceiptDataUseCase.resolveStoreAndItems).toHaveBeenCalledWith(
-        mockProcessedResult,
-        'user-1',
-      );
+      expect(
+        enrichReceiptDataUseCase.resolveStoreAndItems,
+      ).toHaveBeenCalledWith(mockProcessedResult, 'user-1');
       expect(enrichReceiptDataUseCase.resolveCategories).toHaveBeenCalledWith(
         mockProcessedResult,
         'user-1',

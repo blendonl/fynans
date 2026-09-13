@@ -14,6 +14,9 @@ export class UserResponseDto {
   @ApiProperty()
   lastName!: string;
 
+  @ApiProperty({ nullable: true, type: String })
+  image!: string | null;
+
   @ApiProperty()
   emailVerified!: boolean;
 
@@ -29,6 +32,7 @@ export class UserResponseDto {
     dto.email = user.email;
     dto.firstName = user.firstName;
     dto.lastName = user.lastName;
+    dto.image = user.image;
     dto.emailVerified = user.emailVerified;
     dto.createdAt = user.createdAt.toISOString();
     dto.updatedAt = user.updatedAt.toISOString();

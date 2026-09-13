@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import {
+  DomainForbiddenException,
   DomainNotFoundException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
@@ -17,6 +18,7 @@ export class UpdateExpenseCategoryUseCase {
   async execute(
     id: string,
     dto: UpdateExpenseCategoryDto,
+    userId: string,
   ): Promise<ExpenseCategory> {
     const category = await this.expenseCategoryRepository.findById(id);
 
@@ -24,7 +26,13 @@ export class UpdateExpenseCategoryUseCase {
       throw new DomainNotFoundException('Expense category not found');
     }
 
-    await this.validate(id, dto);
+    if (category.userId !== userId) {
+      throw new DomainForbiddenException(
+        'Expense category does not belong to this user',
+      );
+    }
+
+    await this.validate(id, dto, userId);
 
     const updated = await this.expenseCategoryRepository.update(id, {
       name: dto.name,
@@ -38,10 +46,11 @@ export class UpdateExpenseCategoryUseCase {
   private async validate(
     id: string,
     dto: UpdateExpenseCategoryDto,
+    userId: string,
   ): Promise<void> {
     if (dto.name) {
       const existingCategory =
-        await this.expenseCategoryRepository.findByName(dto.name);
+        await this.expenseCategoryRepository.findOwnedByName(dto.name, userId);
       if (existingCategory && existingCategory.id !== id) {
         throw new DomainValidationException('Category name must be unique');
       }
@@ -49,13 +58,16 @@ export class UpdateExpenseCategoryUseCase {
 
     if (dto.parentId !== undefined) {
       if (dto.parentId === id) {
-        throw new DomainValidationException('Category cannot be its own parent');
+        throw new DomainValidationException(
+          'Category cannot be its own parent',
+        );
       }
 
       if (dto.parentId !== null) {
-        const parent =
-          await this.expenseCategoryRepository.findById(dto.parentId);
-        if (!parent) {
+        const parent = await this.expenseCategoryRepository.findById(
+          dto.parentId,
+        );
+        if (!parent || parent.userId !== userId) {
           throw new DomainValidationException('Parent category not found');
         }
 

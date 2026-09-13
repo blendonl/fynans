@@ -11,7 +11,6 @@ export interface PaginatedResult<T> {
 export interface IncomeFilters {
   userId?: string;
   categoryId?: string;
-  storeId?: string;
   familyId?: string;
   scope?: TransactionScope;
   status?: TransactionStatus;
@@ -27,7 +26,10 @@ export interface IIncomeRepository {
   create(data: Partial<Income>): Promise<Income>;
   findById(id: string): Promise<Income | null>;
   findByTransactionId(transactionId: string): Promise<Income | null>;
-  findAll(filters?: IncomeFilters, pagination?: Pagination): Promise<PaginatedResult<Income>>;
+  findAll(
+    filters?: IncomeFilters,
+    pagination?: Pagination,
+  ): Promise<PaginatedResult<Income>>;
   update(id: string, data: Partial<Income>): Promise<Income>;
   delete(id: string): Promise<void>;
 }

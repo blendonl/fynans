@@ -1,10 +1,11 @@
 model Expense {
-  id            String
+  id            String @id @default(uuid())
   transactionId String @unique @map("transaction_id")
   storeId       String? @map("store_id")
   categoryId    String @map("category_id")
 
-  description String? 
+  description String?
+  deletedAt   DateTime? @map("deleted_at")
   category    ExpenseCategory @relation(fields: [categoryId], references: [id])
 
   transaction Transaction   @relation(fields: [transactionId], references: [id])
@@ -15,41 +16,31 @@ model Expense {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@id([id])
+  @@index([categoryId])
+  @@index([storeId])
+  @@index([deletedAt])
   @@map("expense")
 }
 
 model ExpenseCategory {
   id       String  @id @default(uuid())
+  userId   String  @map("user_id")
   parentId String? @map("parent_id")
 
-  name             String  @unique
+  name             String
   isConnectedToStore Boolean @default(false)
 
 
+  owner    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   parent   ExpenseCategory?  @relation(name: "children", fields: [parentId], references: [id])
   children ExpenseCategory[] @relation(name: "children")
   expenses Expense[]
-  users    UserExpenseCategory[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("expense_category")
-}
-
-model UserExpenseCategory {
-  id         String @id @default(uuid())
-  userId     String @map("user_id")
-  categoryId String @map("category_id")
-
-  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category ExpenseCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@unique([userId, categoryId])
+  @@unique([userId, name])
   @@index([userId])
-  @@index([categoryId])
-  @@map("user_expense_category")
+  @@index([parentId])
+  @@map("expense_category")
 }

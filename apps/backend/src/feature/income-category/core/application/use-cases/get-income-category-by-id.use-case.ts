@@ -10,8 +10,11 @@ export class GetIncomeCategoryByIdUseCase {
     private readonly incomeCategoryRepository: IIncomeCategoryRepository,
   ) {}
 
-  async execute(id: string): Promise<IncomeCategory> {
-    const category = await this.incomeCategoryRepository.findById(id);
+  async execute(id: string, userId: string): Promise<IncomeCategory> {
+    const category = await this.incomeCategoryRepository.findVisibleById(
+      id,
+      userId,
+    );
 
     if (!category) {
       throw new DomainNotFoundException('Income category not found');

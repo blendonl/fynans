@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IStoreItemRepository,
@@ -9,13 +9,20 @@ import { StoreItem } from '../../domain/entities/store-item.entity';
 import { Pagination } from '~common/dto/pagination.dto';
 import { StoreItemMapper } from '../mappers/store-item.mapper';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
-import { getVisibleUserIds } from '../../../../../common/helpers/family-visibility.helper';
+import {
+  FAMILY_MEMBERSHIP_REPOSITORY,
+  type IFamilyMembershipRepository,
+} from '~common/authorization/domain/repositories/family-membership.repository.interface';
 
 const STORE_ITEM_INCLUDE = { item: { include: { sizes: true } } } as const;
 
 @Injectable()
 export class PrismaStoreItemRepository implements IStoreItemRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(FAMILY_MEMBERSHIP_REPOSITORY)
+    private readonly familyMembershipRepository: IFamilyMembershipRepository,
+  ) {}
 
   async create(data: Partial<StoreItem>): Promise<StoreItem> {
     const item = await this.prisma.storeItem.create({
@@ -62,7 +69,8 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
     search?: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<StoreItem>> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const where: any = {
       storeId,
       users: { some: { userId: { in: visibleUserIds } } },
@@ -93,7 +101,8 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
     itemId: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<StoreItem>> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const where = {
       itemId,
       users: { some: { userId: { in: visibleUserIds } } },
@@ -120,7 +129,8 @@ export class PrismaStoreItemRepository implements IStoreItemRepository {
     userId: string,
     pagination?: Pagination,
   ): Promise<PaginatedResult<StoreItem>> {
-    const visibleUserIds = await getVisibleUserIds(this.prisma, userId);
+    const visibleUserIds =
+      await this.familyMembershipRepository.findCoMemberUserIds(userId);
     const where = {
       users: { some: { userId: { in: visibleUserIds } } },
     };

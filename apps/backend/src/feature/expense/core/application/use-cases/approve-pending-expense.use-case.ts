@@ -17,6 +17,12 @@ import {
   DomainNotFoundException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
+import { PrismaService } from '~common/prisma/prisma.service';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class ApprovePendingExpenseUseCase {
@@ -30,6 +36,8 @@ export class ApprovePendingExpenseUseCase {
     private readonly paymentMethodService: PaymentMethodService,
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
     private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly prisma: PrismaService,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(expenseId: string, userId: string): Promise<Expense> {
@@ -40,37 +48,57 @@ export class ApprovePendingExpenseUseCase {
 
     const transaction = expense.transaction;
     if (!transaction.isPending()) {
-      throw new DomainValidationException('Only pending expenses can be approved');
+      throw new DomainValidationException(
+        'Only pending expenses can be approved',
+      );
     }
 
-    await this.expenseAuthService.verifyTransactionAccess(transaction, userId);
+    await this.expenseAuthService.verifyApprovalAuthority(transaction, userId);
 
-    const updatedTransaction = await this.transactionRepository.updateStatus(
-      transaction.id,
-      TransactionStatus.CONFIRMED,
-    );
-
-    // Run balance updates (same as direct add)
-    if (transaction.familyId) {
-      await this.familyBalanceService.updateBalancesAfterTransaction(
-        transaction.familyId,
-        transaction.userId,
-        updatedTransaction,
+    await this.prisma.runInTransaction(async () => {
+      const updatedTransaction = await this.transactionRepository.updateStatus(
+        transaction.id,
+        TransactionStatus.CONFIRMED,
       );
 
+      if (transaction.familyId) {
+        await this.familyBalanceService.updateBalancesAfterTransaction(
+          transaction.familyId,
+          transaction.userId,
+          updatedTransaction,
+        );
+      }
+    });
+
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.EXPENSE,
+      entityId: expense.id,
+      action: AuditAction.APPROVED,
+      actorId: userId,
+      transactionId: transaction.id,
+      familyId: transaction.familyId,
+      changes: {
+        submittedBy: transaction.userId,
+        value: transaction.value.toFixed(2),
+      },
+    });
+
+    if (transaction.familyId) {
       await this.notifyFamilyMembersService.notify({
         familyId: transaction.familyId,
         actorUserId: userId,
         type: NotificationType.FAMILY_EXPENSE_CREATED,
         data: {
           expenseId: expense.id,
-          amount: transaction.value.toNumber().toFixed(2),
+          amount: transaction.value.toFixed(2),
         },
       });
     }
 
     if (transaction.paymentMethodId) {
-      await this.paymentMethodService.recalculateBalance(transaction.paymentMethodId);
+      await this.paymentMethodService.recalculateBalance(
+        transaction.paymentMethodId,
+      );
     }
 
     if (userId !== transaction.userId) {
@@ -79,7 +107,7 @@ export class ApprovePendingExpenseUseCase {
         type: NotificationType.TRANSACTION_APPROVED,
         data: {
           expenseId: expense.id,
-          amount: transaction.value.toNumber().toFixed(2),
+          amount: transaction.value.toFixed(2),
         },
         deliveryMethods: [DeliveryMethod.IN_APP, DeliveryMethod.PUSH],
         priority: NotificationPriority.MEDIUM,

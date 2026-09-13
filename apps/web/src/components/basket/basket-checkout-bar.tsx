@@ -3,7 +3,7 @@
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/utils/currency";
-import { calculateBasketItemsTotal } from "@/utils/calculations";
+import { expenseLinesTotal } from "@/utils/expense-total";
 import type { BasketItem } from "@/types";
 
 interface BasketCheckoutBarProps {
@@ -15,7 +15,7 @@ export function BasketCheckoutBar({ checkedItems, onCheckout }: BasketCheckoutBa
   if (checkedItems.length === 0) return null;
 
   const allHavePrice = checkedItems.every((item) => item.price !== null);
-  const total = calculateBasketItemsTotal(checkedItems);
+  const total = expenseLinesTotal(checkedItems);
 
   return (
     <div className="fixed left-0 right-0 lg:left-64 z-40 border-t border-glass-border-outer bg-glass-bg-strong backdrop-blur-lg bottom-[calc(3.75rem+env(safe-area-inset-bottom,0px))] lg:bottom-0 lg:pb-[env(safe-area-inset-bottom)]">

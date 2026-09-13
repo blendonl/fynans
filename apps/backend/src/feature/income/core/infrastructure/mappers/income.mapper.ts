@@ -27,8 +27,8 @@ export class IncomeMapper {
     return new Income({
       id: prismaIncome.id,
       transactionId: prismaIncome.transactionId,
-      storeId: prismaIncome.storeId,
       categoryId: prismaIncome.categoryId,
+      description: prismaIncome.description,
       transaction: prismaIncome.transaction
         ? TransactionMapper.toDomain(prismaIncome.transaction)
         : undefined,

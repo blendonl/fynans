@@ -29,6 +29,10 @@ export class PrismaResourceOwnerRepository implements IResourceOwnerRepository {
         return this.findExpenseOwner(resourceId);
       case 'expenseItem':
         return this.findExpenseItemOwner(resourceId);
+      case 'income':
+        return this.findIncomeOwner(resourceId);
+      case 'transaction':
+        return this.findTransactionOwner(resourceId);
     }
   }
 
@@ -41,6 +45,28 @@ export class PrismaResourceOwnerRepository implements IResourceOwnerRepository {
     });
 
     return expense ? this.toResourceOwner(expense.transaction) : null;
+  }
+
+  private async findIncomeOwner(
+    incomeId: string,
+  ): Promise<ResourceOwner | null> {
+    const income = await this.prisma.income.findUnique({
+      where: { id: incomeId },
+      select: { transaction: { select: TRANSACTION_OWNERSHIP_SELECT } },
+    });
+
+    return income ? this.toResourceOwner(income.transaction) : null;
+  }
+
+  private async findTransactionOwner(
+    transactionId: string,
+  ): Promise<ResourceOwner | null> {
+    const transaction = await this.prisma.transaction.findUnique({
+      where: { id: transactionId },
+      select: TRANSACTION_OWNERSHIP_SELECT,
+    });
+
+    return transaction ? this.toResourceOwner(transaction) : null;
   }
 
   private async findExpenseItemOwner(

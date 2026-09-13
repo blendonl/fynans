@@ -12,7 +12,7 @@ export class ListTransactionsUseCase {
   constructor(
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
-  ) { }
+  ) {}
 
   async execute(
     filters?: TransactionFilters,

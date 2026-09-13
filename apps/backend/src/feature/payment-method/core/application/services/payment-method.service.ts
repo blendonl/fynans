@@ -6,7 +6,11 @@ import { UpdatePaymentMethodUseCase } from '../use-cases/update-payment-method.u
 import { DeletePaymentMethodUseCase } from '../use-cases/delete-payment-method.use-case';
 import { RecalculateBalanceUseCase } from '../use-cases/recalculate-balance.use-case';
 import { GetBalanceSummaryUseCase } from '../use-cases/get-balance-summary.use-case';
-import { GetBalanceUseCase, BalanceResult } from '../use-cases/get-balance.use-case';
+import {
+  GetBalanceUseCase,
+  BalanceResult,
+} from '../use-cases/get-balance.use-case';
+import { VerifyPaymentMethodOwnershipUseCase } from '../use-cases/verify-payment-method-ownership.use-case';
 import { CreatePaymentMethodDto } from '../dto/create-payment-method.dto';
 import { UpdatePaymentMethodDto } from '../dto/update-payment-method.dto';
 import { PaymentMethod } from '../../domain/entities/payment-method.entity';
@@ -23,10 +27,15 @@ export class PaymentMethodService {
     private readonly recalculateBalanceUseCase: RecalculateBalanceUseCase,
     private readonly getBalanceSummaryUseCase: GetBalanceSummaryUseCase,
     private readonly getBalanceUseCase: GetBalanceUseCase,
+    private readonly verifyPaymentMethodOwnershipUseCase: VerifyPaymentMethodOwnershipUseCase,
   ) {}
 
   async create(dto: CreatePaymentMethodDto): Promise<PaymentMethod> {
     return this.createPaymentMethodUseCase.execute(dto);
+  }
+
+  async verifyOwnership(id: string, userId: string): Promise<void> {
+    return this.verifyPaymentMethodOwnershipUseCase.execute(id, userId);
   }
 
   async findById(id: string, userId: string): Promise<PaymentMethod> {

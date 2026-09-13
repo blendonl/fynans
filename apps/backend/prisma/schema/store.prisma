@@ -16,19 +16,22 @@ model Store {
 
 model Item {
   id         String @id @default(uuid())
+  userId     String @map("user_id")
   categoryId String @map("category_id")
 
-  name   String  @unique
+  name   String
   nameEn String? @map("name_en")
 
+  owner    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   category ItemCategory @relation(fields: [categoryId], references: [id])
   stores   StoreItem[]
-  users    UserItem[]
   sizes    ItemSize[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([userId, name])
+  @@index([userId])
   @@map("item")
 }
 
@@ -37,7 +40,7 @@ model StoreItem {
   itemId  String @map("item_id")
   storeId String @map("store_id")
 
-  price        Decimal
+  price        Decimal @db.Decimal(12, 2)
   isDiscounted Boolean @map("is_discounted")
 
   store     Store               @relation(fields: [storeId], references: [id])
@@ -49,13 +52,15 @@ model StoreItem {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([itemId])
+  @@index([storeId])
   @@map("store_item")
 }
 
 model ItemSize {
   id     String  @id @default(uuid())
   itemId String  @map("item_id")
-  value  Decimal
+  value  Decimal @db.Decimal(12, 3)
   unit   String
 
   item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
@@ -68,10 +73,10 @@ model ItemSize {
 }
 
 model StoreItemDiscount {
-  id          String @id
+  id          String @id @default(uuid())
   storeItemId String @map("store_item_id")
 
-  discount  Decimal
+  discount  Decimal   @db.Decimal(12, 2)
   startedAt DateTime  @default(now()) @map("started_at")
   endedAt   DateTime? @map("ended_at")
 
@@ -80,6 +85,7 @@ model StoreItemDiscount {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([storeItemId])
   @@map("store_item_discount")
 }
 
@@ -98,6 +104,7 @@ model ItemCategory {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([parentId])
   @@map("item_category")
 }
 
@@ -115,22 +122,6 @@ model UserStore {
   @@index([userId])
   @@index([storeId])
   @@map("user_store")
-}
-
-model UserItem {
-  id     String @id @default(uuid())
-  userId String @map("user_id")
-  itemId String @map("item_id")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@unique([userId, itemId])
-  @@index([userId])
-  @@index([itemId])
-  @@map("user_item")
 }
 
 model UserStoreItem {

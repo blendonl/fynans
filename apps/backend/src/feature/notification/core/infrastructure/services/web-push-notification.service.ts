@@ -1,4 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as webpush from 'web-push';
 import { IWebPushSubscriptionRepository } from '../../domain/repositories/web-push-subscription.repository.interface';
 
@@ -7,10 +8,11 @@ export class WebPushNotificationService {
   constructor(
     @Inject('WebPushSubscriptionRepository')
     private readonly subscriptionRepository: IWebPushSubscriptionRepository,
+    private readonly configService: ConfigService,
   ) {
-    const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
-    const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
-    const vapidSubject = process.env.VAPID_SUBJECT;
+    const vapidPublicKey = this.configService.get<string>('VAPID_PUBLIC_KEY');
+    const vapidPrivateKey = this.configService.get<string>('VAPID_PRIVATE_KEY');
+    const vapidSubject = this.configService.get<string>('VAPID_SUBJECT');
 
     if (vapidPublicKey && vapidPrivateKey && vapidSubject) {
       webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);

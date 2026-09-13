@@ -11,10 +11,10 @@ export class IncomeResponseDto {
   transactionId: string;
 
   @ApiProperty()
-  storeId: string;
-
-  @ApiProperty()
   categoryId: string;
+
+  @ApiProperty({ nullable: true })
+  description: string | null;
 
   @ApiProperty({ type: () => TransactionResponseDto, required: false })
   transaction?: TransactionResponseDto;
@@ -32,10 +32,14 @@ export class IncomeResponseDto {
     const dto = new IncomeResponseDto();
     dto.id = income.id;
     dto.transactionId = income.transactionId;
-    dto.storeId = income.storeId;
     dto.categoryId = income.categoryId;
-    dto.transaction = income.transaction ? TransactionResponseDto.fromEntity(income.transaction) : undefined;
-    dto.category = income.category ? IncomeCategoryResponseDto.fromEntity(income.category) : undefined;
+    dto.description = income.description;
+    dto.transaction = income.transaction
+      ? TransactionResponseDto.fromEntity(income.transaction)
+      : undefined;
+    dto.category = income.category
+      ? IncomeCategoryResponseDto.fromEntity(income.category)
+      : undefined;
     dto.createdAt = income.createdAt;
     dto.updatedAt = income.updatedAt;
     return dto;
