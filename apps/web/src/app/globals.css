@@ -13,6 +13,7 @@
 :root {
   --primary: #B8860B;
   --primary-variant: #9A7209;
+  --primary-text: #806007;
   --primary-light: #D4A63A;
   --primary-muted: rgba(184, 134, 11, 0.12);
   --secondary: #5B8A8A;
@@ -30,7 +31,7 @@
 
   --text: #1A1C20;
   --text-secondary: #5F646E;
-  --text-disabled: #9DA2AE;
+  --text-disabled: #6B7078;
 
   --surface-inverse: #1A1C20;
   --text-inverse: #FFFFFF;
@@ -85,6 +86,7 @@
 .dark {
   --primary: #E8BE4A;
   --primary-variant: #C9A33E;
+  --primary-text: #E8BE4A;
   --primary-light: #F2D47A;
   --primary-muted: rgba(232, 190, 74, 0.14);
   --secondary: #6BAFAF;
@@ -102,7 +104,7 @@
 
   --text: #EEEEF0;
   --text-secondary: rgba(238, 238, 240, 0.65);
-  --text-disabled: rgba(238, 238, 240, 0.35);
+  --text-disabled: rgba(238, 238, 240, 0.55);
 
   --surface-inverse: #2A2F37;
   --text-inverse: #F7F8FA;
@@ -155,6 +157,7 @@
 @theme inline {
   --color-primary: var(--primary);
   --color-primary-variant: var(--primary-variant);
+  --color-primary-text: var(--primary-text);
   --color-primary-light: var(--primary-light);
   --color-primary-muted: var(--primary-muted);
   --color-secondary: var(--secondary);
@@ -200,6 +203,11 @@
 
 html {
   -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary-text);
+  outline-offset: 2px;
 }
 
 body {

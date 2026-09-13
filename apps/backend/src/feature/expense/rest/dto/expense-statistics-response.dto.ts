@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ExpenseStatistics } from '../../core/application/dto/expense-statistics.dto';
+import { type ExpenseStatistics } from '../../core/application/dto/expense-statistics.dto';
 
 export class ExpenseByCategoryDto {
   @ApiProperty()

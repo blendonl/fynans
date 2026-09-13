@@ -8,7 +8,7 @@ export function ContactEmail() {
   return (
     <a
       href={`mailto:${contactEmail}`}
-      className="font-medium text-primary-variant underline underline-offset-4 transition hover:text-primary"
+      className="font-medium text-primary-text underline underline-offset-4 transition hover:text-text"
     >
       {contactEmail}
     </a>

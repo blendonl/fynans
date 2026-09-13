@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { customInstance } from "@/api/custom-instance";
@@ -38,6 +39,7 @@ const PROGRESS_THROTTLE_MS = 200;
 
 export function ScanQueueProvider({ children }: { children: React.ReactNode }) {
   const [jobs, setJobs] = useState<ScanJob[]>([]);
+  const router = useRouter();
   const queryClient = useQueryClient();
   const abortControllers = useRef<Map<string, AbortController>>(new Map());
 
@@ -65,7 +67,7 @@ export function ScanQueueProvider({ children }: { children: React.ReactNode }) {
           data: { jobId: string; receiptId?: string };
           status: number;
           headers: Headers;
-        }>("/receipts/process", { method: "POST", body: formData });
+        }>("/api/receipt-jobs", { method: "POST", body: formData });
 
         const { jobId, receiptId } = res.data;
 
@@ -106,7 +108,7 @@ export function ScanQueueProvider({ children }: { children: React.ReactNode }) {
               action: {
                 label: "Review",
                 onClick: () => {
-                  window.location.href = `/transactions/pending/${result.pendingExpenseId}`;
+                  router.push(`/transactions/pending/${result.pendingExpenseId}`);
                 },
               },
             });
@@ -124,7 +126,7 @@ export function ScanQueueProvider({ children }: { children: React.ReactNode }) {
         abortControllers.current.delete(job.id);
       }
     },
-    [updateJob, queryClient],
+    [updateJob, queryClient, router],
   );
 
   const enqueue = useCallback(

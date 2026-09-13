@@ -1,4 +1,5 @@
 import { ItemSize } from './item-size.entity';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 export interface ItemProps {
   id: string;
@@ -20,23 +21,23 @@ export class Item {
 
   private validate(props: ItemProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Item ID is required');
+      throw new DomainValidationException('Item ID is required');
     }
 
     if (!props.categoryId || props.categoryId.trim() === '') {
-      throw new Error('Item category ID is required');
+      throw new DomainValidationException('Item category ID is required');
     }
 
     if (!props.name || props.name.trim() === '') {
-      throw new Error('Item name is required');
+      throw new DomainValidationException('Item name is required');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 

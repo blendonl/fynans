@@ -23,6 +23,7 @@ export interface UpdatePaymentMethodData {
 export interface BalanceSummaryItem {
   id: string;
   name: string;
+  type: PaymentMethodType;
   color: string;
   currentBalance: Decimal;
 }
@@ -30,7 +31,10 @@ export interface BalanceSummaryItem {
 export interface IPaymentMethodRepository {
   create(data: CreatePaymentMethodData): Promise<PaymentMethod>;
   findById(id: string): Promise<PaymentMethod | null>;
-  findByUserIdAndName(userId: string, name: string): Promise<PaymentMethod | null>;
+  findByUserIdAndName(
+    userId: string,
+    name: string,
+  ): Promise<PaymentMethod | null>;
   findAllByUserId(userId: string): Promise<PaymentMethod[]>;
   update(id: string, data: UpdatePaymentMethodData): Promise<PaymentMethod>;
   delete(id: string): Promise<void>;
