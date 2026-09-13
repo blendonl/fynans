@@ -1,5 +1,7 @@
-import { NotFoundException } from '@nestjs/common';
-import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
+import {
+  DomainForbiddenException,
+  DomainNotFoundException,
+} from '~common/exceptions/domain.exceptions';
 import { GetPaymentMethodByIdUseCase } from './get-payment-method-by-id.use-case';
 import { UpdatePaymentMethodUseCase } from './update-payment-method.use-case';
 import { DeletePaymentMethodUseCase } from './delete-payment-method.use-case';
@@ -45,7 +47,7 @@ describe('payment method authorization', () => {
   describe('a second user', () => {
     it('cannot read the account', async () => {
       await expect(findOne.execute(CARD, SECOND_USER)).rejects.toBeInstanceOf(
-        NotFoundException,
+        DomainNotFoundException,
       );
     });
 
@@ -56,14 +58,14 @@ describe('payment method authorization', () => {
           SECOND_USER,
           new UpdatePaymentMethodDto({ name: 'Seized', initialBalance: 9999 }),
         ),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      ).rejects.toBeInstanceOf(DomainNotFoundException);
 
       expect(paymentMethodRepository.update).not.toHaveBeenCalled();
     });
 
     it('cannot delete it', async () => {
       await expect(remove.execute(CARD, SECOND_USER)).rejects.toBeInstanceOf(
-        NotFoundException,
+        DomainNotFoundException,
       );
 
       expect(paymentMethodRepository.delete).not.toHaveBeenCalled();
@@ -85,7 +87,7 @@ describe('payment method authorization', () => {
         .execute(CARD, SECOND_USER)
         .catch((error: Error) => error);
 
-      expect(missing).toBeInstanceOf(NotFoundException);
+      expect(missing).toBeInstanceOf(DomainNotFoundException);
       expect((forbidden as Error).message).toBe((missing as Error).message);
     });
   });
