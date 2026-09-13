@@ -62,6 +62,14 @@ const envSchema = z.object({
   COPILOT_TIMEOUT: z.string().optional(),
   COPILOT_API_ENDPOINT: z.string().optional(),
   COPILOT_ENABLED: z.string().optional(),
+
+  // DeepSeek API (optional — shared by OCR and parser)
+  DEEPSEEK_API_KEY: z.string().optional(),
+
+  // DeepSeek OCR (vision model for text extraction from receipt images)
+  DEEPSEEK_OCR_MODEL: z.string().optional(),
+  DEEPSEEK_OCR_ENDPOINT: z.string().optional(),
+  DEEPSEEK_OCR_TIMEOUT: z.string().optional(),
 });
 
 type EnvConfig = z.infer<typeof envSchema>;
