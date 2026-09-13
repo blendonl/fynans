@@ -70,6 +70,12 @@ const envSchema = z.object({
   DEEPSEEK_OCR_MODEL: z.string().optional(),
   DEEPSEEK_OCR_ENDPOINT: z.string().optional(),
   DEEPSEEK_OCR_TIMEOUT: z.string().optional(),
+
+  // DeepSeek Parser (text model for receipt parsing)
+  DEEPSEEK_PARSER_ENABLED: z.string().optional(),
+  DEEPSEEK_PARSER_MODEL: z.string().optional(),
+  DEEPSEEK_PARSER_ENDPOINT: z.string().optional(),
+  DEEPSEEK_PARSER_TIMEOUT: z.string().optional(),
 });
 
 type EnvConfig = z.infer<typeof envSchema>;
