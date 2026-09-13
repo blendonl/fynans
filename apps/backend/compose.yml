@@ -38,7 +38,7 @@ services:
 
   paddleocr:
     build:
-      context: ./apps/backend/docker/paddleocr-service
+      context: ./docker/paddleocr-service
       dockerfile: Dockerfile.cpu
     ports:
       - '8001:8000'
