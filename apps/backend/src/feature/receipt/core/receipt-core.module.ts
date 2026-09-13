@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { TesseractOcrService } from './infrastructure/services/tesseract-ocr.service';
 import { PaddleOcrHttpService } from './infrastructure/services/paddleocr-http.service';
+import { DeepseekOcrService } from './infrastructure/services/deepseek-ocr.service';
 import { CopilotCompletionService } from '~feature/ai/core/infrastructure/services/copilot-completion.service';
 import { ReceiptJobQueueService } from './infrastructure/services/receipt-job-queue.service';
 import { ReceiptProcessingWorker } from './infrastructure/workers/receipt-processing.worker';
@@ -47,9 +48,9 @@ import { CopilotTokenService } from '~common/services/copilot-token.service';
       provide: 'OcrService',
       useFactory: (configService: ConfigService): IOcrService => {
         const engine = configService.get<string>('OCR_ENGINE', 'paddleocr');
-        return engine === 'paddleocr'
-          ? new PaddleOcrHttpService(configService)
-          : new TesseractOcrService();
+        if (engine === 'deepseek') return new DeepseekOcrService(configService);
+        if (engine === 'tesseract') return new TesseractOcrService();
+        return new PaddleOcrHttpService(configService);
       },
       inject: [ConfigService],
     },
