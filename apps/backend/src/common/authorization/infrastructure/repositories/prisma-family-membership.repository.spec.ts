@@ -32,9 +32,7 @@ describe('PrismaFamilyMembershipRepository.findCoMemberUserIds', () => {
     const findMany = jest.fn().mockResolvedValueOnce([]);
     const repository = repositoryOver(findMany);
 
-    await expect(repository.findCoMemberUserIds(USER)).resolves.toEqual([
-      USER,
-    ]);
+    await expect(repository.findCoMemberUserIds(USER)).resolves.toEqual([USER]);
     expect(findMany).toHaveBeenCalledTimes(1);
   });
 
