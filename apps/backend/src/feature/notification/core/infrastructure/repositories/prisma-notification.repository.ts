@@ -37,6 +37,35 @@ export class PrismaNotificationRepository implements INotificationRepository {
     return NotificationMapper.toDomain(notification);
   }
 
+  async createMany(data: Partial<Notification>[]): Promise<Notification[]> {
+    if (data.length === 0) {
+      return [];
+    }
+
+    const notifications = await this.prisma.notification.createManyAndReturn({
+      data: data.map((item) => ({
+        id: item.id!,
+        userId: item.userId!,
+        type: item.type!,
+        priority: item.priority!,
+        title: item.title!,
+        message: item.message!,
+        data: item.data,
+        deliveryMethods: item.deliveryMethods!,
+        isRead: item.isRead ?? false,
+        isInteracted: item.isInteracted ?? false,
+        actionUrl: item.actionUrl,
+        familyId: item.familyId,
+        transactionId: item.transactionId,
+        invitationId: item.invitationId,
+      })),
+    });
+
+    return notifications.map((notification) =>
+      NotificationMapper.toDomain(notification),
+    );
+  }
+
   async findById(id: string): Promise<Notification | null> {
     const notification = await this.prisma.notification.findUnique({
       where: { id },
@@ -49,7 +78,9 @@ export class PrismaNotificationRepository implements INotificationRepository {
     return NotificationMapper.toDomain(notification);
   }
 
-  async findByUserId(filters: NotificationFilters): Promise<{ data: Notification[]; total: number }> {
+  async findByUserId(
+    filters: NotificationFilters,
+  ): Promise<{ data: Notification[]; total: number }> {
     const {
       userId,
       type,
@@ -136,7 +167,10 @@ export class PrismaNotificationRepository implements INotificationRepository {
     });
   }
 
-  async verifyOwnership(notificationId: string, userId: string): Promise<boolean> {
+  async verifyOwnership(
+    notificationId: string,
+    userId: string,
+  ): Promise<boolean> {
     const notification = await this.prisma.notification.findUnique({
       where: { id: notificationId },
       select: { userId: true },

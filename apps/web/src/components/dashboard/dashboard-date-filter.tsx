@@ -8,6 +8,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { useDashboardFilter } from "@/providers/dashboard-filter-provider";
 import { usePaymentMethods } from "@/hooks/use-payment-methods";
 import { DATE_PRESET_LABELS, formatDateForAPI, type DatePresetKey } from "@/lib/date-utils";
+import type { TransactionScope } from "@/types";
 
 const PRESETS: { key: Exclude<DatePresetKey, "custom">; label: string }[] = [
   { key: "7d", label: DATE_PRESET_LABELS["7d"] },
@@ -15,11 +16,11 @@ const PRESETS: { key: Exclude<DatePresetKey, "custom">; label: string }[] = [
   { key: "6m", label: DATE_PRESET_LABELS["6m"] },
 ];
 
-const SCOPE_OPTIONS = [
+const SCOPE_OPTIONS: { value: TransactionScope | undefined; label: string }[] = [
   { value: undefined, label: "All" },
-  { value: "personal", label: "Personal" },
-  { value: "family", label: "Family" },
-] as const;
+  { value: "PERSONAL", label: "Personal" },
+  { value: "FAMILY", label: "Family" },
+];
 
 export function DashboardDateFilter() {
   const {

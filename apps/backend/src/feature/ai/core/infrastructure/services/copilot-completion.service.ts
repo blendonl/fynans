@@ -18,8 +18,13 @@ export class CopilotCompletionService implements ILlmService {
     private readonly configService: ConfigService,
     private readonly tokenService: CopilotTokenService,
   ) {
-    this.model = this.configService.get<string>('COPILOT_FALLBACK_MODEL', 'gpt-4o');
-    this.timeout = 15_000;
+    this.model = this.configService.get<string>(
+      'COPILOT_FALLBACK_MODEL',
+      'gpt-4o',
+    );
+    this.timeout = Number(
+      this.configService.get<string>('COPILOT_TIMEOUT', '30000'),
+    );
     this.apiEndpoint = this.configService.get<string>(
       'COPILOT_API_ENDPOINT',
       'https://api.githubcopilot.com/chat/completions',
@@ -45,7 +50,9 @@ export class CopilotCompletionService implements ILlmService {
       return await this.doCall(prompt, options);
     } catch (err) {
       if (err instanceof Error && err.message.includes('401')) {
-        this.logger.warn('Copilot API returned 401, refreshing token and retrying...');
+        this.logger.warn(
+          'Copilot API returned 401, refreshing token and retrying...',
+        );
         await this.tokenService.refreshIfUnauthorized();
         return this.doCall(prompt, options);
       }

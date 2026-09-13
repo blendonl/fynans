@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { CreateExpenseItemUseCase } from '../use-cases/create-expense-item.use-case';
+import { AddExpenseItemUseCase } from '../use-cases/add-expense-item.use-case';
 import { GetExpenseItemByIdUseCase } from '../use-cases/get-expense-item-by-id.use-case';
 import { ListExpenseItemsUseCase } from '../use-cases/list-expense-items.use-case';
 import { UpdateExpenseItemUseCase } from '../use-cases/update-expense-item.use-case';
@@ -17,6 +18,7 @@ import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 export class ExpenseItemService {
   constructor(
     private readonly createExpenseItemUseCase: CreateExpenseItemUseCase,
+    private readonly addExpenseItemUseCase: AddExpenseItemUseCase,
     private readonly getExpenseItemByIdUseCase: GetExpenseItemByIdUseCase,
     private readonly listExpenseItemsUseCase: ListExpenseItemsUseCase,
     private readonly updateExpenseItemUseCase: UpdateExpenseItemUseCase,
@@ -29,6 +31,20 @@ export class ExpenseItemService {
     storeId: string,
     userId: string,
   ): Promise<ExpenseItem> {
+    this.validateNewItem(dto, storeId);
+    return this.createExpenseItemUseCase.execute(dto, storeId, userId);
+  }
+
+  async addToExpense(
+    dto: CreateExpenseItemDto,
+    storeId: string,
+    userId: string,
+  ): Promise<ExpenseItem> {
+    this.validateNewItem(dto, storeId);
+    return this.addExpenseItemUseCase.execute(dto, storeId, userId);
+  }
+
+  private validateNewItem(dto: CreateExpenseItemDto, storeId: string): void {
     if (!dto.expenseId || dto.expenseId.trim() === '') {
       throw new DomainValidationException('Expense ID is required');
     }
@@ -38,7 +54,6 @@ export class ExpenseItemService {
     if (dto.itemPrice < 0) {
       throw new DomainValidationException('Item price must be non-negative');
     }
-    return this.createExpenseItemUseCase.execute(dto, storeId, userId);
   }
 
   async findById(id: string): Promise<ExpenseItem> {

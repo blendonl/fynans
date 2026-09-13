@@ -1,4 +1,5 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 const VALID_UNITS = ['kg', 'g', 'l', 'ml', 'cl'] as const;
 type ItemSizeUnit = (typeof VALID_UNITS)[number];
@@ -36,16 +37,18 @@ export class ItemSize {
 
   private validate(props: ItemSizeProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('ItemSize ID is required');
+      throw new DomainValidationException('ItemSize ID is required');
     }
     if (!props.itemId || props.itemId.trim() === '') {
-      throw new Error('Item ID is required');
+      throw new DomainValidationException('Item ID is required');
     }
     if (!props.value || props.value.toNumber() <= 0) {
-      throw new Error('ItemSize value must be positive');
+      throw new DomainValidationException('ItemSize value must be positive');
     }
     if (!VALID_UNITS.includes(props.unit as ItemSizeUnit)) {
-      throw new Error(`ItemSize unit must be one of: ${VALID_UNITS.join(', ')}`);
+      throw new DomainValidationException(
+        `ItemSize unit must be one of: ${VALID_UNITS.join(', ')}`,
+      );
     }
   }
 

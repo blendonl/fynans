@@ -1,4 +1,5 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { DomainNotFoundException } from '~common/exceptions/domain.exceptions';
 import {
   IFamilyRepository,
   FamilyWithMembersAndUsers,
@@ -15,7 +16,7 @@ export class GetFamilyWithMembersUseCase {
     const result = await this.familyRepository.findByIdWithMembers(familyId);
 
     if (!result) {
-      throw new NotFoundException(`Family with ID ${familyId} not found`);
+      throw new DomainNotFoundException(`Family with ID ${familyId} not found`);
     }
 
     return result;

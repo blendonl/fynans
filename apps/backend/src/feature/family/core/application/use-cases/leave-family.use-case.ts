@@ -1,9 +1,8 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
 import { CreateNotificationUseCase } from '../../../../notification/core/application/use-cases/create-notification.use-case';
 import {
@@ -25,13 +24,13 @@ export class LeaveFamilyUseCase {
   async execute(familyId: string, userId: string): Promise<void> {
     const member = await this.familyRepository.findMember(familyId, userId);
     if (!member) {
-      throw new NotFoundException('Not a family member');
+      throw new DomainNotFoundException('Not a family member');
     }
 
     if (member.isOwner()) {
       const allMembers = await this.familyRepository.findMembers(familyId);
       if (allMembers.length > 1) {
-        throw new BadRequestException(
+        throw new DomainValidationException(
           'Owner must transfer ownership or remove all members before leaving',
         );
       }

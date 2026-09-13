@@ -12,7 +12,12 @@ import {
   UseGuards,
   BadRequestException,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { ExpenseItemService } from '../../core/application/services/expense-item.service';
 import { CreateExpenseItemRequestDto } from '../dto/create-expense-item-request.dto';
 import { UpdateExpenseItemRequestDto } from '../dto/update-expense-item-request.dto';
@@ -60,7 +65,11 @@ export class ExpenseItemController {
       sizeUnit: createDto.sizeUnit,
     });
 
-    const item = await this.expenseItemService.create(coreDto, storeId, user.id);
+    const item = await this.expenseItemService.addToExpense(
+      coreDto,
+      storeId,
+      user.id,
+    );
     return ExpenseItemResponseDto.fromEntity(item);
   }
 
@@ -126,7 +135,10 @@ export class ExpenseItemController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @OwnsResource({ resource: 'expenseItem', ownerOnly: true })
   @ApiOperation({ summary: 'Delete an expense item' })
-  @ApiResponse({ status: 204, description: 'Expense item deleted successfully' })
+  @ApiResponse({
+    status: 204,
+    description: 'Expense item deleted successfully',
+  })
   async remove(@Param('id') id: string) {
     await this.expenseItemService.delete(id);
   }

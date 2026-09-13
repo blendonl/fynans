@@ -49,9 +49,10 @@ That makes the drop pure cleanup, safe to run after the new code is live.
 ### The combined sequence, across all phase 3 branches
 
 A deployer runs these as one set, so this is the whole order, not just this
-branch's. Two of them are authored on `review/phase-3b-category-ownership` and
-are listed here for ordering only — their content, backfills and rollback are
-that branch's to document.
+branch's. Two of them are authored on other branches and are listed here for
+ordering only — their content, backfills and rollback are those branches' to
+document: `20260909036000` in `plans/phase-3b-category-ownership-rollout.md`,
+and `20260909037000` in `plans/phase-3c-currency-rollout.md`.
 
 | Migration | Branch | When |
 |---|---|---|
@@ -61,7 +62,7 @@ that branch's to document.
 | `20260909034000_fix_basket_uniqueness` | 3a (this one) | **before** deploy |
 | `20260909035000_add_soft_delete_and_audit_log` | 3a (this one) | **before** deploy |
 | `20260909036000_own_categories_and_items` | 3b — category re-ownership | **before** deploy |
-| `20260909037000_add_currency_columns` | reserved, not yet authored | **before** deploy |
+| `20260909037000_add_currency_columns` | 3c — multi-currency columns | **before** deploy |
 | `20260909040000_drop_income_store_id` | 3a (this one) | **AFTER** deploy |
 
 The gap between `037000` and `040000` is deliberate: it is a visible break
@@ -213,8 +214,8 @@ code depends on. It does not stop `migrate deploy` from running it in the same
 pass — see "Keeping the drop out of the pre-deploy run" above for that.
 
 This table covers this branch's six migrations. `20260909036000_own_categories_and_items`
-and the reserved `20260909037000` come from other branches and slot in between
-groups 2 and 3; see the combined sequence above.
+and `20260909037000_add_currency_columns` come from other branches and slot in
+between groups 2 and 3; see the combined sequence above.
 
 | # | Migration | Group | Rewrites a table? | Lock | Reversible? |
 |---|---|---|---|---|---|

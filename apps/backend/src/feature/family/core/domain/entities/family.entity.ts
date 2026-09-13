@@ -1,4 +1,5 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 interface FamilyProps {
   id: string;
@@ -18,23 +19,25 @@ export class Family {
 
   private validate(props: FamilyProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Family ID is required');
+      throw new DomainValidationException('Family ID is required');
     }
 
     if (!props.name || props.name.trim() === '') {
-      throw new Error('Family name is required');
+      throw new DomainValidationException('Family name is required');
     }
 
     if (props.name.length > 100) {
-      throw new Error('Family name must be 100 characters or less');
+      throw new DomainValidationException(
+        'Family name must be 100 characters or less',
+      );
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 

@@ -1,5 +1,5 @@
 import { Server } from 'http';
-import { BadRequestException, INestApplication } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import {
   THROTTLER_LIMIT,
@@ -7,6 +7,8 @@ import {
 } from '@nestjs/throttler/dist/throttler.constants';
 import { NextFunction, Request, Response } from 'express';
 import request from 'supertest';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
+import { AllExceptionsFilter } from '~common/filters/all-exceptions.filter';
 import { ValidationPipe } from '@nestjs/common';
 import { AuthService } from '../../core/application/services/auth.service';
 import { SessionCacheService } from '../../core/application/services/session-cache.service';
@@ -69,6 +71,7 @@ describe('AuthController password reset and verification', () => {
         transform: true,
       }),
     );
+    app.useGlobalFilters(new AllExceptionsFilter());
 
     server = app.getHttpServer() as Server;
 
@@ -148,7 +151,7 @@ describe('AuthController password reset and verification', () => {
   it('reports an expired or already used token as a bad request', async () => {
     resetPasswordOutcome = () =>
       Promise.reject(
-        new BadRequestException('This password reset link is invalid'),
+        new DomainValidationException('This password reset link is invalid'),
       );
 
     const response = await request(server)

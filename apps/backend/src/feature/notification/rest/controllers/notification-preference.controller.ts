@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -145,10 +146,13 @@ export class NotificationPreferenceController {
     private readonly unregisterTokenUseCase: UnregisterDeviceTokenUseCase,
     private readonly registerWebPushUseCase: RegisterWebPushSubscriptionUseCase,
     private readonly unregisterWebPushUseCase: UnregisterWebPushSubscriptionUseCase,
+    private readonly configService: ConfigService,
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get notification preferences for the current user' })
+  @ApiOperation({
+    summary: 'Get notification preferences for the current user',
+  })
   @ApiResponse({ status: 200, type: NotificationPreferenceResponseDto })
   async getPreferences(@CurrentUser() user: User) {
     const preferences = await this.getPreferencesUseCase.execute(user.id);
@@ -219,7 +223,10 @@ export class NotificationPreferenceController {
   @Delete('web-push/subscribe')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Unregister a web push subscription' })
-  @ApiResponse({ status: 204, description: 'Web push subscription unregistered' })
+  @ApiResponse({
+    status: 204,
+    description: 'Web push subscription unregistered',
+  })
   async unregisterWebPush(
     @Body() body: { endpoint: string },
     @CurrentUser() user: User,
@@ -232,6 +239,8 @@ export class NotificationPreferenceController {
   @ApiOperation({ summary: 'Get VAPID public key for web push subscriptions' })
   @ApiResponse({ status: 200, type: VapidKeyResponseDto })
   getVapidKey() {
-    return { vapidKey: process.env.VAPID_PUBLIC_KEY || '' };
+    return {
+      vapidKey: this.configService.get<string>('VAPID_PUBLIC_KEY', ''),
+    };
   }
 }

@@ -1,9 +1,8 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { type IStoreItemCategoryRepository } from '../../domain/repositories/store-item-category.repository.interface';
 import { UpdateStoreItemCategoryDto } from '../dto/update-store-item-category.dto';
 import { StoreItemCategory } from '../../domain/entities/store-item-category.entity';
@@ -22,7 +21,7 @@ export class UpdateStoreItemCategoryUseCase {
     const category = await this.storeItemCategoryRepository.findById(id);
 
     if (!category) {
-      throw new NotFoundException('Store item category not found');
+      throw new DomainNotFoundException('Store item category not found');
     }
 
     await this.validate(id, dto);
@@ -41,14 +40,17 @@ export class UpdateStoreItemCategoryUseCase {
   ): Promise<void> {
     if (dto.parentId !== undefined) {
       if (dto.parentId === id) {
-        throw new BadRequestException('Category cannot be its own parent');
+        throw new DomainValidationException(
+          'Category cannot be its own parent',
+        );
       }
 
       if (dto.parentId !== null) {
-        const parent =
-          await this.storeItemCategoryRepository.findById(dto.parentId);
+        const parent = await this.storeItemCategoryRepository.findById(
+          dto.parentId,
+        );
         if (!parent) {
-          throw new BadRequestException('Parent category not found');
+          throw new DomainValidationException('Parent category not found');
         }
 
         await this.checkCircularReference(id, dto.parentId);
@@ -64,10 +66,11 @@ export class UpdateStoreItemCategoryUseCase {
 
     while (currentId !== null) {
       if (currentId === categoryId) {
-        throw new BadRequestException('Circular reference detected');
+        throw new DomainValidationException('Circular reference detected');
       }
 
-      const current = await this.storeItemCategoryRepository.findById(currentId);
+      const current =
+        await this.storeItemCategoryRepository.findById(currentId);
       if (!current) {
         break;
       }

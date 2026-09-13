@@ -23,6 +23,7 @@ import { RejectPendingExpenseUseCase } from './application/use-cases/reject-pend
 import { ResubmitRejectedExpenseUseCase } from './application/use-cases/resubmit-rejected-expense.use-case';
 import { UpdatePendingExpenseUseCase } from './application/use-cases/update-pending-expense.use-case';
 import { ExpenseAuthService } from './application/services/expense-auth.service';
+import { ExpenseReceiptUrlResolver } from './application/services/expense-receipt-url.resolver';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { ExpenseAuthService } from './application/services/expense-auth.service'
     ResubmitRejectedExpenseUseCase,
     UpdatePendingExpenseUseCase,
     ExpenseAuthService,
+    ExpenseReceiptUrlResolver,
   ],
   exports: [
     CreateExpenseUseCase,
@@ -69,6 +71,7 @@ import { ExpenseAuthService } from './application/services/expense-auth.service'
     RejectPendingExpenseUseCase,
     ResubmitRejectedExpenseUseCase,
     UpdatePendingExpenseUseCase,
+    ExpenseReceiptUrlResolver,
     'ExpenseRepository',
   ],
 })
