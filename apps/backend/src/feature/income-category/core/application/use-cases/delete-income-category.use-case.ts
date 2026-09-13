@@ -1,10 +1,9 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
-import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
+  DomainForbiddenException,
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { type IIncomeCategoryRepository } from '../../domain/repositories/income-category.repository.interface';
 
 @Injectable()
@@ -18,7 +17,7 @@ export class DeleteIncomeCategoryUseCase {
     const category = await this.incomeCategoryRepository.findById(id);
 
     if (!category) {
-      throw new NotFoundException('Income category not found');
+      throw new DomainNotFoundException('Income category not found');
     }
 
     if (category.userId !== userId) {
@@ -38,7 +37,7 @@ export class DeleteIncomeCategoryUseCase {
       userId,
     );
     if (children.length > 0) {
-      throw new BadRequestException(
+      throw new DomainValidationException(
         'Cannot delete category with child categories',
       );
     }

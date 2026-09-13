@@ -8,9 +8,10 @@ import {
 } from '@/components/marketing/legal-page';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | Fynans',
+  title: 'Terms of Service',
   description:
     'The rules for using Fynans: what the service is and is not, how household sharing works, and the limits of automated receipt parsing.',
+  alternates: { canonical: '/terms' },
 };
 
 export default function TermsOfService() {
@@ -45,7 +46,7 @@ export default function TermsOfService() {
           Fynans.
         </p>
         <p>
-          Our <a className="font-medium text-primary-variant underline underline-offset-4 transition hover:text-primary" href="/privacy">Privacy Policy</a>{' '}
+          Our <a className="font-medium text-primary-text underline underline-offset-4 transition hover:text-text" href="/privacy">Privacy Policy</a>{' '}
           explains what we do with your data and forms part of this agreement.
         </p>
       </LegalSection>

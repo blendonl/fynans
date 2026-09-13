@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { cachedVisibleUserIds } from '../../../helpers/family-visibility.cache';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { FamilyMemberRole } from '../../domain/family-role';
 import { IFamilyMembershipRepository } from '../../domain/repositories/family-membership.repository.interface';
@@ -37,7 +38,13 @@ export class PrismaFamilyMembershipRepository implements IFamilyMembershipReposi
     return memberships.map((membership) => membership.familyId);
   }
 
-  async findCoMemberUserIds(userId: string): Promise<string[]> {
+  findCoMemberUserIds(userId: string): Promise<string[]> {
+    return cachedVisibleUserIds(userId, () =>
+      this.queryCoMemberUserIds(userId),
+    );
+  }
+
+  private async queryCoMemberUserIds(userId: string): Promise<string[]> {
     const familyIds = await this.findFamilyIds(userId);
 
     if (familyIds.length === 0) {

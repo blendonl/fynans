@@ -1,3 +1,4 @@
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 export interface NotificationPreferenceProps {
   id: string;
   userId: string;
@@ -22,19 +23,21 @@ export class NotificationPreference {
 
   private validate(props: NotificationPreferenceProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('NotificationPreference ID is required');
+      throw new DomainValidationException(
+        'NotificationPreference ID is required',
+      );
     }
 
     if (!props.userId || props.userId.trim() === '') {
-      throw new Error('User ID is required');
+      throw new DomainValidationException('User ID is required');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 

@@ -1,5 +1,6 @@
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { Item } from '~feature/item/core';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 
 interface StoreItemProps {
   id: string;
@@ -22,27 +23,29 @@ export class StoreItem {
 
   private validate(props: StoreItemProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Store item ID is required');
+      throw new DomainValidationException('Store item ID is required');
     }
 
     if (!props.storeId || props.storeId.trim() === '') {
-      throw new Error('Store ID is required');
+      throw new DomainValidationException('Store ID is required');
     }
 
     if (!props.itemId || props.itemId.trim() === '') {
-      throw new Error('Item ID is required');
+      throw new DomainValidationException('Item ID is required');
     }
 
     if (!props.price || props.price.toNumber() < 0) {
-      throw new Error('Store item price must be non-negative');
+      throw new DomainValidationException(
+        'Store item price must be non-negative',
+      );
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 
@@ -79,10 +82,16 @@ export class StoreItem {
   }
 
   getDiscountPercentage(activeDiscount?: any): number {
-    if (!this.props.isDiscounted || !activeDiscount || !activeDiscount.isActive()) {
+    if (
+      !this.props.isDiscounted ||
+      !activeDiscount ||
+      !activeDiscount.isActive()
+    ) {
       return 0;
     }
-    return (activeDiscount.discount.toNumber() / this.props.price.toNumber()) * 100;
+    return (
+      (activeDiscount.discount.toNumber() / this.props.price.toNumber()) * 100
+    );
   }
 
   toJSON() {

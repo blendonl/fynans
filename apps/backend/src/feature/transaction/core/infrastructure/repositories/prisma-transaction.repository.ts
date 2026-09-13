@@ -237,6 +237,33 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     );
   }
 
+  async getPersonalBalance(userId: string): Promise<Decimal> {
+    const totalsByType = await this.prisma.db.transaction.groupBy({
+      by: ['type'],
+      where: {
+        userId,
+        deletedAt: null,
+        scope: TransactionScope.PERSONAL,
+        status: PrismaTransactionStatus.CONFIRMED,
+        type: {
+          in: [PrismaTransactionType.INCOME, PrismaTransactionType.EXPENSE],
+        },
+      },
+      _sum: {
+        [TransactionAmountNormalizer.sumField]: true,
+      },
+    });
+
+    const sumOf = (type: PrismaTransactionType): Decimal =>
+      TransactionAmountNormalizer.normalizeSum(
+        totalsByType.find((row) => row.type === type)?._sum.value ?? null,
+      );
+
+    return sumOf(PrismaTransactionType.INCOME).minus(
+      sumOf(PrismaTransactionType.EXPENSE),
+    );
+  }
+
   private buildWhereClause(
     filters?: TransactionFilters,
   ): Prisma.TransactionWhereInput {
