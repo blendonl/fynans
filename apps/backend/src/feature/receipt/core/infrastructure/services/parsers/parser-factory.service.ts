@@ -17,8 +17,12 @@ export class ReceiptParserFactory implements IReceiptParserService {
     @Optional()
     @Inject('OpencodeParser')
     private readonly opencodeParser?: IReceiptParser,
+    @Optional()
+    @Inject('DeepseekParser')
+    private readonly deepseekParser?: IReceiptParser,
   ) {
     this.parsers = [];
+    if (this.deepseekParser) this.parsers.push(this.deepseekParser);
     if (this.opencodeParser) this.parsers.push(this.opencodeParser);
     this.parsers.push(this.llmParser);
 
