@@ -10,6 +10,7 @@ import { ReceiptProcessingWorker } from './infrastructure/workers/receipt-proces
 import { ProcessReceiptUseCase } from './application/use-cases/process-receipt.use-case';
 import { EnrichReceiptDataUseCase } from './application/use-cases/enrich-receipt-data.use-case';
 import { IOcrService } from './application/services/ocr.service';
+import { IReceiptParser } from './application/services/receipt-parser.service';
 import { ReceiptParserFactory } from './infrastructure/services/parsers/parser-factory.service';
 import { LlmReceiptParser } from './infrastructure/services/parsers/llm-receipt.parser';
 import { StoreCoreModule } from '~feature/store/core/store-core.module';
@@ -19,6 +20,7 @@ import { ExpenseCategoryCoreModule } from '~feature/expense-category/core/expens
 import { AutoCreateCategoriesUseCase } from './application/use-cases/auto-create-categories.use-case';
 import { ReceiptPostProcessor } from './infrastructure/services/receipt-post-processor';
 import { OpencodeReceiptParser } from './infrastructure/services/parsers/opencode-receipt.parser';
+import { DeepseekReceiptParser } from './infrastructure/services/parsers/deepseek-receipt.parser';
 import { ItemNameNormalizerService } from './infrastructure/services/parsers/item-name-normalizer.service';
 import { PrismaStoredReceiptRepository } from './infrastructure/repositories/prisma-stored-receipt.repository';
 import { SaveReceiptFileUseCase } from './application/use-cases/save-receipt-file.use-case';
@@ -76,10 +78,32 @@ import { CopilotTokenService } from '~common/services/copilot-token.service';
       },
       inject: [ConfigService, ReceiptPostProcessor, ItemNameNormalizerService, CopilotTokenService],
     },
+    {
+      provide: 'DeepseekParser',
+      useFactory: (
+        config: ConfigService,
+        postProcessor: ReceiptPostProcessor,
+        nameNormalizer: ItemNameNormalizerService,
+      ): DeepseekReceiptParser | undefined => {
+        const enabled = config.get<string>('DEEPSEEK_PARSER_ENABLED', 'false') === 'true';
+        if (!enabled) return undefined;
+        return new DeepseekReceiptParser(config, postProcessor, nameNormalizer);
+      },
+      inject: [ConfigService, ReceiptPostProcessor, ItemNameNormalizerService],
+    },
     LlmReceiptParser,
     {
       provide: 'ReceiptParserService',
-      useClass: ReceiptParserFactory,
+      useFactory: (
+        llmParser: LlmReceiptParser,
+        opencodeParser?: IReceiptParser,
+        deepseekParser?: IReceiptParser,
+      ) => new ReceiptParserFactory(llmParser, opencodeParser, deepseekParser),
+      inject: [
+        LlmReceiptParser,
+        { token: 'OpencodeParser', optional: true },
+        { token: 'DeepseekParser', optional: true },
+      ],
     },
     AutoCreateCategoriesUseCase,
     ProcessReceiptUseCase,
