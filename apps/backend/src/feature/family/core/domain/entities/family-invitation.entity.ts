@@ -1,3 +1,4 @@
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 export enum FamilyInvitationStatus {
   PENDING = 'PENDING',
   ACCEPTED = 'ACCEPTED',
@@ -27,35 +28,35 @@ export class FamilyInvitation {
 
   private validate(props: FamilyInvitationProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('Invitation ID is required');
+      throw new DomainValidationException('Invitation ID is required');
     }
 
     if (!props.familyId || props.familyId.trim() === '') {
-      throw new Error('Family ID is required');
+      throw new DomainValidationException('Family ID is required');
     }
 
     if (!props.inviterId || props.inviterId.trim() === '') {
-      throw new Error('Inviter ID is required');
+      throw new DomainValidationException('Inviter ID is required');
     }
 
     if (!props.inviteeEmail || !props.inviteeEmail.includes('@')) {
-      throw new Error('Valid invitee email is required');
+      throw new DomainValidationException('Valid invitee email is required');
     }
 
     if (!props.status) {
-      throw new Error('Status is required');
+      throw new DomainValidationException('Status is required');
     }
 
     if (!props.expiresAt) {
-      throw new Error('Expiration date is required');
+      throw new DomainValidationException('Expiration date is required');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 

@@ -26,7 +26,7 @@ export interface ReceiptJobOptions {
 
 export interface IReceiptJobQueue {
   addJob(
-    imageBuffer: Buffer,
+    storageKey: string,
     userId?: string,
     options?: ReceiptJobOptions,
     meta?: ReceiptJobMeta,

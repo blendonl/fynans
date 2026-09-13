@@ -40,7 +40,7 @@ export function ReceiptPreview() {
 
           <div className="mt-6 rounded-[var(--radius)] bg-surface-variant p-4">
             <div className="mb-1 flex items-center justify-between">
-              <h3 className="font-semibold text-text">Line items</h3>
+              <h2 className="font-semibold text-text">Line items</h2>
               <span className="text-sm font-semibold text-text">{store.total}</span>
             </div>
             <p className="mb-4 text-xs text-text-secondary">
@@ -81,7 +81,7 @@ export function ReceiptPreview() {
             </div>
             <div className="rounded-[var(--radius)] bg-surface-variant p-4">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-text">Spending by category</h3>
+                <h2 className="font-semibold text-text">Spending by category</h2>
                 <span className="text-sm text-text-secondary">Last 30 days</span>
               </div>
               <div className="space-y-4">

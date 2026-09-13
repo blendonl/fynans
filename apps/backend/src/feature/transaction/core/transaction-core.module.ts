@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
 import { FamilyCoreModule } from '../../family/core/family-core.module';
 import { PaymentMethodCoreModule } from '../../payment-method/core/payment-method-core.module';
@@ -14,7 +14,11 @@ import { GetTransactionStatisticsComparisonUseCase } from './application/use-cas
 import { PrismaTransactionRepository } from './infrastructure/repositories/prisma-transaction.repository';
 
 @Module({
-  imports: [PrismaModule, FamilyCoreModule, PaymentMethodCoreModule],
+  imports: [
+    PrismaModule,
+    FamilyCoreModule,
+    forwardRef(() => PaymentMethodCoreModule),
+  ],
   providers: [
     {
       provide: 'TransactionRepository',

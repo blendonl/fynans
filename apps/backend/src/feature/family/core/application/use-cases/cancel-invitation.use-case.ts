@@ -1,10 +1,9 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-  ForbiddenException,
-} from '@nestjs/common';
+  DomainForbiddenException,
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { IFamilyInvitationRepository } from '../../domain/repositories/family-invitation.repository.interface';
 import { IFamilyRepository } from '../../domain/repositories/family.repository.interface';
 import { FamilyInvitationStatus } from '../../domain/entities/family-invitation.entity';
@@ -21,11 +20,13 @@ export class CancelInvitationUseCase {
   async execute(invitationId: string, userId: string): Promise<void> {
     const invitation = await this.invitationRepository.findById(invitationId);
     if (!invitation) {
-      throw new NotFoundException('Invitation not found');
+      throw new DomainNotFoundException('Invitation not found');
     }
 
     if (!invitation.canBeCancelled()) {
-      throw new BadRequestException('Invitation expired or already processed');
+      throw new DomainValidationException(
+        'Invitation expired or already processed',
+      );
     }
 
     const member = await this.familyRepository.findMember(
@@ -34,11 +35,11 @@ export class CancelInvitationUseCase {
     );
 
     if (!member) {
-      throw new ForbiddenException('You are not a member of this family');
+      throw new DomainForbiddenException('You are not a member of this family');
     }
 
     if (!member.canManageMembers()) {
-      throw new ForbiddenException(
+      throw new DomainForbiddenException(
         'Only owners and admins can cancel invitations',
       );
     }

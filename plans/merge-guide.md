@@ -1,30 +1,91 @@
 # Merging the backend review branches
 
-Four branches came out of the 2026-09-09 backend review, produced in parallel.
-They overlap, and two of them independently built the same authorization
-module. This is the order to merge them in and the decisions to make on the way.
+Nine branches came out of the 2026-09-09 backend review and a parallel effort on
+a second plan, produced concurrently. They overlap, two of them independently
+built the same authorization module, and several carry migrations that must be
+applied in one specific order around a single deploy. This is that order and the
+decisions to make on the way.
 
 ## Branch order
 
+Nine branches came out of this work: seven phases of the backend review plus an
+integration branch, alongside three branches from a parallel effort on a
+different plan. `review/integration` is the single merge path — it already
+contains phases 0, 1 and 2 and all three of the parallel effort's branches, with
+every conflict resolved and the resolutions explained in the merge commits.
+
 ```
-review/phase-0-security
-  -> review/phase-1-authz
-    -> worktree-phase3-idor-expense-item-user
-      -> review/phase-2-money
+review/integration                          (0 + 1 + 2 + the parallel effort's three)
+  -> review/phase-4-architecture            57 commits
+  -> review/phase-5-tests                   55 commits
+  -> review/phase-3a-schema                 60 commits
+    -> review/phase-3b-category-ownership   65 commits
+      -> review/phase-3c-currency           68 commits
 ```
 
-Phase 0 first because everything else builds on it. Phase 1 next because it
-establishes the authorization module that phase 3 must be reconciled against —
-merging phase 3 first would mean resolving the duplicate module in the harder
-direction. Phase 2 last: it is the largest diff and touches the most files, so
-it benefits from landing on a settled structure.
+The last three are a stack, in that order, and must stay in it: 3b's migration
+depends on 3a's, and 3c's on 3b's. Phase 4 and phase 5 are independent of the
+stack and of each other.
 
-`review/integration` already proves the 1 + 2 merge. It is
-`review/phase-1-authz` with `review/phase-2-money` merged into it, resolved,
-building, and green on the full suite (35 suites / 256 tests, against 28 / 197
-for phase 1 alone and 26 / 159 for phase 2 alone). Reuse that resolution rather
-than redoing it — the reasoning behind each conflict is recorded in the merge
-commit.
+Every one of those five branches already has `review/integration` merged INTO
+it, so each is correct on its own rather than only correct once merged. That
+matters if you review or cherry-pick one individually — an earlier state of
+these branches carried a session-cache bug that was fixed on integration, and
+merging integration in was how that was removed rather than documented.
+
+Verified state per branch, all with `build` exiting 0:
+
+| Branch | Suites | Tests | Lint (main = 710) |
+|---|---|---|---|
+| `review/integration` | 37 | 282 | 561 |
+| `review/phase-4-architecture` | 55 | 428 | 443 |
+| `review/phase-5-tests` | 43 | 371 | 559 |
+| `review/phase-3a-schema` | 43 | 342 | 561 |
+| `review/phase-3b-category-ownership` | 45 | 358 | 540 |
+| `review/phase-3c-currency` | 45 | 373 | 540 |
+
+`main` is 6 suites / 33 tests, two of which fail to run.
+
+## Migrations — nothing here has touched a database
+
+There is no Postgres and no Docker in the environment these were written in, so
+**no migration has been applied or verified against a real database.** The SQL is
+hand-authored and checked by reading it. Three rollout documents cover the
+sequence in detail and should be read before any of it runs:
+
+- `plans/phase-3a-schema-rollout.md`
+- `plans/phase-3b-category-ownership-rollout.md`
+- `plans/phase-3c-currency-rollout.md`
+
+The combined order across all three branches, with the deploy boundary:
+
+```
+20260909030000  decimal precision          before deploy
+20260909031000  indexes                    before deploy
+20260909033000  cascades                   before deploy
+20260909034000  basket uniqueness          before deploy
+20260909035000  soft delete + audit log    before deploy
+20260909036000  own categories and items   before deploy
+20260909037000  currency columns           before deploy
+20260909040000  drop income.store_id       AFTER the application deploy
+```
+
+`20260909040000` is deliberately last and deliberately deferred. Running it with
+the others reintroduces a window in which no version of the application works.
+
+**`20260909036000` has a blocking dependency**: after it, an account registered
+post-migration owns zero categories and cannot create an expense, because
+`Expense.categoryId` is required and the global catalog it used to fall back on
+is gone. It must not ship without the onboarding work that seeds a starter
+catalog per user. See the section of that name in the 3b rollout document.
+
+## After merging
+
+Run `yarn workspace @fynans/backend swagger:generate`, then `yarn api:generate`.
+The OpenAPI surface moved for several independent reasons — the `api` global
+prefix, the `receipts` / `receipt-jobs` split, `balance` leaving
+`UserResponseDto`, and the currency columns — and one regeneration covers all of
+them. Resolve any `openapi.json` conflict by regenerating rather than by hand.
 
 ### The rule that resolves almost every 1-vs-2 conflict
 

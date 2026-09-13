@@ -1,3 +1,4 @@
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 export interface DeviceTokenProps {
   id: string;
   userId: string;
@@ -21,23 +22,23 @@ export class DeviceToken {
 
   private validate(props: DeviceTokenProps): void {
     if (!props.id || props.id.trim() === '') {
-      throw new Error('DeviceToken ID is required');
+      throw new DomainValidationException('DeviceToken ID is required');
     }
 
     if (!props.userId || props.userId.trim() === '') {
-      throw new Error('User ID is required');
+      throw new DomainValidationException('User ID is required');
     }
 
     if (!props.expoPushToken || props.expoPushToken.trim() === '') {
-      throw new Error('Expo push token is required');
+      throw new DomainValidationException('Expo push token is required');
     }
 
     if (!props.createdAt) {
-      throw new Error('Created date is required');
+      throw new DomainValidationException('Created date is required');
     }
 
     if (!props.updatedAt) {
-      throw new Error('Updated date is required');
+      throw new DomainValidationException('Updated date is required');
     }
   }
 

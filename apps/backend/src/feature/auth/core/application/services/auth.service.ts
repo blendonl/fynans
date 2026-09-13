@@ -1,9 +1,9 @@
+import { Injectable } from '@nestjs/common';
 import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-  BadRequestException,
-} from '@nestjs/common';
+  DomainConflictException,
+  DomainUnauthorizedException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import { BetterAuthProvider } from '../../infrastructure/providers/better-auth.provider';
 import { RegisterDto } from '../dto/register.dto';
@@ -38,7 +38,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      throw new DomainConflictException('User with this email already exists');
     }
 
     const { headers, response } = await this.betterAuth.api.signUpEmail({
@@ -51,7 +51,7 @@ export class AuthService {
     });
 
     if (!response.token) {
-      throw new BadRequestException('Failed to create user session');
+      throw new DomainValidationException('Failed to create user session');
     }
 
     const result: AuthResultDto = {
@@ -78,7 +78,7 @@ export class AuthService {
     });
 
     if (!response.token) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new DomainUnauthorizedException('Invalid credentials');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -86,7 +86,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new DomainUnauthorizedException('User not found');
     }
 
     const result: AuthResultDto = {
@@ -124,7 +124,7 @@ export class AuthService {
     const response = await this.betterAuth.api.getSession({ headers });
 
     if (!response?.session || !response?.user) {
-      throw new UnauthorizedException('Invalid or expired session');
+      throw new DomainUnauthorizedException('Invalid or expired session');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -132,7 +132,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new DomainUnauthorizedException('User not found');
     }
 
     return {
