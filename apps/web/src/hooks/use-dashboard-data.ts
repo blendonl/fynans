@@ -7,6 +7,7 @@ import { incomeControllerFindAll } from "@/api/generated/endpoints/income/income
 import { formatDateForAPI, getChartGranularity, calculatePreviousPeriod } from "@/lib/date-utils";
 import { mapExpenseToTransaction, mapIncomeToTransaction, sortTransactionsByDate } from "@/lib/transaction-mappers";
 import { queryKeys } from "@/lib/query-keys";
+import type { TransactionScope } from "@/types";
 const DASHBOARD_RECENT_LIMIT = 5;
 const DASHBOARD_STALE_TIME = 60_000;
 
@@ -16,7 +17,7 @@ interface DashboardDataParams {
   dateFrom: Date;
   dateTo: Date;
   paymentMethodId?: string;
-  scope?: string;
+  scope?: TransactionScope;
 }
 
 export function useDashboardData({
@@ -36,7 +37,7 @@ export function useDashboardData({
   const extraParams = useMemo(() => {
     const p: Record<string, string> = {};
     if (paymentMethodId) p.paymentMethodId = paymentMethodId;
-    if (scope) p.scope = scope.toUpperCase();
+    if (scope) p.scope = scope;
     return p;
   }, [paymentMethodId, scope]);
 

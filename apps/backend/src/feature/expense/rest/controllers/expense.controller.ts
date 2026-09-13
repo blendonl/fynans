@@ -10,7 +10,6 @@ import {
   Query,
   HttpCode,
   HttpStatus,
-  Inject,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -38,8 +37,7 @@ import { UpdatePendingExpenseRequestDto } from '../dto/update-pending-expense-re
 import { QueryExpenseDto } from '../dto/query-expense.dto';
 import { ExpenseResponseDto } from '../dto/expense-response.dto';
 import { ExpenseFilters } from '../../core/application/dto/expense-filters.dto';
-import { Expense } from '../../core/domain/entities/expense.entity';
-import { IStorageProvider } from '~common/storage/storage-provider.interface';
+import { ExpenseResponseMapper } from '../mappers/expense-response.mapper';
 import { BaseFilters } from '~common/dto/base-filters.dto';
 import { Pagination } from '~common/dto/pagination.dto';
 import {
@@ -71,25 +69,8 @@ export class ExpenseController {
     private readonly rejectPendingExpenseUseCase: RejectPendingExpenseUseCase,
     private readonly resubmitRejectedExpenseUseCase: ResubmitRejectedExpenseUseCase,
     private readonly updatePendingExpenseUseCase: UpdatePendingExpenseUseCase,
-    @Inject('StorageProvider') private readonly storage: IStorageProvider,
+    private readonly expenseResponseMapper: ExpenseResponseMapper,
   ) {}
-
-  private async withReceiptUrl(
-    dto: ExpenseResponseDto,
-    expense: Expense,
-  ): Promise<ExpenseResponseDto> {
-    if (expense.receipt) {
-      try {
-        const url = await this.storage.getPresignedDownloadUrl(
-          expense.receipt.storageKey,
-        );
-        dto.receiptImages = [url];
-      } catch {
-        // Storage unavailable — leave empty
-      }
-    }
-    return dto;
-  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -103,7 +84,7 @@ export class ExpenseController {
     const expense = await this.createExpenseUseCase.execute(
       createDto.toCoreDto(user.id),
     );
-    return this.withReceiptUrl(ExpenseResponseDto.fromEntity(expense), expense);
+    return this.expenseResponseMapper.toResponse(expense);
   }
 
   @Get()
@@ -120,26 +101,11 @@ export class ExpenseController {
 
     const result = await this.listExpensesUseCase.execute(filters, pagination);
 
-    const data = await Promise.all(
-      result.data.map(async (expense) => {
-        const dto = ExpenseResponseDto.fromEntity(expense);
-        await this.withReceiptUrl(dto, expense);
-        if (query.search && dto.items?.length) {
-          const searchLower = query.search.toLowerCase();
-          dto.matchedItems = dto.items.filter((item) =>
-            item.name.toLowerCase().includes(searchLower),
-          );
-        }
-        return dto;
-      }),
+    return this.expenseResponseMapper.toPaginatedResponse(
+      result,
+      pagination,
+      query.search,
     );
-
-    return {
-      data,
-      total: result.total,
-      page: pagination.page,
-      limit: pagination.limit,
-    };
   }
 
   @Get('statistics')
@@ -189,7 +155,7 @@ export class ExpenseController {
   @ApiResponse({ status: 200, type: ExpenseResponseDto })
   async findOne(@Param('id') id: string, @CurrentUser() user: User) {
     const expense = await this.getExpenseByIdUseCase.execute(id, user.id);
-    return this.withReceiptUrl(ExpenseResponseDto.fromEntity(expense), expense);
+    return this.expenseResponseMapper.toResponse(expense);
   }
 
   @Put(':id')
@@ -206,7 +172,7 @@ export class ExpenseController {
       user.id,
       updateDto.toCoreDto(),
     );
-    return this.withReceiptUrl(ExpenseResponseDto.fromEntity(expense), expense);
+    return this.expenseResponseMapper.toResponse(expense);
   }
 
   @Post(':id/approve')
@@ -219,7 +185,7 @@ export class ExpenseController {
       id,
       user.id,
     );
-    return this.withReceiptUrl(ExpenseResponseDto.fromEntity(expense), expense);
+    return this.expenseResponseMapper.toResponse(expense);
   }
 
   @Post(':id/reject')
@@ -237,7 +203,7 @@ export class ExpenseController {
       user.id,
       dto.rejectionReason,
     );
-    return this.withReceiptUrl(ExpenseResponseDto.fromEntity(expense), expense);
+    return this.expenseResponseMapper.toResponse(expense);
   }
 
   @Post(':id/resubmit')
@@ -255,7 +221,7 @@ export class ExpenseController {
       user.id,
       dto.toCoreDto(),
     );
-    return this.withReceiptUrl(ExpenseResponseDto.fromEntity(expense), expense);
+    return this.expenseResponseMapper.toResponse(expense);
   }
 
   @Patch(':id/pending')
@@ -272,7 +238,7 @@ export class ExpenseController {
       user.id,
       dto.toCoreDto(),
     );
-    return this.withReceiptUrl(ExpenseResponseDto.fromEntity(expense), expense);
+    return this.expenseResponseMapper.toResponse(expense);
   }
 
   @Delete(':id')

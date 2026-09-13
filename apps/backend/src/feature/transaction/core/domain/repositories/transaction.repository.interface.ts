@@ -1,3 +1,4 @@
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 import { Transaction } from '../entities/transaction.entity';
 import { TransactionStatus } from '../value-objects/transaction-status.vo';
 import { TransactionFilters } from '../../application/dto/transaction-filters.dto';
@@ -29,4 +30,5 @@ export interface ITransactionRepository {
   ): Promise<Transaction>;
   delete(id: string): Promise<void>;
   getStatistics(filters: TransactionFilters): Promise<TransactionStatistics>;
+  getPersonalBalance(userId: string): Promise<Decimal>;
 }

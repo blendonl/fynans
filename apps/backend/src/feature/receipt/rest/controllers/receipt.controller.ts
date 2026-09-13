@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  ServiceUnavailableException,
   HttpCode,
   HttpStatus,
   Inject,
@@ -96,9 +97,9 @@ class ReceiptUploadBodyDto {
   paymentMethodId?: string;
 }
 
-@ApiTags('Receipt')
+@ApiTags('Receipt job')
 @ApiBearerAuth('bearer')
-@Controller('receipts')
+@Controller('receipt-jobs')
 export class ReceiptController {
   private readonly logger = new Logger(ReceiptController.name);
 
@@ -108,7 +109,7 @@ export class ReceiptController {
     private readonly saveReceiptFileUseCase: SaveReceiptFileUseCase,
   ) {}
 
-  @Post('process')
+  @Post()
   @Throttle({ default: { ttl: 60_000, limit: 5 } })
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: 'Upload and process a receipt image' })
@@ -146,7 +147,8 @@ export class ReceiptController {
       );
     }
 
-    let receiptId: string | undefined;
+    let receiptId: string;
+    let storageKey: string;
     try {
       const stored = await this.saveReceiptFileUseCase.execute({
         buffer: file.buffer,
@@ -156,6 +158,7 @@ export class ReceiptController {
         familyId: body.familyId,
       });
       receiptId = stored.id;
+      storageKey = stored.storageKey;
     } catch (error) {
       if (error instanceof DomainForbiddenException) {
         throw error;
@@ -163,10 +166,13 @@ export class ReceiptController {
       this.logger.error(
         `Failed to store receipt file: ${error instanceof Error ? error.message : String(error)}`,
       );
+      throw new ServiceUnavailableException(
+        'Receipt storage is unavailable; please try again',
+      );
     }
 
     const jobId = await this.receiptJobQueue.addJob(
-      file.buffer,
+      storageKey,
       user.id,
       {
         autoCreatePending:
@@ -183,7 +189,7 @@ export class ReceiptController {
     return { jobId, status: 'processing', receiptId };
   }
 
-  @Get('jobs/:jobId')
+  @Get(':jobId')
   @ApiOperation({ summary: 'Get receipt processing job status and result' })
   @ApiResponse({ status: 200, type: ReceiptJobStatusResponseDto })
   async getJobStatus(@Param('jobId') jobId: string, @CurrentUser() user: User) {
@@ -207,7 +213,7 @@ export class ReceiptController {
     return result;
   }
 
-  @Sse('jobs/:jobId/stream')
+  @Sse(':jobId/stream')
   @ApiOperation({ summary: 'Stream receipt processing job progress via SSE' })
   @ApiResponse({
     status: 200,

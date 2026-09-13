@@ -1,9 +1,8 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { type IStoreItemCategoryRepository } from '../../domain/repositories/store-item-category.repository.interface';
 import { PrismaService } from '~common/prisma/prisma.service';
 
@@ -19,7 +18,7 @@ export class DeleteStoreItemCategoryUseCase {
     const category = await this.storeItemCategoryRepository.findById(id);
 
     if (!category) {
-      throw new NotFoundException('Store item category not found');
+      throw new DomainNotFoundException('Store item category not found');
     }
 
     await this.validate(id);
@@ -30,7 +29,7 @@ export class DeleteStoreItemCategoryUseCase {
   private async validate(id: string): Promise<void> {
     const children = await this.storeItemCategoryRepository.findChildren(id);
     if (children.length > 0) {
-      throw new BadRequestException(
+      throw new DomainValidationException(
         'Cannot delete category with child categories',
       );
     }
@@ -39,7 +38,7 @@ export class DeleteStoreItemCategoryUseCase {
       where: { categoryId: id },
     });
     if (itemCount > 0) {
-      throw new BadRequestException(
+      throw new DomainValidationException(
         'Cannot delete category that is used by existing items',
       );
     }

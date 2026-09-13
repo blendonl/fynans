@@ -3,7 +3,10 @@ import {
   DomainNotFoundException,
   DomainForbiddenException,
 } from '~common/exceptions/domain.exceptions';
-import { PrismaService } from '../../../../../common/prisma/prisma.service';
+import {
+  UNIT_OF_WORK,
+  type IUnitOfWork,
+} from '~common/persistence/unit-of-work.interface';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
 import { type ITransactionRepository } from '../../../../transaction/core/domain/repositories/transaction.repository.interface';
 import { PaymentMethodService } from '../../../../payment-method/core/application/services/payment-method.service';
@@ -21,7 +24,8 @@ export class DeleteExpenseUseCase {
     private readonly expenseRepository: IExpenseRepository,
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
-    private readonly prisma: PrismaService,
+    @Inject(UNIT_OF_WORK)
+    private readonly unitOfWork: IUnitOfWork,
     private readonly paymentMethodService: PaymentMethodService,
     private readonly familyBalanceService: FamilyBalanceService,
     private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
@@ -43,7 +47,7 @@ export class DeleteExpenseUseCase {
     const paymentMethodId = transaction.paymentMethodId;
     const familyId = transaction.familyId;
 
-    await this.prisma.runInTransaction(async () => {
+    await this.unitOfWork.runInTransaction(async () => {
       await this.expenseRepository.delete(id);
       await this.transactionRepository.delete(expense.transactionId);
 

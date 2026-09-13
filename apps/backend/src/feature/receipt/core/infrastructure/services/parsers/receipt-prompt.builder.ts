@@ -1,3 +1,11 @@
+import {
+  delimitUntrusted,
+  untrustedDataNotice,
+} from '~common/security/untrusted-text';
+
+const OCR_TAG = 'RECEIPT_OCR';
+const ITEMS_TAG = 'RECEIPT_ITEMS';
+
 export function buildReceiptPrompt(ocrText: string): string {
   return `Parse this Kosovo store receipt (Albanian). Return ONLY compact single-line JSON — no newlines, no indentation, no explanation, no markdown fences, no reasoning.
 
@@ -43,8 +51,11 @@ Output:
 {"storeName":"Market Extra","storeLocation":"Prishtine","date":"15/02/2026","time":"14:30","total":12.5,"expenseCategory":"Groceries","items":[{"name":"Pemeperime","price":0.59,"quantity":3.115,"category":"Produce"},{"name":"Fluidi Cola","price":0.64,"category":"Beverages","size":{"value":2,"unit":"l"}},{"name":"Bukuk Meka","price":2.89,"quantity":2.375,"category":"Grains & Pasta","size":{"value":1,"unit":"kg"}},{"name":"Qese Plastike","price":0.05,"category":"Household"},{"name":"Buke Bardhe","price":0.79,"category":"Bakery"}]}
 
 ---
-OCR TEXT:
-${ocrText}
+## OCR Text
+
+${untrustedDataNotice(OCR_TAG, 'text transcribed from a customer receipt')}
+
+${delimitUntrusted(OCR_TAG, ocrText)}
 
 Return ONLY the compact single-line JSON object (no newlines, no indentation):`;
 }
@@ -65,7 +76,10 @@ Rules:
 - If a name is already correct, return it unchanged
 - Use the category hint to help infer correct names
 
-Input: ${itemList}
+${untrustedDataNotice(ITEMS_TAG, 'item names transcribed from a customer receipt')}
+
+Input:
+${delimitUntrusted(ITEMS_TAG, itemList)}
 
 Return a JSON array with this structure:
 [

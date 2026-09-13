@@ -11,8 +11,11 @@ export interface NotificationFilters {
 
 export interface INotificationRepository {
   create(notification: Partial<Notification>): Promise<Notification>;
+  createMany(notifications: Partial<Notification>[]): Promise<Notification[]>;
   findById(id: string): Promise<Notification | null>;
-  findByUserId(filters: NotificationFilters): Promise<{ data: Notification[]; total: number }>;
+  findByUserId(
+    filters: NotificationFilters,
+  ): Promise<{ data: Notification[]; total: number }>;
   getUnreadCount(userId: string): Promise<number>;
   markAsRead(id: string, userId: string): Promise<void>;
   markAllAsRead(userId: string): Promise<void>;

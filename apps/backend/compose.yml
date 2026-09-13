@@ -38,7 +38,7 @@ services:
 
   paddleocr:
     build:
-      context: ./apps/backend/docker/paddleocr-service
+      context: ./docker/paddleocr-service
       dockerfile: Dockerfile.cpu
     ports:
       - '8001:8000'
@@ -88,7 +88,7 @@ services:
     volumes:
       - redis-data:/data
     ports:
-      - '6379:6379'
+      - '6380:6379'
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 5s

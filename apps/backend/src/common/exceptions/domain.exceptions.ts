@@ -28,3 +28,9 @@ export class DomainConflictException extends DomainException {
     super(message);
   }
 }
+
+export class DomainUnauthorizedException extends DomainException {
+  constructor(message: string = 'Authentication required') {
+    super(message);
+  }
+}
