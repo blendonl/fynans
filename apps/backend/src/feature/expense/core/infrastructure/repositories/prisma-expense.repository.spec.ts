@@ -1,5 +1,6 @@
 import { Prisma } from 'prisma/generated/prisma/client';
 import { firstCallArgument } from '~test/mock-call';
+import { resetAppEnv } from '~common/config/env.validation';
 import { PrismaExpenseRepository } from './prisma-expense.repository';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 
@@ -26,6 +27,7 @@ describe('PrismaExpenseRepository reporting queries', () => {
   describe('getTrends', () => {
     it('buckets by the configured reporting time zone', async () => {
       process.env.REPORTING_TIMEZONE = 'Europe/Belgrade';
+      resetAppEnv();
       const { queries, repository } = captureQueries();
 
       await repository.getTrends(dateFrom, dateTo, 'day', { userId: USER });
@@ -37,6 +39,7 @@ describe('PrismaExpenseRepository reporting queries', () => {
 
     it('uses one time zone for day, week and month buckets', async () => {
       process.env.REPORTING_TIMEZONE = 'UTC';
+      resetAppEnv();
       const { queries, repository } = captureQueries();
 
       await repository.getTrends(dateFrom, dateTo, 'day', { userId: USER });
@@ -115,6 +118,28 @@ describe('PrismaExpenseRepository reporting queries', () => {
       expect(queries).toHaveLength(3);
       expect(queries[1].text).toContain('GROUP BY e."category_id"');
       expect(queries[2].text).toContain('GROUP BY e."store_id"');
+    });
+
+    it('binds the family to every grouped query, not just the first', async () => {
+      const { queries, repository } = captureQueries();
+
+      await repository.getStatistics({ familyId: 'family-1' });
+
+      expect(queries).toHaveLength(3);
+
+      for (const query of queries) {
+        expect(query.values).toContain('family-1');
+      }
+    });
+
+    it('never binds a family the caller did not ask for', async () => {
+      const { queries, repository } = captureQueries();
+
+      await repository.getStatistics({ familyId: 'family-1' });
+
+      for (const query of queries) {
+        expect(query.values).not.toContain('family-2');
+      }
     });
 
     it('scopes to the family the same way trends do', async () => {
@@ -212,7 +237,10 @@ describe('PrismaExpenseRepository soft delete', () => {
     await repository.findAll({ userId: USER });
 
     const { where } = firstCallArgument<{
-      where: { deletedAt: Date | null; transaction: { deletedAt: Date | null } };
+      where: {
+        deletedAt: Date | null;
+        transaction: { deletedAt: Date | null };
+      };
     }>(findMany);
 
     expect(where.deletedAt).toBeNull();

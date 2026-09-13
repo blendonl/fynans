@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useMemo, useCallback } from "react";
 import type { ReactNode } from "react";
 import { startOfDay, endOfDay } from "date-fns";
+import type { TransactionScope } from "@/types";
 import {
   type DatePresetKey,
   type DateRange,
@@ -13,11 +14,11 @@ interface DashboardFilterState {
   dateRange: DateRange;
   activePreset: DatePresetKey;
   paymentMethodId: string | undefined;
-  scope: string | undefined;
+  scope: TransactionScope | undefined;
   applyPreset: (preset: DatePresetKey) => void;
   setCustomRange: (dateFrom: Date, dateTo: Date) => void;
   setPaymentMethodId: (id: string | undefined) => void;
-  setScope: (scope: string | undefined) => void;
+  setScope: (scope: TransactionScope | undefined) => void;
 }
 
 const DashboardFilterContext = createContext<DashboardFilterState | null>(null);
@@ -28,7 +29,7 @@ export function DashboardFilterProvider({ children }: { children: ReactNode }) {
     () => getPresetRange("30d")!,
   );
   const [paymentMethodId, setPaymentMethodId] = useState<string | undefined>(undefined);
-  const [scope, setScope] = useState<string | undefined>(undefined);
+  const [scope, setScope] = useState<TransactionScope | undefined>(undefined);
 
   const applyPreset = useCallback((preset: DatePresetKey) => {
     if (preset === "custom") {

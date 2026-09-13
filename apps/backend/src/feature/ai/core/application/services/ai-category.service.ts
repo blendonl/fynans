@@ -12,6 +12,15 @@ import { CreateExpenseCategoryDto } from '~feature/expense-category/core/applica
 import { CreateStoreItemCategoryDto } from '~feature/store-item-category/core/application/dto/create-store-item-category.dto';
 import { CreateIncomeCategoryDto } from '~feature/income-category/core/application/dto/create-income-category.dto';
 import { CategorySuggestion } from '../../domain/interfaces/category-suggestion.interface';
+import { sanitizeSuggestedCategoryName } from '../../domain/category-name.policy';
+import {
+  delimitUntrusted,
+  untrustedDataNotice,
+} from '~common/security/untrusted-text';
+
+const ITEM_TAG = 'ITEM_NAME';
+const ITEMS_TAG = 'ITEM_NAMES';
+const NOTE_TAG = 'INCOME_NOTE';
 
 @Injectable()
 export class AiCategoryService {
@@ -31,7 +40,13 @@ export class AiCategoryService {
   ): Promise<CategorySuggestion | null> {
     const cleaned = this.cleanItemName(itemName);
     const name = await this.askCategoryName(
-      `You are a category classifier for grocery/shopping items.\nThe item name may be in Albanian or English. If it is Albanian, first translate it to English, then decide the category.\n\nItem: "${cleaned}"`,
+      `You are a category classifier for grocery/shopping items.
+The item name may be in Albanian or English. If it is Albanian, first translate it to English, then decide the category.
+
+${untrustedDataNotice(ITEM_TAG, 'text transcribed from a customer receipt')}
+
+Item:
+${delimitUntrusted(ITEM_TAG, cleaned)}`,
     );
     if (!name) return null;
     return this.findOrCreateItemCategory(userId, name);
@@ -43,7 +58,13 @@ export class AiCategoryService {
   ): Promise<CategorySuggestion | null> {
     const cleaned = itemNames.map((n) => this.cleanItemName(n));
     const name = await this.askCategoryName(
-      `You are a category classifier for expenses.\nThe item names may be in Albanian or English. If they are Albanian, first translate them to English, then decide the category.\n\nItems: ${cleaned.join(', ')}`,
+      `You are a category classifier for expenses.
+The item names may be in Albanian or English. If they are Albanian, first translate them to English, then decide the category.
+
+${untrustedDataNotice(ITEMS_TAG, 'text transcribed from a customer receipt')}
+
+Items:
+${delimitUntrusted(ITEMS_TAG, cleaned.join(', '))}`,
     );
     if (!name) return null;
     return this.findOrCreateExpenseCategory(userId, name);
@@ -54,7 +75,13 @@ export class AiCategoryService {
     note: string,
   ): Promise<CategorySuggestion | null> {
     const name = await this.askCategoryName(
-      `You are a category classifier for income.\nThe description may be in Albanian or English. If it is Albanian, first translate it to English, then decide the category.\n\nDescription: "${note}"`,
+      `You are a category classifier for income.
+The description may be in Albanian or English. If it is Albanian, first translate it to English, then decide the category.
+
+${untrustedDataNotice(NOTE_TAG, 'text written by the user')}
+
+Description:
+${delimitUntrusted(NOTE_TAG, note)}`,
     );
     if (!name) return null;
     return this.findOrCreateIncomeCategory(userId, name);
@@ -78,9 +105,16 @@ export class AiCategoryService {
       });
       const parsed = this.parseJsonResponse(response.response) as {
         translation?: string;
-        category?: string | null;
+        category?: unknown;
       };
-      return parsed.category?.trim() || null;
+      const category = sanitizeSuggestedCategoryName(parsed.category);
+      if (!category) {
+        this.logger.warn(
+          'Discarded a category suggestion that did not look like a category name',
+        );
+        return null;
+      }
+      return category;
     } catch (error) {
       this.logger.warn(`Category suggestion failed: ${error}`);
       return null;
@@ -105,7 +139,9 @@ export class AiCategoryService {
       }
     }
 
-    throw new SyntaxError(`No JSON object found in response: ${raw.slice(0, 200)}`);
+    throw new SyntaxError(
+      `No JSON object found in response: ${raw.slice(0, 200)}`,
+    );
   }
 
   private repairTruncatedJson(json: string): string {

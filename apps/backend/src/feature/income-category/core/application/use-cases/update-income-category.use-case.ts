@@ -1,10 +1,9 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
-import { DomainForbiddenException } from '~common/exceptions/domain.exceptions';
+  DomainForbiddenException,
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { type IIncomeCategoryRepository } from '../../domain/repositories/income-category.repository.interface';
 import { UpdateIncomeCategoryDto } from '../dto/update-income-category.dto';
 import { IncomeCategory } from '../../domain/entities/income-category.entity';
@@ -24,7 +23,7 @@ export class UpdateIncomeCategoryUseCase {
     const category = await this.incomeCategoryRepository.findById(id);
 
     if (!category) {
-      throw new NotFoundException('Income category not found');
+      throw new DomainNotFoundException('Income category not found');
     }
 
     if (category.userId !== userId) {
@@ -52,13 +51,15 @@ export class UpdateIncomeCategoryUseCase {
       const existingCategory =
         await this.incomeCategoryRepository.findOwnedByName(dto.name, userId);
       if (existingCategory && existingCategory.id !== id) {
-        throw new BadRequestException('Category name must be unique');
+        throw new DomainValidationException('Category name must be unique');
       }
     }
 
     if (dto.parentId !== undefined) {
       if (dto.parentId === id) {
-        throw new BadRequestException('Category cannot be its own parent');
+        throw new DomainValidationException(
+          'Category cannot be its own parent',
+        );
       }
 
       if (dto.parentId !== null) {
@@ -66,7 +67,7 @@ export class UpdateIncomeCategoryUseCase {
           dto.parentId,
         );
         if (!parent || parent.userId !== userId) {
-          throw new BadRequestException('Parent category not found');
+          throw new DomainValidationException('Parent category not found');
         }
 
         await this.checkCircularReference(id, dto.parentId);
@@ -82,7 +83,7 @@ export class UpdateIncomeCategoryUseCase {
 
     while (currentId !== null) {
       if (currentId === categoryId) {
-        throw new BadRequestException('Circular reference detected');
+        throw new DomainValidationException('Circular reference detected');
       }
 
       const current = await this.incomeCategoryRepository.findById(currentId);

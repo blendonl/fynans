@@ -131,7 +131,7 @@ export function useExpenseSubmission({
         const newExpenseId = (res as unknown as { data: { id: string } }).data?.id;
         if (newExpenseId) {
           try {
-            await customInstance(`/receipts/${args.receiptIdToLink}/link-expense`, {
+            await customInstance(`/api/receipts/${args.receiptIdToLink}/link-expense`, {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ expenseId: newExpenseId }),
@@ -144,7 +144,7 @@ export function useExpenseSubmission({
 
       if (args.pendingIdToCleanup) {
         try {
-          await customInstance(`/expenses/${args.pendingIdToCleanup}`, { method: "DELETE" });
+          await customInstance(`/api/expenses/${args.pendingIdToCleanup}`, { method: "DELETE" });
           onCleanupPending?.();
         } catch {
           toast.warning("Expense created but pending cleanup failed");
@@ -176,7 +176,7 @@ export function useExpenseSubmission({
 
         if (args.receiptIdToLink) {
           try {
-            await customInstance(`/receipts/${args.receiptIdToLink}/link-expense`, {
+            await customInstance(`/api/receipts/${args.receiptIdToLink}/link-expense`, {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ expenseId: args.pendingIdToCleanup }),
@@ -208,7 +208,7 @@ export function useExpenseSubmission({
         const newExpenseId = (res as unknown as { data: { id: string } }).data?.id;
         if (newExpenseId) {
           try {
-            await customInstance(`/receipts/${args.receiptIdToLink}/link-expense`, {
+            await customInstance(`/api/receipts/${args.receiptIdToLink}/link-expense`, {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ expenseId: newExpenseId }),

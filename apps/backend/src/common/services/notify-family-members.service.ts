@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { FamilyService } from '~feature/family/core/application/services/family.service';
-import { CreateNotificationUseCase } from '~feature/notification/core/application/use-cases/create-notification.use-case';
+import { CreateNotificationsUseCase } from '~feature/notification/core/application/use-cases/create-notifications.use-case';
 import { UserService } from '~feature/user/core/application/services/user.service';
 import { CreateNotificationDto } from '~feature/notification/core/application/dto/create-notification.dto';
 import {
@@ -23,7 +23,7 @@ export class NotifyFamilyMembersService {
 
   constructor(
     private readonly familyService: FamilyService,
-    private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly createNotificationsUseCase: CreateNotificationsUseCase,
     private readonly userService: UserService,
   ) {}
 
@@ -43,26 +43,29 @@ export class NotifyFamilyMembersService {
       userName: actor?.fullName,
     };
 
-    await Promise.all(
-      members
-        .filter((member) => member.userId !== actorUserId)
-        .map((member) =>
-          this.createNotificationUseCase
-            .execute({
+    const recipients = members.filter(
+      (member) => member.userId !== actorUserId,
+    );
+
+    try {
+      await this.createNotificationsUseCase.execute(
+        recipients.map(
+          (member) =>
+            ({
               userId: member.userId,
               type,
               data: enrichedData,
               deliveryMethods: [DeliveryMethod.IN_APP, DeliveryMethod.PUSH],
               priority: priority ?? NotificationPriority.LOW,
               familyId,
-            } as CreateNotificationDto)
-            .catch((err) => {
-              this.logger.error(
-                `Failed to send notification to user ${member.userId}`,
-                err?.stack ?? err,
-              );
-            }),
+            }) as CreateNotificationDto,
         ),
-    );
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to notify family ${familyId}`,
+        error instanceof Error ? error.stack : String(error),
+      );
+    }
   }
 }

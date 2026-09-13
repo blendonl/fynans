@@ -36,7 +36,7 @@ describe('expense mutations keep denormalized balances current', () => {
   let expenseAuthService: Record<string, jest.Mock>;
   let notifyFamilyMembersService: Record<string, jest.Mock>;
   let createNotificationUseCase: Record<string, jest.Mock>;
-  let prismaModels: Record<string, Record<string, jest.Mock>>;
+  let unitOfWork: Record<string, jest.Mock>;
 
   const expenseWith = (status: TransactionStatus) => ({
     id: 'expense-1',
@@ -81,7 +81,11 @@ describe('expense mutations keep denormalized balances current', () => {
     createNotificationUseCase = {
       execute: jest.fn().mockResolvedValue(undefined),
     };
-    prismaModels = {};
+    unitOfWork = {
+      runInTransaction: jest.fn((work: () => Promise<unknown>) =>
+        work(),
+      ) as jest.Mock,
+    };
   });
 
   const updateExpense = () =>
@@ -100,7 +104,7 @@ describe('expense mutations keep denormalized balances current', () => {
     new DeleteExpenseUseCase(
       expenseRepository as never,
       transactionRepository as never,
-      createPrismaServiceDouble(prismaModels),
+      unitOfWork as never,
       paymentMethodService as never,
       familyBalanceService as never,
       createRecordFinancialAuditDouble(),
@@ -180,11 +184,22 @@ describe('expense mutations keep denormalized balances current', () => {
     );
   });
 
-  it('soft deletes the expense and its transaction together', async () => {
+  it('soft deletes the expense and its transaction together, inside one transaction', async () => {
     await deleteExpense().execute('expense-1', OWNER);
 
     expect(expenseRepository.delete).toHaveBeenCalledWith('expense-1');
     expect(transactionRepository.delete).toHaveBeenCalledWith('transaction-1');
+    expect(unitOfWork.runInTransaction).toHaveBeenCalledTimes(1);
+  });
+
+  it('recalculates the family balance inside the same transaction as the delete', async () => {
+    unitOfWork.runInTransaction.mockImplementation(async () => undefined);
+
+    await deleteExpense().execute('expense-1', OWNER);
+
+    expect(expenseRepository.delete).not.toHaveBeenCalled();
+    expect(transactionRepository.delete).not.toHaveBeenCalled();
+    expect(familyBalanceService.recalculateBalances).not.toHaveBeenCalled();
   });
 
   it('increments family balances when a pending expense is approved', async () => {
