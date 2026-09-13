@@ -1,5 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { DomainNotFoundException } from '../../../exceptions/domain.exceptions';
+import { FamilyMemberRole } from '../../domain/family-role';
 import { OwnedResource, ResourceOwner } from '../../domain/owned-resource';
 import {
   FAMILY_MEMBERSHIP_REPOSITORY,
@@ -32,6 +33,12 @@ describe('VerifyResourceAccessUseCase', () => {
   const familyMembershipRepository: IFamilyMembershipRepository = {
     isMember: (familyId: string, userId: string) =>
       Promise.resolve(familyId === FAMILY && userId === CO_MEMBER),
+    findRole: (familyId: string, userId: string) =>
+      Promise.resolve(
+        familyId === FAMILY && (userId === USER_A || userId === CO_MEMBER)
+          ? FamilyMemberRole.MEMBER
+          : null,
+      ),
     findFamilyIds: (userId: string) =>
       Promise.resolve(
         userId === USER_A || userId === CO_MEMBER ? [FAMILY] : [],
@@ -90,6 +97,35 @@ describe('VerifyResourceAccessUseCase', () => {
     await expect(
       useCase.execute('expenseItem', 'item-family', USER_B),
     ).rejects.toBeInstanceOf(DomainNotFoundException);
+  });
+
+  it('denies a family co-member when the rule is owner-only', async () => {
+    await expect(
+      useCase.execute('expenseItem', 'item-family', CO_MEMBER, true),
+    ).rejects.toBeInstanceOf(DomainNotFoundException);
+  });
+
+  it('still allows the owner when the rule is owner-only', async () => {
+    await expect(
+      useCase.execute('expenseItem', 'item-family', USER_A, true),
+    ).resolves.toBeUndefined();
+  });
+
+  it('denies an unrelated user when the rule is owner-only', async () => {
+    await expect(
+      useCase.execute('expenseItem', 'item-family', USER_B, true),
+    ).rejects.toBeInstanceOf(DomainNotFoundException);
+  });
+
+  it('hides an owner-only denial behind the same message as a miss', async () => {
+    const missing = await useCase
+      .execute('expenseItem', 'does-not-exist', USER_A, true)
+      .catch((error: Error) => error);
+    const denied = await useCase
+      .execute('expenseItem', 'item-family', CO_MEMBER, true)
+      .catch((error: Error) => error);
+
+    expect((denied as Error).message).toBe((missing as Error).message);
   });
 
   it('reports a missing resource the same way as a forbidden one', async () => {

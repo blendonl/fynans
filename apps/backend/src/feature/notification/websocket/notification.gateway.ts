@@ -10,10 +10,14 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 import { AuthService } from '../../auth/core/application/services/auth.service';
+import { appEnv } from '~common/config/env.validation';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: appEnv()
+      .CORS_ORIGIN.split(',')
+      .map((o) => o.trim()),
+    credentials: true,
   },
   namespace: '/notifications',
 })

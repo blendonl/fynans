@@ -4,11 +4,17 @@ import { type ITransactionRepository } from '../../../../transaction/core/domain
 import { Transaction } from '../../../../transaction/core/domain/entities/transaction.entity';
 import { Expense } from '../../domain/entities/expense.entity';
 import { UpdatePendingExpenseDto } from '../dto/update-pending-expense.dto';
+import { PaymentMethodService } from '~feature/payment-method/core/application/services/payment-method.service';
 import {
   DomainNotFoundException,
   DomainForbiddenException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class UpdatePendingExpenseUseCase {
@@ -17,6 +23,8 @@ export class UpdatePendingExpenseUseCase {
     private readonly expenseRepository: IExpenseRepository,
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
+    private readonly paymentMethodService: PaymentMethodService,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(
@@ -31,11 +39,22 @@ export class UpdatePendingExpenseUseCase {
 
     const transaction = expense.transaction;
     if (!transaction.canBeModified()) {
-      throw new DomainValidationException('Only pending expenses can be edited');
+      throw new DomainValidationException(
+        'Only pending expenses can be edited',
+      );
     }
 
     if (transaction.userId !== userId) {
-      throw new DomainForbiddenException('Only the creator can edit a pending expense');
+      throw new DomainForbiddenException(
+        'Only the creator can edit a pending expense',
+      );
+    }
+
+    if (dto.paymentMethodId) {
+      await this.paymentMethodService.verifyOwnership(
+        dto.paymentMethodId,
+        userId,
+      );
     }
 
     const expenseUpdates: { categoryId?: string; storeId?: string | null } = {};
@@ -62,8 +81,21 @@ export class UpdatePendingExpenseUseCase {
     }
 
     if (Object.keys(transactionUpdates).length > 0) {
-      await this.transactionRepository.update(transaction.id, transactionUpdates as Partial<Transaction>);
+      await this.transactionRepository.update(
+        transaction.id,
+        transactionUpdates as Partial<Transaction>,
+      );
     }
+
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.EXPENSE,
+      entityId: expenseId,
+      action: AuditAction.UPDATED,
+      actorId: userId,
+      transactionId: transaction.id,
+      familyId: transaction.familyId,
+      changes: { ...expenseUpdates, ...transactionUpdates },
+    });
 
     return this.expenseRepository.findById(expenseId) as Promise<Expense>;
   }

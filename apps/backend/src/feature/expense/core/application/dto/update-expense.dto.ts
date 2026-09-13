@@ -1,7 +1,9 @@
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
+
 export class UpdateExpenseDto {
   categoryId?: string;
   storeId?: string;
-  amount?: number;
+  amount?: Decimal;
   note?: string;
   recordedAt?: Date;
   paymentMethodId?: string | null;
@@ -9,7 +11,7 @@ export class UpdateExpenseDto {
   constructor(data: {
     categoryId?: string;
     storeId?: string;
-    amount?: number;
+    amount?: Decimal;
     note?: string;
     recordedAt?: Date;
     paymentMethodId?: string | null;

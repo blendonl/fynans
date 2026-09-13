@@ -3,6 +3,7 @@ import { type IExpenseRepository } from '../../domain/repositories/expense.repos
 import { type ITransactionRepository } from '../../../../transaction/core/domain/repositories/transaction.repository.interface';
 import { Transaction } from '../../../../transaction/core/domain/entities/transaction.entity';
 import { NotifyFamilyMembersService } from '~common/services/notify-family-members.service';
+import { PaymentMethodService } from '~feature/payment-method/core/application/services/payment-method.service';
 import { Expense } from '../../domain/entities/expense.entity';
 import { ResubmitExpenseDto } from '../dto/resubmit-expense.dto';
 import { TransactionStatus } from '../../../../transaction/core/domain/value-objects/transaction-status.vo';
@@ -12,6 +13,11 @@ import {
   DomainForbiddenException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class ResubmitRejectedExpenseUseCase {
@@ -21,6 +27,8 @@ export class ResubmitRejectedExpenseUseCase {
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
     private readonly notifyFamilyMembersService: NotifyFamilyMembersService,
+    private readonly paymentMethodService: PaymentMethodService,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(
@@ -35,15 +43,28 @@ export class ResubmitRejectedExpenseUseCase {
 
     const transaction = expense.transaction;
     if (!transaction.isRejected()) {
-      throw new DomainValidationException('Only rejected expenses can be re-submitted');
+      throw new DomainValidationException(
+        'Only rejected expenses can be re-submitted',
+      );
     }
 
     if (transaction.userId !== userId) {
-      throw new DomainForbiddenException('Only the creator can re-submit a rejected expense');
+      throw new DomainForbiddenException(
+        'Only the creator can re-submit a rejected expense',
+      );
+    }
+
+    if (dto?.paymentMethodId) {
+      await this.paymentMethodService.verifyOwnership(
+        dto.paymentMethodId,
+        userId,
+      );
     }
 
     if (dto?.categoryId) {
-      await this.expenseRepository.update(expenseId, { categoryId: dto.categoryId });
+      await this.expenseRepository.update(expenseId, {
+        categoryId: dto.categoryId,
+      });
     }
 
     const transactionUpdates: Record<string, unknown> = {};
@@ -58,13 +79,26 @@ export class ResubmitRejectedExpenseUseCase {
     }
 
     if (Object.keys(transactionUpdates).length > 0) {
-      await this.transactionRepository.update(transaction.id, transactionUpdates as Partial<Transaction>);
+      await this.transactionRepository.update(
+        transaction.id,
+        transactionUpdates as Partial<Transaction>,
+      );
     }
 
     await this.transactionRepository.updateStatus(
       transaction.id,
       TransactionStatus.PENDING,
     );
+
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.EXPENSE,
+      entityId: expense.id,
+      action: AuditAction.RESUBMITTED,
+      actorId: userId,
+      transactionId: transaction.id,
+      familyId: transaction.familyId,
+      changes: transactionUpdates,
+    });
 
     if (transaction.familyId) {
       await this.notifyFamilyMembersService.notify({

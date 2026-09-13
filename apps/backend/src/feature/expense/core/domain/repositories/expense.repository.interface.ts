@@ -1,36 +1,13 @@
 import { Expense } from '../entities/expense.entity';
 import { Pagination, PaginatedResult } from '~common/dto/pagination.dto';
-import { TransactionScope } from '../../../../transaction/core/domain/entities/transaction.entity';
-import { TransactionStatus } from '../../../../transaction/core/domain/value-objects/transaction-status.vo';
 import { ExpenseTrendPoint } from '../../application/dto/expense-trends.dto';
+import { ExpenseFilters } from '../../application/dto/expense-filters.dto';
+import { ExpenseStatistics } from '../../application/dto/expense-statistics.dto';
 
 export { PaginatedResult };
-
-export interface ExpenseFilters {
-  userId?: string;
-  categoryId?: string;
-  storeId?: string;
-  familyId?: string;
-  scope?: TransactionScope;
-  status?: TransactionStatus;
-  paymentMethodId?: string;
-  dateFrom?: Date;
-  dateTo?: Date;
-  valueMin?: number;
-  valueMax?: number;
-  search?: string;
-}
-
-export interface ExpenseStatistics {
-  totalExpenses: number;
-  expenseCount: number;
-  averageExpense: number;
-  expensesByCategory: { categoryId: string; categoryName: string; total: number }[];
-  expensesByStore: { storeId: string; total: number }[];
-}
+export type { ExpenseFilters, ExpenseStatistics };
 
 export interface CreateExpenseData {
-  id: string;
   transactionId: string;
   categoryId: string;
   storeId?: string | null;
@@ -53,12 +30,8 @@ export interface IExpenseRepository {
   update(id: string, data: UpdateExpenseData): Promise<Expense>;
   delete(id: string): Promise<void>;
   verifyOwnership(expenseId: string, userId: string): Promise<boolean>;
-  getStatistics(
-    userId?: string,
-    filters?: ExpenseFilters,
-  ): Promise<ExpenseStatistics>;
+  getStatistics(filters?: ExpenseFilters): Promise<ExpenseStatistics>;
   getTrends(
-    userId: string,
     dateFrom: Date,
     dateTo: Date,
     groupBy: string,

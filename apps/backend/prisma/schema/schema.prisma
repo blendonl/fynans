@@ -15,9 +15,10 @@ model User {
   firstName String  @default("") @map("first_name")
   lastName  String  @default("") @map("last_name")
   image     String?
-  balance   Decimal @default(0)
 
   emailVerified Boolean @default(false) @map("email_verified")
+
+  reportingCurrency String @map("reporting_currency") @db.Char(3)
 
   transactions Transaction[]
   accounts     Account[]
@@ -38,10 +39,10 @@ model User {
   baskets Basket[]
 
   // User-scoped entity relationships
-  userExpenseCategories UserExpenseCategory[]
-  userIncomeCategories  UserIncomeCategory[]
+  expenseCategories     ExpenseCategory[]
+  incomeCategories      IncomeCategory[]
+  items                 Item[]
   userStores            UserStore[]
-  userItems             UserItem[]
   userStoreItems        UserStoreItem[]
   userItemCategories    UserItemCategory[]
 
@@ -50,6 +51,8 @@ model User {
 
   // Receipts
   receipts Receipt[]
+
+  financialAuditLogs FinancialAuditLog[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

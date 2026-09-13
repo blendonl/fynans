@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
+import { AuthorizationModule } from '~common/authorization';
 import { PrismaStoreItemCategoryRepository } from './infrastructure/repositories/prisma-store-item-category.repository';
 import { CreateStoreItemCategoryUseCase } from './application/use-cases/create-store-item-category.use-case';
 import { GetStoreItemCategoryByIdUseCase } from './application/use-cases/get-store-item-category-by-id.use-case';
@@ -10,7 +11,7 @@ import { DeleteStoreItemCategoryUseCase } from './application/use-cases/delete-s
 import { StoreItemCategoryService } from './application/services/store-item-category.service';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, AuthorizationModule],
   providers: [
     {
       provide: 'StoreItemCategoryRepository',

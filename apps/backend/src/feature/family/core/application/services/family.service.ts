@@ -10,8 +10,9 @@ import { GetFamilyWithMembersUseCase } from '../use-cases/get-family-with-member
 import { RemoveFamilyMemberUseCase } from '../use-cases/remove-family-member.use-case';
 import { GetFamilyPendingInvitationsUseCase } from '../use-cases/get-family-pending-invitations.use-case';
 import { CancelInvitationUseCase } from '../use-cases/cancel-invitation.use-case';
-import { VerifyFamilyMembershipUseCase } from '../use-cases/verify-family-membership.use-case';
+import { ReconcileFamilyBalancesUseCase } from '../use-cases/reconcile-family-balances.use-case';
 import { CreateFamilyDto } from '../dto/create-family.dto';
+import { FamilyBalanceReconciliation } from '../dto/family-balance-reconciliation.dto';
 import { InviteMemberDto } from '../dto/invite-member.dto';
 import { Family } from '../../domain/entities/family.entity';
 import { FamilyMember } from '../../domain/entities/family-member.entity';
@@ -37,7 +38,7 @@ export class FamilyService {
     private readonly removeFamilyMemberUseCase: RemoveFamilyMemberUseCase,
     private readonly getFamilyPendingInvitationsUseCase: GetFamilyPendingInvitationsUseCase,
     private readonly cancelInvitationUseCase: CancelInvitationUseCase,
-    private readonly verifyFamilyMembershipUseCase: VerifyFamilyMembershipUseCase,
+    private readonly reconcileFamilyBalancesUseCase: ReconcileFamilyBalancesUseCase,
   ) {}
 
   async findById(id: string): Promise<Family | null> {
@@ -51,16 +52,16 @@ export class FamilyService {
     return this.familyRepository.findMember(familyId, userId);
   }
 
+  async findMembershipsOfUser(userId: string): Promise<FamilyMember[]> {
+    return this.familyRepository.findMembershipsOfUser(userId);
+  }
+
   async findMembers(familyId: string): Promise<FamilyMember[]> {
     return this.familyRepository.findMembers(familyId);
   }
 
   async findByUserId(userId: string): Promise<Family[]> {
     return this.familyRepository.findByUserId(userId);
-  }
-
-  async verifyMembership(familyId: string, userId: string): Promise<void> {
-    return this.verifyFamilyMembershipUseCase.execute(familyId, userId);
   }
 
   async create(dto: CreateFamilyDto, ownerId: string): Promise<Family> {
@@ -73,9 +74,8 @@ export class FamilyService {
 
   async findOneWithMembers(
     familyId: string,
-    userId: string,
   ): Promise<FamilyWithMembersAndUsers> {
-    return this.getFamilyWithMembersUseCase.execute(familyId, userId);
+    return this.getFamilyWithMembersUseCase.execute(familyId);
   }
 
   async inviteMember(
@@ -85,17 +85,14 @@ export class FamilyService {
     return this.inviteMemberUseCase.execute(dto, inviterId);
   }
 
-  async getPendingInvitations(
-    userEmail: string,
-  ): Promise<FamilyInvitation[]> {
+  async getPendingInvitations(userEmail: string): Promise<FamilyInvitation[]> {
     return this.getPendingInvitationsUseCase.execute(userEmail);
   }
 
   async getFamilyPendingInvitations(
     familyId: string,
-    userId: string,
   ): Promise<FamilyInvitation[]> {
-    return this.getFamilyPendingInvitationsUseCase.execute(familyId, userId);
+    return this.getFamilyPendingInvitationsUseCase.execute(familyId);
   }
 
   async acceptInvitation(
@@ -105,17 +102,11 @@ export class FamilyService {
     return this.acceptInvitationUseCase.execute(invitationId, userId);
   }
 
-  async declineInvitation(
-    invitationId: string,
-    userId: string,
-  ): Promise<void> {
+  async declineInvitation(invitationId: string, userId: string): Promise<void> {
     return this.declineInvitationUseCase.execute(invitationId, userId);
   }
 
-  async cancelInvitation(
-    invitationId: string,
-    userId: string,
-  ): Promise<void> {
+  async cancelInvitation(invitationId: string, userId: string): Promise<void> {
     return this.cancelInvitationUseCase.execute(invitationId, userId);
   }
 
@@ -129,6 +120,13 @@ export class FamilyService {
       targetUserId,
       requesterId,
     );
+  }
+
+  async reconcileBalances(
+    familyId: string,
+    userId: string,
+  ): Promise<FamilyBalanceReconciliation> {
+    return this.reconcileFamilyBalancesUseCase.execute(familyId, userId);
   }
 
   async leave(familyId: string, userId: string): Promise<void> {

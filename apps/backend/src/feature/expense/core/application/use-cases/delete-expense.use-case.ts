@@ -1,16 +1,34 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { DomainNotFoundException, DomainForbiddenException } from '~common/exceptions/domain.exceptions';
-import { PrismaService } from '../../../../../common/prisma/prisma.service';
+import {
+  DomainNotFoundException,
+  DomainForbiddenException,
+} from '~common/exceptions/domain.exceptions';
+import {
+  UNIT_OF_WORK,
+  type IUnitOfWork,
+} from '~common/persistence/unit-of-work.interface';
 import { type IExpenseRepository } from '../../domain/repositories/expense.repository.interface';
+import { type ITransactionRepository } from '../../../../transaction/core/domain/repositories/transaction.repository.interface';
 import { PaymentMethodService } from '../../../../payment-method/core/application/services/payment-method.service';
+import { FamilyBalanceService } from '../../../../family/core/application/services/family-balance.service';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class DeleteExpenseUseCase {
   constructor(
     @Inject('ExpenseRepository')
     private readonly expenseRepository: IExpenseRepository,
-    private readonly prisma: PrismaService,
+    @Inject('TransactionRepository')
+    private readonly transactionRepository: ITransactionRepository,
+    @Inject(UNIT_OF_WORK)
+    private readonly unitOfWork: IUnitOfWork,
     private readonly paymentMethodService: PaymentMethodService,
+    private readonly familyBalanceService: FamilyBalanceService,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(id: string, userId: string): Promise<void> {
@@ -25,25 +43,27 @@ export class DeleteExpenseUseCase {
       throw new DomainForbiddenException('Access denied');
     }
 
-    const transaction = await this.prisma.transaction.findUnique({
-      where: { id: expense.transactionId },
-      select: { paymentMethodId: true },
+    const transaction = expense.transaction;
+    const paymentMethodId = transaction.paymentMethodId;
+    const familyId = transaction.familyId;
+
+    await this.unitOfWork.runInTransaction(async () => {
+      await this.expenseRepository.delete(id);
+      await this.transactionRepository.delete(expense.transactionId);
+
+      if (familyId) {
+        await this.familyBalanceService.recalculateBalances(familyId);
+      }
     });
-    const paymentMethodId = transaction?.paymentMethodId;
 
-    // Use Prisma transaction to delete atomically
-    await this.prisma.$transaction(async (tx) => {
-      await tx.expenseItem.deleteMany({
-        where: { expenseId: id },
-      });
-
-      await tx.expense.delete({
-        where: { id },
-      });
-
-      await tx.transaction.delete({
-        where: { id: expense.transactionId },
-      });
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.EXPENSE,
+      entityId: id,
+      action: AuditAction.DELETED,
+      actorId: userId,
+      transactionId: expense.transactionId,
+      familyId,
+      changes: { value: transaction.value.toFixed(2) },
     });
 
     if (paymentMethodId) {

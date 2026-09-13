@@ -1,18 +1,20 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Inject, Logger, Optional } from '@nestjs/common';
 import { Job } from 'bullmq';
+import { IStorageProvider } from '~common/storage/storage-provider.interface';
 import { ProcessReceiptUseCase } from '../../application/use-cases/process-receipt.use-case';
 import { EnrichReceiptDataUseCase } from '../../application/use-cases/enrich-receipt-data.use-case';
 import { EnrichedReceiptDataDto } from '../../application/dto/enriched-receipt-data.dto';
 import { ProgressTracker } from '../../application/services/progress-tracker';
 import { IStoredReceiptRepository } from '../../domain/repositories/stored-receipt.repository.interface';
-import { ExpenseService } from '~feature/expense/core/application/services/expense.service';
+import { CreateExpenseUseCase } from '~feature/expense/core/application/use-cases/create-expense.use-case';
 import { CreateExpenseDto } from '~feature/expense/core/application/dto/create-expense.dto';
+import { ExpenseTotalCalculator } from '~feature/expense-item/core/domain/services/expense-total.calculator';
 import { CreateExpenseItemDto } from '~feature/expense-item/core/application/dto/create-expense-item.dto';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 
 interface ReceiptJobData {
-  imageBase64: string;
+  storageKey: string;
   userId?: string;
   receiptId?: string;
   autoCreatePending?: boolean;
@@ -26,8 +28,11 @@ export class ReceiptProcessingWorker extends WorkerHost {
   constructor(
     private readonly processReceiptUseCase: ProcessReceiptUseCase,
     private readonly enrichReceiptDataUseCase: EnrichReceiptDataUseCase,
-    @Optional() private readonly expenseService?: ExpenseService,
-    @Optional() @Inject('StoredReceiptRepository') private readonly receiptRepo?: IStoredReceiptRepository,
+    @Inject('StorageProvider') private readonly storage: IStorageProvider,
+    @Optional() private readonly createExpenseUseCase?: CreateExpenseUseCase,
+    @Optional()
+    @Inject('StoredReceiptRepository')
+    private readonly receiptRepo?: IStoredReceiptRepository,
   ) {
     super();
   }
@@ -35,7 +40,7 @@ export class ReceiptProcessingWorker extends WorkerHost {
   async process(job: Job<ReceiptJobData>): Promise<EnrichedReceiptDataDto> {
     this.logger.log(`Processing receipt job ${job.id}`);
 
-    const imageBuffer = Buffer.from(job.data.imageBase64, 'base64');
+    const imageBuffer = await this.storage.download(job.data.storageKey);
     const userId = job.data.userId;
 
     const stages = [
@@ -57,10 +62,11 @@ export class ReceiptProcessingWorker extends WorkerHost {
 
     // Phase 1: Resolve store and items (fast)
     tracker.startStage('enrich');
-    const partialResult = await this.enrichReceiptDataUseCase.resolveStoreAndItems(
-      processedResult,
-      userId,
-    );
+    const partialResult =
+      await this.enrichReceiptDataUseCase.resolveStoreAndItems(
+        processedResult,
+        userId,
+      );
 
     await job.updateProgress({
       type: 'partial-result',
@@ -69,10 +75,11 @@ export class ReceiptProcessingWorker extends WorkerHost {
     } as any);
 
     // Phase 2: Resolve categories (background)
-    const categoryResult = await this.enrichReceiptDataUseCase.resolveCategories(
-      processedResult,
-      userId,
-    );
+    const categoryResult =
+      await this.enrichReceiptDataUseCase.resolveCategories(
+        processedResult,
+        userId,
+      );
 
     const enrichedResult: EnrichedReceiptDataDto = {
       ...partialResult,
@@ -94,13 +101,15 @@ export class ReceiptProcessingWorker extends WorkerHost {
 
     tracker.completeStage('enrich');
 
-    if (job.data.autoCreatePending && userId && this.expenseService) {
+    if (job.data.autoCreatePending && userId && this.createExpenseUseCase) {
       try {
         const categoryId = enrichedResult.suggestedExpenseCategoryId;
         if (categoryId) {
-          const totalAmount = enrichedResult.items.reduce(
-            (sum, item) => sum + item.price * item.quantity,
-            0,
+          const totalAmount = ExpenseTotalCalculator.total(
+            enrichedResult.items.map((item) => ({
+              price: item.price,
+              quantity: item.quantity,
+            })),
           );
 
           const items = enrichedResult.items.map(
@@ -114,7 +123,7 @@ export class ReceiptProcessingWorker extends WorkerHost {
               }),
           );
 
-          const expense = await this.expenseService.create(
+          const expense = await this.createExpenseUseCase.execute(
             new CreateExpenseDto({
               userId,
               categoryId,
@@ -134,17 +143,29 @@ export class ReceiptProcessingWorker extends WorkerHost {
 
           if (job.data.receiptId && this.receiptRepo) {
             try {
-              await this.receiptRepo.update(job.data.receiptId, { expenseId: expense.id });
-              this.logger.log(`Linked receipt ${job.data.receiptId} to pending expense ${expense.id}`);
+              await this.receiptRepo.update(job.data.receiptId, {
+                expenseId: expense.id,
+              });
+              this.logger.log(
+                `Linked receipt ${job.data.receiptId} to pending expense ${expense.id}`,
+              );
             } catch (linkErr) {
-              this.logger.error(`Failed to link receipt ${job.data.receiptId} to expense ${expense.id}`, linkErr);
+              this.logger.error(
+                `Failed to link receipt ${job.data.receiptId} to expense ${expense.id}`,
+                linkErr,
+              );
             }
           }
 
-          this.logger.log(`Auto-created pending expense ${expense.id} for receipt job ${job.id}`);
+          this.logger.log(
+            `Auto-created pending expense ${expense.id} for receipt job ${job.id}`,
+          );
         }
       } catch (err) {
-        this.logger.error(`Failed to auto-create pending expense for job ${job.id}`, err);
+        this.logger.error(
+          `Failed to auto-create pending expense for job ${job.id}`,
+          err,
+        );
       }
     }
 

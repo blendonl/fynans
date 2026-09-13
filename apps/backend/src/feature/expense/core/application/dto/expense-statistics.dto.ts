@@ -1,21 +1,20 @@
-export class ExpenseStatistics {
-  totalExpenses: number;
-  expenseCount: number;
-  averageExpense: number;
-  expensesByCategory: { categoryId: string; categoryName: string; total: number }[];
-  expensesByStore: { storeId: string; total: number }[];
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
-  constructor(
-    totalExpenses: number,
-    expenseCount: number,
-    averageExpense: number,
-    expensesByCategory: { categoryId: string; categoryName: string; total: number }[],
-    expensesByStore: { storeId: string; total: number }[],
-  ) {
-    this.totalExpenses = totalExpenses;
-    this.expenseCount = expenseCount;
-    this.averageExpense = averageExpense;
-    this.expensesByCategory = expensesByCategory;
-    this.expensesByStore = expensesByStore;
-  }
+export interface ExpenseCategoryTotal {
+  categoryId: string;
+  categoryName: string;
+  total: Decimal;
+}
+
+export interface ExpenseStoreTotal {
+  storeId: string;
+  total: Decimal;
+}
+
+export interface ExpenseStatistics {
+  totalExpenses: Decimal;
+  expenseCount: number;
+  averageExpense: Decimal;
+  expensesByCategory: ExpenseCategoryTotal[];
+  expensesByStore: ExpenseStoreTotal[];
 }

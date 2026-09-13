@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../../common/prisma/prisma.module';
+import { AuthorizationModule } from '~common/authorization';
 import { ItemCoreModule } from '../../item/core/item-core.module';
 import { StoreItemCategoryCoreModule } from '../../store-item-category/core/store-item-category-core.module';
 import { PrismaStoreRepository } from './infrastructure/repositories/prisma-store.repository';
@@ -20,7 +21,12 @@ import { StoreService } from './application/services/store.service';
 import { StoreItemService } from './application/services/store-item.service';
 
 @Module({
-  imports: [PrismaModule, ItemCoreModule, StoreItemCategoryCoreModule],
+  imports: [
+    PrismaModule,
+    AuthorizationModule,
+    ItemCoreModule,
+    StoreItemCategoryCoreModule,
+  ],
   providers: [
     {
       provide: 'StoreRepository',

@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/": {
+    "/api": {
       "get": {
         "operationId": "AppController_getHello",
         "parameters": [],
@@ -22,7 +22,7 @@
         ]
       }
     },
-    "/health": {
+    "/api/health": {
       "get": {
         "operationId": "AppController_getHealth",
         "parameters": [],
@@ -100,6 +100,107 @@
         ]
       }
     },
+    "/auth/forgot-password": {
+      "post": {
+        "description": "Always succeeds with the same body so that the response cannot be used to discover whether an address has an account.",
+        "operationId": "AuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcknowledgementResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Request a password reset link",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcknowledgementResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Token invalid, expired or used"
+          }
+        },
+        "summary": "Set a new password using a reset token",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/send-verification-email": {
+      "post": {
+        "description": "Always succeeds with the same body so that the response cannot be used to discover whether an address has an account.",
+        "operationId": "AuthController_sendVerificationEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendVerificationRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcknowledgementResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Send a fresh email verification link",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/auth/logout": {
       "post": {
         "operationId": "AuthController_logout",
@@ -147,7 +248,382 @@
         ]
       }
     },
-    "/users/search": {
+    "/api/notifications": {
+      "get": {
+        "operationId": "NotificationController_getNotifications",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "unreadOnly",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedNotificationResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get paginated notifications for the current user",
+        "tags": [
+          "Notification"
+        ]
+      }
+    },
+    "/api/notifications/unread-count": {
+      "get": {
+        "operationId": "NotificationController_getUnreadCount",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnreadCountResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get unread notification count",
+        "tags": [
+          "Notification"
+        ]
+      }
+    },
+    "/api/notifications/{id}/read": {
+      "patch": {
+        "operationId": "NotificationController_markAsRead",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Notification marked as read"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark a notification as read",
+        "tags": [
+          "Notification"
+        ]
+      }
+    },
+    "/api/notifications/mark-all-read": {
+      "post": {
+        "operationId": "NotificationController_markAllAsRead",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "All notifications marked as read"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark all notifications as read",
+        "tags": [
+          "Notification"
+        ]
+      }
+    },
+    "/api/notifications/{id}": {
+      "delete": {
+        "operationId": "NotificationController_deleteNotification",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Notification deleted"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a notification",
+        "tags": [
+          "Notification"
+        ]
+      }
+    },
+    "/api/notification-preferences": {
+      "get": {
+        "operationId": "NotificationPreferenceController_getPreferences",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPreferenceResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get notification preferences for the current user",
+        "tags": [
+          "Notification Preference"
+        ]
+      },
+      "put": {
+        "operationId": "NotificationPreferenceController_updatePreferences",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePreferenceRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPreferenceResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update notification preferences",
+        "tags": [
+          "Notification Preference"
+        ]
+      }
+    },
+    "/api/notification-preferences/devices": {
+      "post": {
+        "operationId": "NotificationPreferenceController_registerDevice",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterTokenRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceTokenResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Register a device token for push notifications",
+        "tags": [
+          "Notification Preference"
+        ]
+      }
+    },
+    "/api/notification-preferences/devices/{token}": {
+      "delete": {
+        "operationId": "NotificationPreferenceController_unregisterDevice",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Device token unregistered"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Unregister a device token",
+        "tags": [
+          "Notification Preference"
+        ]
+      }
+    },
+    "/api/notification-preferences/web-push/subscribe": {
+      "post": {
+        "operationId": "NotificationPreferenceController_registerWebPush",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterWebPushRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebPushSubscriptionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Register a web push subscription",
+        "tags": [
+          "Notification Preference"
+        ]
+      },
+      "delete": {
+        "operationId": "NotificationPreferenceController_unregisterWebPush",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Web push subscription unregistered"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Unregister a web push subscription",
+        "tags": [
+          "Notification Preference"
+        ]
+      }
+    },
+    "/api/notification-preferences/web-push/vapid-key": {
+      "get": {
+        "operationId": "NotificationPreferenceController_getVapidKey",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VapidKeyResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get VAPID public key for web push subscriptions",
+        "tags": [
+          "Notification Preference"
+        ]
+      }
+    },
+    "/api/users/search": {
       "get": {
         "operationId": "UserController_search",
         "parameters": [
@@ -194,7 +670,130 @@
         ]
       }
     },
-    "/users/{id}": {
+    "/api/users/me": {
+      "get": {
+        "operationId": "UserController_findMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the signed-in user profile",
+        "tags": [
+          "Users"
+        ]
+      },
+      "patch": {
+        "description": "Updates the display name and avatar of the account resolved from the session. Email is deliberately not editable here: changing the address that password reset keys on requires the email verification flow, which is not yet implemented.",
+        "operationId": "UserController_updateMe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update the signed-in user profile",
+        "tags": [
+          "Users"
+        ]
+      },
+      "delete": {
+        "description": "Irreversible. Removes the account together with its transactions, receipts, receipt images, payment methods, categories, baskets and audit trail. Requires the account password, or — for Google and Apple accounts, which have none — the account email address typed back. Every session is revoked before anything is erased. Families the account belonged to are kept for the remaining members: ownership passes to the longest-standing admin, or to the longest-standing member when there is no admin. A family is removed only when nobody is left in it and no transaction still references it.",
+        "operationId": "UserController_deleteMe",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAccountRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Account deleted"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Permanently delete the signed-in account",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/users/me/change-password": {
+      "post": {
+        "description": "Verifies the current password and rotates the session. All other sessions for the account are revoked.",
+        "operationId": "UserController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Password changed"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change the signed-in user password",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/users/{id}": {
       "get": {
         "operationId": "UserController_findOne",
         "parameters": [
@@ -230,7 +829,7 @@
         ]
       }
     },
-    "/transactions": {
+    "/api/transactions": {
       "post": {
         "operationId": "TransactionController_create",
         "parameters": [],
@@ -269,15 +868,6 @@
       "get": {
         "operationId": "TransactionController_findAll",
         "parameters": [
-          {
-            "name": "userId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
           {
             "name": "type",
             "required": false,
@@ -410,12 +1000,37 @@
         ]
       }
     },
-    "/transactions/statistics": {
+    "/api/transactions/export": {
       "get": {
-        "operationId": "TransactionController_getStatistics",
+        "description": "Streams the transactions the caller can already see through GET /transactions, under the same filters and the same visibility rules. The account is taken from the session, never from a parameter.",
+        "operationId": "TransactionController_export",
         "parameters": [
           {
-            "name": "userId",
+            "name": "format",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "csv",
+              "type": "string",
+              "enum": [
+                "csv"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EXPENSE",
+                "INCOME"
+              ]
+            }
+          },
+          {
+            "name": "familyId",
             "required": false,
             "in": "query",
             "schema": {
@@ -423,6 +1038,114 @@
               "type": "string"
             }
           },
+          {
+            "name": "scope",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PERSONAL",
+                "FAMILY"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CONFIRMED",
+                "PENDING",
+                "REJECTED"
+              ]
+            }
+          },
+          {
+            "name": "paymentMethodId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "valueMin",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "valueMax",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A CSV document"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Export transactions as CSV",
+        "tags": [
+          "Transaction"
+        ]
+      }
+    },
+    "/api/transactions/statistics": {
+      "get": {
+        "operationId": "TransactionController_getStatistics",
+        "parameters": [
           {
             "name": "type",
             "required": false,
@@ -555,19 +1278,10 @@
         ]
       }
     },
-    "/transactions/statistics/comparison": {
+    "/api/transactions/statistics/comparison": {
       "get": {
         "operationId": "TransactionController_getStatisticsComparison",
         "parameters": [
-          {
-            "name": "userId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
           {
             "name": "type",
             "required": false,
@@ -700,7 +1414,7 @@
         ]
       }
     },
-    "/transactions/{id}": {
+    "/api/transactions/{id}": {
       "get": {
         "operationId": "TransactionController_findOne",
         "parameters": [
@@ -807,382 +1521,7 @@
         ]
       }
     },
-    "/notifications": {
-      "get": {
-        "operationId": "NotificationController_getNotifications",
-        "parameters": [
-          {
-            "name": "page",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "type",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "unreadOnly",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedNotificationResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get paginated notifications for the current user",
-        "tags": [
-          "Notification"
-        ]
-      }
-    },
-    "/notifications/unread-count": {
-      "get": {
-        "operationId": "NotificationController_getUnreadCount",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UnreadCountResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get unread notification count",
-        "tags": [
-          "Notification"
-        ]
-      }
-    },
-    "/notifications/{id}/read": {
-      "patch": {
-        "operationId": "NotificationController_markAsRead",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Notification marked as read"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Mark a notification as read",
-        "tags": [
-          "Notification"
-        ]
-      }
-    },
-    "/notifications/mark-all-read": {
-      "post": {
-        "operationId": "NotificationController_markAllAsRead",
-        "parameters": [],
-        "responses": {
-          "204": {
-            "description": "All notifications marked as read"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Mark all notifications as read",
-        "tags": [
-          "Notification"
-        ]
-      }
-    },
-    "/notifications/{id}": {
-      "delete": {
-        "operationId": "NotificationController_deleteNotification",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Notification deleted"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Delete a notification",
-        "tags": [
-          "Notification"
-        ]
-      }
-    },
-    "/notification-preferences": {
-      "get": {
-        "operationId": "NotificationPreferenceController_getPreferences",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NotificationPreferenceResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get notification preferences for the current user",
-        "tags": [
-          "Notification Preference"
-        ]
-      },
-      "put": {
-        "operationId": "NotificationPreferenceController_updatePreferences",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdatePreferenceRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NotificationPreferenceResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Update notification preferences",
-        "tags": [
-          "Notification Preference"
-        ]
-      }
-    },
-    "/notification-preferences/devices": {
-      "post": {
-        "operationId": "NotificationPreferenceController_registerDevice",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterTokenRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DeviceTokenResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Register a device token for push notifications",
-        "tags": [
-          "Notification Preference"
-        ]
-      }
-    },
-    "/notification-preferences/devices/{token}": {
-      "delete": {
-        "operationId": "NotificationPreferenceController_unregisterDevice",
-        "parameters": [
-          {
-            "name": "token",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Device token unregistered"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Unregister a device token",
-        "tags": [
-          "Notification Preference"
-        ]
-      }
-    },
-    "/notification-preferences/web-push/subscribe": {
-      "post": {
-        "operationId": "NotificationPreferenceController_registerWebPush",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterWebPushRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WebPushSubscriptionResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Register a web push subscription",
-        "tags": [
-          "Notification Preference"
-        ]
-      },
-      "delete": {
-        "operationId": "NotificationPreferenceController_unregisterWebPush",
-        "parameters": [],
-        "responses": {
-          "204": {
-            "description": "Web push subscription unregistered"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Unregister a web push subscription",
-        "tags": [
-          "Notification Preference"
-        ]
-      }
-    },
-    "/notification-preferences/web-push/vapid-key": {
-      "get": {
-        "operationId": "NotificationPreferenceController_getVapidKey",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VapidKeyResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get VAPID public key for web push subscriptions",
-        "tags": [
-          "Notification Preference"
-        ]
-      }
-    },
-    "/expense-categories": {
+    "/api/expense-categories": {
       "post": {
         "operationId": "ExpenseCategoryController_create",
         "parameters": [],
@@ -1277,7 +1616,7 @@
         ]
       }
     },
-    "/expense-categories/tree": {
+    "/api/expense-categories/tree": {
       "get": {
         "operationId": "ExpenseCategoryController_getTree",
         "parameters": [],
@@ -1307,7 +1646,7 @@
         ]
       }
     },
-    "/expense-categories/{id}": {
+    "/api/expense-categories/{id}": {
       "get": {
         "operationId": "ExpenseCategoryController_findOne",
         "parameters": [
@@ -1414,7 +1753,7 @@
         ]
       }
     },
-    "/expense-item-categories": {
+    "/api/expense-item-categories": {
       "post": {
         "operationId": "StoreItemCategoryController_create",
         "parameters": [],
@@ -1501,7 +1840,7 @@
         ]
       }
     },
-    "/expense-item-categories/tree": {
+    "/api/expense-item-categories/tree": {
       "get": {
         "operationId": "StoreItemCategoryController_getTree",
         "parameters": [],
@@ -1531,7 +1870,7 @@
         ]
       }
     },
-    "/expense-item-categories/{id}": {
+    "/api/expense-item-categories/{id}": {
       "get": {
         "operationId": "StoreItemCategoryController_findOne",
         "parameters": [
@@ -1638,7 +1977,7 @@
         ]
       }
     },
-    "/expense-items": {
+    "/api/expense-items": {
       "post": {
         "operationId": "ExpenseItemController_create",
         "parameters": [
@@ -1734,7 +2073,7 @@
         ]
       }
     },
-    "/expense-items/{id}": {
+    "/api/expense-items/{id}": {
       "get": {
         "operationId": "ExpenseItemController_findOne",
         "parameters": [
@@ -1841,7 +2180,7 @@
         ]
       }
     },
-    "/expenses": {
+    "/api/expenses": {
       "post": {
         "operationId": "ExpenseController_create",
         "parameters": [],
@@ -1891,6 +2230,14 @@
                 "PENDING",
                 "REJECTED"
               ]
+            }
+          },
+          {
+            "name": "mine",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -2021,7 +2368,7 @@
         ]
       }
     },
-    "/expenses/statistics": {
+    "/api/expenses/statistics": {
       "get": {
         "operationId": "ExpenseController_getStatistics",
         "parameters": [
@@ -2036,6 +2383,14 @@
                 "PENDING",
                 "REJECTED"
               ]
+            }
+          },
+          {
+            "name": "mine",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -2166,7 +2521,7 @@
         ]
       }
     },
-    "/expenses/trends": {
+    "/api/expenses/trends": {
       "get": {
         "operationId": "ExpenseController_getTrends",
         "parameters": [
@@ -2272,6 +2627,14 @@
               "maximum": 20,
               "type": "number"
             }
+          },
+          {
+            "name": "mine",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -2300,7 +2663,7 @@
         ]
       }
     },
-    "/expenses/{id}": {
+    "/api/expenses/{id}": {
       "get": {
         "operationId": "ExpenseController_findOne",
         "parameters": [
@@ -2407,7 +2770,7 @@
         ]
       }
     },
-    "/expenses/{id}/approve": {
+    "/api/expenses/{id}/approve": {
       "post": {
         "operationId": "ExpenseController_approve",
         "parameters": [
@@ -2443,7 +2806,7 @@
         ]
       }
     },
-    "/expenses/{id}/reject": {
+    "/api/expenses/{id}/reject": {
       "post": {
         "operationId": "ExpenseController_reject",
         "parameters": [
@@ -2489,7 +2852,7 @@
         ]
       }
     },
-    "/expenses/{id}/resubmit": {
+    "/api/expenses/{id}/resubmit": {
       "post": {
         "operationId": "ExpenseController_resubmit",
         "parameters": [
@@ -2535,7 +2898,7 @@
         ]
       }
     },
-    "/expenses/{id}/pending": {
+    "/api/expenses/{id}/pending": {
       "patch": {
         "operationId": "ExpenseController_updatePending",
         "parameters": [
@@ -2581,7 +2944,7 @@
         ]
       }
     },
-    "/stores": {
+    "/api/stores": {
       "post": {
         "operationId": "StoreController_create",
         "parameters": [],
@@ -2670,7 +3033,7 @@
         ]
       }
     },
-    "/stores/{id}": {
+    "/api/stores/{id}": {
       "get": {
         "operationId": "StoreController_findOne",
         "parameters": [
@@ -2777,7 +3140,7 @@
         ]
       }
     },
-    "/store-items": {
+    "/api/store-items": {
       "post": {
         "operationId": "StoreItemController_create",
         "parameters": [],
@@ -2884,7 +3247,7 @@
         ]
       }
     },
-    "/store-items/{id}": {
+    "/api/store-items/{id}": {
       "put": {
         "operationId": "StoreItemController_update",
         "parameters": [
@@ -2957,7 +3320,7 @@
         ]
       }
     },
-    "/stores/{id}/items": {
+    "/api/stores/{id}/items": {
       "get": {
         "operationId": "NestedStoreItemController_findAll",
         "parameters": [
@@ -3037,7 +3400,7 @@
         ]
       }
     },
-    "/income-categories": {
+    "/api/income-categories": {
       "post": {
         "operationId": "IncomeCategoryController_create",
         "parameters": [],
@@ -3124,7 +3487,7 @@
         ]
       }
     },
-    "/income-categories/tree": {
+    "/api/income-categories/tree": {
       "get": {
         "operationId": "IncomeCategoryController_getTree",
         "parameters": [],
@@ -3154,7 +3517,7 @@
         ]
       }
     },
-    "/income-categories/{id}": {
+    "/api/income-categories/{id}": {
       "get": {
         "operationId": "IncomeCategoryController_findOne",
         "parameters": [
@@ -3261,16 +3624,16 @@
         ]
       }
     },
-    "/incomes": {
+    "/api/incomes": {
       "post": {
-        "operationId": "IncomeController_create",
+        "operationId": "IncomeController_record",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateIncomeRequestDto"
+                "$ref": "#/components/schemas/RecordIncomeRequestDto"
               }
             }
           }
@@ -3292,7 +3655,7 @@
             "bearer": []
           }
         ],
-        "summary": "Create a new income",
+        "summary": "Record an income, creating its transaction in the same request",
         "tags": [
           "Income"
         ]
@@ -3441,7 +3804,44 @@
         ]
       }
     },
-    "/incomes/transaction/{transactionId}": {
+    "/api/incomes/link": {
+      "post": {
+        "operationId": "IncomeController_link",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkIncomeRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncomeResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Attach an income to an existing transaction",
+        "tags": [
+          "Income"
+        ]
+      }
+    },
+    "/api/incomes/transaction/{transactionId}": {
       "get": {
         "operationId": "IncomeController_findByTransactionId",
         "parameters": [
@@ -3477,7 +3877,7 @@
         ]
       }
     },
-    "/incomes/{id}": {
+    "/api/incomes/{id}": {
       "get": {
         "operationId": "IncomeController_findOne",
         "parameters": [
@@ -3584,7 +3984,7 @@
         ]
       }
     },
-    "/receipts/process": {
+    "/api/receipt-jobs": {
       "post": {
         "operationId": "ReceiptController_processReceipt",
         "parameters": [],
@@ -3617,11 +4017,11 @@
         ],
         "summary": "Upload and process a receipt image",
         "tags": [
-          "Receipt"
+          "Receipt job"
         ]
       }
     },
-    "/receipts/jobs/{jobId}": {
+    "/api/receipt-jobs/{jobId}": {
       "get": {
         "operationId": "ReceiptController_getJobStatus",
         "parameters": [
@@ -3653,11 +4053,11 @@
         ],
         "summary": "Get receipt processing job status and result",
         "tags": [
-          "Receipt"
+          "Receipt job"
         ]
       }
     },
-    "/receipts/jobs/{jobId}/stream": {
+    "/api/receipt-jobs/{jobId}/stream": {
       "get": {
         "operationId": "ReceiptController_streamJobProgress",
         "parameters": [
@@ -3682,11 +4082,11 @@
         ],
         "summary": "Stream receipt processing job progress via SSE",
         "tags": [
-          "Receipt"
+          "Receipt job"
         ]
       }
     },
-    "/receipts": {
+    "/api/receipts": {
       "get": {
         "operationId": "StoredReceiptController_findAll",
         "parameters": [
@@ -3751,7 +4151,7 @@
         ]
       }
     },
-    "/receipts/{id}": {
+    "/api/receipts/{id}": {
       "get": {
         "operationId": "StoredReceiptController_findOne",
         "parameters": [
@@ -3814,7 +4214,7 @@
         ]
       }
     },
-    "/receipts/{id}/link-expense": {
+    "/api/receipts/{id}/link-expense": {
       "patch": {
         "operationId": "StoredReceiptController_linkToExpense",
         "parameters": [
@@ -3860,7 +4260,7 @@
         ]
       }
     },
-    "/ai/suggest-category": {
+    "/api/ai/suggest-category": {
       "post": {
         "operationId": "AiController_suggestCategory",
         "parameters": [],
@@ -3897,7 +4297,7 @@
         ]
       }
     },
-    "/families": {
+    "/api/families": {
       "post": {
         "operationId": "FamilyController_create",
         "parameters": [],
@@ -3962,12 +4362,12 @@
         ]
       }
     },
-    "/families/{id}": {
+    "/api/families/{familyId}": {
       "get": {
         "operationId": "FamilyController_findOne",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -3998,12 +4398,12 @@
         ]
       }
     },
-    "/families/{id}/invitations": {
+    "/api/families/{familyId}/invitations": {
       "post": {
         "operationId": "FamilyController_inviteMember",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -4044,7 +4444,7 @@
         ]
       }
     },
-    "/families/invitations/pending": {
+    "/api/families/invitations/pending": {
       "get": {
         "operationId": "FamilyController_getPendingInvitations",
         "parameters": [],
@@ -4074,12 +4474,12 @@
         ]
       }
     },
-    "/families/{id}/invitations/pending": {
+    "/api/families/{familyId}/invitations/pending": {
       "get": {
         "operationId": "FamilyController_getFamilyPendingInvitations",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -4113,7 +4513,7 @@
         ]
       }
     },
-    "/families/invitations/{id}/accept": {
+    "/api/families/invitations/{id}/accept": {
       "post": {
         "operationId": "FamilyController_acceptInvitation",
         "parameters": [
@@ -4149,7 +4549,7 @@
         ]
       }
     },
-    "/families/invitations/{id}/decline": {
+    "/api/families/invitations/{id}/decline": {
       "post": {
         "operationId": "FamilyController_declineInvitation",
         "parameters": [
@@ -4178,7 +4578,7 @@
         ]
       }
     },
-    "/families/invitations/{id}/cancel": {
+    "/api/families/invitations/{id}/cancel": {
       "post": {
         "operationId": "FamilyController_cancelInvitation",
         "parameters": [
@@ -4207,12 +4607,41 @@
         ]
       }
     },
-    "/families/{id}/members/{userId}": {
+    "/api/families/{familyId}/members/me": {
+      "delete": {
+        "operationId": "FamilyController_leaveFamily",
+        "parameters": [
+          {
+            "name": "familyId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Leave a family",
+        "tags": [
+          "Family"
+        ]
+      }
+    },
+    "/api/families/{familyId}/members/{userId}": {
       "delete": {
         "operationId": "FamilyController_removeMember",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -4244,12 +4673,12 @@
         ]
       }
     },
-    "/families/{id}/members/me": {
-      "delete": {
-        "operationId": "FamilyController_leaveFamily",
+    "/api/families/{familyId}/balances/reconcile": {
+      "post": {
+        "operationId": "FamilyController_reconcileBalances",
         "parameters": [
           {
-            "name": "id",
+            "name": "familyId",
             "required": true,
             "in": "path",
             "schema": {
@@ -4258,8 +4687,15 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyBalanceReconciliationResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -4267,13 +4703,13 @@
             "bearer": []
           }
         ],
-        "summary": "Leave a family",
+        "summary": "Compare cached family and member balances against the transaction ledger and repair any drift",
         "tags": [
           "Family"
         ]
       }
     },
-    "/items": {
+    "/api/items": {
       "post": {
         "operationId": "ItemController_create",
         "parameters": [],
@@ -4368,7 +4804,7 @@
         ]
       }
     },
-    "/items/with-stores": {
+    "/api/items/with-stores": {
       "get": {
         "operationId": "ItemController_findWithStores",
         "parameters": [
@@ -4420,7 +4856,7 @@
         ]
       }
     },
-    "/items/search": {
+    "/api/items/search": {
       "get": {
         "operationId": "ItemController_search",
         "parameters": [
@@ -4456,7 +4892,7 @@
         ]
       }
     },
-    "/items/{id}": {
+    "/api/items/{id}": {
       "get": {
         "operationId": "ItemController_findOne",
         "parameters": [
@@ -4563,7 +4999,7 @@
         ]
       }
     },
-    "/store-items/{storeItemId}/discounts": {
+    "/api/store-items/{storeItemId}/discounts": {
       "post": {
         "operationId": "StoreItemDiscountController_create",
         "parameters": [
@@ -4659,7 +5095,7 @@
         ]
       }
     },
-    "/store-items/{storeItemId}/discounts/active": {
+    "/api/store-items/{storeItemId}/discounts/active": {
       "get": {
         "operationId": "StoreItemDiscountController_getActive",
         "parameters": [
@@ -4695,7 +5131,7 @@
         ]
       }
     },
-    "/store-items/{storeItemId}/discounts/{id}": {
+    "/api/store-items/{storeItemId}/discounts/{id}": {
       "get": {
         "operationId": "StoreItemDiscountController_findOne",
         "parameters": [
@@ -4826,7 +5262,7 @@
         ]
       }
     },
-    "/store-items/{storeItemId}/discounts/{id}/end": {
+    "/api/store-items/{storeItemId}/discounts/{id}/end": {
       "post": {
         "operationId": "StoreItemDiscountController_end",
         "parameters": [
@@ -4880,7 +5316,7 @@
         ]
       }
     },
-    "/baskets": {
+    "/api/baskets": {
       "get": {
         "operationId": "BasketController_listBaskets",
         "parameters": [],
@@ -4910,7 +5346,7 @@
         ]
       }
     },
-    "/baskets/{basketId}/items": {
+    "/api/baskets/{basketId}/items": {
       "post": {
         "operationId": "BasketController_addItem",
         "parameters": [
@@ -4956,7 +5392,7 @@
         ]
       }
     },
-    "/baskets/items/{itemId}": {
+    "/api/baskets/items/{itemId}": {
       "put": {
         "operationId": "BasketController_updateItem",
         "parameters": [
@@ -5029,7 +5465,7 @@
         ]
       }
     },
-    "/baskets/{basketId}/checkout": {
+    "/api/baskets/{basketId}/checkout": {
       "post": {
         "operationId": "BasketController_checkout",
         "parameters": [
@@ -5075,7 +5511,7 @@
         ]
       }
     },
-    "/payment-methods": {
+    "/api/payment-methods": {
       "post": {
         "operationId": "PaymentMethodController_create",
         "parameters": [],
@@ -5140,7 +5576,7 @@
         ]
       }
     },
-    "/payment-methods/balance": {
+    "/api/payment-methods/balance": {
       "get": {
         "operationId": "PaymentMethodController_getBalance",
         "parameters": [],
@@ -5167,7 +5603,7 @@
         ]
       }
     },
-    "/payment-methods/balance-summary": {
+    "/api/payment-methods/balance-summary": {
       "get": {
         "operationId": "PaymentMethodController_getBalanceSummary",
         "parameters": [],
@@ -5187,7 +5623,7 @@
         ]
       }
     },
-    "/payment-methods/{id}": {
+    "/api/payment-methods/{id}": {
       "get": {
         "operationId": "PaymentMethodController_findOne",
         "parameters": [
@@ -5291,6 +5727,61 @@
         "summary": "Delete a payment method",
         "tags": [
           "PaymentMethod"
+        ]
+      }
+    },
+    "/api/onboarding/status": {
+      "get": {
+        "operationId": "OnboardingController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingStatusResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Report which first-run steps are still outstanding",
+        "tags": [
+          "Onboarding"
+        ]
+      }
+    },
+    "/api/onboarding/bootstrap": {
+      "post": {
+        "description": "Idempotent. Does nothing when the caller can already see categories, so a retry or a second client cannot double-seed.",
+        "operationId": "OnboardingController_bootstrap",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnboardingStatusResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create the starter catalog for the current user",
+        "tags": [
+          "Onboarding"
         ]
       }
     }
@@ -5397,6 +5888,58 @@
           "password"
         ]
       },
+      "ForgotPasswordRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "AcknowledgementResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ResetPasswordRequestDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "token",
+          "newPassword"
+        ]
+      },
+      "ResendVerificationRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
       "MeResponseDto": {
         "type": "object",
         "properties": {
@@ -5411,64 +5954,9 @@
           },
           "lastName": {
             "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "email",
-          "firstName",
-          "lastName"
-        ]
-      },
-      "UserSearchResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "email",
-          "firstName",
-          "lastName"
-        ]
-      },
-      "UserResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "balance": {
-            "type": "string"
           },
           "emailVerified": {
             "type": "boolean"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
           }
         },
         "required": [
@@ -5476,275 +5964,8 @@
           "email",
           "firstName",
           "lastName",
-          "balance",
-          "emailVerified",
-          "createdAt",
-          "updatedAt"
+          "emailVerified"
         ]
-      },
-      "CreateTransactionRequestDto": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": [
-              "EXPENSE",
-              "INCOME"
-            ]
-          },
-          "value": {
-            "type": "number",
-            "minimum": 0.01
-          },
-          "recordedAt": {
-            "type": "string"
-          },
-          "familyId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "paymentMethodId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "required": [
-          "type",
-          "value"
-        ]
-      },
-      "TransactionUserDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "image": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "required": [
-          "id",
-          "firstName",
-          "lastName"
-        ]
-      },
-      "TransactionResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "userId": {
-            "type": "string"
-          },
-          "type": {
-            "enum": [
-              "EXPENSE",
-              "INCOME"
-            ],
-            "type": "string"
-          },
-          "scope": {
-            "enum": [
-              "PERSONAL",
-              "FAMILY"
-            ],
-            "type": "string"
-          },
-          "value": {
-            "type": "number"
-          },
-          "status": {
-            "enum": [
-              "CONFIRMED",
-              "PENDING",
-              "REJECTED"
-            ],
-            "type": "string"
-          },
-          "paymentMethodId": {
-            "type": "string"
-          },
-          "rejectionReason": {
-            "type": "string"
-          },
-          "recordedAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "updatedAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "user": {
-            "$ref": "#/components/schemas/TransactionUserDto"
-          }
-        },
-        "required": [
-          "id",
-          "userId",
-          "type",
-          "scope",
-          "value",
-          "status",
-          "recordedAt",
-          "createdAt",
-          "updatedAt",
-          "user"
-        ]
-      },
-      "PaginatedTransactionResponseDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TransactionResponseDto"
-            }
-          },
-          "total": {
-            "type": "number"
-          },
-          "page": {
-            "type": "number"
-          },
-          "limit": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "data",
-          "total",
-          "page",
-          "limit"
-        ]
-      },
-      "TransactionStatisticsResponseDto": {
-        "type": "object",
-        "properties": {
-          "totalIncome": {
-            "type": "number"
-          },
-          "totalExpense": {
-            "type": "number"
-          },
-          "balance": {
-            "type": "number"
-          },
-          "count": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "totalIncome",
-          "totalExpense",
-          "balance",
-          "count"
-        ]
-      },
-      "PeriodStatisticsResponseDto": {
-        "type": "object",
-        "properties": {
-          "totalIncome": {
-            "type": "number"
-          },
-          "totalExpense": {
-            "type": "number"
-          },
-          "balance": {
-            "type": "number"
-          },
-          "count": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "totalIncome",
-          "totalExpense",
-          "balance",
-          "count"
-        ]
-      },
-      "DeltaComparisonResponseDto": {
-        "type": "object",
-        "properties": {
-          "delta": {
-            "type": "number"
-          },
-          "percentage": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "delta",
-          "percentage"
-        ]
-      },
-      "StatisticsComparisonResponseDto": {
-        "type": "object",
-        "properties": {
-          "income": {
-            "$ref": "#/components/schemas/DeltaComparisonResponseDto"
-          },
-          "expense": {
-            "$ref": "#/components/schemas/DeltaComparisonResponseDto"
-          },
-          "net": {
-            "$ref": "#/components/schemas/DeltaComparisonResponseDto"
-          }
-        },
-        "required": [
-          "income",
-          "expense",
-          "net"
-        ]
-      },
-      "TransactionStatisticsComparisonResponseDto": {
-        "type": "object",
-        "properties": {
-          "current": {
-            "$ref": "#/components/schemas/PeriodStatisticsResponseDto"
-          },
-          "previous": {
-            "$ref": "#/components/schemas/PeriodStatisticsResponseDto"
-          },
-          "comparison": {
-            "$ref": "#/components/schemas/StatisticsComparisonResponseDto"
-          }
-        },
-        "required": [
-          "current",
-          "previous",
-          "comparison"
-        ]
-      },
-      "UpdateTransactionRequestDto": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": [
-              "EXPENSE",
-              "INCOME"
-            ]
-          },
-          "value": {
-            "type": "number",
-            "minimum": 0.01
-          }
-        }
       },
       "NotificationResponseDto": {
         "type": "object",
@@ -6094,6 +6315,386 @@
         "required": [
           "vapidKey"
         ]
+      },
+      "UserSearchResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName"
+        ]
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailVerified": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "image",
+          "emailVerified",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdateProfileRequestDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "image": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2048,
+            "description": "Absolute http(s) avatar URL, or null to clear it"
+          }
+        }
+      },
+      "ChangePasswordRequestDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
+      "DeleteAccountRequestDto": {
+        "type": "object",
+        "properties": {
+          "confirmEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "The email address of the account being deleted, typed by the account holder as confirmation."
+          },
+          "currentPassword": {
+            "type": "string",
+            "description": "Required for accounts that sign in with a password. Accounts created through Google or Apple have no password and confirm with the email address alone."
+          }
+        },
+        "required": [
+          "confirmEmail"
+        ]
+      },
+      "CreateTransactionRequestDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "EXPENSE",
+              "INCOME"
+            ]
+          },
+          "value": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "recordedAt": {
+            "type": "string"
+          },
+          "familyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "paymentMethodId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "type",
+          "value"
+        ]
+      },
+      "TransactionUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName"
+        ]
+      },
+      "TransactionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "EXPENSE",
+              "INCOME"
+            ],
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "PERSONAL",
+              "FAMILY"
+            ],
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "CONFIRMED",
+              "PENDING",
+              "REJECTED"
+            ],
+            "type": "string"
+          },
+          "paymentMethodId": {
+            "type": "string"
+          },
+          "rejectionReason": {
+            "type": "string"
+          },
+          "recordedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/TransactionUserDto"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "type",
+          "scope",
+          "value",
+          "status",
+          "recordedAt",
+          "createdAt",
+          "updatedAt",
+          "user"
+        ]
+      },
+      "PaginatedTransactionResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "data",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "TransactionStatisticsResponseDto": {
+        "type": "object",
+        "properties": {
+          "totalIncome": {
+            "type": "number"
+          },
+          "totalExpense": {
+            "type": "number"
+          },
+          "balance": {
+            "type": "number"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "totalIncome",
+          "totalExpense",
+          "balance",
+          "count"
+        ]
+      },
+      "PeriodStatisticsResponseDto": {
+        "type": "object",
+        "properties": {
+          "totalIncome": {
+            "type": "number"
+          },
+          "totalExpense": {
+            "type": "number"
+          },
+          "balance": {
+            "type": "number"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "totalIncome",
+          "totalExpense",
+          "balance",
+          "count"
+        ]
+      },
+      "DeltaComparisonResponseDto": {
+        "type": "object",
+        "properties": {
+          "delta": {
+            "type": "number"
+          },
+          "percentage": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "delta",
+          "percentage"
+        ]
+      },
+      "StatisticsComparisonResponseDto": {
+        "type": "object",
+        "properties": {
+          "income": {
+            "$ref": "#/components/schemas/DeltaComparisonResponseDto"
+          },
+          "expense": {
+            "$ref": "#/components/schemas/DeltaComparisonResponseDto"
+          },
+          "net": {
+            "$ref": "#/components/schemas/DeltaComparisonResponseDto"
+          }
+        },
+        "required": [
+          "income",
+          "expense",
+          "net"
+        ]
+      },
+      "TransactionStatisticsComparisonResponseDto": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "$ref": "#/components/schemas/PeriodStatisticsResponseDto"
+          },
+          "previous": {
+            "$ref": "#/components/schemas/PeriodStatisticsResponseDto"
+          },
+          "comparison": {
+            "$ref": "#/components/schemas/StatisticsComparisonResponseDto"
+          }
+        },
+        "required": [
+          "current",
+          "previous",
+          "comparison"
+        ]
+      },
+      "UpdateTransactionRequestDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "EXPENSE",
+              "INCOME"
+            ]
+          },
+          "value": {
+            "type": "number",
+            "minimum": 0.01
+          }
+        }
       },
       "CreateExpenseCategoryRequestDto": {
         "type": "object",
@@ -6465,18 +7066,16 @@
       "CreateExpenseRequestDto": {
         "type": "object",
         "properties": {
+          "storeId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Existing store to attach to, instead of storeName and storeLocation"
+          },
           "items": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreateExpenseItemRequestDto"
             }
-          },
-          "scope": {
-            "type": "string",
-            "enum": [
-              "PERSONAL",
-              "FAMILY"
-            ]
           },
           "categoryId": {
             "type": "string",
@@ -6559,6 +7158,10 @@
             "type": "string",
             "nullable": true
           },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
           "transaction": {
             "$ref": "#/components/schemas/TransactionResponseDto"
           },
@@ -6584,6 +7187,10 @@
             "items": {
               "$ref": "#/components/schemas/ExpenseItemResponseDto"
             }
+          },
+          "total": {
+            "type": "number",
+            "description": "Authoritative expense total, computed server-side"
           },
           "status": {
             "type": "string"
@@ -6612,10 +7219,12 @@
           "transactionId",
           "categoryId",
           "storeId",
+          "description",
           "transaction",
           "category",
           "store",
           "items",
+          "total",
           "status",
           "receiptImages",
           "createdAt",
@@ -7108,26 +7717,38 @@
           }
         }
       },
-      "CreateIncomeRequestDto": {
+      "RecordIncomeRequestDto": {
         "type": "object",
         "properties": {
-          "transactionId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "storeId": {
-            "type": "string",
-            "format": "uuid"
-          },
           "categoryId": {
             "type": "string",
             "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "note": {
+            "type": "string"
+          },
+          "familyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recordedAt": {
+            "type": "string"
+          },
+          "paymentMethodId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pending": {
+            "type": "boolean"
           }
         },
         "required": [
-          "transactionId",
-          "storeId",
-          "categoryId"
+          "categoryId",
+          "amount"
         ]
       },
       "IncomeResponseDto": {
@@ -7139,11 +7760,12 @@
           "transactionId": {
             "type": "string"
           },
-          "storeId": {
-            "type": "string"
-          },
           "categoryId": {
             "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
           },
           "transaction": {
             "$ref": "#/components/schemas/TransactionResponseDto"
@@ -7163,10 +7785,27 @@
         "required": [
           "id",
           "transactionId",
-          "storeId",
           "categoryId",
+          "description",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "LinkIncomeRequestDto": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "transactionId",
+          "categoryId"
         ]
       },
       "PaginatedIncomeResponseDto": {
@@ -7775,6 +8414,78 @@
           "joinedAt",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "BalanceDriftDto": {
+        "type": "object",
+        "properties": {
+          "cached": {
+            "type": "number"
+          },
+          "computed": {
+            "type": "number"
+          },
+          "drift": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "cached",
+          "computed",
+          "drift"
+        ]
+      },
+      "MemberBalanceDriftDto": {
+        "type": "object",
+        "properties": {
+          "cached": {
+            "type": "number"
+          },
+          "computed": {
+            "type": "number"
+          },
+          "drift": {
+            "type": "number"
+          },
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "cached",
+          "computed",
+          "drift",
+          "userId"
+        ]
+      },
+      "FamilyBalanceReconciliationResponseDto": {
+        "type": "object",
+        "properties": {
+          "familyId": {
+            "type": "string"
+          },
+          "family": {
+            "$ref": "#/components/schemas/BalanceDriftDto"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberBalanceDriftDto"
+            }
+          },
+          "isBalanced": {
+            "type": "boolean"
+          },
+          "repaired": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "familyId",
+          "family",
+          "members",
+          "isBalanced",
+          "repaired"
         ]
       },
       "CreateItemRequestDto": {
@@ -8497,6 +9208,29 @@
             "type": "number"
           }
         }
+      },
+      "OnboardingStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "hasExpenseCategories": {
+            "type": "boolean"
+          },
+          "hasIncomeCategories": {
+            "type": "boolean"
+          },
+          "hasItemCategories": {
+            "type": "boolean"
+          },
+          "hasPaymentMethods": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "hasExpenseCategories",
+          "hasIncomeCategories",
+          "hasItemCategories",
+          "hasPaymentMethods"
+        ]
       }
     }
   }

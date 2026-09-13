@@ -27,13 +27,14 @@ export class VerifyResourceAccessUseCase {
     resource: OwnedResource,
     resourceId: string,
     userId: string,
+    ownerOnly = false,
   ): Promise<void> {
     const owner = await this.resourceOwnerRepository.findOwner(
       resource,
       resourceId,
     );
 
-    if (!owner || !(await this.isAccessible(owner, userId))) {
+    if (!owner || !(await this.isAccessible(owner, userId, ownerOnly))) {
       throw new DomainNotFoundException(
         `${OWNED_RESOURCE_LABELS[resource]} not found`,
       );
@@ -43,12 +44,13 @@ export class VerifyResourceAccessUseCase {
   private async isAccessible(
     owner: ResourceOwner,
     userId: string,
+    ownerOnly: boolean,
   ): Promise<boolean> {
     if (owner.userId === userId) {
       return true;
     }
 
-    if (!owner.familyId) {
+    if (ownerOnly || !owner.familyId) {
       return false;
     }
 

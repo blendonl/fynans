@@ -14,6 +14,11 @@ import {
   DomainNotFoundException,
   DomainValidationException,
 } from '~common/exceptions/domain.exceptions';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class RejectPendingExpenseUseCase {
@@ -24,6 +29,7 @@ export class RejectPendingExpenseUseCase {
     private readonly transactionRepository: ITransactionRepository,
     private readonly expenseAuthService: ExpenseAuthService,
     private readonly createNotificationUseCase: CreateNotificationUseCase,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
   async execute(
@@ -38,10 +44,12 @@ export class RejectPendingExpenseUseCase {
 
     const transaction = expense.transaction;
     if (!transaction.isPending()) {
-      throw new DomainValidationException('Only pending expenses can be rejected');
+      throw new DomainValidationException(
+        'Only pending expenses can be rejected',
+      );
     }
 
-    await this.expenseAuthService.verifyTransactionAccess(transaction, userId);
+    await this.expenseAuthService.verifyApprovalAuthority(transaction, userId);
 
     await this.transactionRepository.updateStatus(
       transaction.id,
@@ -49,13 +57,27 @@ export class RejectPendingExpenseUseCase {
       rejectionReason,
     );
 
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.EXPENSE,
+      entityId: expense.id,
+      action: AuditAction.REJECTED,
+      actorId: userId,
+      transactionId: transaction.id,
+      familyId: transaction.familyId,
+      changes: {
+        submittedBy: transaction.userId,
+        value: transaction.value.toFixed(2),
+        rejectionReason,
+      },
+    });
+
     if (userId !== transaction.userId) {
       await this.createNotificationUseCase.execute({
         userId: transaction.userId,
         type: NotificationType.TRANSACTION_REJECTED,
         data: {
           expenseId: expense.id,
-          amount: transaction.value.toNumber().toFixed(2),
+          amount: transaction.value.toFixed(2),
           rejectionReason,
         },
         deliveryMethods: [DeliveryMethod.IN_APP, DeliveryMethod.PUSH],

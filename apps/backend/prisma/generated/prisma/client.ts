@@ -27,8 +27,8 @@ export * from "./enums"
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Accounts
- * const accounts = await prisma.account.findMany()
+ * // Fetch zero or more FinancialAuditLogs
+ * const financialAuditLogs = await prisma.financialAuditLog.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -37,6 +37,11 @@ export const PrismaClient = $Class.getPrismaClientClass()
 export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts extends Prisma.PrismaClientOptions["omit"] = Prisma.PrismaClientOptions["omit"], ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = $Class.PrismaClient<LogOpts, OmitOpts, ExtArgs>
 export { Prisma }
 
+/**
+ * Model FinancialAuditLog
+ * 
+ */
+export type FinancialAuditLog = Prisma.FinancialAuditLogModel
 /**
  * Model Account
  * 
@@ -78,11 +83,6 @@ export type Expense = Prisma.ExpenseModel
  */
 export type ExpenseCategory = Prisma.ExpenseCategoryModel
 /**
- * Model UserExpenseCategory
- * 
- */
-export type UserExpenseCategory = Prisma.UserExpenseCategoryModel
-/**
  * Model Family
  * 
  */
@@ -107,11 +107,6 @@ export type Income = Prisma.IncomeModel
  * 
  */
 export type IncomeCategory = Prisma.IncomeCategoryModel
-/**
- * Model UserIncomeCategory
- * 
- */
-export type UserIncomeCategory = Prisma.UserIncomeCategoryModel
 /**
  * Model Notification
  * 
@@ -182,11 +177,6 @@ export type ItemCategory = Prisma.ItemCategoryModel
  * 
  */
 export type UserStore = Prisma.UserStoreModel
-/**
- * Model UserItem
- * 
- */
-export type UserItem = Prisma.UserItemModel
 /**
  * Model UserStoreItem
  * 

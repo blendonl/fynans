@@ -1,10 +1,20 @@
 import { Family } from '../entities/family.entity';
-import { FamilyMember, FamilyMemberRole } from '../entities/family-member.entity';
+import {
+  FamilyMember,
+  FamilyMemberRole,
+} from '../entities/family-member.entity';
 import { User } from '../../../../user/core/domain/entities/user.entity';
+import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
 export interface FamilyWithMembersAndUsers {
   family: Family;
   membersWithUsers: Array<{ member: FamilyMember; user: User }>;
+}
+
+export interface FamilyBalanceSnapshot {
+  familyId: string;
+  balance: Decimal;
+  memberBalances: Map<string, Decimal>;
 }
 
 export interface IFamilyRepository {
@@ -19,17 +29,20 @@ export interface IFamilyRepository {
   removeMember(familyId: string, userId: string): Promise<void>;
   findMember(familyId: string, userId: string): Promise<FamilyMember | null>;
   findMembers(familyId: string): Promise<FamilyMember[]>;
+  findMembershipsOfUser(userId: string): Promise<FamilyMember[]>;
   updateMemberRole(
     familyId: string,
     userId: string,
     role: FamilyMemberRole,
   ): Promise<FamilyMember>;
-  updateMemberBalance(
+  incrementBalances(
     familyId: string,
     userId: string,
-    balance: number,
+    delta: Decimal,
   ): Promise<void>;
 
-  updateFamilyBalance(familyId: string, balance: number): Promise<void>;
-  calculateFamilyBalance(familyId: string): Promise<number>;
+  recalculateBalances(familyId: string): Promise<FamilyBalanceSnapshot>;
+  readBalances(familyId: string): Promise<FamilyBalanceSnapshot>;
+  computeBalances(familyId: string): Promise<FamilyBalanceSnapshot>;
+  findAllIds(): Promise<string[]>;
 }

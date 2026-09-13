@@ -15,6 +15,7 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
+import { RequiresFamilyMembership } from '~common/authorization';
 import { CurrentUser } from '~feature/auth/rest/decorators/current-user.decorator';
 import { User } from '~feature/user/core/domain/entities/user.entity';
 import { Pagination } from '~common/dto/pagination.dto';
@@ -39,6 +40,7 @@ export class StoredReceiptController {
   ) {}
 
   @Get()
+  @RequiresFamilyMembership()
   @ApiOperation({ summary: 'List stored receipts' })
   @ApiResponse({ status: 200, type: [StoredReceiptResponseDto] })
   async findAll(
@@ -65,8 +67,10 @@ export class StoredReceiptController {
   @ApiOperation({ summary: 'Get a stored receipt with download URL' })
   @ApiResponse({ status: 200, type: StoredReceiptResponseDto })
   async findOne(@Param('id') id: string, @CurrentUser() user: User) {
-    const { receipt, downloadUrl } =
-      await this.getStoredReceiptUseCase.execute(id, user.id);
+    const { receipt, downloadUrl } = await this.getStoredReceiptUseCase.execute(
+      id,
+      user.id,
+    );
 
     return StoredReceiptResponseDto.fromEntity(receipt, downloadUrl);
   }

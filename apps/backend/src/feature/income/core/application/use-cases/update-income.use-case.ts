@@ -1,14 +1,18 @@
+import { Injectable, Inject } from '@nestjs/common';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  DomainNotFoundException,
+  DomainValidationException,
+} from '~common/exceptions/domain.exceptions';
 import { type IIncomeRepository } from '../../domain/repositories/income.repository.interface';
 import { type IIncomeCategoryRepository } from '../../../../income-category/core/domain/repositories/income-category.repository.interface';
 import { type ITransactionRepository } from '~feature/transaction/core/domain/repositories/transaction.repository.interface';
 import { UpdateIncomeDto } from '../dto/update-income.dto';
 import { Income } from '../../domain/entities/income.entity';
+import {
+  AuditAction,
+  AuditEntity,
+  RecordFinancialAuditUseCase,
+} from '~common/audit';
 
 @Injectable()
 export class UpdateIncomeUseCase {
@@ -19,13 +23,18 @@ export class UpdateIncomeUseCase {
     private readonly incomeCategoryRepository: IIncomeCategoryRepository,
     @Inject('TransactionRepository')
     private readonly transactionRepository: ITransactionRepository,
+    private readonly recordFinancialAudit: RecordFinancialAuditUseCase,
   ) {}
 
-  async execute(id: string, dto: UpdateIncomeDto): Promise<Income> {
+  async execute(
+    id: string,
+    userId: string,
+    dto: UpdateIncomeDto,
+  ): Promise<Income> {
     const income = await this.incomeRepository.findById(id);
 
     if (!income) {
-      throw new NotFoundException('Income not found');
+      throw new DomainNotFoundException('Income not found');
     }
 
     await this.validate(dto);
@@ -33,6 +42,15 @@ export class UpdateIncomeUseCase {
     const updated = await this.incomeRepository.update(id, {
       categoryId: dto.categoryId,
     } as Partial<Income>);
+
+    await this.recordFinancialAudit.execute({
+      entity: AuditEntity.INCOME,
+      entityId: id,
+      action: AuditAction.UPDATED,
+      actorId: userId,
+      transactionId: income.transactionId,
+      changes: { ...dto },
+    });
 
     const txUpdates: Record<string, unknown> = {};
     if (dto.amount !== undefined) txUpdates.value = dto.amount;
@@ -42,7 +60,7 @@ export class UpdateIncomeUseCase {
 
     if (Object.keys(txUpdates).length > 0) {
       await this.transactionRepository.update(
-        income.transactionId!,
+        income.transactionId,
         txUpdates as any,
       );
     }
@@ -60,7 +78,7 @@ export class UpdateIncomeUseCase {
         dto.categoryId,
       );
       if (!category) {
-        throw new BadRequestException('Income category not found');
+        throw new DomainValidationException('Income category not found');
       }
     }
   }

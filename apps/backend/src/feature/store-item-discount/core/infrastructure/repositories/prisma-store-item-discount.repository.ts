@@ -10,17 +10,12 @@ import { StoreItemDiscountMapper } from '../mappers/store-item-discount.mapper';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
 @Injectable()
-export class PrismaStoreItemDiscountRepository
-  implements IStoreItemDiscountRepository
-{
+export class PrismaStoreItemDiscountRepository implements IStoreItemDiscountRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(
-    data: Partial<StoreItemDiscount>,
-  ): Promise<StoreItemDiscount> {
+  async create(data: Partial<StoreItemDiscount>): Promise<StoreItemDiscount> {
     const discount = await this.prisma.storeItemDiscount.create({
       data: {
-        id: data.id!,
         storeItemId: data.storeItemId!,
         discount: data.discount as Decimal,
         startedAt: data.startedAt ?? new Date(),

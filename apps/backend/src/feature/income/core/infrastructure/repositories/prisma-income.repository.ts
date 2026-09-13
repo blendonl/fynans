@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { DomainValidationException } from '~common/exceptions/domain.exceptions';
 import { PrismaService } from '../../../../../common/prisma/prisma.service';
 import {
   IIncomeRepository,
@@ -8,7 +9,10 @@ import {
 import { Income } from '../../domain/entities/income.entity';
 import { Pagination } from '~common/dto/pagination.dto';
 import { IncomeMapper } from '../mappers/income.mapper';
-import { Prisma, TransactionStatus as PrismaTransactionStatus } from 'prisma/generated/prisma/client';
+import {
+  Prisma,
+  TransactionStatus as PrismaTransactionStatus,
+} from 'prisma/generated/prisma/client';
 import { TransactionStatus } from '~feature/transaction/core/domain/value-objects/transaction-status.vo';
 import { Decimal } from 'prisma/generated/prisma/internal/prismaNamespace';
 
@@ -19,10 +23,9 @@ export class PrismaIncomeRepository implements IIncomeRepository {
   async create(data: Partial<Income>): Promise<Income> {
     const income = await this.prisma.income.create({
       data: {
-        id: data.transactionId!,
         transactionId: data.transactionId!,
-        storeId: data.storeId!,
         categoryId: data.categoryId!,
+        description: data.description ?? null,
       },
       include: {
         transaction: {
@@ -46,8 +49,8 @@ export class PrismaIncomeRepository implements IIncomeRepository {
   }
 
   async findById(id: string): Promise<Income | null> {
-    const income = await this.prisma.income.findUnique({
-      where: { id },
+    const income = await this.prisma.income.findFirst({
+      where: { id, deletedAt: null, transaction: { deletedAt: null } },
       include: {
         transaction: {
           include: {
@@ -70,8 +73,12 @@ export class PrismaIncomeRepository implements IIncomeRepository {
   }
 
   async findByTransactionId(transactionId: string): Promise<Income | null> {
-    const income = await this.prisma.income.findUnique({
-      where: { transactionId },
+    const income = await this.prisma.income.findFirst({
+      where: {
+        transactionId,
+        deletedAt: null,
+        transaction: { deletedAt: null },
+      },
       include: {
         transaction: {
           include: {
@@ -161,28 +168,29 @@ export class PrismaIncomeRepository implements IIncomeRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.income.delete({
+    await this.prisma.income.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
   }
 
   private buildWhereClause(
     filters?: IncomeFiltersInterface,
   ): Prisma.IncomeWhereInput {
-    if (!filters) return { transaction: { status: PrismaTransactionStatus.CONFIRMED } };
+    if (!filters?.userId && !filters?.familyId) {
+      throw new DomainValidationException(
+        'Income queries must be scoped to a user or to a verified family',
+      );
+    }
 
-    const where: Prisma.IncomeWhereInput = {};
+    const where: Prisma.IncomeWhereInput = { deletedAt: null };
 
     if (filters.categoryId) {
       where.categoryId = filters.categoryId;
     }
 
-    if (filters.storeId) {
-      where.storeId = filters.storeId;
-    }
-
     // Always initialize transaction filter to apply status default
-    where.transaction = {};
+    where.transaction = { deletedAt: null };
 
     // Default to CONFIRMED if no status filter provided (matching expense behavior)
     const statusFilter = filters.status ?? TransactionStatus.CONFIRMED;
@@ -226,7 +234,9 @@ export class PrismaIncomeRepository implements IIncomeRepository {
 
     if (filters.search) {
       const searchOr: Prisma.IncomeWhereInput[] = [
-        { category: { name: { contains: filters.search, mode: 'insensitive' } } },
+        {
+          category: { name: { contains: filters.search, mode: 'insensitive' } },
+        },
       ];
 
       if (Object.keys(where).length > 0) {

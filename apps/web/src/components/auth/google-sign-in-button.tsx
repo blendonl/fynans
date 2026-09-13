@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+import { API_BASE_URL } from "@/lib/env";
 
 function GoogleIcon() {
   return (
@@ -35,7 +34,7 @@ export function GoogleSignInButton() {
     setLoading(true);
     try {
       const callbackURL = `${window.location.origin}/auth/callback`;
-      const response = await fetch(`${API_URL}/api/auth/sign-in/social`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/sign-in/social`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

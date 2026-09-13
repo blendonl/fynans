@@ -4,7 +4,8 @@ import Link from "next/link";
 import { GlassCard } from "@/components/glass/glass-card";
 import { formatCurrency } from "@/utils/currency";
 import type { Transaction } from "@/types";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Receipt } from "lucide-react";
+import { EmptyState } from "@/components/onboarding/empty-state";
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
@@ -27,7 +28,14 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
       </div>
 
       {transactions.length === 0 ? (
-        <p className="text-sm text-text-disabled py-8 text-center">No transactions yet</p>
+        <EmptyState
+          compact
+          icon={Receipt}
+          title="No transactions yet"
+          description="Scan a receipt or type in an amount — it takes about ten seconds."
+          actionLabel="Add your first transaction"
+          actionHref="/add"
+        />
       ) : (
         <div className="divide-y divide-border-light">
           {transactions.map((t) => (

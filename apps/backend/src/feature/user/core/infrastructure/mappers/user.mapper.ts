@@ -17,7 +17,7 @@ export class UserMapper {
       email: prismaUser.email,
       firstName,
       lastName,
-      balance: Number(prismaUser.balance),
+      image: prismaUser.image,
       emailVerified: prismaUser.emailVerified,
       createdAt: prismaUser.createdAt,
       updatedAt: prismaUser.updatedAt,
