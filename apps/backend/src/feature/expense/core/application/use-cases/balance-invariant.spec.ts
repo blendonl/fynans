@@ -247,6 +247,12 @@ describe('every cached balance equals the sum of its transactions', () => {
       update: jest
         .fn()
         .mockImplementation((id: string) => Promise.resolve({ id })),
+      deleteWithItemsAndTransaction: jest
+        .fn()
+        .mockImplementation((id: string) => {
+          ledger.removeExpense(id);
+          return Promise.resolve(undefined);
+        }),
     };
     transactionRepository = {
       update: jest
@@ -310,18 +316,7 @@ describe('every cached balance equals the sum of its transactions', () => {
   const deleteExpense = () =>
     new DeleteExpenseUseCase(
       expenseRepository as never,
-      createPrismaServiceDouble({
-        expenseItem: { deleteMany: jest.fn().mockResolvedValue(undefined) },
-        expense: {
-          delete: jest
-            .fn()
-            .mockImplementation(({ where }: { where: { id: string } }) => {
-              ledger.removeExpense(where.id);
-              return Promise.resolve(undefined);
-            }),
-        },
-        transaction: { delete: jest.fn().mockResolvedValue(undefined) },
-      }),
+      createPrismaServiceDouble(),
       paymentMethodService as never,
       familyBalanceService as never,
     );
