@@ -9,11 +9,17 @@ the household to approve before it counts against a shared balance.
 Receipt parsing is currently tuned for Kosovo store receipts printed in
 Albanian, and amounts are in euro.
 
+<p align="center">
+  <img src="docs/images/dashboard.webp" width="280" alt="The household dashboard: total balance across a debit card and cash, and the last 30 days of income and spending">
+  <img src="docs/images/transactions.webp" width="280" alt="The transactions list for a month, each expense tagged as family or personal with its payment method">
+</p>
+
 ## What it does
 
 - **Receipt scanning.** Guided camera capture with in-browser edge detection and
-  cropping, then OCR on your own infrastructure. Only the extracted text — never
-  the image — is sent to an AI model to structure the line items.
+  cropping, then OCR on your own infrastructure. With the default `paddleocr`
+  engine only the extracted text — never the image — is sent to an AI model to
+  structure the line items; the optional `deepseek` engine sends the image itself.
 - **Household approval.** Expenses carry a `PENDING` / `CONFIRMED` / `REJECTED`
   status. Rejections keep the reason, and the submitter can fix and resubmit.
 - **Personal and family scopes.** Every transaction is one or the other, and the
@@ -87,10 +93,10 @@ docker compose --profile paddle up -d paddleocr
 yarn workspace @fynans/backend prisma migrate deploy
 ```
 
-Use `prisma migrate dev` instead when you are changing the schema. There is no
-seed script yet, so a new account starts with no expense categories — and
-`Expense.categoryId` is required, so create one under **Manage** before
-recording a first transaction.
+Use `prisma migrate dev` instead when you are changing the schema. A new
+account is seeded with a starter catalogue of expense, income and item
+categories when it signs up, so it can record a first transaction straight
+away.
 
 ### 5. Generate the API client
 
@@ -150,7 +156,7 @@ service.
 
 | Variable                  | Notes                                             |
 | ------------------------- | ------------------------------------------------- |
-| `OCR_ENGINE`              | `paddleocr` (default)                             |
+| `OCR_ENGINE`              | `paddleocr` (default) or `deepseek`               |
 | `PADDLEOCR_SERVICE_URL`   | OCR service origin                                |
 | `PADDLEOCR_TIMEOUT`       | Milliseconds                                      |
 | `RECEIPT_NORMALIZE_NAMES` | Tidy up parsed item names                         |
